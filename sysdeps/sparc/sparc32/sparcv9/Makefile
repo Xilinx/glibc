@@ -10,4 +10,4 @@ ASFLAGS-.os += -Wa,-Av9a
 ASFLAGS-.op += -Wa,-Av9a
 ASFLAGS-.og += -Wa,-Av9a
 ASFLAGS-.ob += -Wa,-Av9a
-ASFLAGS-.oS += -Wa,-Av9a
+ASFLAGS-.oST += -Wa,-Av9a
