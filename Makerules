@@ -844,6 +844,13 @@ endef
 installed-libcs := $(foreach o,$(filter-out .os,$(object-suffixes-for-libc)),\
 			     $(inst_libdir)/$(patsubst %,$(libtype$o),\
 						     $(libprefix)$(libc-name)))
+
+install-lib-all: $(inst_slibdir)/libc.so$(libc.so-version) \
+		$(inst_slibdir)/libc-$(version).so \
+		$(inst_libdir)/libc.so \
+		$(inst_libdir)/libc.a \
+		install-lib
+
 install: $(installed-libcs)
 $(installed-libcs): $(inst_libdir)/lib$(libprefix)%: lib $(+force)
 	$(make-target-directory)
