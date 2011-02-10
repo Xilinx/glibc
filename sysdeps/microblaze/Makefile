@@ -25,3 +25,7 @@ CFLAGS-setjmp.c := -fno-omit-frame-pointer
 ifeq ($(subdir),elf)
 CFLAGS-rtld.c += -Wno-uninitialized -Wno-unused
 endif
+
+ifeq ($(subdir),gmon)
+sysdep_routines += _mcount
+endif
