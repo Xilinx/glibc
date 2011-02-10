@@ -357,7 +357,14 @@ elf_machine_plt_value (struct link_map *map, const Elf32_Rel *reloc,
 #ifdef RESOLVE
 
 /* Deal with an out-of-range PC24 reloc.  */
-static Elf32_Addr
+#if __GNUC__ >= 4
+  auto inline Elf32_Addr
+#else
+  static inline Elf32_Addr
+#endif
+#if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 2)
+  __attribute ((always_inline))
+#endif
 fix_bad_pc24 (Elf32_Addr *const reloc_addr, Elf32_Addr value)
 {
   static void *fix_page;
