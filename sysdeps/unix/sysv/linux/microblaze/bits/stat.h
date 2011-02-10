@@ -45,12 +45,14 @@ struct stat
     __gid_t st_gid;			/* Group ID of the file's group.*/
     __dev_t st_rdev;			/* Device number, if device.  */
     unsigned short int __pad2;
+	unsigned long	__pad3;
 #ifndef __USE_FILE_OFFSET64
     __off_t st_size;			/* Size of file, in bytes.  */
 #else
     __off64_t st_size;			/* Size of file, in bytes.  */
 #endif
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
+	int		__pad4;
 
 #ifndef __USE_FILE_OFFSET64
     __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
@@ -99,9 +101,10 @@ struct stat64
     __gid_t st_gid;			/* Group ID of the file's group.*/
     __dev_t st_rdev;			/* Device number, if device.  */
     unsigned short int __pad2;
+	unsigned long	__pad3;
     __off64_t st_size;			/* Size of file, in bytes.  */
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
-
+	int		__pad4;
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 #ifdef __USE_MISC
     /* Nanosecond resolution timestamps are stored in a format

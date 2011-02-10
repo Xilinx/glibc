@@ -40,10 +40,15 @@
 #define O_ASYNC		 020000
 
 #ifdef __USE_GNU
-# define O_DIRECTORY	 040000	/* Must be a directory.	 */
-# define O_NOFOLLOW	0100000	/* Do not follow links.	 */
-# define O_DIRECT	0400000	/* Direct disk access.	*/
-# define O_NOATIME	01000000 /* Do not set atime.  */
+# define O_DIRECT	 040000	/* Direct disk access.	*/
+# define O_DIRECTORY	0200000	/* Must be a directory.	 */
+# define O_NOFOLLOW	0400000	/* Do not follow links.	 */
+# define O_NOATIME     01000000 /* Do not set atime.  */
+# define O_CLOEXEC     02000000 /* Set close_on_exec.  */
+#endif
+
+#ifdef __USE_LARGEFILE64
+# define O_LARGEFILE	0100000
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
@@ -52,10 +57,6 @@
 #if defined __USE_POSIX199309 || defined __USE_UNIX98
 # define O_DSYNC	O_SYNC	/* Synchronize data.  */
 # define O_RSYNC	O_SYNC	/* Synchronize read operations.	 */
-#endif
-
-#ifdef __USE_LARGEFILE64
-# define O_LARGEFILE	0200000
 #endif
 
 /* Values for the second argument to `fcntl'.  */
@@ -91,6 +92,8 @@
 # define F_SETLEASE	1024	/* Set a lease.	 */
 # define F_GETLEASE	1025	/* Enquire what lease is active.  */
 # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+				   close-on-exit set.  */
 #endif
 
 /* For F_[GET|SET]FL.  */
