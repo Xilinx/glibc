@@ -237,7 +237,7 @@ case $basic_machine in
 	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
 	| i370 | i860 | i960 | ia64 \
 	| ip2k | iq2000 \
-	| m32r | m68000 | m68k | m88k | mcore | microblaze \
+	| m32r | m68000 | m68k | m88k | mcore | microblaze | microblazee[lb] \
 	| mips | mipsbe | mipseb | mipsel | mipsle \
 	| mips16 \
 	| mips64 | mips64el \
