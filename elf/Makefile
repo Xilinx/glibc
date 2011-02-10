@@ -115,6 +115,13 @@ install-others	= $(inst_slibdir)/$(rtld-installed-name)
 install-bin-script = ldd
 endif
 
+ifeq (yes,$(build-static-nss))
+nssobjdir := $(patsubst ../$(subdir),.,$(common-objpfx)nss)
+resolvobjdir := $(patsubst ../$(subdir),.,$(common-objpfx)resolv)
+otherlibs += $(nssobjdir)/libnss_files.a $(resolvobjdir)/libnss_dns.a \
+	     $(resolvobjdir)/libresolv.a
+endif
+
 others		= sprof sln
 install-bin	= sprof
 others-static   = sln
