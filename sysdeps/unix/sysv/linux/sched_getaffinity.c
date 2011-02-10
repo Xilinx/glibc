@@ -20,6 +20,7 @@
 #include <sched.h>
 #include <string.h>
 #include <sysdep.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <shlib-compat.h>
 
@@ -28,8 +29,8 @@
 int
 __sched_getaffinity_new (pid_t pid, size_t cpusetsize, cpu_set_t *cpuset)
 {
-  int res = INLINE_SYSCALL (sched_getaffinity, 3, pid, sizeof (cpu_set_t),
-			    cpuset);
+  int res = INLINE_SYSCALL (sched_getaffinity, 3, pid,
+				MIN (INT_MAX, cpusetsize), cpuset);
   if (res != -1)
     {
       /* Clean the rest of the memory the kernel didn't do.  */
