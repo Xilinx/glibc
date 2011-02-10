@@ -92,8 +92,7 @@ __old_semctl (int semid, int semnum, int cmd, ...)
 
   va_end (ap);
 
-  return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			 CHECK_SEMCTL (&arg, semid, cmd));
+  return INLINE_SYSCALL (semctl, 4, semid, semnum, cmd, CHECK_SEMCTL (&arg, semid, cmd)->array);
 }
 compat_symbol (libc, __old_semctl, semctl, GLIBC_2_0);
 #endif
@@ -127,8 +126,8 @@ __new_semctl (int semid, int semnum, int cmd, ...)
   va_end (ap);
 
 #if __ASSUME_IPC64 > 0
-  return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
-			 CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
+  return INLINE_SYSCALL (semctl, 4, semid, semnum, cmd | __IPC_64,
+			 CHECK_SEMCTL (&arg, semid, cmd | __IPC_64)->array);
 #else
   switch (cmd)
     {
@@ -137,8 +136,8 @@ __new_semctl (int semid, int semnum, int cmd, ...)
     case IPC_SET:
       break;
     default:
-      return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			     CHECK_SEMCTL (&arg, semid, cmd));
+      return INLINE_SYSCALL (semctl, 4, semid, semnum, cmd,
+			     CHECK_SEMCTL (&arg, semid, cmd)->array);
     }
 
   {
@@ -148,8 +147,8 @@ __new_semctl (int semid, int semnum, int cmd, ...)
 
     /* Unfortunately there is no way how to find out for sure whether
        we should use old or new semctl.  */
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
-			     CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
+    result = INLINE_SYSCALL (semctl, 4, semid, semnum, cmd | __IPC_64,
+			     CHECK_SEMCTL (&arg, semid, cmd | __IPC_64)->array);
     if (result != -1 || errno != EINVAL)
       return result;
 
@@ -168,8 +167,8 @@ __new_semctl (int semid, int semnum, int cmd, ...)
 	    return -1;
 	  }
       }
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			     CHECK_SEMCTL (&arg, semid, cmd));
+    result = INLINE_SYSCALL (semctl, 4, semid, semnum, cmd,
+			     CHECK_SEMCTL (&arg, semid, cmd)->array);
     if (result != -1 && cmd != IPC_SET)
       {
 	memset(buf, 0, sizeof(*buf));

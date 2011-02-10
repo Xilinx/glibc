@@ -59,7 +59,7 @@ int
 attribute_compat_text_section
 __old_msgctl (int msqid, int cmd, struct __old_msqid_ds *buf)
 {
-  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl, msqid, cmd, 0, CHECK_1 (buf));
+  return INLINE_SYSCALL (msgctl, 3, msqid, cmd, CHECK_1 (buf));
 }
 compat_symbol (libc, __old_msgctl, msgctl, GLIBC_2_0);
 #endif
@@ -69,8 +69,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
 {
 
 #if __ASSUME_IPC64 > 0
-  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			 msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
+  return INLINE_SYSCALL (msgctl, 3, msqid, cmd | __IPC_64, CHECK_1 (buf));
 #else
   switch (cmd) {
     case MSG_STAT:
@@ -78,8 +77,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
     case IPC_SET:
       break;
     default:
-      return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd, 0, CHECK_1 (buf));
+      return INLINE_SYSCALL (msgctl, 3, msqid, cmd, CHECK_1 (buf));
   }
 
   {
@@ -88,8 +86,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
 
     /* Unfortunately there is no way how to find out for sure whether
        we should use old or new msgctl.  */
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
+    result = INLINE_SYSCALL (msgctl, 3, msqid, cmd | __IPC_64, CHECK_1 (buf));
     if (result != -1 || errno != EINVAL)
       return result;
 
@@ -107,8 +104,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
 	    return -1;
 	  }
       }
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd, 0, __ptrvalue (&old));
+    result = INLINE_SYSCALL (msgctl, 3, msqid, cmd, __ptrvalue (&old));
     if (result != -1 && cmd != IPC_SET)
       {
 	memset(buf, 0, sizeof(*buf));
