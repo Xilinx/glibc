@@ -1,0 +1,36 @@
+diff -Naurp glibc-2.3.6/configure glibc-2.3.6/configure
+--- glibc-2.3.6/configure	2010-08-09 22:32:12.161160994 +0200
++++ glibc-2.3.6/configure	2010-08-09 22:34:55.533821742 +0200
+@@ -1935,7 +1935,7 @@ m680?0)		base_machine=m68k machine=m68k/
+ m68k)		base_machine=m68k machine=m68k/m68020 ;;
+ m88???)		base_machine=m88k machine=m88k/$machine ;;
+ m88k)		base_machine=m88k machine=m88k/m88100 ;;
+-microblaze)	base_machine=microblaze machine=microblaze ;;
++microblaze*)	base_machine=microblaze machine=microblaze ;;
+ mips64*)	base_machine=mips64
+ 		case "$CC $CFLAGS $CPPFLAGS " in
+ 		*" -mabi=n32 "*) mips_cc_abi=n32 ;;
+diff -Naurp glibc-2.3.6/scripts/config.sub glibc-2.3.6/scripts/config.sub
+--- glibc-2.3.6/scripts/config.sub	2010-08-09 22:32:11.791178162 +0200
++++ glibc-2.3.6/scripts/config.sub	2010-08-09 22:34:49.694083868 +0200
+@@ -237,7 +237,7 @@ case $basic_machine in
+ 	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
+ 	| i370 | i860 | i960 | ia64 \
+ 	| ip2k | iq2000 \
+-	| m32r | m68000 | m68k | m88k | mcore | microblaze \
++	| m32r | m68000 | m68k | m88k | mcore | microblaze | microblazee[lb] \
+ 	| mips | mipsbe | mipseb | mipsel | mipsle \
+ 	| mips16 \
+ 	| mips64 | mips64el \
+diff -Naurp glibc-2.3.6/sysdeps/microblaze/bits/endian.h glibc-2.3.6/sysdeps/microblaze/bits/endian.h
+--- glibc-2.3.6/sysdeps/microblaze/bits/endian.h	2010-08-09 22:32:11.791178162 +0200
++++ glibc-2.3.6/sysdeps/microblaze/bits/endian.h	2010-08-09 22:33:54.306572193 +0200
+@@ -4,4 +4,8 @@
+ # error "Never use <bits/endian.h> directly; include <endian.h> instead."
+ #endif
+ 
++#ifdef _BIG_ENDIAN
+ #define __BYTE_ORDER __BIG_ENDIAN
++#else
++#define __BYTE_ORDER __LITTLE_ENDIAN
++#endif

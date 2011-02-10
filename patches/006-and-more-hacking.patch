@@ -1,0 +1,1364 @@
+From ecc259b43e25b7c0bc57b3389ded65a35ad5dacf Mon Sep 17 00:00:00 2001
+Message-Id: <ecc259b43e25b7c0bc57b3389ded65a35ad5dacf.1243993843.git.john.williams@petalogix.com>
+In-Reply-To: <5097d000f15d8e802743d9b66ca6ee94466d2ae8.1243993843.git.john.williams@petalogix.com>
+References: <5097d000f15d8e802743d9b66ca6ee94466d2ae8.1243993843.git.john.williams@petalogix.com>
+From: David DeBonis <ddeboni@xaqddeboni40.(none)>
+Date: Thu, 28 May 2009 08:04:12 -0600
+Subject: [PATCH 5/5] Merging with development branch of petalogix tree and completing
+ patch of master branch due to only a partial commit in the previous
+ commit (only new master branch files were commit).  This added
+ the modified pre-existing files.
+
+CAUTION: This change breaks any previous applications including
+         root file systems due to header file changes.
+
+The petalogix changes include:
+
+Michal Simek [Mon, 25 May 2009 17:09:25 +0000]
+
+microblaze: Use generic ipc function instead i386
+
+i386 add there getuid32 checking and others.
+It is better to use generic solution
+
+To get ipc work is necessary synchronize (and used synchronized)
+kernel_mode_t type. Glibc and kernel expect that this value
+is short.
+
+Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+Michal Simek [Fri, 22 May 2009 12:34:58 +0000]
+
+microblaze: add padding to stat structure
+
+This commit sync stat.h structure with asm-generic version
+
+Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+Michal Simek [Fri, 22 May 2009 11:27:17 +0000]
+
+microblaze:Add typesizes and wordsize to microblaze
+
+It is better to have typesizes inside arch because
+is easier to handle it and change it.
+
+Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+John Williams [Wed, 6 May 2009 03:46:51 +0000]
+
+microblaze: v2 synchronize bits/fcntl.h with new kernel header
+
+From: Michal Simek <monstr@monstr.eu>
+
+There is possible to change all value to %08x format.
+The next thing is that I found there some incopatiblities
+in some values O_FSYNC, O_ASYNC, O_LARGEFILE, etc.
+These changes need time for sync but I don't know if I need
+them or not. I will do LTP tests and if they don't failed
+I won't do that changes. But it is necessary to do them
+with glibc upgrade.
+
+Signed-off-by: Michal Simek <monstr@monstr.eu>
+Signed-off-by: John Williams <john.williams@petalogix.com>
+---
+ sysdeps/unix/sysv/linux/kernel_stat.h              |   42 +++--
+ sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h    |   19 +-
+ sysdeps/unix/sysv/linux/microblaze/bits/ipc.h      |   55 ++++++
+ sysdeps/unix/sysv/linux/microblaze/bits/msq.h      |   77 ++++++++
+ sysdeps/unix/sysv/linux/microblaze/bits/sem.h      |   87 +++++++++
+ sysdeps/unix/sysv/linux/microblaze/bits/shm.h      |  102 ++++++++++
+ sysdeps/unix/sysv/linux/microblaze/bits/stat.h     |    5 +-
+ .../unix/sysv/linux/microblaze/bits/typesizes.h    |   65 +++++++
+ sysdeps/unix/sysv/linux/microblaze/bits/wordsize.h |    3 +
+ sysdeps/unix/sysv/linux/microblaze/kernel_stat.h   |   57 +++---
+ sysdeps/unix/sysv/linux/microblaze/msgctl.c        |  137 ++++++++++++++-
+ sysdeps/unix/sysv/linux/microblaze/semctl.c        |  193 +++++++++++++++++++-
+ sysdeps/unix/sysv/linux/microblaze/shmctl.c        |  162 ++++++++++++++++-
+ sysdeps/unix/sysv/linux/microblaze/sys/procfs.h    |   59 ++++---
+ sysdeps/unix/sysv/linux/sys/user.h                 |    4 +-
+ 15 files changed, 982 insertions(+), 85 deletions(-)
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/ipc.h
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/msq.h
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/sem.h
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/shm.h
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/typesizes.h
+ create mode 100644 sysdeps/unix/sysv/linux/microblaze/bits/wordsize.h
+
+diff --git a/sysdeps/unix/sysv/linux/kernel_stat.h b/sysdeps/unix/sysv/linux/kernel_stat.h
+index 9f8434c..aa134b1 100644
+--- a/sysdeps/unix/sysv/linux/kernel_stat.h
++++ b/sysdeps/unix/sysv/linux/kernel_stat.h
+@@ -1,28 +1,28 @@
++#if 0
+ /* Definition of `struct stat' used in the kernel..  */
+-struct kernel_stat
+-  {
+-    unsigned short int st_dev;
+-    unsigned short int __pad1;
++struct kernel_stat {
++        unsigned short int st_dev;
++        unsigned short int __pad1;
+ #define _HAVE___PAD1
+-    unsigned long int st_ino;
+-    unsigned short int st_mode;
+-    unsigned short int st_nlink;
+-    unsigned short int st_uid;
+-    unsigned short int st_gid;
+-    unsigned short int st_rdev;
+-    unsigned short int __pad2;
++        unsigned long int st_ino;
++        unsigned short int st_mode;
++        unsigned short int st_nlink;
++        unsigned short int st_uid;
++        unsigned short int st_gid;
++        unsigned short int st_rdev;
++        unsigned short int __pad2;
+ #define _HAVE___PAD2
+-    unsigned long int st_size;
+-    unsigned long int st_blksize;
+-    unsigned long int st_blocks;
+-    struct timespec st_atim;
+-    struct timespec st_mtim;
+-    struct timespec st_ctim;
+-    unsigned long int __unused4;
++        unsigned long int st_size;
++        unsigned long int st_blksize;
++        unsigned long int st_blocks;
++        struct timespec st_atim;
++        struct timespec st_mtim;
++        struct timespec st_ctim;
++        unsigned long int __unused4;
+ #define _HAVE___UNUSED4
+-    unsigned long int __unused5;
++        unsigned long int __unused5;
+ #define _HAVE___UNUSED5
+-  };
++};
+ 
+ #define _HAVE_STAT___UNUSED4
+ #define _HAVE_STAT___UNUSED5
+@@ -33,3 +33,5 @@ struct kernel_stat
+ #define _HAVE_STAT64___PAD2
+ #define _HAVE_STAT64___ST_INO
+ #define _HAVE_STAT64_NSEC
++
++#endif
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h b/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h
+index f9c5d5a..923317d 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h
+@@ -40,10 +40,15 @@
+ #define O_ASYNC		 020000
+ 
+ #ifdef __USE_GNU
+-# define O_DIRECTORY	 040000	/* Must be a directory.	 */
+-# define O_NOFOLLOW	0100000	/* Do not follow links.	 */
+-# define O_DIRECT	0400000	/* Direct disk access.	*/
+-# define O_NOATIME	01000000 /* Do not set atime.  */
++# define O_DIRECT	 040000	/* Direct disk access.	*/
++# define O_DIRECTORY	0200000	/* Must be a directory.	 */
++# define O_NOFOLLOW	0400000	/* Do not follow links.	 */
++# define O_NOATIME     01000000 /* Do not set atime.  */
++# define O_CLOEXEC     02000000 /* Set close_on_exec.  */
++#endif
++
++#ifdef __USE_LARGEFILE64
++# define O_LARGEFILE	0100000
+ #endif
+ 
+ /* For now Linux has synchronisity options for data and read operations.
+@@ -54,10 +59,6 @@
+ # define O_RSYNC	O_SYNC	/* Synchronize read operations.	 */
+ #endif
+ 
+-#ifdef __USE_LARGEFILE64
+-# define O_LARGEFILE	0200000
+-#endif
+-
+ /* Values for the second argument to `fcntl'.  */
+ #define F_DUPFD		0	/* Duplicate file descriptor.  */
+ #define F_GETFD		1	/* Get file descriptor flags.  */
+@@ -91,6 +92,8 @@
+ # define F_SETLEASE	1024	/* Set a lease.	 */
+ # define F_GETLEASE	1025	/* Enquire what lease is active.  */
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
++# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
++				   close-on-exit set.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/ipc.h b/sysdeps/unix/sysv/linux/microblaze/bits/ipc.h
+new file mode 100644
+index 0000000..abf596c
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/ipc.h
+@@ -0,0 +1,55 @@
++/* Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_IPC_H
++# error "Never use <bits/ipc.h> directly; include <sys/ipc.h> instead."
++#endif
++
++#include <bits/types.h>
++
++/* Mode bits for `msgget', `semget', and `shmget'.  */
++#define IPC_CREAT	01000		/* Create key if key does not exist. */
++#define IPC_EXCL	02000		/* Fail if key exists.  */
++#define IPC_NOWAIT	04000		/* Return error on wait.  */
++
++/* Control commands for `msgctl', `semctl', and `shmctl'.  */
++#define IPC_RMID	0		/* Remove identifier.  */
++#define IPC_SET		1		/* Set `ipc_perm' options.  */
++#define IPC_STAT	2		/* Get `ipc_perm' options.  */
++#ifdef __USE_GNU
++# define IPC_INFO	3		/* See ipcs.  */
++#endif
++
++/* Special key values.  */
++#define IPC_PRIVATE	((__key_t) 0)	/* Private key.  */
++
++
++/* Data structure used to pass permission information to IPC operations.  */
++struct ipc_perm
++  {
++    __key_t __key;			/* Key.  */
++    __uid_t uid;			/* Owner's user ID.  */
++    __gid_t gid;			/* Owner's group ID.  */
++    __uid_t cuid;			/* Creator's user ID.  */
++    __gid_t cgid;			/* Creator's group ID.  */
++    unsigned short int mode;		/* Read/write permission.  */
++    unsigned short int __seq;		/* Sequence number.  */
++    unsigned short int __pad1;
++    unsigned long int __unused1;
++    unsigned long int __unused2;
++  };
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/msq.h b/sysdeps/unix/sysv/linux/microblaze/bits/msq.h
+new file mode 100644
+index 0000000..32a49b5
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/msq.h
+@@ -0,0 +1,77 @@
++/* Copyright (C) 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_MSG_H
++# error "Never use <bits/msq.h> directly; include <sys/msg.h> instead."
++#endif
++
++#include <bits/types.h>
++
++/* Define options for message queue functions.  */
++#define MSG_NOERROR	010000	/* no error if message is too big */
++#ifdef __USE_GNU
++# define MSG_EXCEPT	020000	/* recv any msg except of specified type */
++#endif
++
++/* Types used in the structure definition.  */
++typedef unsigned long int msgqnum_t;
++typedef unsigned long int msglen_t;
++
++
++/* Structure of record for one message inside the kernel.
++   The type `struct msg' is opaque.  */
++struct msqid_ds
++{
++  struct ipc_perm msg_perm;	/* structure describing operation permission */
++  __time_t msg_stime;		/* time of last msgsnd command */
++  unsigned long int __unused1;
++  __time_t msg_rtime;		/* time of last msgrcv command */
++  unsigned long int __unused2;
++  __time_t msg_ctime;		/* time of last change */
++  unsigned long int __unused3;
++  unsigned long int __msg_cbytes; /* current number of bytes on queue */
++  msgqnum_t msg_qnum;		/* number of messages currently on queue */
++  msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
++  __pid_t msg_lspid;		/* pid of last msgsnd() */
++  __pid_t msg_lrpid;		/* pid of last msgrcv() */
++  unsigned long int __unused4;
++  unsigned long int __unused5;
++};
++
++#ifdef __USE_MISC
++
++# define msg_cbytes	__msg_cbytes
++
++/* ipcs ctl commands */
++# define MSG_STAT 11
++# define MSG_INFO 12
++
++/* buffer for msgctl calls IPC_INFO, MSG_INFO */
++struct msginfo
++  {
++    int msgpool;
++    int msgmap;
++    int msgmax;
++    int msgmnb;
++    int msgmni;
++    int msgssz;
++    int msgtql;
++    unsigned short int msgseg;
++  };
++
++#endif /* __USE_MISC */
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/sem.h b/sysdeps/unix/sysv/linux/microblaze/bits/sem.h
+new file mode 100644
+index 0000000..6193501
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/sem.h
+@@ -0,0 +1,87 @@
++/* Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_SEM_H
++# error "Never include <bits/sem.h> directly; use <sys/sem.h> instead."
++#endif
++
++#include <sys/types.h>
++
++/* Flags for `semop'.  */
++#define SEM_UNDO	0x1000		/* undo the operation on exit */
++
++/* Commands for `semctl'.  */
++#define GETPID		11		/* get sempid */
++#define GETVAL		12		/* get semval */
++#define GETALL		13		/* get all semval's */
++#define GETNCNT		14		/* get semncnt */
++#define GETZCNT		15		/* get semzcnt */
++#define SETVAL		16		/* set semval */
++#define SETALL		17		/* set all semval's */
++
++
++/* Data structure describing a set of semaphores.  */
++struct semid_ds
++{
++  struct ipc_perm sem_perm;		/* operation permission struct */
++  __time_t sem_otime;			/* last semop() time */
++  unsigned long int __unused1;
++  __time_t sem_ctime;			/* last time changed by semctl() */
++  unsigned long int __unused2;
++  unsigned long int sem_nsems;		/* number of semaphores in set */
++  unsigned long int __unused3;
++  unsigned long int __unused4;
++};
++
++/* The user should define a union like the following to use it for arguments
++   for `semctl'.
++
++   union semun
++   {
++     int val;				<= value for SETVAL
++     struct semid_ds *buf;		<= buffer for IPC_STAT & IPC_SET
++     unsigned short int *array;		<= array for GETALL & SETALL
++     struct seminfo *__buf;		<= buffer for IPC_INFO
++   };
++
++   Previous versions of this file used to define this union but this is
++   incorrect.  One can test the macro _SEM_SEMUN_UNDEFINED to see whether
++   one must define the union or not.  */
++#define _SEM_SEMUN_UNDEFINED	1
++
++#ifdef __USE_MISC
++
++/* ipcs ctl cmds */
++# define SEM_STAT 18
++# define SEM_INFO 19
++
++struct  seminfo
++{
++  int semmap;
++  int semmni;
++  int semmns;
++  int semmnu;
++  int semmsl;
++  int semopm;
++  int semume;
++  int semusz;
++  int semvmx;
++  int semaem;
++};
++
++#endif /* __USE_MISC */
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/shm.h b/sysdeps/unix/sysv/linux/microblaze/bits/shm.h
+new file mode 100644
+index 0000000..225b89d
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/shm.h
+@@ -0,0 +1,102 @@
++/* Copyright (C) 1995,1996,1997,2000,2002,2004 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_SHM_H
++# error "Never include <bits/shm.h> directly; use <sys/shm.h> instead."
++#endif
++
++#include <bits/types.h>
++
++/* Permission flag for shmget.  */
++#define SHM_R		0400		/* or S_IRUGO from <linux/stat.h> */
++#define SHM_W		0200		/* or S_IWUGO from <linux/stat.h> */
++
++/* Flags for `shmat'.  */
++#define SHM_RDONLY	010000		/* attach read-only else read-write */
++#define SHM_RND		020000		/* round attach address to SHMLBA */
++#define SHM_REMAP	040000		/* take-over region on attach */
++
++/* Commands for `shmctl'.  */
++#define SHM_LOCK	11		/* lock segment (root only) */
++#define SHM_UNLOCK	12		/* unlock segment (root only) */
++
++__BEGIN_DECLS
++
++/* Segment low boundary address multiple.  */
++#define SHMLBA		(__getpagesize ())
++extern int __getpagesize (void) __THROW __attribute__ ((__const__));
++
++
++/* Type to count number of attaches.  */
++typedef unsigned long int shmatt_t;
++
++/* Data structure describing a set of semaphores.  */
++struct shmid_ds
++  {
++    struct ipc_perm shm_perm;		/* operation permission struct */
++    size_t shm_segsz;			/* size of segment in bytes */
++    __time_t shm_atime;			/* time of last shmat() */
++    unsigned long int __unused1;
++    __time_t shm_dtime;			/* time of last shmdt() */
++    unsigned long int __unused2;
++    __time_t shm_ctime;			/* time of last change by shmctl() */
++    unsigned long int __unused3;
++    __pid_t shm_cpid;			/* pid of creator */
++    __pid_t shm_lpid;			/* pid of last shmop */
++    shmatt_t shm_nattch;		/* number of current attaches */
++    unsigned long int __unused4;
++    unsigned long int __unused5;
++  };
++
++#ifdef __USE_MISC
++
++/* ipcs ctl commands */
++# define SHM_STAT 	13
++# define SHM_INFO 	14
++
++/* shm_mode upper byte flags */
++# define SHM_DEST	01000	/* segment will be destroyed on last detach */
++# define SHM_LOCKED	02000   /* segment will not be swapped */
++# define SHM_HUGETLB	04000	/* segment is mapped via hugetlb */
++
++struct	shminfo
++  {
++    unsigned long int shmmax;
++    unsigned long int shmmin;
++    unsigned long int shmmni;
++    unsigned long int shmseg;
++    unsigned long int shmall;
++    unsigned long int __unused1;
++    unsigned long int __unused2;
++    unsigned long int __unused3;
++    unsigned long int __unused4;
++  };
++
++struct shm_info
++  {
++    int used_ids;
++    unsigned long int shm_tot;	/* total allocated shm */
++    unsigned long int shm_rss;	/* total resident shm */
++    unsigned long int shm_swp;	/* total swapped shm */
++    unsigned long int swap_attempts;
++    unsigned long int swap_successes;
++  };
++
++#endif /* __USE_MISC */
++
++__END_DECLS
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/stat.h b/sysdeps/unix/sysv/linux/microblaze/bits/stat.h
+index 6b0d4b2..7f2c4e3 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/bits/stat.h
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/stat.h
+@@ -45,12 +45,14 @@ struct stat
+     __gid_t st_gid;			/* Group ID of the file's group.*/
+     __dev_t st_rdev;			/* Device number, if device.  */
+     unsigned short int __pad2;
++	unsigned long	__pad3;
+ #ifndef __USE_FILE_OFFSET64
+     __off_t st_size;			/* Size of file, in bytes.  */
+ #else
+     __off64_t st_size;			/* Size of file, in bytes.  */
+ #endif
+     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
++	int		__pad4;
+ 
+ #ifndef __USE_FILE_OFFSET64
+     __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
+@@ -99,9 +101,10 @@ struct stat64
+     __gid_t st_gid;			/* Group ID of the file's group.*/
+     __dev_t st_rdev;			/* Device number, if device.  */
+     unsigned short int __pad2;
++	unsigned long	__pad3;
+     __off64_t st_size;			/* Size of file, in bytes.  */
+     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
+-
++	int		__pad4;
+     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
+ #ifdef __USE_MISC
+     /* Nanosecond resolution timestamps are stored in a format
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/typesizes.h b/sysdeps/unix/sysv/linux/microblaze/bits/typesizes.h
+new file mode 100644
+index 0000000..55d92b9
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/typesizes.h
+@@ -0,0 +1,65 @@
++/* bits/typesizes.h -- underlying types for *_t.  Generic version.
++   Copyright (C) 2002, 2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _BITS_TYPES_H
++# error "Never include <bits/typesizes.h> directly; use <sys/types.h> instead."
++#endif
++
++#ifndef	_BITS_TYPESIZES_H
++#define	_BITS_TYPESIZES_H	1
++
++/* See <bits/types.h> for the meaning of these macros.  This file exists so
++   that <bits/types.h> need not vary across different GNU platforms.  */
++
++#define __DEV_T_TYPE		__UQUAD_TYPE
++#define __UID_T_TYPE		__U32_TYPE
++#define __GID_T_TYPE		__U32_TYPE
++#define __INO_T_TYPE		__ULONGWORD_TYPE
++#define __INO64_T_TYPE		__UQUAD_TYPE
++#define __MODE_T_TYPE		__U32_TYPE
++#define __NLINK_T_TYPE		__UWORD_TYPE
++#define __OFF_T_TYPE		__SLONGWORD_TYPE
++#define __OFF64_T_TYPE		__SQUAD_TYPE
++#define __PID_T_TYPE		__S32_TYPE
++#define __RLIM_T_TYPE		__ULONGWORD_TYPE
++#define __RLIM64_T_TYPE		__UQUAD_TYPE
++#define	__BLKCNT_T_TYPE		__SLONGWORD_TYPE
++#define	__BLKCNT64_T_TYPE	__SQUAD_TYPE
++#define	__FSBLKCNT_T_TYPE	__ULONGWORD_TYPE
++#define	__FSBLKCNT64_T_TYPE	__UQUAD_TYPE
++#define	__FSFILCNT_T_TYPE	__ULONGWORD_TYPE
++#define	__FSFILCNT64_T_TYPE	__UQUAD_TYPE
++#define	__ID_T_TYPE		__U32_TYPE
++#define __CLOCK_T_TYPE		__SLONGWORD_TYPE
++#define __TIME_T_TYPE		__SLONGWORD_TYPE
++#define __USECONDS_T_TYPE	__U32_TYPE
++#define __SUSECONDS_T_TYPE	__SLONGWORD_TYPE
++#define __DADDR_T_TYPE		__S32_TYPE
++#define __SWBLK_T_TYPE		__SLONGWORD_TYPE
++#define __KEY_T_TYPE		__S32_TYPE
++#define __CLOCKID_T_TYPE	__S32_TYPE
++#define __TIMER_T_TYPE		void *
++#define __BLKSIZE_T_TYPE	__SLONGWORD_TYPE
++#define __FSID_T_TYPE		struct { int __val[2]; }
++#define __SSIZE_T_TYPE		__SWORD_TYPE
++
++/* Number of descriptors that can fit in an `fd_set'.  */
++#define	__FD_SETSIZE		1024
++
++#endif /* bits/typesizes.h */
+diff --git a/sysdeps/unix/sysv/linux/microblaze/bits/wordsize.h b/sysdeps/unix/sysv/linux/microblaze/bits/wordsize.h
+new file mode 100644
+index 0000000..23d379a
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/microblaze/bits/wordsize.h
+@@ -0,0 +1,3 @@
++/* Determine the wordsize from the preprocessor defines.  */
++
++# define __WORDSIZE	32
+diff --git a/sysdeps/unix/sysv/linux/microblaze/kernel_stat.h b/sysdeps/unix/sysv/linux/microblaze/kernel_stat.h
+index f67dd10..6d635a0 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/kernel_stat.h
++++ b/sysdeps/unix/sysv/linux/microblaze/kernel_stat.h
+@@ -1,38 +1,43 @@
+ /* Definition of `struct stat' used in the kernel..  */
+-struct kernel_stat {
+-	unsigned long st_dev;
+-	unsigned long st_ino;
+-	unsigned int st_mode;
+-	unsigned int st_nlink;
+-	unsigned int st_uid;
+-	unsigned int st_gid;
+-
+-	unsigned long st_rdev;	/* Device number, if device.  */
+-	unsigned long __pad1;
+-/* not sure if is used anywhere */
++struct kernel_stat
++  {
++    unsigned short int st_dev;
++    unsigned short int __pad1;
+ #define _HAVE___PAD1
+-	long st_size;		/* Size of file, in bytes.  */
+-	int st_blksize;		/* Optimal block size for I/O.  */
+-	int __pad2;
+-/* not sure if is used anywhere */
++    unsigned long int st_ino;
++    unsigned short int st_mode;
++    unsigned short int st_nlink;
++    unsigned short int st_uid;
++    unsigned short int st_gid;
++    unsigned short int st_rdev;
++    unsigned short int __pad2;
+ #define _HAVE___PAD2
+-	long st_blocks;		/* Number 512-byte blocks allocated. */
+-	struct timespec st_atim;
+-	struct timespec st_mtim;
+-	struct timespec st_ctim;
+-	unsigned int __unused4;
++    unsigned long __pad3;
++#define _HAVE___PAD3
++    unsigned long int st_size;
++    unsigned long int st_blksize;
++    int __pad4;
++#define _HAVE___PAD4
++    unsigned long int st_blocks;
++    struct timespec st_atim;
++    struct timespec st_mtim;
++    struct timespec st_ctim;
++    unsigned long int __unused4;
+ #define _HAVE___UNUSED4
+-	unsigned int __unused5;
++    unsigned long int __unused5;
+ #define _HAVE___UNUSED5
+-};
+-
+-#define _HAVE_STAT___PAD1
+-#define _HAVE_STAT___PAD2
++  };
+ 
+ #define _HAVE_STAT___UNUSED4
+ #define _HAVE_STAT___UNUSED5
+-
++#define _HAVE_STAT___PAD1
++#define _HAVE_STAT___PAD2
++#define _HAVE_STAT___PAD3
++#define _HAVE_STAT___PAD4
+ #define _HAVE_STAT_NSEC
+ #define _HAVE_STAT64___PAD1
+ #define _HAVE_STAT64___PAD2
++#define _HAVE_STAT64___PAD3
++#define _HAVE_STAT64___PAD4
++#define _HAVE_STAT64___ST_INO
+ #define _HAVE_STAT64_NSEC
+diff --git a/sysdeps/unix/sysv/linux/microblaze/msgctl.c b/sysdeps/unix/sysv/linux/microblaze/msgctl.c
+index 9f9b843..9f91947 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/msgctl.c
++++ b/sysdeps/unix/sysv/linux/microblaze/msgctl.c
+@@ -1 +1,136 @@
+-#include <sysdeps/unix/sysv/linux/i386/msgctl.c>
++/* Copyright (C) 1995, 1997, 1998, 2000, 2002, 2004
++   Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <sys/msg.h>
++#include <ipc_priv.h>
++
++#include <sysdep.h>
++#include <string.h>
++#include <sys/syscall.h>
++#include <shlib-compat.h>
++#include <bp-checks.h>
++
++#include "kernel-features.h"
++
++struct __old_msqid_ds
++{
++  struct __old_ipc_perm msg_perm;	/* structure describing operation permission */
++  struct msg *__unbounded __msg_first;	/* pointer to first message on queue */
++  struct msg *__unbounded __msg_last;	/* pointer to last message on queue */
++  __time_t msg_stime;			/* time of last msgsnd command */
++  __time_t msg_rtime;			/* time of last msgrcv command */
++  __time_t msg_ctime;			/* time of last change */
++  struct wait_queue *__unbounded __wwait; /* ??? */
++  struct wait_queue *__unbounded __rwait; /* ??? */
++  unsigned short int __msg_cbytes;	/* current number of bytes on queue */
++  unsigned short int msg_qnum;		/* number of messages currently on queue */
++  unsigned short int msg_qbytes;	/* max number of bytes allowed on queue */
++  __ipc_pid_t msg_lspid;		/* pid of last msgsnd() */
++  __ipc_pid_t msg_lrpid;		/* pid of last msgrcv() */
++};
++
++/* Allows to control internal state and destruction of message queue
++   objects.  */
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int __old_msgctl (int, int, struct __old_msqid_ds *);
++#endif
++int __new_msgctl (int, int, struct msqid_ds *);
++
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int
++attribute_compat_text_section
++__old_msgctl (int msqid, int cmd, struct __old_msqid_ds *buf)
++{
++  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl, msqid, cmd, 0, CHECK_1 (buf));
++}
++compat_symbol (libc, __old_msgctl, msgctl, GLIBC_2_0);
++#endif
++
++int
++__new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
++{
++
++#if __ASSUME_IPC64 > 0
++  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
++			 msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
++#else
++  switch (cmd) {
++    case MSG_STAT:
++    case IPC_STAT:
++    case IPC_SET:
++      break;
++    default:
++      return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
++			     msqid, cmd, 0, CHECK_1 (buf));
++  }
++
++  {
++    int result;
++    struct __old_msqid_ds old;
++
++    /* Unfortunately there is no way how to find out for sure whether
++       we should use old or new msgctl.  */
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
++			     msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
++    if (result != -1 || errno != EINVAL)
++      return result;
++
++    if (cmd == IPC_SET)
++      {
++	old.msg_perm.uid = buf->msg_perm.uid;
++	old.msg_perm.gid = buf->msg_perm.gid;
++	old.msg_perm.mode = buf->msg_perm.mode;
++	old.msg_qbytes = buf->msg_qbytes;
++	if (old.msg_perm.uid != buf->msg_perm.uid ||
++	    old.msg_perm.gid != buf->msg_perm.gid ||
++	    old.msg_qbytes != buf->msg_qbytes)
++	  {
++	    __set_errno (EINVAL);
++	    return -1;
++	  }
++      }
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
++			     msqid, cmd, 0, __ptrvalue (&old));
++    if (result != -1 && cmd != IPC_SET)
++      {
++	memset(buf, 0, sizeof(*buf));
++	buf->msg_perm.__key = old.msg_perm.__key;
++	buf->msg_perm.uid = old.msg_perm.uid;
++	buf->msg_perm.gid = old.msg_perm.gid;
++	buf->msg_perm.cuid = old.msg_perm.cuid;
++	buf->msg_perm.cgid = old.msg_perm.cgid;
++	buf->msg_perm.mode = old.msg_perm.mode;
++	buf->msg_perm.__seq = old.msg_perm.__seq;
++	buf->msg_stime = old.msg_stime;
++	buf->msg_rtime = old.msg_rtime;
++	buf->msg_ctime = old.msg_ctime;
++	buf->__msg_cbytes = old.__msg_cbytes;
++	buf->msg_qnum = old.msg_qnum;
++	buf->msg_qbytes = old.msg_qbytes;
++	buf->msg_lspid = old.msg_lspid;
++	buf->msg_lrpid = old.msg_lrpid;
++      }
++    return result;
++  }
++#endif
++}
++
++versioned_symbol (libc, __new_msgctl, msgctl, GLIBC_2_2);
+diff --git a/sysdeps/unix/sysv/linux/microblaze/semctl.c b/sysdeps/unix/sysv/linux/microblaze/semctl.c
+index e9b1a48..ecd23ce 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/semctl.c
++++ b/sysdeps/unix/sysv/linux/microblaze/semctl.c
+@@ -1 +1,192 @@
+-#include <sysdeps/unix/sysv/linux/i386/semctl.c>
++/* Copyright (C) 1995, 1997, 1998, 2000, 2003, 2004
++   Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <stdarg.h>
++#include <sys/sem.h>
++#include <ipc_priv.h>
++
++#include <sysdep.h>
++#include <string.h>
++#include <sys/syscall.h>
++#include <shlib-compat.h>
++
++#include "kernel-features.h"
++
++struct __old_semid_ds
++{
++  struct __old_ipc_perm sem_perm;	/* operation permission struct */
++  __time_t sem_otime;			/* last semop() time */
++  __time_t sem_ctime;			/* last time changed by semctl() */
++  struct sem *__unbounded __sembase;	/* ptr to first semaphore in array */
++  struct sem_queue *__unbounded __sem_pending; /* pending operations */
++  struct sem_queue *__unbounded __sem_pending_last; /* last pending operation */
++  struct sem_undo *__unbounded __undo;	/* ondo requests on this array */
++  unsigned short int sem_nsems;		/* number of semaphores in set */
++};
++
++/* Define a `union semun' suitable for Linux here.  */
++union semun
++{
++  int val;			/* value for SETVAL */
++  struct semid_ds *buf;		/* buffer for IPC_STAT & IPC_SET */
++  unsigned short int *array;	/* array for GETALL & SETALL */
++  struct seminfo *__buf;	/* buffer for IPC_INFO */
++  struct __old_semid_ds *__old_buf;
++};
++
++#include <bp-checks.h>
++#include <bp-semctl.h>		/* definition of CHECK_SEMCTL needs union semum */
++
++/* Return identifier for array of NSEMS semaphores associated with
++   KEY.  */
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int __old_semctl (int semid, int semnum, int cmd, ...);
++#endif
++int __new_semctl (int semid, int semnum, int cmd, ...);
++
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int
++attribute_compat_text_section
++__old_semctl (int semid, int semnum, int cmd, ...)
++{
++  union semun arg;
++  va_list ap;
++
++  va_start (ap, cmd);
++
++  /* Get the argument only if required.  */
++  arg.buf = NULL;
++  switch (cmd)
++    {
++    case SETVAL:        /* arg.val */
++    case GETALL:        /* arg.array */
++    case SETALL:
++    case IPC_STAT:      /* arg.buf */
++    case IPC_SET:
++    case SEM_STAT:
++    case IPC_INFO:      /* arg.__buf */
++    case SEM_INFO:
++      va_start (ap, cmd);
++      arg = va_arg (ap, union semun);
++      va_end (ap);
++      break;
++    }
++
++  va_end (ap);
++
++  return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
++			 CHECK_SEMCTL (&arg, semid, cmd));
++}
++compat_symbol (libc, __old_semctl, semctl, GLIBC_2_0);
++#endif
++
++int
++__new_semctl (int semid, int semnum, int cmd, ...)
++{
++  union semun arg;
++  va_list ap;
++
++  va_start (ap, cmd);
++
++  /* Get the argument only if required.  */
++  arg.buf = NULL;
++  switch (cmd)
++    {
++    case SETVAL:        /* arg.val */
++    case GETALL:        /* arg.array */
++    case SETALL:
++    case IPC_STAT:      /* arg.buf */
++    case IPC_SET:
++    case SEM_STAT:
++    case IPC_INFO:      /* arg.__buf */
++    case SEM_INFO:
++      va_start (ap, cmd);
++      arg = va_arg (ap, union semun);
++      va_end (ap);
++      break;
++    }
++
++  va_end (ap);
++
++#if __ASSUME_IPC64 > 0
++  return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
++			 CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
++#else
++  switch (cmd)
++    {
++    case SEM_STAT:
++    case IPC_STAT:
++    case IPC_SET:
++      break;
++    default:
++      return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
++			     CHECK_SEMCTL (&arg, semid, cmd));
++    }
++
++  {
++    int save_errno = errno, result;
++    struct __old_semid_ds old;
++    struct semid_ds *buf;
++
++    /* Unfortunately there is no way how to find out for sure whether
++       we should use old or new semctl.  */
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
++			     CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
++    if (result != -1 || errno != EINVAL)
++      return result;
++
++    __set_errno(save_errno);
++    buf = arg.buf;
++    arg.__old_buf = &old;
++    if (cmd == IPC_SET)
++      {
++	old.sem_perm.uid = buf->sem_perm.uid;
++	old.sem_perm.gid = buf->sem_perm.gid;
++	old.sem_perm.mode = buf->sem_perm.mode;
++	if (old.sem_perm.uid != buf->sem_perm.uid ||
++	    old.sem_perm.gid != buf->sem_perm.gid)
++	  {
++	    __set_errno (EINVAL);
++	    return -1;
++	  }
++      }
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
++			     CHECK_SEMCTL (&arg, semid, cmd));
++    if (result != -1 && cmd != IPC_SET)
++      {
++	memset(buf, 0, sizeof(*buf));
++	buf->sem_perm.__key = old.sem_perm.__key;
++	buf->sem_perm.uid = old.sem_perm.uid;
++	buf->sem_perm.gid = old.sem_perm.gid;
++	buf->sem_perm.cuid = old.sem_perm.cuid;
++	buf->sem_perm.cgid = old.sem_perm.cgid;
++	buf->sem_perm.mode = old.sem_perm.mode;
++	buf->sem_perm.__seq = old.sem_perm.__seq;
++	buf->sem_otime = old.sem_otime;
++	buf->sem_ctime = old.sem_ctime;
++	buf->sem_nsems = old.sem_nsems;
++      }
++    return result;
++  }
++#endif
++}
++
++versioned_symbol (libc, __new_semctl, semctl, GLIBC_2_2);
+diff --git a/sysdeps/unix/sysv/linux/microblaze/shmctl.c b/sysdeps/unix/sysv/linux/microblaze/shmctl.c
+index 7eac638..5561cca 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/shmctl.c
++++ b/sysdeps/unix/sysv/linux/microblaze/shmctl.c
+@@ -1 +1,161 @@
+-#include <sysdeps/unix/sysv/linux/i386/shmctl.c>
++/* Copyright (C) 1995, 1997, 1998, 2000, 2003, 2004
++   Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <sys/shm.h>
++#include <ipc_priv.h>
++
++#include <sysdep.h>
++#include <string.h>
++#include <sys/syscall.h>
++#include <bits/wordsize.h>
++#include <shlib-compat.h>
++#include <bp-checks.h>
++
++#include "kernel-features.h"
++
++struct __old_shmid_ds
++{
++  struct __old_ipc_perm shm_perm;	/* operation permission struct */
++  int shm_segsz;			/* size of segment in bytes */
++  __time_t shm_atime;			/* time of last shmat() */
++  __time_t shm_dtime;			/* time of last shmdt() */
++  __time_t shm_ctime;			/* time of last change by shmctl() */
++  __ipc_pid_t shm_cpid;			/* pid of creator */
++  __ipc_pid_t shm_lpid;			/* pid of last shmop */
++  unsigned short int shm_nattch;	/* number of current attaches */
++  unsigned short int __shm_npages;	/* size of segment (pages) */
++  unsigned long int *__unbounded __shm_pages; /* array of ptrs to frames -> SHMMAX */
++  struct vm_area_struct *__unbounded __attaches; /* descriptors for attaches */
++};
++
++struct __old_shminfo
++{
++  int shmmax;
++  int shmmin;
++  int shmmni;
++  int shmseg;
++  int shmall;
++};
++
++/* Provide operations to control over shared memory segments.  */
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int __old_shmctl (int, int, struct __old_shmid_ds *);
++#endif
++int __new_shmctl (int, int, struct shmid_ds *);
++
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_2)
++int
++attribute_compat_text_section
++__old_shmctl (int shmid, int cmd, struct __old_shmid_ds *buf)
++{
++  return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid,
++			 cmd, 0, CHECK_1_NULL_OK (buf));
++}
++compat_symbol (libc, __old_shmctl, shmctl, GLIBC_2_0);
++#endif
++
++int
++__new_shmctl (int shmid, int cmd, struct shmid_ds *buf)
++{
++#if __ASSUME_IPC64 > 0
++  return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd | __IPC_64, 0,
++			 CHECK_1 (buf));
++#else
++  switch (cmd) {
++    case SHM_STAT:
++    case IPC_STAT:
++    case IPC_SET:
++#if __WORDSIZE != 32
++    case IPC_INFO:
++#endif
++      break;
++    default:
++      return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0,
++			     CHECK_1 (buf));
++  }
++
++  {
++    int save_errno = errno, result;
++    union
++      {
++	struct __old_shmid_ds ds;
++	struct __old_shminfo info;
++      } old;
++
++    /* Unfortunately there is no way how to find out for sure whether
++       we should use old or new shmctl.  */
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd | __IPC_64, 0,
++			     CHECK_1 (buf));
++    if (result != -1 || errno != EINVAL)
++      return result;
++
++    __set_errno(save_errno);
++    if (cmd == IPC_SET)
++      {
++	old.ds.shm_perm.uid = buf->shm_perm.uid;
++	old.ds.shm_perm.gid = buf->shm_perm.gid;
++	old.ds.shm_perm.mode = buf->shm_perm.mode;
++	if (old.ds.shm_perm.uid != buf->shm_perm.uid ||
++	    old.ds.shm_perm.gid != buf->shm_perm.gid)
++	  {
++	    __set_errno (EINVAL);
++	    return -1;
++	  }
++      }
++    result = INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0,
++			     __ptrvalue (&old.ds));
++    if (result != -1 && (cmd == SHM_STAT || cmd == IPC_STAT))
++      {
++	memset(buf, 0, sizeof(*buf));
++	buf->shm_perm.__key = old.ds.shm_perm.__key;
++	buf->shm_perm.uid = old.ds.shm_perm.uid;
++	buf->shm_perm.gid = old.ds.shm_perm.gid;
++	buf->shm_perm.cuid = old.ds.shm_perm.cuid;
++	buf->shm_perm.cgid = old.ds.shm_perm.cgid;
++	buf->shm_perm.mode = old.ds.shm_perm.mode;
++	buf->shm_perm.__seq = old.ds.shm_perm.__seq;
++	buf->shm_atime = old.ds.shm_atime;
++	buf->shm_dtime = old.ds.shm_dtime;
++	buf->shm_ctime = old.ds.shm_ctime;
++	buf->shm_segsz = old.ds.shm_segsz;
++	buf->shm_nattch = old.ds.shm_nattch;
++	buf->shm_cpid = old.ds.shm_cpid;
++	buf->shm_lpid = old.ds.shm_lpid;
++      }
++#if __WORDSIZE != 32
++    else if (result != -1 && cmd == IPC_INFO)
++      {
++	struct shminfo *i = (struct shminfo *)buf;
++
++	memset(i, 0, sizeof(*i));
++	i->shmmax = old.info.shmmax;
++	i->shmmin = old.info.shmmin;
++	i->shmmni = old.info.shmmni;
++	i->shmseg = old.info.shmseg;
++	i->shmall = old.info.shmall;
++      }
++#endif
++    return result;
++  }
++#endif
++}
++
++versioned_symbol (libc, __new_shmctl, shmctl, GLIBC_2_2);
+diff --git a/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h b/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h
+index 11b1e64..971b3ae 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h
++++ b/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996, 1997, 1999 Free Software Foundation, Inc.
++/* Copyright (C) 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -19,22 +19,36 @@
+ #ifndef _SYS_PROCFS_H
+ #define _SYS_PROCFS_H	1
+ 
+-/* This is somehow modelled after the file of the same name on SysVr4
++/* This is somewhat modelled after the file of the same name on SVR4
+    systems.  It provides a definition of the core file format for ELF
+-   used on Linux.  */
++   used on Linux.  It doesn't have anything to do with the /proc file
++   system, even though Linux has one.
+ 
+-#define CONFIG_MMU	/* Xilinx */
++   Anyway, the whole purpose of this file is for GDB and GDB only.
++   Don't read too much into it.  Don't use it for anything other than
++   GDB unless you know what you are doing.  */
+ 
+-#include <features.h>
+-#include <signal.h>
+ #include <sys/time.h>
+ #include <sys/types.h>
+-#include <sys/ucontext.h>
+ #include <sys/user.h>
+-#include <asm/elf.h>
+ 
+ __BEGIN_DECLS
+ 
++/* Type for a general-purpose register.  */
++typedef unsigned long elf_greg_t;
++
++/* And the whole bunch of them.  We could have used `struct
++   user_regs_struct' directly in the typedef, but tradition says that
++   the register set is an array, which does have some peculiar
++   semantics, so leave it that way.  */
++#define ELF_NGREG (sizeof (struct user_regs_struct) / sizeof(elf_greg_t))
++typedef elf_greg_t elf_gregset_t[ELF_NGREG];
++
++/* Register set for the floating-point registers.  */
++typedef struct user_fpregs_struct elf_fpregset_t;
++
++
++/* Signal info.  */
+ struct elf_siginfo
+   {
+     int si_signo;			/* Signal number.  */
+@@ -44,26 +58,17 @@ struct elf_siginfo
+ 
+ /* Definitions to generate Intel SVR4-like core files.  These mostly
+    have the same names as the SVR4 types with "elf_" tacked on the
+-   front to prevent clashes with linux definitions, and the typedef
++   front to prevent clashes with Linux definitions, and the typedef
+    forms have been avoided.  This is mostly like the SVR4 structure,
+    but more Linuxy, with things that Linux does not support and which
+-   gdb doesn't really use excluded.  Fields present but not used are
+-   marked with "XXX".  */
++   GDB doesn't really use excluded.  */
++
+ struct elf_prstatus
+   {
+-#if 0
+-    long int pr_flags;			/* XXX Process flags.  */
+-    short int pr_why;			/* XXX Reason for process halt.  */
+-    short int pr_what;			/* XXX More detailed reason.  */
+-#endif
+     struct elf_siginfo pr_info;		/* Info associated with signal.  */
+     short int pr_cursig;		/* Current signal.  */
+     unsigned long int pr_sigpend;	/* Set of pending signals.  */
+     unsigned long int pr_sighold;	/* Set of held signals.  */
+-#if 0
+-    struct sigaltstack pr_altstack;	/* Alternate stack info.  */
+-    struct sigaction pr_action;		/* Signal action for current sig.  */
+-#endif
+     __pid_t pr_pid;
+     __pid_t pr_ppid;
+     __pid_t pr_pgrp;
+@@ -72,15 +77,12 @@ struct elf_prstatus
+     struct timeval pr_stime;		/* System time.  */
+     struct timeval pr_cutime;		/* Cumulative user time.  */
+     struct timeval pr_cstime;		/* Cumulative system time.  */
+-#if 0
+-    long int pr_instr;			/* Current instruction.  */
+-#endif
+     elf_gregset_t pr_reg;		/* GP registers.  */
+     int pr_fpvalid;			/* True if math copro being used.  */
+   };
+ 
+ 
+-#define ELF_PRARGSZ     (80)    /* Number of chars for args */
++#define ELF_PRARGSZ     (80)    /* Number of chars for args.  */
+ 
+ struct elf_prpsinfo
+   {
+@@ -97,6 +99,11 @@ struct elf_prpsinfo
+     char pr_psargs[ELF_PRARGSZ];	/* Initial part of arg list.  */
+   };
+ 
++
++/* The rest of this file provides the types for emulation of the
++   Solaris <proc_service.h> interfaces that should be implemented by
++   users of libthread_db.  */
++
+ /* Addresses.  */
+ typedef void *psaddr_t;
+ 
+@@ -105,10 +112,10 @@ typedef elf_gregset_t prgregset_t;
+ typedef elf_fpregset_t prfpregset_t;
+ 
+ /* We don't have any differences between processes and threads,
+-   therefore habe only ine PID type.  */
++   therefore have only ine PID type.  */
+ typedef __pid_t lwpid_t;
+ 
+-
++/* Process status and info.  In the end we do provide typedefs for them.  */
+ typedef struct elf_prstatus prstatus_t;
+ typedef struct elf_prpsinfo prpsinfo_t;
+ 
+diff --git a/sysdeps/unix/sysv/linux/sys/user.h b/sysdeps/unix/sysv/linux/sys/user.h
+index 30e9b57..0b0fabe 100644
+--- a/sysdeps/unix/sysv/linux/sys/user.h
++++ b/sysdeps/unix/sysv/linux/sys/user.h
+@@ -1 +1,3 @@
+-#include <linux/user.h>
++#error "This file is machine-dependent and not provided for this machine."
++
++
+-- 
+1.5.3.8
+

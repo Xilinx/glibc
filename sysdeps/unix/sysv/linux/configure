@@ -115,6 +115,11 @@ case "$machine" in
     arch_minimum_kernel=2.0.10
     libc_cv_gcc_unwind_find_fde=yes
     ;;
+  microblaze*)
+    arch_minimum_kernel=2.0.10
+    libc_cv_gcc_unwind_find_fde=yes
+    libc_cv_fpie=no
+    ;;
   mips*)
     arch_minimum_kernel=2.4.0
     libc_cv_gcc_unwind_find_fde=yes

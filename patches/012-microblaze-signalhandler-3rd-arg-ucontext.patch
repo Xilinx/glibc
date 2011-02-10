@@ -1,0 +1,18 @@
+diff -Naur /tmp/glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h
+--- /tmp/glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h	2010-07-13 19:08:36.827595613 +0200
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h	2010-07-16 15:02:17.057368036 +0200
+@@ -13,10 +13,10 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
+-#define SIGCONTEXT int _code, struct sigcontext *
++#define SIGCONTEXT int _code, struct ucontext *
+ #define SIGCONTEXT_EXTRA_ARGS _code,
+-#define GET_PC(ctx)	((void *) (ctx)->regs.pc)
+-#define GET_FRAME(ctx)	((void *) (ctx)->regs.sp)
+-#define GET_STACK(ctx)	((void *) (ctx)->regs.sp)
++#define GET_PC(ctx)	((void *) (ctx)->uc_mcontext.regs.pc)
++#define GET_FRAME(ctx)	((void *) (ctx)->uc_mcontext.regs.sp)
++#define GET_STACK(ctx)	((void *) (ctx)->uc_mcontext.regs.sp)
+ #define CALL_SIGHANDLER(handler, signo, ctx) \
+   (handler)((signo), SIGCONTEXT_EXTRA_ARGS (ctx))

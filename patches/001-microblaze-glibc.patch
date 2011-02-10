@@ -1,0 +1,2945 @@
+diff -urpN glibc-2.3.6/configure glibc-2.3.6/configure
+--- glibc-2.3.6/configure	2005-11-03 17:37:15.000000000 -0700
++++ glibc-2.3.6/configure	2009-05-16 22:38:32.166704000 -0600
+@@ -1935,6 +1935,7 @@
+ m68k)		base_machine=m68k machine=m68k/m68020 ;;
+ m88???)		base_machine=m88k machine=m88k/$machine ;;
+ m88k)		base_machine=m88k machine=m88k/m88100 ;;
++microblaze)	base_machine=microblaze machine=microblaze ;;
+ mips64*)	base_machine=mips64
+ 		case "$CC $CFLAGS $CPPFLAGS " in
+ 		*" -mabi=n32 "*) mips_cc_abi=n32 ;;
+--- glibc-2.3.6/elf/elf.h	2004-11-12 14:51:33.000000000 -0700
++++ glibc-2.3.6/elf/elf.h	2009-05-16 22:33:45.314070000 -0600
+@@ -255,6 +255,8 @@
+    chances of collision with official or non-GNU unofficial values.  */
+ 
+ #define EM_ALPHA	0x9026
++#define EM_NEW_MICROBLAZE   115 /* Xilinx MicroBlaze */
++#define EM_MICROBLAZE 0xbaab
+ 
+ /* Legal values for e_version (version).  */
+ 
+@@ -2552,6 +2554,29 @@
+ #define R_M32R_GOTOFF_LO	64	/* Low 16 bit offset to GOT */
+ #define R_M32R_NUM		256	/* Keep this the last entry. */
+ 
++/* microblaze relocations */
++#define R_MICROBLAZE_NONE	0
++#define R_MICROBLAZE_32		1
++#define R_MICROBLAZE_32_PCREL	2
++#define R_MICROBLAZE_64_PCREL	3
++#define R_MICROBLAZE_32_PCREL_LO	4
++#define R_MICROBLAZE_64		5
++#define R_MICROBLAZE_32_LO	6
++#define R_MICROBLAZE_SRO32	7
++#define R_MICROBLAZE_SRW32	8
++#define R_MICROBLAZE_64_NONE	9
++#define R_MICROBLAZE_32_SYM_OP_SYM	10
++#define R_MICROBLAZE_GNU_VTINHERIT	11
++#define R_MICROBLAZE_GNU_VTENTRY	12
++#define R_MICROBLAZE_GOTPC_64	13
++#define R_MICROBLAZE_GOT_64	14
++#define R_MICROBLAZE_PLT_64	15
++#define R_MICROBLAZE_REL	16
++#define R_MICROBLAZE_JUMP_SLOT	17
++#define R_MICROBLAZE_GLOB_DAT	18
++#define R_MICROBLAZE_GOTOFF_64	19
++#define R_MICROBLAZE_GOTOFF_32	20
++#define R_MICROBLAZE_COPY	21
+ 
+ __END_DECLS
+ 
+--- glibc-2.3.6/scripts/config.sub	2003-12-02 18:30:27.000000000 -0700
++++ glibc-2.3.6/scripts/config.sub	2009-05-16 22:36:31.060430000 -0600
+@@ -237,7 +237,7 @@
+ 	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
+ 	| i370 | i860 | i960 | ia64 \
+ 	| ip2k | iq2000 \
+-	| m32r | m68000 | m68k | m88k | mcore \
++	| m32r | m68000 | m68k | m88k | mcore | microblaze \
+ 	| mips | mipsbe | mipseb | mipsel | mipsle \
+ 	| mips16 \
+ 	| mips64 | mips64el \
+@@ -310,7 +310,7 @@
+ 	| ip2k-* | iq2000-* \
+ 	| m32r-* \
+ 	| m68000-* | m680[012346]0-* | m68360-* | m683?2-* | m68k-* \
+-	| m88110-* | m88k-* | mcore-* \
++	| m88110-* | m88k-* | mcore-* | microblaze*- \
+ 	| mips-* | mipsbe-* | mipseb-* | mipsel-* | mipsle-* \
+ 	| mips16-* \
+ 	| mips64-* | mips64el-* \
+--- glibc-2.3.6/so_scripts/libc.so	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/so_scripts/libc.so	2009-05-16 22:50:33.591938000 -0600
+@@ -0,0 +1,5 @@
++/* GNU ld script
++   Use the shared library, but some functions are only in
++   the static library, so try that secondarily.  */
++OUTPUT_FORMAT(elf32-microblaze)
++GROUP ( libc.so.6 libc_nonshared.a )
+--- glibc-2.3.6/so_scripts/libpthread.so	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/so_scripts/libpthread.so	2009-05-16 22:50:33.593936000 -0600
+@@ -0,0 +1,5 @@
++/* GNU ld script
++   Use the shared library, but some functions are only in
++   the static library, so try that secondarily.  */
++OUTPUT_FORMAT(elf32-microblaze)
++GROUP ( libpthread.so.0 libpthread_nonshared.a )
+--- glibc-2.3.6/sysdeps/microblaze/abort-instr.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/abort-instr.h	2009-05-16 22:46:27.403852000 -0600
+@@ -0,0 +1,2 @@
++/* An instruction which should crash any program is `illegal'.  */
++#define ABORT_INSTRUCTION asm ("brki r0, -1") /* Hope, this works */
+--- glibc-2.3.6/sysdeps/microblaze/asm-syntax.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/asm-syntax.h	2009-05-16 22:46:27.405853000 -0600
+@@ -0,0 +1,41 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifdef HAVE_ELF
++
++/* ELF uses byte-counts for .align, most others use log2 of count of bytes.  */
++#define ALIGNARG(log2) 1<<log2
++/* For ELF we need the `.type' directive to make shared libs work right.  */
++#define PROLOG(name) .type name,@function
++#define EPILOG(name) .size name,.-name
++/* For ELF we need to prefix register names and local labels.  */
++#ifdef __STDC__
++#define R_(r) %##r
++#define R(r) R_(r)
++#define L(label) .##label
++#else
++#define R(r) %/**/r
++#define L(label) ./**/label
++#endif
++
++#else
++
++#define ALIGNARG(log2) log2
++#define PROLOG(name) /* Nothing.  */
++#define EPILOG(name) /* Nothing.  */
++#define R(r) r
++#define L(label) label
++
++#endif
+--- glibc-2.3.6/sysdeps/microblaze/bits/byteswap.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/bits/byteswap.h	2009-05-16 22:46:27.410846000 -0600
+@@ -0,0 +1,58 @@
++/* Macros to swap the order of bytes in integer values.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#if !defined _BYTESWAP_H && !defined _NETINET_IN_H
++# error "Never use <bits/byteswap.h> directly; include <byteswap.h> instead."
++#endif
++
++#ifndef _BITS_BYTESWAP_H
++#define _BITS_BYTESWAP_H 1
++
++/* Swap bytes in 16 bit value.  We don't provide an assembler version
++   because GCC is smart enough to generate optimal assembler output, and
++   this allows for better cse.  */
++#define __bswap_16(x) \
++  ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
++
++/* Swap bytes in 32 bit value.  */
++#define __bswap_constant_32(x) \
++  ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) | \
++   (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
++
++#if defined __GNUC__ && __GNUC__ >= 2
++# define __bswap_32(x) \
++  __extension__							\
++  ({ unsigned int __bswap_32_v;					\
++       __bswap_32_v = __bswap_constant_32 (x);			\
++     __bswap_32_v; })
++#else
++# define __bswap_32(x) __bswap_constant_32 (x)
++#endif
++
++#if defined __GNUC__ && __GNUC__ >= 2
++/* Swap bytes in 64 bit value.  */
++# define __bswap_64(x) \
++  __extension__								\
++  ({ union { unsigned long long int __ll;				\
++	     unsigned long int __l[2]; } __bswap_64_v, __bswap_64_r;	\
++     __bswap_64_v.__ll = (x);						\
++     __bswap_64_r.__l[0] = __bswap_32 (__bswap_64_v.__l[1]);		\
++     __bswap_64_r.__l[1] = __bswap_32 (__bswap_64_v.__l[0]);		\
++     __bswap_64_r.__ll; })
++#endif
++
++#endif /* _BITS_BYTESWAP_H */
+--- glibc-2.3.6/sysdeps/microblaze/bits/endian.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/bits/endian.h	2009-05-16 22:46:27.413842000 -0600
+@@ -0,0 +1,7 @@
++/* MicroBlaze is big-endian.  */
++
++#ifndef _ENDIAN_H
++# error "Never use <bits/endian.h> directly; include <endian.h> instead."
++#endif
++
++#define __BYTE_ORDER __BIG_ENDIAN
+--- glibc-2.3.6/sysdeps/microblaze/bits/setjmp.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/bits/setjmp.h	2009-05-16 22:46:27.470796000 -0600
+@@ -0,0 +1,34 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* Define the machine-dependent type `jmp_buf'. */
++
++#ifndef _SETJMP_H
++# error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
++#endif
++
++typedef struct
++  {
++    /* There are 21 4-byte registers that shourd be saved:
++       r1, r2, r13-r31. Actually, there seems no need to save
++       r14, r16, r17, r18 (return addresses for interrupt/exception/trap). */
++    int *__sp; /* dedicated name for r1 */
++    long int __gregs[20]; 
++  } __jmp_buf[1];
++
++/* Test if longjmp to JMPBUF would unwind the frame
++   containing a local variable at ADDRESS.  */
++#define _JMPBUF_UNWINDS(jmpbuf, address) \
++  ((void *) (address) < (void *) (jmpbuf)->__sp)
+--- glibc-2.3.6/sysdeps/microblaze/bsd-_setjmp.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/bsd-_setjmp.S	2009-05-16 22:46:27.511743000 -0600
+@@ -0,0 +1,23 @@
++/* BSD `_setjmp' entry point to `sigsetjmp (..., 0)'.
++   Copyright (C) 1995-1997,2000,2001,2002,2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define setjmp_name _setjmp
++#define SAVEMASK 0
++
++#include <setjmp.S>
+--- glibc-2.3.6/sysdeps/microblaze/bsd-setjmp.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/bsd-setjmp.S	2009-05-16 22:46:27.557698000 -0600
+@@ -0,0 +1,23 @@
++/* BSD `setjmp' entry point to `sigsetjmp (..., 1)'.
++   Copyright (C) 1995-1997,2000,2001,2002,2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define setjmp_name setjmp
++#define SAVEMASK 1
++
++#include <setjmp.S>
+--- glibc-2.3.6/sysdeps/microblaze/dl-machine.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/dl-machine.h	2009-05-16 22:46:27.561694000 -0600
+@@ -0,0 +1,348 @@
++/* Machine-dependent ELF dynamic relocation inline functions.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef dl_machine_h
++#define dl_machine_h
++
++#define ELF_MACHINE_NAME "microblaze"
++
++#include <sys/param.h>
++
++/* Return nonzero iff ELF header is compatible with the running host.  */
++static inline int
++elf_machine_matches_host (const Elf32_Ehdr *ehdr)
++{
++  return ehdr->e_machine == EM_MICROBLAZE;
++}
++
++
++/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
++   first element of the GOT.  This must be inlined in a function which
++   uses global data.  */
++static inline Elf32_Addr
++elf_machine_dynamic (void)
++{
++  /* This produces a GOTOFF reloc that resolves to zero at link time, so in
++     fact just loads from the GOT register directly.  By doing it without
++     an asm we can let the compiler choose any register.  */
++//  extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
++//  return _GLOBAL_OFFSET_TABLE_[0];
++  Elf32_Addr got_entry_0;
++  __asm__ __volatile__(
++    "lwi %0,r20,0"
++    :"=r"(got_entry_0)
++    );
++  return got_entry_0;
++}
++
++
++/* Return the run-time load address of the shared object.  */
++static inline Elf32_Addr
++elf_machine_load_address (void)
++{
++  /* Compute the difference between the runtime address of _DYNAMIC as seen
++     by a GOTOFF reference, and the link-time address found in the special
++     unrelocated first GOT entry.  */
++//  extern Elf32_Dyn bygotoff[] asm ("_DYNAMIC") attribute_hidden;
++//  return (Elf32_Addr) &bygotoff - elf_machine_dynamic ();
++  Elf32_Addr dyn;
++  __asm__ __volatile__ (
++    "addik %0,r20,_DYNAMIC@GOTOFF"
++    : "=r"(dyn)
++    );
++  return dyn - elf_machine_dynamic ();
++}
++
++
++/* Set up the loaded object described by L so its unrelocated PLT
++   entries will jump to the on-demand fixup code in dl-runtime.c.  */
++
++static inline int __attribute__ ((always_inline))
++elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
++{
++  Elf32_Addr *got;
++  extern void _dl_runtime_resolve (Elf32_Word);
++  extern void _dl_runtime_profile (Elf32_Word);
++
++#if 0 /* not yet */
++  if (l->l_info[DT_JMPREL] && lazy)
++    {
++      /* The GOT entries for functions in the PLT have not yet been
++	 filled in.  Their initial contents will arrange when called
++	 to push an offset into the .rela.plt section, push
++	 _GLOBAL_OFFSET_TABLE_[1], and then jump to
++	 _GLOBAL_OFFSET_TABLE_[2].  */
++      got = (Elf32_Addr *) D_PTR (l, l_info[DT_PLTGOT]);
++      got[1] = (Elf32_Addr) l;	/* Identify this shared object.  */
++
++      /* The got[2] entry contains the address of a function which gets
++	 called to get the address of a so far unresolved function and
++	 jump to it.  The profiling extension of the dynamic linker allows
++	 to intercept the calls to collect information.  In this case we
++	 don't store the address in the GOT so that all future calls also
++	 end in this function.  */
++      if (profile)
++	{
++	  got[2] = (Elf32_Addr) &_dl_runtime_profile;
++
++	  if (_dl_name_match_p (GLRO(dl_profile), l))
++	    {
++	      /* This is the object we are looking for.  Say that we really
++		 want profiling and the timers are started.  */
++	      GL(dl_profile_map) = l;
++	    }
++	}
++      else
++	/* This function will get called to fix up the GOT entry indicated by
++	   the offset on the stack, and then jump to the resolved address.  */
++	got[2] = (Elf32_Addr) &_dl_runtime_resolve;
++    }
++#endif
++
++  return lazy;
++}
++
++/* This code is used in dl-runtime.c to call the `fixup' function
++   and then redirect to the address it returns. */
++/* We assume that R3 contain relocation offset and R4 contains 
++   link_map (_DYNAMIC). This must be consistent with the JUMP_SLOT 
++   layout generated by binutils. */
++#define TRAMPOLINE_TEMPLATE(tramp_name, fixup_name) \
++"\
++    .text\n\
++    .globl  " #tramp_name "\n\
++    .type   " #tramp_name ", @function\n\
++    .align  4\n\
++" #tramp_name ":\n\
++    addik r1,r1,-40 \n\
++    swi   r5,r1,12 \n\
++    swi   r6,r1,16 \n\
++    swi   r7,r1,20 \n\
++    swi   r8,r1,24 \n\
++    swi   r9,r1,28 \n\
++    swi   r10,r1,32 \n\
++    swi   r15,r1,0 \n\
++    addk r5,r0,r4 \n\
++    brlid r15, " #fixup_name " \n\
++    addk r6,r0,r3; /* delay slot */ \n\
++    lwi   r10,r1,32 \n\
++    lwi   r9,r1,28 \n\
++    lwi   r8,r1,24 \n\
++    lwi   r7,r1,20 \n\
++    lwi   r6,r1,16 \n\
++    lwi   r5,r1,12 \n\
++    lwi   r15,r1,0 \n\
++    brad  r3 \n\
++    addik r1,r1,40; /* delay slot */ \n\
++    .size " #tramp_name ", . - " #tramp_name "\n"
++                      
++#ifndef PROF
++#define ELF_MACHINE_RUNTIME_TRAMPOLINE \
++asm (TRAMPOLINE_TEMPLATE (_dl_runtime_resolve, fixup) \
++     TRAMPOLINE_TEMPLATE (_dl_runtime_profile, profile_fixup));
++#else
++#define ELF_MACHINE_RUNTIME_TRAMPOLINE \
++asm (TRAMPOLINE_TEMPLATE (_dl_runtime_resolve, fixup) \
++     ".globl _dl_runtime_profile\n" \
++     ".set _dl_runtime_profile, _dl_runtime_resolve");
++#endif
++
++
++/* Mask identifying addresses reserved for the user program,
++   where the dynamic linker should not map anything.  */
++#define ELF_MACHINE_USER_ADDRESS_MASK	0x80000000UL
++
++/* Initial entry point code for the dynamic linker.
++   The C function `_dl_start' is the real entry point;
++   its return value is the user program's entry point.  */
++
++#define RTLD_START asm ("\
++	.text\n\
++	.globl _start\n\
++	.type _start,@function\n\
++_start:\n\
++	addk  r5,r0,r1\n\
++	addk  r3,r0,r0\n\
++1:\n\
++	addik r5,r5,4\n\
++	lw    r4,r5,r0\n\
++	bneid r4,1b\n\
++	addik r3,r3,1\n\
++	addik r3,r3,-1\n\
++	addk  r5,r0,r1\n\
++	sw    r3,r5,r0\n\
++	addik r1,r1,-24\n\
++	sw    r15,r1,r0\n\
++	brlid r15,_dl_start\n\
++	nop\n\
++	/* FALLTHRU */\n\
++\n\
++	.globl _dl_start_user\n\
++	.type _dl_start_user,@function\n\
++_dl_start_user:\n\
++	mfs   r20,rpc\n\
++	addik r20,r20,_GLOBAL_OFFSET_TABLE_+8\n\
++	lwi   r4,r20,_dl_skip_args@GOTOFF\n\
++	lwi   r5,r1,24\n\
++	rsubk r5,r4,r5\n\
++	addk  r4,r4,r4\n\
++	addk  r4,r4,r4\n\
++	addk  r1,r1,r4\n\
++	swi   r5,r1,24\n\
++	swi   r3,r1,20\n\
++	addk  r6,r5,r0\n\
++	addk  r5,r5,r5\n\
++	addk  r5,r5,r5\n\
++	addik r7,r1,28\n\
++	addk  r8,r7,r5\n\
++	addik r8,r8,4\n\
++	lwi   r5,r20,_rtld_local@GOTOFF\n\
++	brlid r15,_dl_init_internal\n\
++	nop\n\
++	lwi   r5,r1,24\n\
++	lwi   r3,r1,20\n\
++	addk  r4,r5,r5\n\
++	addk  r4,r4,r4\n\
++	addik r6,r1,28\n\
++	addk  r7,r6,r4\n\
++	addik r7,r7,4\n\
++	addik r15,r20,_dl_fini@GOTOFF\n\
++	addik r15,r15,-8\n\
++	brad  r3\n\
++	addik r1,r1,24\n\
++	nop\n\
++	.size _dl_start_user, . - _dl_start_user\n\
++	.previous");
++
++/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
++   PLT entries should not be allowed to define the value.
++   ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
++   of the main executable's symbols, as for a COPY reloc.  */
++#define elf_machine_type_class(type) \
++  (((type) == R_MICROBLAZE_JUMP_SLOT) * ELF_RTYPE_CLASS_PLT \
++   | ((type) == R_MICROBLAZE_COPY) * ELF_RTYPE_CLASS_COPY)
++
++/* A reloc type used for ld.so cmdline arg lookups to reject PLT entries.  */
++#define ELF_MACHINE_JMP_SLOT	R_MICROBLAZE_JUMP_SLOT
++
++/* The microblaze never uses Elf32_Rel relocations.  */
++#define ELF_MACHINE_NO_REL 1
++
++static inline Elf32_Addr
++elf_machine_fixup_plt (struct link_map *map, lookup_t t,
++		       const Elf32_Rela *reloc,
++		       Elf32_Addr *reloc_addr, Elf32_Addr value)
++{
++  return *reloc_addr = value;
++}
++
++/* Return the final value of a plt relocation. Ignore the addend.  */
++static inline Elf32_Addr
++elf_machine_plt_value (struct link_map *map, const Elf32_Rela *reloc,
++		       Elf32_Addr value)
++{
++  return value;
++}
++
++#endif /* !dl_machine_h */
++
++#ifdef RESOLVE
++
++/* Perform the relocation specified by RELOC and SYM (which is fully resolved).
++   MAP is the object containing the reloc.  */
++
++/* Macro to put 32-bit relocation value into 2 words */
++#define PUT_REL_64(rel_addr,val) \
++  do { \
++    ((unsigned short *)(rel_addr))[1] = (val) >> 16; \
++    ((unsigned short *)(rel_addr))[3] = (val) & 0xff; \
++  } while (0)
++
++auto inline void __attribute__ ((always_inline))
++elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
++		  const Elf32_Sym *sym, const struct r_found_version *version,
++		  void *const reloc_addr_arg)
++{
++  Elf32_Addr *const reloc_addr = reloc_addr_arg;
++  const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
++
++  if (__builtin_expect (r_type == R_MICROBLAZE_64_PCREL, 0))
++    PUT_REL_64(reloc_addr, map->l_addr + reloc->r_addend);
++  else if (r_type == R_MICROBLAZE_REL)
++    *reloc_addr = map->l_addr + reloc->r_addend;
++  else
++    {
++      const Elf32_Sym *const refsym = sym;
++      Elf32_Addr value = RESOLVE (&sym, version, r_type);
++      if (sym)
++	value += sym->st_value;
++      value += reloc->r_addend;
++      switch (r_type)
++	{
++	case R_MICROBLAZE_GLOB_DAT:
++	case R_MICROBLAZE_JUMP_SLOT:
++	case R_MICROBLAZE_32:
++	  *reloc_addr = value;
++	  break;
++	case R_MICROBLAZE_NONE:		/* Nothing.  */
++	  break;
++	case R_MICROBLAZE_COPY:
++	  if (sym == NULL)
++	    /* This can happen in trace mode if an object could not be
++	       found.  */
++	    break;
++	  if (sym->st_size > refsym->st_size
++	      || (sym->st_size < refsym->st_size && GLRO(dl_verbose)))
++	    {
++	      const char *strtab;
++
++	      strtab = (const void *) D_PTR (map, l_info[DT_STRTAB]);
++	      _dl_error_printf ("\
++%s: Symbol `%s' has different size in shared object, consider re-linking\n",
++				rtld_progname ?: "<program name unknown>",
++				strtab + refsym->st_name);
++	    }
++	  memcpy (reloc_addr_arg, (void *) value,
++		  MIN (sym->st_size, refsym->st_size));
++	  break;
++	default:
++	  _dl_reloc_bad_type (map, r_type, 0);
++	  break;
++	}
++    }
++}
++
++auto inline void
++elf_machine_rela_relative (Elf32_Addr l_addr, const Elf32_Rela *reloc,
++			   void *const reloc_addr_arg)
++{
++  Elf32_Addr *const reloc_addr = reloc_addr_arg;
++  PUT_REL_64(reloc_addr, l_addr + reloc->r_addend);
++}
++
++auto inline void
++elf_machine_lazy_rel (struct link_map *map,
++		      Elf32_Addr l_addr, const Elf32_Rela *reloc)
++{
++  Elf32_Addr *const reloc_addr = (void *) (l_addr + reloc->r_offset);
++  if (ELF32_R_TYPE (reloc->r_info) == R_MICROBLAZE_JUMP_SLOT)
++    *reloc_addr += l_addr;
++  else
++    _dl_reloc_bad_type (map, ELF32_R_TYPE (reloc->r_info), 1);
++}
++
++#endif /* RESOLVE */
+--- glibc-2.3.6/sysdeps/microblaze/elf/start.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/elf/start.S	2009-05-16 22:46:27.565691000 -0600
+@@ -0,0 +1,86 @@
++/* Startup code.
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   In addition to the permissions in the GNU Lesser General Public
++   License, the Free Software Foundation gives you unlimited
++   permission to link the compiled version of this file with other
++   programs, and to distribute those programs without any restriction
++   coming from the use of this file. (The GNU Lesser General Public
++   License restrictions do apply in other respects; for example, they
++   cover modification of the file, and distribution when not linked
++   into another program.)
++
++   Note that people who make modified versions of this file are not
++   obligated to grant this special exception for their modified
++   versions; it is their choice whether to do so. The GNU Lesser
++   General Public License gives permission to release a modified
++   version without this exception; this exception also makes it
++   possible to release a modified version which carries forward this
++   exception.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++	.text
++	.globl _start
++	.type _start,@function
++_start:
++	/* On entry the stack contains the following args:
++           r1+0 - argc
++           r1+4 - argv[0]
++           ...
++           r1+4*(argc-1) - argv[argc-1]
++           r1+4*argc - NULL
++           r1+4*argc + 4 - envp[0]
++           ...
++           NULL
++	*/
++#if 0 /* be safe: recalculate argc */
++	lwi	r6,r1,0
++#else
++	addk	r3,r0,r0
++	addk	r5,r1,r0
++1:
++	addik	r5,r5,4
++	lw	r4,r5,r0
++	bneid	r4,1b
++	addik	r3,r3,1
++	addik	r6,r3,-1
++	sw	r6,r1,r0
++#endif
++	addik	r7,r1,4
++	addik	r1,r1,-24
++#ifdef SHARED
++	/* Setup PIC */
++	mfs	r20,rpc
++	addik	r20,r20,_GLOBAL_OFFSET_TABLE_+8
++	lwi	r5,r20,main@GOT
++	lwi	r8,r20,__libc_csu_init@GOT
++	lwi	r9,r20,__libc_csu_fini@GOT
++	brid	__libc_start_main@PLT
++	addk	r10,r0,r0
++#else
++	addik	r5,r0,main
++	addik	r8,r0,__libc_csu_init
++	addik	r9,r0,__libc_csu_fini
++	brid	__libc_start_main
++	addk	r10,r0,r0
++#endif
++
++/* Define a symbol for the first piece of initialized data.  */
++	.data
++	.globl __data_start
++__data_start:
++	.long 0
++	.weak data_start
++	data_start = __data_start
+--- glibc-2.3.6/sysdeps/microblaze/gccframe.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/gccframe.h	2009-05-16 22:46:27.567690000 -0600
+@@ -0,0 +1,22 @@
++/* Definition of object in frame unwind info.  sparc version.
++   Copyright (C) 2001 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define FIRST_PSEUDO_REGISTER 78
++
++#include <sysdeps/generic/gccframe.h>
+--- glibc-2.3.6/sysdeps/microblaze/Implies	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/Implies	2009-05-16 22:46:27.393862000 -0600
+@@ -0,0 +1,4 @@
++wordsize-32
++# MicroBlaze uses IEEE 754 floating point.
++ieee754/flt-32
++ieee754/dbl-64
+--- glibc-2.3.6/sysdeps/microblaze/__longjmp.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/__longjmp.S	2009-05-16 22:46:27.400858000 -0600
+@@ -0,0 +1,56 @@
++/* Copyright (C) 1991, 92, 93, 94, 95, 97 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++
++/* Jump to the position specified by ENV, causing the
++   setjmp call there to return VAL, or 1 if VAL is 0.  */
++
++/* void __longjmp (__jmp_buf env, int val) */
++
++ENTRY(__longjmp)
++    lwi   r1,r5,0
++    lwi   r2,r5,4
++    lwi   r13,r5,8
++    lwi   r14,r5,12
++    lwi   r15,r5,16
++    lwi   r16,r5,20
++    lwi   r17,r5,24
++    lwi   r18,r5,28
++    lwi   r19,r5,32
++    lwi   r20,r5,36
++    lwi   r21,r5,40
++    lwi   r22,r5,44
++    lwi   r23,r5,48
++    lwi   r24,r5,52
++    lwi   r25,r5,56
++    lwi   r26,r5,60
++    lwi   r27,r5,64
++    lwi   r28,r5,68
++    lwi   r29,r5,72
++    lwi   r30,r5,76
++    lwi   r31,r5,80
++    addk  r3,r6,r0
++    beqi  r3,L(return_1)
++    rtsd  r15,8
++    nop
++L(return_1):
++    rtsd  r15,8
++    addik r3,r0,1	/* delay slot */
++END(__longjmp)
++
+--- glibc-2.3.6/sysdeps/microblaze/machine-gmon.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/machine-gmon.h	2009-05-16 22:46:27.570684000 -0600
+@@ -0,0 +1,31 @@
++/* PowerPC-specific implementation of profiling support.
++   Copyright (C) 1997 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* We need a special version of the `mcount' function because it has
++   to preserve more registers than your usual function.  */
++
++void __mcount_internal (unsigned long frompc, unsigned long selfpc);
++
++#define _MCOUNT_DECL(frompc, selfpc) \
++void __mcount_internal (unsigned long frompc, unsigned long selfpc)
++
++
++/* Define MCOUNT as empty since we have the implementation in another
++   file.  */
++#define MCOUNT
+--- glibc-2.3.6/sysdeps/microblaze/Makefile	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/Makefile	2009-05-16 22:46:27.396860000 -0600
+@@ -0,0 +1,27 @@
++# The GNU C Library is free software; you can redistribute it and/or
++# modify it under the terms of the GNU Lesser General Public
++# License as published by the Free Software Foundation; either
++# version 2.1 of the License, or (at your option) any later version.
++
++# The GNU C Library is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++# Lesser General Public License for more details.
++
++# You should have received a copy of the GNU Lesser General Public
++# License along with the GNU C Library; if not, write to the Free
++# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++# 02111-1307 USA.
++
++# The mpn functions need this.  All existing 68k ports use MIT syntax.  If
++# a new port wants to use Motorola or Sony syntax, it can redefine this
++# variable.
++
++pic-ccflag = -fPIC
++
++# Make sure setjmp.c is compiled with a frame pointer
++CFLAGS-setjmp.c := -fno-omit-frame-pointer
++
++ifeq ($(subdir),elf)
++CFLAGS-rtld.c += -Wno-uninitialized -Wno-unused
++endif
+--- glibc-2.3.6/sysdeps/microblaze/memusage.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/memusage.h	2009-05-16 22:46:27.572683000 -0600
+@@ -0,0 +1,22 @@
++/* Copyright (C) 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++
++#define GETSP() ({ register uintptr_t stack_ptr asm ("r1"); stack_ptr; })
++
++#include <sysdeps/generic/memusage.h>
+--- glibc-2.3.6/sysdeps/microblaze/setjmp.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/setjmp.S	2009-05-16 22:46:27.574682000 -0600
+@@ -0,0 +1,75 @@
++/* setjmp for microblaze, ELF version.
++   Copyright (C) 1995-1997,2000,2001,2002,2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++
++/* This source produces 3 functions:
++   __sigsetjmp(jmpbuf,savemask)
++   setjmp(jmpbuf) - equivalent to __sigsetjump(jmpbuf, 1)
++   _setjmp(jmpbuf) - equivalent to __sigsetjump(jmpbuf, 0)
++*/
++
++#ifndef setjmp_name
++#define setjmp_name __sigsetjmp
++#define SET_MASK_ARG
++#else
++#define SET_MASK_ARG    addik r6,r0,SAVEMASK
++#endif
++
++ENTRY (setjmp_name)
++    swi   r1,r5,0
++    swi   r2,r5,4
++    swi   r13,r5,8
++    swi   r14,r5,12
++    swi   r15,r5,16
++    swi   r16,r5,20
++    swi   r17,r5,24
++    swi   r18,r5,28
++    swi   r19,r5,32
++    swi   r20,r5,36
++    swi   r21,r5,40
++    swi   r22,r5,44
++    swi   r23,r5,48
++    swi   r24,r5,52
++    swi   r25,r5,56
++    swi   r26,r5,60
++    swi   r27,r5,64
++    swi   r28,r5,68
++    swi   r29,r5,72
++    swi   r30,r5,76
++    swi   r31,r5,80
++
++    SET_MASK_ARG
++
++	/* Make a tail call to __sigjmp_save; it takes the same args.  */
++#ifdef	PIC
++	/* We cannot use the PLT, because it requires that r20 be set, but
++           we can't save and restore our caller's value.  Instead, we do an
++           indirect jump through the GOT, using for the temporary register
++           %ecx, which is call-clobbered.  */
++    mfs   r12,rpc
++    addik r12,r12,_GLOBAL_OFFSET_TABLE_+8
++    lwi   r12,r12,__sigjmp_save@GOT
++    brad  r12
++#else
++    brid  __sigjmp_save
++#endif
++    nop
++END (setjmp_name)
++
+--- glibc-2.3.6/sysdeps/microblaze/stackinfo.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/stackinfo.h	2009-05-16 22:46:27.576681000 -0600
+@@ -0,0 +1,28 @@
++/* Copyright (C) 1999 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* This file contains a bit of information about the stack allocation
++   of the processor.  */
++
++#ifndef _STACKINFO_H
++#define _STACKINFO_H	1
++
++/* On microblaze the stack grows down.  */
++#define _STACK_GROWS_DOWN	1
++
++#endif	/* stackinfo.h */
+--- glibc-2.3.6/sysdeps/microblaze/sysdep.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/sysdep.h	2009-05-16 22:46:27.687568000 -0600
+@@ -0,0 +1,107 @@
++/* Assembler macros for microblaze.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdeps/generic/sysdep.h>
++
++#ifdef __ASSEMBLER__
++
++/* Syntactic details of assembler.  */
++
++# ifdef HAVE_ELF
++
++/* ELF uses byte-counts for .align, most others use log2 of count of bytes.  */
++#  define ALIGNARG(log2) 1<<log2
++/* For ELF we need the `.type' directive to make shared libs work right.  */
++#  define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg
++#  define ASM_SIZE_DIRECTIVE(name) .size name,.-name
++
++/* In ELF C symbols are asm symbols.  */
++#  undef NO_UNDERSCORES
++#  define NO_UNDERSCORES
++
++# else
++
++#  define ALIGNARG(log2) log2
++#  define ASM_TYPE_DIRECTIVE(name,type)	/* Nothing is specified.  */
++#  define ASM_SIZE_DIRECTIVE(name)	/* Nothing is specified.  */
++
++# endif
++
++
++/* Define an entry point visible from C.
++
++   There is currently a bug in gdb which prevents us from specifying
++   incomplete stabs information.  Fake some entries here which specify
++   the current source file.  */
++# define ENTRY(name)							      \
++  .globl C_SYMBOL_NAME(name);						      \
++  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function);			      \
++  .align ALIGNARG(2);							      \
++  C_LABEL(name)								      \
++  CALL_MCOUNT
++
++# undef END
++# define END(name) ASM_SIZE_DIRECTIVE(name)
++
++
++/* If compiled for profiling, call `_mcount' at the start of each function.  */
++# ifdef	PROF
++/* The mcount code relies on a normal frame pointer being on the stack
++   to locate our caller, so push one just for its benefit.  */
++#  define CALL_MCOUNT \
++  addik r1,r1,-4;	\
++  swi r15,r1,0;		\
++  brlid r15,JUMPTARGET(mcount); \
++  nop;			\
++  lwi r15,r1,0;		\
++  addik r1,r1,4;
++# else
++#  define CALL_MCOUNT		/* Do nothing.  */
++# endif
++
++# ifdef	NO_UNDERSCORES
++/* Since C identifiers are not normally prefixed with an underscore
++   on this system, the asm identifier `syscall_error' intrudes on the
++   C name space.  Make sure we use an innocuous name.  */
++#  define syscall_error	__syscall_error
++#  define mcount	_mcount
++# endif
++
++# define PSEUDO(name, syscall_name, args)				      \
++  .globl syscall_error;							      \
++  ENTRY (name)								      \
++    DO_CALL (syscall_name, args);					      \
++    /* jcc JUMPTARGET(syscall_error) FIXME */
++
++# define ret \
++  rtsd r15,8; nop;
++
++# undef PSEUDO_END
++# define PSEUDO_END(name)						      \
++  END (name)
++
++# undef JUMPTARGET
++# ifdef PIC
++#  define JUMPTARGET(name)	name##@PLTPC
++# else
++#  define JUMPTARGET(name)	name
++# endif
++
++/* Assembler local label name */
++#define L(name) $L##name
++
++#endif	/* __ASSEMBLER__ */
+--- glibc-2.3.6/sysdeps/microblaze/Versions	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/microblaze/Versions	2009-05-16 22:46:27.398857000 -0600
+@@ -0,0 +1,6 @@
++libc {
++  GLIBC_2.0 {
++    # Functions from libgcc.
++    __divdi3; __moddi3; __udivdi3; __umoddi3;
++  }
++}
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/configure	2005-11-03 17:37:15.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/configure	2009-05-16 22:44:37.161110000 -0600
+@@ -115,6 +115,11 @@
+     arch_minimum_kernel=2.0.10
+     libc_cv_gcc_unwind_find_fde=yes
+     ;;
++  microblaze*)
++    arch_minimum_kernel=2.0.10
++    libc_cv_gcc_unwind_find_fde=yes
++    libc_cv_fpie=no
++    ;;
+   mips*)
+     arch_minimum_kernel=2.4.0
+     libc_cv_gcc_unwind_find_fde=yes
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/configure.in	2004-07-05 22:11:40.000000000 -0600
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/configure.in	2009-05-16 22:44:48.575095000 -0600
+@@ -75,6 +75,11 @@
+     arch_minimum_kernel=2.0.10
+     libc_cv_gcc_unwind_find_fde=yes
+     ;;
++  microblaze*)
++    arch_minimum_kernel=2.0.10
++    libc_cv_gcc_unwind_find_fde=yes
++    libc_cv_fpie=no
++    ;;
+   mips*)
+     arch_minimum_kernel=2.4.0
+     libc_cv_gcc_unwind_find_fde=yes
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/alphasort64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/alphasort64.c	2009-05-16 22:47:47.181247000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/alphasort64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/a.out.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/a.out.h	2009-05-16 22:47:47.187239000 -0600
+@@ -0,0 +1,3 @@
++#ifndef __A_OUT_GNU_H__
++# error "Never use <bits/a.out.h> directly; include <a.out.h> instead."
++#endif
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/fcntl.h	2009-05-16 22:47:47.190236000 -0600
+@@ -0,0 +1,186 @@
++/* O_*, F_*, FD_* bit values for Linux.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef	_FCNTL_H
++# error "Never use <bits/fcntl.h> directly; include <fcntl.h> instead."
++#endif
++
++
++#include <sys/types.h>
++
++/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
++   located on an ext2 file system */
++#define O_ACCMODE	   0003
++#define O_RDONLY	     00
++#define O_WRONLY	     01
++#define O_RDWR		     02
++#define O_CREAT		   0100	/* not fcntl */
++#define O_EXCL		   0200	/* not fcntl */
++#define O_NOCTTY	   0400	/* not fcntl */
++#define O_TRUNC		  01000	/* not fcntl */
++#define O_APPEND	  02000
++#define O_NONBLOCK	  04000
++#define O_NDELAY	O_NONBLOCK
++#define O_SYNC		 010000
++#define O_FSYNC		 O_SYNC
++#define O_ASYNC		 020000
++
++#ifdef __USE_GNU
++# define O_DIRECTORY	 040000	/* Must be a directory.	 */
++# define O_NOFOLLOW	0100000	/* Do not follow links.	 */
++# define O_DIRECT	0400000	/* Direct disk access.	*/
++# define O_NOATIME	01000000 /* Do not set atime.  */
++#endif
++
++/* For now Linux has synchronisity options for data and read operations.
++   We define the symbols here but let them do the same as O_SYNC since
++   this is a superset.	*/
++#if defined __USE_POSIX199309 || defined __USE_UNIX98
++# define O_DSYNC	O_SYNC	/* Synchronize data.  */
++# define O_RSYNC	O_SYNC	/* Synchronize read operations.	 */
++#endif
++
++#ifdef __USE_LARGEFILE64
++# define O_LARGEFILE	0200000
++#endif
++
++/* Values for the second argument to `fcntl'.  */
++#define F_DUPFD		0	/* Duplicate file descriptor.  */
++#define F_GETFD		1	/* Get file descriptor flags.  */
++#define F_SETFD		2	/* Set file descriptor flags.  */
++#define F_GETFL		3	/* Get file status flags.  */
++#define F_SETFL		4	/* Set file status flags.  */
++#ifndef __USE_FILE_OFFSET64
++# define F_GETLK	5	/* Get record locking info.  */
++# define F_SETLK	6	/* Set record locking info (non-blocking).  */
++# define F_SETLKW	7	/* Set record locking info (blocking).	*/
++#else
++# define F_GETLK	F_GETLK64  /* Get record locking info.	*/
++# define F_SETLK	F_SETLK64  /* Set record locking info (non-blocking).*/
++# define F_SETLKW	F_SETLKW64 /* Set record locking info (blocking).  */
++#endif
++#define F_GETLK64	12	/* Get record locking info.  */
++#define F_SETLK64	13	/* Set record locking info (non-blocking).  */
++#define F_SETLKW64	14	/* Set record locking info (blocking).	*/
++
++#if defined __USE_BSD || defined __USE_UNIX98
++# define F_SETOWN	8	/* Get owner of socket (receiver of SIGIO).  */
++# define F_GETOWN	9	/* Set owner of socket (receiver of SIGIO).  */
++#endif
++
++#ifdef __USE_GNU
++# define F_SETSIG	10	/* Set number of signal to be sent.  */
++# define F_GETSIG	11	/* Get number of signal to be sent.  */
++#endif
++
++#ifdef __USE_GNU
++# define F_SETLEASE	1024	/* Set a lease.	 */
++# define F_GETLEASE	1025	/* Enquire what lease is active.  */
++# define F_NOTIFY	1026	/* Request notfications on a directory.	 */
++#endif
++
++/* For F_[GET|SET]FL.  */
++#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
++
++/* For posix fcntl() and `l_type' field of a `struct flock' for lockf().  */
++#define F_RDLCK		0	/* Read lock.  */
++#define F_WRLCK		1	/* Write lock.	*/
++#define F_UNLCK		2	/* Remove lock.	 */
++
++/* For old implementation of bsd flock().  */
++#define F_EXLCK		4	/* or 3 */
++#define F_SHLCK		8	/* or 4 */
++
++#ifdef __USE_BSD
++/* Operations for bsd flock(), also used by the kernel implementation.	*/
++# define LOCK_SH	1	/* shared lock */
++# define LOCK_EX	2	/* exclusive lock */
++# define LOCK_NB	4	/* or'd with one of the above to prevent
++				   blocking */
++# define LOCK_UN	8	/* remove lock */
++#endif
++
++#ifdef __USE_GNU
++# define LOCK_MAND	32	/* This is a mandatory flock:	*/
++# define LOCK_READ	64	/* ... which allows concurrent read operations.	 */
++# define LOCK_WRITE	128	/* ... which allows concurrent write operations.  */
++# define LOCK_RW	192	/* ... Which allows concurrent read & write operations.	 */
++#endif
++
++#ifdef __USE_GNU
++/* Types of directory notifications that may be requested with F_NOTIFY.  */
++# define DN_ACCESS	0x00000001	/* File accessed.  */
++# define DN_MODIFY	0x00000002	/* File modified.  */
++# define DN_CREATE	0x00000004	/* File created.  */
++# define DN_DELETE	0x00000008	/* File removed.  */
++# define DN_RENAME	0x00000010	/* File renamed.  */
++# define DN_ATTRIB	0x00000020	/* File changed attibutes.  */
++# define DN_MULTISHOT	0x80000000	/* Don't remove notifier.  */
++#endif
++
++struct flock
++  {
++    short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
++    short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
++#ifndef __USE_FILE_OFFSET64
++    __off_t l_start;	/* Offset where the lock begins.  */
++    __off_t l_len;	/* Size of the locked area; zero means until EOF.  */
++#else
++    __off64_t l_start;	/* Offset where the lock begins.  */
++    __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
++#endif
++    __pid_t l_pid;	/* Process holding the lock.  */
++  };
++
++#ifdef __USE_LARGEFILE64
++struct flock64
++  {
++    short int l_type;	/* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.	*/
++    short int l_whence;	/* Where `l_start' is relative to (like `lseek').  */
++    __off64_t l_start;	/* Offset where the lock begins.  */
++    __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
++    __pid_t l_pid;	/* Process holding the lock.  */
++  };
++#endif
++
++/* Define some more compatibility macros to be backward compatible with
++   BSD systems which did not managed to hide these kernel macros.  */
++#ifdef	__USE_BSD
++# define FAPPEND	O_APPEND
++# define FFSYNC		O_FSYNC
++# define FASYNC		O_ASYNC
++# define FNONBLOCK	O_NONBLOCK
++# define FNDELAY	O_NDELAY
++#endif /* Use BSD.  */
++
++/* Advise to `posix_fadvise'.  */
++#ifdef __USE_XOPEN2K
++# define POSIX_FADV_NORMAL	0 /* No further special treatment.  */
++# define POSIX_FADV_RANDOM	1 /* Expect random page references.  */
++# define POSIX_FADV_SEQUENTIAL	2 /* Expect sequential page references.	 */
++# define POSIX_FADV_WILLNEED	3 /* Will need these pages.  */
++# define POSIX_FADV_DONTNEED	4 /* Don't need these pages.  */
++# define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
++#endif
++
++__BEGIN_DECLS
++
++/* Provide kernel hint to read ahead.  */
++extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
++    __THROW;
++
++__END_DECLS
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/mman.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/mman.h	2009-05-16 22:47:47.192235000 -0600
+@@ -0,0 +1,97 @@
++/* Definitions for POSIX memory map interface.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_MMAN_H
++# error "Never use <bits/mman.h> directly; include <sys/mman.h> instead."
++#endif
++
++/* The following definitions basically come from the kernel headers.
++   But the kernel header is not namespace clean.  */
++
++
++/* Protections are chosen from these bits, OR'd together.  The
++   implementation does not necessarily support PROT_EXEC or PROT_WRITE
++   without PROT_READ.  The only guarantees are that no writing will be
++   allowed without PROT_WRITE and no access will be allowed for PROT_NONE. */
++
++#define PROT_READ	0x1		/* Page can be read.  */
++#define PROT_WRITE	0x2		/* Page can be written.  */
++#define PROT_EXEC	0x4		/* Page can be executed.  */
++#define PROT_NONE	0x0		/* Page can not be accessed.  */
++#define PROT_GROWSDOWN	0x01000000	/* Extend change to start of
++					   growsdown vma (mprotect only).  */
++#define PROT_GROWSUP	0x02000000	/* Extend change to start of
++					   growsup vma (mprotect only).  */
++
++/* Sharing types (must choose one and only one of these).  */
++#define MAP_SHARED	0x01		/* Share changes.  */
++#define MAP_PRIVATE	0x02		/* Changes are private.  */
++#ifdef __USE_MISC
++# define MAP_TYPE	0x0f		/* Mask for type of mapping.  */
++#endif
++
++/* Other flags.  */
++#define MAP_FIXED	0x10		/* Interpret addr exactly.  */
++#ifdef __USE_MISC
++# define MAP_FILE	0
++# define MAP_ANONYMOUS	0x20		/* Don't use a file.  */
++# define MAP_ANON	MAP_ANONYMOUS
++#endif
++
++/* These are Linux-specific.  */
++#ifdef __USE_MISC
++# define MAP_GROWSDOWN	0x00100		/* Stack-like segment.  */
++# define MAP_DENYWRITE	0x00800		/* ETXTBSY */
++# define MAP_EXECUTABLE	0x01000		/* Mark it as an executable.  */
++# define MAP_LOCKED	0x02000		/* Lock the mapping.  */
++# define MAP_NORESERVE	0x04000		/* Don't check for reservations.  */
++# define MAP_POPULATE	0x08000		/* Populate (prefault) pagetables.  */
++# define MAP_NONBLOCK	0x10000		/* Do not block on IO.  */
++#endif
++
++/* Flags to `msync'.  */
++#define MS_ASYNC	1		/* Sync memory asynchronously.  */
++#define MS_SYNC		4		/* Synchronous memory sync.  */
++#define MS_INVALIDATE	2		/* Invalidate the caches.  */
++
++/* Flags for `mlockall'.  */
++#define MCL_CURRENT	1		/* Lock all currently mapped pages.  */
++#define MCL_FUTURE	2		/* Lock all additions to address
++					   space.  */
++
++/* Flags for `mremap'.  */
++#ifdef __USE_GNU
++# define MREMAP_MAYMOVE	1
++#endif
++
++/* Advice to `madvise'.  */
++#ifdef __USE_BSD
++# define MADV_NORMAL	 0	/* No further special treatment.  */
++# define MADV_RANDOM	 1	/* Expect random page references.  */
++# define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
++# define MADV_WILLNEED	 3	/* Will need these pages.  */
++# define MADV_DONTNEED	 4	/* Don't need these pages.  */
++#endif
++
++/* The POSIX people had to invent similar names for the same things.  */
++#ifdef __USE_XOPEN2K
++# define POSIX_MADV_NORMAL	0 /* No further special treatment.  */
++# define POSIX_MADV_RANDOM	1 /* Expect random page references.  */
++# define POSIX_MADV_SEQUENTIAL	2 /* Expect sequential page references.  */
++# define POSIX_MADV_WILLNEED	3 /* Will need these pages.  */
++# define POSIX_MADV_DONTNEED	4 /* Don't need these pages.  */
++#endif
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/poll.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/poll.h	2009-05-16 22:47:47.195230000 -0600
+@@ -0,0 +1,40 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_POLL_H
++# error "Never use <bits/poll.h> directly; include <sys/poll.h> instead."
++#endif
++
++/* Event types that can be polled for.  These bits may be set in `events'
++   to indicate the interesting event types; they will appear in `revents'
++   to indicate the status of the file descriptor.  */
++#define POLLIN		0x001		/* There is data to read.  */
++#define POLLPRI		0x002		/* There is urgent data to read.  */
++#define POLLOUT		0x004		/* Writing now will not block.  */
++
++#ifdef __USE_XOPEN
++/* These values are defined in XPG4.2.  */
++# define POLLRDNORM	0x040		/* Normal data may be read.  */
++# define POLLRDBAND	0x080		/* Priority data may be read.  */
++# define POLLWRNORM	POLLOUT		/* Writing now will not block.  */
++# define POLLWRBAND	0x100		/* Priority data may be written.  */
++#endif
++
++/* Event types always implicitly polled for.  These bits need not be set in
++   `events', but they will appear in `revents' to indicate the status of
++   the file descriptor.  */
++#define POLLERR		0x008		/* Error condition.  */
++#define POLLHUP		0x010		/* Hung up.  */
++#define POLLNVAL	0x020		/* Invalid polling request.  */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/stat.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/bits/stat.h	2009-05-16 22:47:47.197229000 -0600
+@@ -0,0 +1,160 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_STAT_H
++# error "Never include <bits/stat.h> directly; use <sys/stat.h> instead."
++#endif
++
++/* Versions of the `struct stat' data structure.  */
++#define _STAT_VER_LINUX_OLD	1
++#define _STAT_VER_KERNEL	1
++#define _STAT_VER_SVR4		2
++#define _STAT_VER_LINUX		3
++#define _STAT_VER		_STAT_VER_LINUX	/* The one defined below.  */
++
++/* Versions of the `xmknod' interface.  */
++#define _MKNOD_VER_LINUX	1
++#define _MKNOD_VER_SVR4		2
++#define _MKNOD_VER		_MKNOD_VER_LINUX /* The bits defined below.  */
++
++
++struct stat
++  {
++    __dev_t st_dev;			/* Device.  */
++    unsigned short int __pad1;
++#ifndef __USE_FILE_OFFSET64
++    __ino_t st_ino;			/* File serial number.	*/
++#else
++    __ino_t __st_ino;			/* 32bit file serial number.	*/
++#endif
++    __mode_t st_mode;			/* File mode.  */
++    __nlink_t st_nlink;			/* Link count.  */
++    __uid_t st_uid;			/* User ID of the file's owner.	*/
++    __gid_t st_gid;			/* Group ID of the file's group.*/
++    __dev_t st_rdev;			/* Device number, if device.  */
++    unsigned short int __pad2;
++#ifndef __USE_FILE_OFFSET64
++    __off_t st_size;			/* Size of file, in bytes.  */
++#else
++    __off64_t st_size;			/* Size of file, in bytes.  */
++#endif
++    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
++
++#ifndef __USE_FILE_OFFSET64
++    __blkcnt_t st_blocks;		/* Number 512-byte blocks allocated. */
++#else
++    __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
++#endif
++#ifdef __USE_MISC
++    /* Nanosecond resolution timestamps are stored in a format
++       equivalent to 'struct timespec'.  This is the type used
++       whenever possible but the Unix namespace rules do not allow the
++       identifier 'timespec' to appear in the <sys/stat.h> header.
++       Therefore we have to handle the use of this header in strictly
++       standard-compliant sources special.  */
++    struct timespec st_atim;		/* Time of last access.  */
++    struct timespec st_mtim;		/* Time of last modification.  */
++    struct timespec st_ctim;		/* Time of last status change.  */
++# define st_atime st_atim.tv_sec	/* Backward compatibility.  */
++# define st_mtime st_mtim.tv_sec
++# define st_ctime st_ctim.tv_sec
++#else
++    __time_t st_atime;			/* Time of last access.  */
++    unsigned long int st_atimensec;	/* Nscecs of last access.  */
++    __time_t st_mtime;			/* Time of last modification.  */
++    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
++    __time_t st_ctime;			/* Time of last status change.  */
++    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
++#endif
++#ifndef __USE_FILE_OFFSET64
++    unsigned long int __unused4;
++    unsigned long int __unused5;
++#else
++    __ino64_t st_ino;			/* File serial number.	*/
++#endif
++  };
++
++#ifdef __USE_LARGEFILE64
++struct stat64
++  {
++    __dev_t st_dev;			/* Device.  */
++    unsigned short int __pad1;
++
++    __ino_t __st_ino;			/* 32bit file serial number.	*/
++    __mode_t st_mode;			/* File mode.  */
++    __nlink_t st_nlink;			/* Link count.  */
++    __uid_t st_uid;			/* User ID of the file's owner.	*/
++    __gid_t st_gid;			/* Group ID of the file's group.*/
++    __dev_t st_rdev;			/* Device number, if device.  */
++    unsigned short int __pad2;
++    __off64_t st_size;			/* Size of file, in bytes.  */
++    __blksize_t st_blksize;		/* Optimal block size for I/O.  */
++
++    __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
++#ifdef __USE_MISC
++    /* Nanosecond resolution timestamps are stored in a format
++       equivalent to 'struct timespec'.  This is the type used
++       whenever possible but the Unix namespace rules do not allow the
++       identifier 'timespec' to appear in the <sys/stat.h> header.
++       Therefore we have to handle the use of this header in strictly
++       standard-compliant sources special.  */
++    struct timespec st_atim;		/* Time of last access.  */
++    struct timespec st_mtim;		/* Time of last modification.  */
++    struct timespec st_ctim;		/* Time of last status change.  */
++#else
++    __time_t st_atime;			/* Time of last access.  */
++    unsigned long int st_atimensec;	/* Nscecs of last access.  */
++    __time_t st_mtime;			/* Time of last modification.  */
++    unsigned long int st_mtimensec;	/* Nsecs of last modification.  */
++    __time_t st_ctime;			/* Time of last status change.  */
++    unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
++#endif
++    __ino64_t st_ino;			/* File serial number.		*/
++  };
++#endif
++
++/* Tell code we have these members.  */
++#define	_STATBUF_ST_BLKSIZE
++#define _STATBUF_ST_RDEV
++/* Nanosecond resolution time values are supported.  */
++#define _STATBUF_ST_NSEC
++
++/* Encoding of the file mode.  */
++
++#define	__S_IFMT	0170000	/* These bits determine file type.  */
++
++/* File types.  */
++#define	__S_IFDIR	0040000	/* Directory.  */
++#define	__S_IFCHR	0020000	/* Character device.  */
++#define	__S_IFBLK	0060000	/* Block device.  */
++#define	__S_IFREG	0100000	/* Regular file.  */
++#define	__S_IFIFO	0010000	/* FIFO.  */
++#define	__S_IFLNK	0120000	/* Symbolic link.  */
++#define	__S_IFSOCK	0140000	/* Socket.  */
++
++/* POSIX.1b objects.  Note that these macros always evaluate to zero.  But
++   they do it by enforcing the correct use of the macros.  */
++#define __S_TYPEISMQ(buf)  ((buf)->st_mode - (buf)->st_mode)
++#define __S_TYPEISSEM(buf) ((buf)->st_mode - (buf)->st_mode)
++#define __S_TYPEISSHM(buf) ((buf)->st_mode - (buf)->st_mode)
++
++/* Protection bits.  */
++
++#define	__S_ISUID	04000	/* Set user ID on execution.  */
++#define	__S_ISGID	02000	/* Set group ID on execution.  */
++#define	__S_ISVTX	01000	/* Save swapped text after use (sticky).  */
++#define	__S_IREAD	0400	/* Read by owner.  */
++#define	__S_IWRITE	0200	/* Write by owner.  */
++#define	__S_IEXEC	0100	/* Execute by owner.  */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/brk.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/brk.c	2009-05-16 22:47:47.199229000 -0600
+@@ -0,0 +1,46 @@
++/* brk system call.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <unistd.h>
++#include <sysdep.h>
++
++void *__curbrk = 0;
++
++/* Old braindamage in GCC's crtstuff.c requires this symbol in an attempt
++   to work around different old braindamage in the old Linux/x86 ELF
++   dynamic linker.  Sigh.  */
++weak_alias (__curbrk, ___brk_addr)
++
++int
++__brk (void *addr)
++{
++  void *newbrk;
++
++  INTERNAL_SYSCALL_DECL (err);
++  newbrk = (void *) INTERNAL_SYSCALL (brk, err, 1, addr);
++  __curbrk = newbrk;
++
++  if (newbrk < addr)
++    {
++      __set_errno (ENOMEM);
++      return -1;
++    }
++
++  return 0;
++}
++weak_alias (__brk, brk)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/chown.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/chown.c	2009-05-16 22:47:47.282144000 -0600
+@@ -0,0 +1,66 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <unistd.h>
++
++#include <sysdep.h>
++#include <sys/syscall.h>
++#include <bp-checks.h>
++
++#include <linux/posix_types.h>
++#include "kernel-features.h"
++
++#ifdef __NR_chown32
++# if __ASSUME_32BITUIDS == 0
++/* This variable is shared with all files that need to check for 32bit
++   uids.  */
++extern int __libc_missing_32bit_uids;
++# endif
++#endif /* __NR_chown32 */
++
++int
++__chown (const char *file, uid_t owner, gid_t group)
++{
++#if __ASSUME_32BITUIDS > 0
++  return INLINE_SYSCALL (chown32, 3, CHECK_STRING (file), owner, group);
++#else
++# ifdef __NR_chown32
++  if (__libc_missing_32bit_uids <= 0)
++    {
++      int result;
++      int saved_errno = errno;
++
++      result = INLINE_SYSCALL (chown32, 3, CHECK_STRING (file), owner, group);
++      if (result == 0 || errno != ENOSYS)
++	return result;
++
++      __set_errno (saved_errno);
++      __libc_missing_32bit_uids = 1;
++    }
++# endif /* __NR_chown32 */
++
++  if (((owner + 1) > (gid_t) ((__kernel_uid_t) -1U))
++      || ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
++    {
++      __set_errno (EINVAL);
++      return -1;
++    }
++
++  return INLINE_SYSCALL (chown, 3, CHECK_STRING (file), owner, group);
++#endif
++}
++libc_hidden_def (__chown)
++weak_alias (__chown, chown)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/clone.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/clone.S	2009-05-16 22:47:47.310116000 -0600
+@@ -0,0 +1,56 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* clone is even more special than fork as it mucks with stacks
++   and invokes a function in the right context after its all over.  */
++
++#include <sysdep.h>
++#define _ERRNO_H	1
++#include <bits/errno.h>
++
++/* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
++
++        .text
++ENTRY (__clone)
++	addik	r3,r0,-EINVAL
++	beqi	r5,SYSCALL_ERROR_LABEL	; // Invalid func
++	beqi	r6,SYSCALL_ERROR_LABEL	; // Invalid stack
++	addik	r6,r6,-8
++	swi	r5,r6,0			; // Push fn onto child's stack
++	swi	r8,r6,4			; // Push arg for child
++	addk	r5,r0,r7		; // flags for clone() syscall
++	addik	r12,r0,SYS_ify(clone)
++	brki	r14,8
++	addk	r0,r0,r0
++	addik	r4,r0,-4095
++	cmpu	r4,r4,r3
++	bgei	r4,SYSCALL_ERROR_LABEL
++	beqi	r3,L(thread_start)
++	rtsd	r15,8
++	nop
++
++L(thread_start):
++	lwi	r12,r1,0		; // fn
++	lwi	r5,r1,4			; // arg
++	brald	r15,r12
++	nop
++	addk	r5,r0,r3
++	addik	r12,r0,SYS_ify(exit)
++	brki	r14,8
++	nop
++PSEUDO_END(__clone)
++
++weak_alias(__clone,clone)
++
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Dist	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Dist	2009-05-16 22:47:47.175250000 -0600
+@@ -0,0 +1,8 @@
++clone.S
++mremap.S
++oldgetrlimit64.c
++setresuid.c
++setresgid.c
++setfsuid.c
++setfsgid.c
++sys/procfs.h
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/dl-librecon.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/dl-librecon.h	2009-05-16 22:47:47.312114000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/dl-librecon.h>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fchown.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fchown.c	2009-05-16 22:47:47.314112000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/fchown.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fcntl.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fcntl.c	2009-05-16 22:47:47.316112000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/fcntl.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fxstat.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/fxstat.c	2009-05-16 22:47:47.320106000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/fxstat.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getdents64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getdents64.c	2009-05-16 22:47:47.322104000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getdents64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getegid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getegid.c	2009-05-16 22:47:47.323105000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getegid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/geteuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/geteuid.c	2009-05-16 22:47:47.325101000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/geteuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getgid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getgid.c	2009-05-16 22:47:47.327100000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getgid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getgroups.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getgroups.c	2009-05-16 22:47:47.403031000 -0600
+@@ -0,0 +1,2 @@
++/* We also have to rewrite the kernel gid_t to the user land type.  */
++#include <sysdeps/unix/sysv/linux/i386/getgroups.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getmsg.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getmsg.c	2009-05-16 22:47:47.405029000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getmsg.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getpagesize.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getpagesize.c	2009-05-16 22:47:47.408017000 -0600
+@@ -0,0 +1,46 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <unistd.h>
++#include <sys/param.h>
++#include <errno.h>
++
++#include <ldsodefs.h>
++#include <sysdep.h>
++#include <sys/syscall.h>
++
++/* Return the system page size.  */
++int
++__getpagesize ()
++{
++#ifdef __NR_getpagesize
++  int result;
++#endif
++
++  if (GLRO(dl_pagesize) != 0)
++    return GLRO(dl_pagesize);
++
++#ifdef __NR_getpagesize
++  INTERNAL_SYSCALL_DECL (err);
++  result = INTERNAL_SYSCALL (getpagesize, err, 0);
++  /* The only possible error is ENOSYS.  */
++  if (!INTERNAL_SYSCALL_ERROR_P (result, err))
++    return result;
++#endif
++
++  return 4096;
++}
++libc_hidden_def (__getpagesize)
++weak_alias (__getpagesize, getpagesize)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getresgid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getresgid.c	2009-05-16 22:47:47.410017000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getresgid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getresuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getresuid.c	2009-05-16 22:47:47.412016000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getresuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getrlimit64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getrlimit64.c	2009-05-16 22:47:47.484943000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getrlimit64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getrlimit.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getrlimit.c	2009-05-16 22:47:47.423005000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getrlimit.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getsysstats.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getsysstats.c	2009-05-16 22:47:47.487937000 -0600
+@@ -0,0 +1,34 @@
++/* Determine various system internal values.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++
++/* We need to define a special parser for /proc/cpuinfo.  */
++#define GET_NPROCS_PARSER(FP, BUFFER, RESULT)				  \
++  do									  \
++    {									  \
++      (RESULT) = 0;							  \
++      /* Read all lines and count the lines starting with the string	  \
++	 "CPU:".  We don't have to fear extremely long lines since	  \
++	 the kernel will not generate them.  8192 bytes are really	  \
++	 enough.  */							  \
++      while (fgets_unlocked (BUFFER, sizeof (BUFFER), FP) != NULL)	  \
++	if (strncmp (BUFFER, "CPU:", 4) == 0)	      	     		  \
++	  ++(RESULT);							  \
++    }									  \
++  while (0)
++
++#include <sysdeps/unix/sysv/linux/getsysstats.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/getuid.c	2009-05-16 22:47:47.489936000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/getuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/glob64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/glob64.c	2009-05-16 22:47:47.586845000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/glob64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lchown.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lchown.c	2009-05-16 22:47:47.615813000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/lchown.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/ldconfig.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/ldconfig.h	2009-05-16 22:47:47.617814000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/ldconfig.h>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lockf64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lockf64.c	2009-05-16 22:47:47.619816000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/lockf64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lxstat.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/lxstat.c	2009-05-16 22:47:47.621813000 -0600
+@@ -0,0 +1,2 @@
++#include <sysdeps/unix/sysv/linux/i386/lxstat.c>
++
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Makefile	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Makefile	2009-05-16 22:47:47.177249000 -0600
+@@ -0,0 +1,12 @@
++ifeq ($(subdir),misc)
++sysdep_routines += mremap
++endif
++
++ifeq ($(subdir),elf)
++sysdep-others += lddlibc4
++install-bin += lddlibc4
++endif
++
++ifeq ($(subdir),resource)
++sysdep_routines += oldgetrlimit64
++endif
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/mmap.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/mmap.S	2009-05-16 22:47:47.653775000 -0600
+@@ -0,0 +1,47 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++
++#define EINVAL 22
++	.text
++ENTRY (__mmap)
++	addik	r3,r0,-EINVAL
++	andi	r4,r10,0xfff
++	bnei	r4,L(skip)
++	addik	r12,r0,SYS_ify(mmap2)
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10
++	sra	r10,r10 ;	/* mmap2 takes the offset in pages. */
++	brki	r14,8
++	nop
++L(skip):
++	addik	r4,r0,-4095
++	cmpu	r4,r4,r3
++	bgei	r4,SYSCALL_ERROR_LABEL
++	rtsd	r15,8
++	nop
++PSEUDO_END (__mmap)
++
++weak_alias (__mmap, mmap)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/msgctl.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/msgctl.c	2009-05-16 22:47:47.655775000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/msgctl.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/oldgetrlimit64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/oldgetrlimit64.c	2009-05-16 22:47:47.673754000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/oldgetrlimit64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/profil-counter.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/profil-counter.h	2009-05-16 22:47:47.675754000 -0600
+@@ -0,0 +1,2 @@
++/* We can use the ix86 version.  */
++#include <sysdeps/unix/sysv/linux/i386/profil-counter.h>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/putmsg.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/putmsg.c	2009-05-16 22:47:47.712713000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/putmsg.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/readdir64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/readdir64.c	2009-05-16 22:47:47.714712000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/readdir64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/readdir64_r.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/readdir64_r.c	2009-05-16 22:47:47.716712000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/readdir64_r.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/register-dump.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/register-dump.h	2009-05-16 22:47:47.718710000 -0600
+@@ -0,0 +1,20 @@
++/* Dump registers.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <stddef.h>
++#include <sys/uio.h>
++#include <stdio-common/_itoa.h>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/scandir64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/scandir64.c	2009-05-16 22:47:47.720712000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/scandir64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/semctl.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/semctl.c	2009-05-16 22:47:47.722712000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/semctl.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setegid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setegid.c	2009-05-16 22:47:47.742683000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setegid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/seteuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/seteuid.c	2009-05-16 22:47:47.744681000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/seteuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setfsgid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setfsgid.c	2009-05-16 22:47:47.746680000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setfsgid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setfsuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setfsuid.c	2009-05-16 22:47:47.749681000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setfsuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setgid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setgid.c	2009-05-16 22:47:47.751676000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setgid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setgroups.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setgroups.c	2009-05-16 22:47:47.753673000 -0600
+@@ -0,0 +1,2 @@
++/* We also have to rewrite the kernel gid_t to the user land type.  */
++#include <sysdeps/unix/sysv/linux/i386/setgroups.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setregid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setregid.c	2009-05-16 22:47:47.755671000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setregid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setresgid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setresgid.c	2009-05-16 22:47:47.780667000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setresgid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setresuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setresuid.c	2009-05-16 22:47:47.991565000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setresuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setreuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setreuid.c	2009-05-16 22:47:47.996557000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setreuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setrlimit.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setrlimit.c	2009-05-16 22:47:47.999554000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setrlimit.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setuid.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/setuid.c	2009-05-16 22:47:48.005550000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/setuid.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/shmctl.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/shmctl.c	2009-05-16 22:47:48.095461000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/shmctl.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sigcontextinfo.h	2009-05-16 22:47:48.099455000 -0600
+@@ -0,0 +1,22 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define SIGCONTEXT int _code, struct sigcontext *
++#define SIGCONTEXT_EXTRA_ARGS _code,
++#define GET_PC(ctx)	((void *) (ctx)->regs.pc)
++#define GET_FRAME(ctx)	((void *) (ctx)->regs.sp)
++#define GET_STACK(ctx)	((void *) (ctx)->regs.sp)
++#define CALL_SIGHANDLER(handler, signo, ctx) \
++  (handler)((signo), SIGCONTEXT_EXTRA_ARGS (ctx))
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/socket.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/socket.S	2009-05-16 22:47:48.101452000 -0600
+@@ -0,0 +1,123 @@
++/* Copyright (C) 1995, 1996, 1997, 1999, 2003 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep-cancel.h>
++#include <socketcall.h>
++
++#define P(a, b) P2(a, b)
++#define P2(a, b) a##b
++
++/* The socket-oriented system calls are handled unusally in Linux.
++   They are all gated through the single `socketcall' system call number.
++   `socketcall' takes two arguments: the first is the subcode, specifying
++   which socket function is being called; and the second is a pointer to
++   the arguments to the specific function.
++
++   The .S files for the other calls just #define socket and #include this.
++   They also #define a 'number-of-arguments' word in NARGS, which
++   defaults to 3.  */
++
++#ifndef NARGS
++#ifdef socket
++#error NARGS not defined
++#endif
++#define NARGS 3
++#endif
++
++/* Stack usage:
++   0 - r15 (return address)
++   4 - 12 args to syscall
++   16 - scratch for cancellation state
++   20 - scratch for return value
++*/
++#define stackadjust 24
++
++#ifndef __socket
++#define __socket P(__,socket)
++#endif
++
++	.text
++ENTRY(__socket)
++	cfi_startproc
++	addik r1,r1,-stackadjust
++	swi r15,r1,0
++	cfi_adjust_cfa_offset(stackadjust)
++#if NARGS >= 1
++	swi  r5,r1,stackadjust+4
++#endif
++#if NARGS >= 2
++	swi  r6,r1,stackadjust+8
++#endif
++#if NARGS >= 3
++	swi  r7,r1,stackadjust+12
++#endif
++#if NARGS >= 4
++	swi  r8,r1,stackadjust+16
++#endif
++#if NARGS >= 5
++	swi  r9,r1,stackadjust+20
++#endif
++#if NARGS >= 6
++	swi  r10,r1,stackadjust+24
++#endif
++/* The rest of the args (if any) are on the caller's stack already */
++
++#if defined NEED_CANCELLATION && defined CENABLE
++	SINGLE_THREAD_P
++	bnei	r12,L(socket_cancel)
++#endif
++
++	addik	r12,r0,SYS_ify(socketcall)
++	addik	r5,r0,P(SOCKOP_,socket)
++	addik	r6,r1,stackadjust+4
++	brki	r14,8
++	addk	r0,r0,r0
++	lwi	r15,r1,0
++	addik	r1,r1,stackadjust
++	addik   r4,r0,-4095
++	cmpu	r4,r4,r3
++	bgei	r4,SYSCALL_ERROR_LABEL
++	rtsd	r15,8
++	addk	r0,r0,r0
++
++#if defined NEED_CANCELLATION && defined CENABLE
++L(socket_cancel):
++	CENABLE
++	swi	r3,r1,16
++	addik	r12,r0,SYS_ify(socketcall)
++	addik	r5,r0,P(SOCKOP_,socket)
++	addik	r6,r1,stackadjust+4
++	brki	r14,8
++	addk	r0,r0,r0
++	swi	r3,r1,20
++	lwi	r5,r1,16
++	CDISABLE
++	lwi	r3,r1,20
++	lwi	r15,r1,0
++	addik	r1,r1,stackadjust
++	addik   r4,r0,-4095
++	cmpu	r4,r4,r3
++	bgei	r4,SYSCALL_ERROR_LABEL
++	rtsd	r15,8
++	addk	r0,r0,r0
++#endif
++	cfi_endproc
++
++PSEUDO_END (__socket)
++
++weak_alias (__socket, socket)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sys/procfs.h	2009-05-16 22:47:48.681870000 -0600
+@@ -0,0 +1,117 @@
++/* Copyright (C) 1996, 1997, 1999 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _SYS_PROCFS_H
++#define _SYS_PROCFS_H	1
++
++/* This is somehow modelled after the file of the same name on SysVr4
++   systems.  It provides a definition of the core file format for ELF
++   used on Linux.  */
++
++#define CONFIG_MMU	/* Xilinx */
++
++#include <features.h>
++#include <signal.h>
++#include <sys/time.h>
++#include <sys/types.h>
++#include <sys/ucontext.h>
++#include <sys/user.h>
++#include <asm/elf.h>
++
++__BEGIN_DECLS
++
++struct elf_siginfo
++  {
++    int si_signo;			/* Signal number.  */
++    int si_code;			/* Extra code.  */
++    int si_errno;			/* Errno.  */
++  };
++
++/* Definitions to generate Intel SVR4-like core files.  These mostly
++   have the same names as the SVR4 types with "elf_" tacked on the
++   front to prevent clashes with linux definitions, and the typedef
++   forms have been avoided.  This is mostly like the SVR4 structure,
++   but more Linuxy, with things that Linux does not support and which
++   gdb doesn't really use excluded.  Fields present but not used are
++   marked with "XXX".  */
++struct elf_prstatus
++  {
++#if 0
++    long int pr_flags;			/* XXX Process flags.  */
++    short int pr_why;			/* XXX Reason for process halt.  */
++    short int pr_what;			/* XXX More detailed reason.  */
++#endif
++    struct elf_siginfo pr_info;		/* Info associated with signal.  */
++    short int pr_cursig;		/* Current signal.  */
++    unsigned long int pr_sigpend;	/* Set of pending signals.  */
++    unsigned long int pr_sighold;	/* Set of held signals.  */
++#if 0
++    struct sigaltstack pr_altstack;	/* Alternate stack info.  */
++    struct sigaction pr_action;		/* Signal action for current sig.  */
++#endif
++    __pid_t pr_pid;
++    __pid_t pr_ppid;
++    __pid_t pr_pgrp;
++    __pid_t pr_sid;
++    struct timeval pr_utime;		/* User time.  */
++    struct timeval pr_stime;		/* System time.  */
++    struct timeval pr_cutime;		/* Cumulative user time.  */
++    struct timeval pr_cstime;		/* Cumulative system time.  */
++#if 0
++    long int pr_instr;			/* Current instruction.  */
++#endif
++    elf_gregset_t pr_reg;		/* GP registers.  */
++    int pr_fpvalid;			/* True if math copro being used.  */
++  };
++
++
++#define ELF_PRARGSZ     (80)    /* Number of chars for args */
++
++struct elf_prpsinfo
++  {
++    char pr_state;			/* Numeric process state.  */
++    char pr_sname;			/* Char for pr_state.  */
++    char pr_zomb;			/* Zombie.  */
++    char pr_nice;			/* Nice val.  */
++    unsigned long int pr_flag;		/* Flags.  */
++    unsigned short int pr_uid;
++    unsigned short int pr_gid;
++    int pr_pid, pr_ppid, pr_pgrp, pr_sid;
++    /* Lots missing */
++    char pr_fname[16];			/* Filename of executable.  */
++    char pr_psargs[ELF_PRARGSZ];	/* Initial part of arg list.  */
++  };
++
++/* Addresses.  */
++typedef void *psaddr_t;
++
++/* Register sets.  Linux has different names.  */
++typedef elf_gregset_t prgregset_t;
++typedef elf_fpregset_t prfpregset_t;
++
++/* We don't have any differences between processes and threads,
++   therefore habe only ine PID type.  */
++typedef __pid_t lwpid_t;
++
++
++typedef struct elf_prstatus prstatus_t;
++typedef struct elf_prpsinfo prpsinfo_t;
++
++__END_DECLS
++
++#endif	/* sys/procfs.h */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sys/user.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sys/user.h	2009-05-16 22:47:48.685867000 -0600
+@@ -0,0 +1 @@
++/* empty file, Xilinx */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/syscall.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/syscall.S	2009-05-16 22:47:48.698853000 -0600
+@@ -0,0 +1,34 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++
++	.text
++ENTRY (syscall)
++	addk	r12,r0,r5
++	addk	r5,r0,r6
++	addk	r6,r0,r7
++	addk	r7,r0,r8
++	addk	r8,r0,r9
++	addk	r9,r0,r10
++       lwi     r10,r1,28
++	brki	r14,8
++	addk	r0,r0,r0
++	addik	r4,r0,-4095
++	cmpu	r4,r4,r3
++	bgei	r4,SYSCALL_ERROR_LABEL
++	rtsd	r15,8
++	nop
++PSEUDO_END (syscall)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/syscalls.list	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/syscalls.list	2009-05-16 22:47:48.700852000 -0600
+@@ -0,0 +1,5 @@
++# File name	Caller	Syscall name	Args	Strong name	Weak names
++
++cacheflush	EXTRA	cacheflush	i:iiii	__cacheflush	cacheflush
++oldgetrlimit	EXTRA	getrlimit	i:ip	__old_getrlimit	getrlimit@GLIBC_2.0
++oldsetrlimit	EXTRA	setrlimit	i:ip	__old_setrlimit	setrlimit@GLIBC_2.0
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sysdep.h	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sysdep.h	2009-05-16 22:47:48.737815000 -0600
+@@ -0,0 +1,287 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdeps/microblaze/sysdep.h>
++#include <sys/syscall.h>
++
++/* Defines RTLD_PRIVATE_ERRNO.  */
++#include <dl-sysdep.h>
++
++/* For Linux we can use the system call table in the header file
++	/usr/include/asm/unistd.h
++   of the kernel.  But these symbols do not follow the SYS_* syntax
++   so we have to redefine the `SYS_ify' macro here.  */
++#undef SYS_ify
++#ifdef __STDC__
++# define SYS_ify(syscall_name)	__NR_##syscall_name
++#else
++# define SYS_ify(syscall_name)	__NR_/**/syscall_name
++#endif
++
++#ifdef __ASSEMBLER__
++
++/* In microblaze ABI function call arguments are passed in registers
++   r5...r10. The return value is stored in r3 (or r3:r4 regiters pair).
++   Linux syscall uses the same convention with the addition that the
++   syscall number is passed in r12. To enter the kernel "brki r14,8"
++   instruction is used.
++   None of the abovementioned registers are presumed across function call
++   or syscall.
++*/
++/* Linux uses a negative return value to indicate syscall errors, unlike
++   most Unices, which use the condition codes' carry flag.
++
++   Since version 2.1 the return value of a system call might be negative
++   even if the call succeeded.  E.g., the `lseek' system call might return
++   a large offset.  Therefore we must not anymore test for < 0, but test
++   for a real error by making sure the value in %d0 is a real error
++   number.  Linus said he will make sure the no syscall returns a value
++   in -1 .. -4095 as a valid result so we can savely test with -4095.  */
++
++/* We don't want the label for the error handler to be visible in the symbol
++   table when we define it here.  */
++#ifdef PIC
++#define SYSCALL_ERROR_LABEL 0f
++#else
++#define SYSCALL_ERROR_LABEL __syscall_error
++#endif
++
++#undef PSEUDO
++#define	PSEUDO(name, syscall_name, args)		\
++  .text;						\
++  ENTRY (name)						\
++    DO_CALL (syscall_name, args);			\
++    addik r12,r0,-4095;					\
++    cmpu  r12,r12,r3;					\
++    bgei r12,SYSCALL_ERROR_LABEL;
++
++#undef PSEUDO_END
++#define PSEUDO_END(name)				\
++  SYSCALL_ERROR_HANDLER;				\
++  END (name)
++
++#undef PSEUDO_NOERRNO
++#define	PSEUDO_NOERRNO(name, syscall_name, args)	\
++  .text;						\
++  ENTRY (name)						\
++    DO_CALL (syscall_name, args);
++
++#undef PSEUDO_END_NOERRNO
++#define PSEUDO_END_NOERRNO(name)			\
++  END (name)
++
++/* The function has to return the error code.  */
++#undef	PSEUDO_ERRVAL
++#define	PSEUDO_ERRVAL(name, syscall_name, args)		\
++  .text;						\
++  ENTRY (name)						\
++    DO_CALL (syscall_name, args);			\
++
++#undef	PSEUDO_END_ERRVAL
++#define	PSEUDO_END_ERRVAL(name) \
++  END (name)
++
++#define ret_NOERRNO \
++    rtsd r15,8; addk r0,r0,r0;
++
++#define ret_ERRVAL \
++    rtsd r15,8; rsubk r3,r3,r0;
++
++#ifdef PIC
++#define SYSCALL_ERROR_LABEL_DCL 0
++# if RTLD_PRIVATE_ERRNO
++#  define SYSCALL_ERROR_HANDLER				\
++SYSCALL_ERROR_LABEL_DCL:					\
++    mfs   r12,rpc;					\
++    addik r12,r12,_GLOBAL_OFFSET_TABLE_+8;		\
++    lwi   r12,r12,rtld_errno@GOT;			\
++    rsubk r3,r3,r0;					\
++    swi	  r3,r12,0;					\
++    rtsd  r15,8;					\
++    addik r3,r0,-1;
++# else /* !RTLD_PRIVATE_ERRNO */
++/* Store (-r3) into errno through the GOT.  */
++#  if defined _LIBC_REENTRANT
++#  define SYSCALL_ERROR_HANDLER				\
++SYSCALL_ERROR_LABEL_DCL:					\
++    addik r1,r1,-16;					\
++    swi   r15,r1,0;					\
++    swi   r20,r1,8;					\
++    rsubk r3,r3,r0;					\
++    swi   r3,r1,12;					\
++    mfs   r20,rpc;					\
++    addik r20,r20,_GLOBAL_OFFSET_TABLE_+8;		\
++    brlid r15,__errno_location@PLT;			\
++    nop;						\
++    lwi   r4,r1,12;					\
++    swi   r4,r3,0;					\
++    lwi   r20,r1,8;					\
++    lwi   r15,r1,0;					\
++    addik r1,r1,16;					\
++    rtsd  r15,8;					\
++    addik r3,r0,-1;
++#  else /* !_LIBC_REENTRANT */
++#  define SYSCALL_ERROR_HANDLER				\
++SYSCALL_ERROR_LABEL_DCL:					\
++    mfs   r12,rpc;					\
++    addik r12,r12,_GLOBAL_OFFSET_TABLE_+8;		\
++    lwi   r12,r12,errno@GOT;				\
++    rsubk r3,r3,r0;					\
++    swi	  r3,r12,0;					\
++    rtsd  r15,8;					\
++    addik r3,r0,-1;
++#  endif /* _LIBC_REENTRANT */
++# endif /* RTLD_PRIVATE_ERRNO */
++#else
++# define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
++#endif /* PIC */
++
++#define DO_CALL(syscall_name, args)			      		      \
++    addik r12,r0,SYS_ify (syscall_name);				      \
++    brki  r14,8;							      \
++    addk  r0,r0,r0;
++
++#else /* not __ASSEMBLER__ */
++
++/* Define a macro which expands into the inline wrapper code for a system
++   call.  */
++#undef INLINE_SYSCALL
++#define INLINE_SYSCALL(name, nr, args...)				\
++  ({ unsigned int _sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
++     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_sys_result, ), 0))\
++       {								\
++	 __set_errno (INTERNAL_SYSCALL_ERRNO (_sys_result, ));		\
++	 _sys_result = (unsigned int) -1;				\
++       }								\
++     (int) _sys_result; })
++
++#undef INTERNAL_SYSCALL_DECL
++#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
++
++/* Define a macro which expands inline into the wrapper code for a system
++   call.  This use is for internal calls that do not need to handle errors
++   normally.  It will never touch errno.  This returns just what the kernel
++   gave back.  */
++#undef INTERNAL_SYSCALL
++#define INTERNAL_SYSCALL(name, err, nr, args...)	\
++  INTERNAL_SYSCALL_##nr(name,args)
++
++#define SYSCALL_CLOBBERS_6 "r11", "r4", "memory"
++#define SYSCALL_CLOBBERS_5 "r10", SYSCALL_CLOBBERS_6
++#define SYSCALL_CLOBBERS_4 "r9", SYSCALL_CLOBBERS_5
++#define SYSCALL_CLOBBERS_3 "r8", SYSCALL_CLOBBERS_4
++#define SYSCALL_CLOBBERS_2 "r7", SYSCALL_CLOBBERS_3
++#define SYSCALL_CLOBBERS_1 "r6", SYSCALL_CLOBBERS_2
++#define SYSCALL_CLOBBERS_0 "r5", SYSCALL_CLOBBERS_1
++
++#define INTERNAL_SYSCALL_0(name,dummy)			\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r12)					\
++      : SYSCALL_CLOBBERS_0 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_1(name,arg1)			\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r12)				\
++      : SYSCALL_CLOBBERS_1 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_2(name,arg1,arg2)		\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    register int __r6 __asm__("r6") = arg2;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r6), "r"(__r12)		\
++      : SYSCALL_CLOBBERS_2 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_3(name,arg1,arg2,arg3)		\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    register int __r6 __asm__("r6") = arg2;		\
++    register int __r7 __asm__("r7") = arg3;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r6), "r"(__r7), "r"(__r12)	\
++      : SYSCALL_CLOBBERS_3 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_4(name,arg1,arg2,arg3,arg4)	\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    register int __r6 __asm__("r6") = arg2;		\
++    register int __r7 __asm__("r7") = arg3;		\
++    register int __r8 __asm__("r8") = arg4;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r6), "r"(__r7), "r"(__r8),"r"(__r12)	\
++      : SYSCALL_CLOBBERS_4 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_5(name,arg1,arg2,arg3,arg4,arg5)	\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    register int __r6 __asm__("r6") = arg2;		\
++    register int __r7 __asm__("r7") = arg3;		\
++    register int __r8 __asm__("r8") = arg4;		\
++    register int __r9 __asm__("r9") = arg5;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r6), "r"(__r7), "r"(__r8),"r"(__r9), "r"(__r12)	\
++      : SYSCALL_CLOBBERS_5 ); ret;			\
++  })
++
++#define INTERNAL_SYSCALL_6(name,arg1,arg2,arg3,arg4,arg5,arg6)	\
++  ({ \
++    register int ret __asm__("r3");			\
++    register int __r12 __asm__("r12") = SYS_ify(name);	\
++    register int __r5 __asm__("r5") = arg1;		\
++    register int __r6 __asm__("r6") = arg2;		\
++    register int __r7 __asm__("r7") = arg3;		\
++    register int __r8 __asm__("r8") = arg4;		\
++    register int __r9 __asm__("r9") = arg5;		\
++    register int __r10 __asm__("r10") = arg6;		\
++    __asm__ __volatile__( "brki r14,8; nop;"		\
++      : "=r"(ret)					\
++      : "r"(__r5), "r"(__r6), "r"(__r7), "r"(__r8),"r"(__r9), "r"(__r10), "r"(__r12)	\
++      : SYSCALL_CLOBBERS_6 ); ret;			\
++  })
++
++#undef INTERNAL_SYSCALL_ERROR_P
++#define INTERNAL_SYSCALL_ERROR_P(val, err)		\
++  ((unsigned int) (val) >= -4095U)
++
++#undef INTERNAL_SYSCALL_ERRNO
++#define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
++
++#endif /* not __ASSEMBLER__ */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sysdep.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/sysdep.S	2009-05-16 22:47:48.702850000 -0600
+@@ -0,0 +1,38 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++
++
++/* The following code is only used in the shared library when we
++   compile the reentrant version.  Otherwise each system call defines
++   each own version.  */
++
++#ifndef	PIC
++
++/* The syscall stubs jump here when they detect an error.  */
++
++#undef CALL_MCOUNT
++#define CALL_MCOUNT /* Don't insert the profiling call, it clobbers %d0.  */
++
++.globl C_SYMBOL_NAME(errno)
++	.text
++ENTRY (__syscall_error)
++	rsubk	r3,r3,r0
++	swi	r3,r0,C_SYMBOL_NAME(errno)
++	rtsd	r15,8
++	addik	r3,r0,-1	/* delay slot */
++END (__syscall_error)
++#endif /* PIC */
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Versions	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/Versions	2009-05-16 22:47:47.179247000 -0600
+@@ -0,0 +1,32 @@
++libc {
++  GLIBC_2.0 {
++    # Exception handling support functions from libgcc
++    __register_frame; __register_frame_table; __deregister_frame;
++    __frame_state_for; __register_frame_info_table;
++
++    # c*
++    cacheflush;
++  }
++  GLIBC_2.2 {
++    # functions used in other libraries
++    __xstat64; __fxstat64; __lxstat64;
++
++    # a*
++    alphasort64;
++
++    # g*
++    glob64;
++
++    # New rlimit interface
++    getrlimit; setrlimit; getrlimit64;
++
++    # r*
++    readdir64; readdir64_r;
++
++    # s*
++    scandir64;
++
++    # v*
++    versionsort64;
++  }
++}
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/versionsort64.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/versionsort64.c	2009-05-16 22:47:48.704848000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/versionsort64.c>
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/vfork.S	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/vfork.S	2009-05-16 22:47:48.706846000 -0600
+@@ -0,0 +1,40 @@
++/* The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++#define _ERRNO_H	1
++#include <bits/errno.h>
++#include <kernel-features.h>
++
++/* Clone the calling process, but without copying the whole address space.
++   The calling process is suspended until the new process exits or is
++   replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
++   and the process ID of the new process to the old process.  */
++
++ENTRY (__vfork)
++
++#ifdef __NR_vfork
++
++	DO_CALL (SYS_ify (vfork))
++	PSEUDO_RET
++#else
++	DO_CALL (SYS_ify (fork))
++	PSEUDO_RET
++#endif
++
++PSEUDO_END (__vfork)
++libc_hidden_def (__vfork)
++
++weak_alias (__vfork, vfork)
+--- glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/xstat.c	1969-12-31 17:00:00.000000000 -0700
++++ glibc-2.3.6/sysdeps/unix/sysv/linux/microblaze/xstat.c	2009-05-16 22:47:48.734818000 -0600
+@@ -0,0 +1 @@
++#include <sysdeps/unix/sysv/linux/i386/xstat.c>
