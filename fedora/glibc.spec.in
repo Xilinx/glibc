@@ -398,7 +398,6 @@ build_nptl linuxnptl-power6
 
 cd build-%{nptl_target_cpu}-linuxnptl
 $GCC -static -L. -Os -g ../fedora/glibc_post_upgrade.c -o glibc_post_upgrade.%{_target_cpu} \
-  -DNO_SIZE_OPTIMIZATION \
   '-DLIBTLS="/%{_lib}/tls/"' \
   '-DGCONV_MODULES_DIR="%{_prefix}/%{_lib}/gconv"' \
   '-DLD_SO_CONF="/etc/ld.so.conf"' \
@@ -692,14 +691,16 @@ touch -r timezone/northamerica $RPM_BUILD_ROOT/etc/localtime
 touch -r sunrpc/etc.rpc $RPM_BUILD_ROOT/etc/rpc
 
 cd fedora
-$GCC -Os -g -static -o build-locale-archive build-locale-archive.c \
+$GCC -Os -g -o build-locale-archive build-locale-archive.c \
   ../build-%{nptl_target_cpu}-linuxnptl/locale/locarchive.o \
   ../build-%{nptl_target_cpu}-linuxnptl/locale/md5.o \
   -DDATADIR=\"%{_datadir}\" -DPREFIX=\"%{_prefix}\" \
-  -L../build-%{nptl_target_cpu}-linuxnptl
+  -L../build-%{nptl_target_cpu}-linuxnptl \
+  -B../build-%{nptl_target_cpu}-linuxnptl/csu/ -lc -lc_nonshared
 install -m 700 build-locale-archive $RPM_BUILD_ROOT/usr/sbin/build-locale-archive
-$GCC -Os -g -static -o tzdata-update tzdata-update.c \
-  -L../build-%{nptl_target_cpu}-linuxnptl
+$GCC -Os -g -o tzdata-update tzdata-update.c \
+  -L../build-%{nptl_target_cpu}-linuxnptl \
+  -B../build-%{nptl_target_cpu}-linuxnptl/csu/ -lc -lc_nonshared
 install -m 700 tzdata-update $RPM_BUILD_ROOT/usr/sbin/tzdata-update
 cd ..
 
