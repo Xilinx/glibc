@@ -18,12 +18,13 @@
 %define debuginfocommonarches %{biarcharches} alpha alphaev6
 %define multiarcharches ppc ppc64 %{ix86} x86_64 %{sparc}
 %define systemtaparches %{ix86} x86_64
+# Remove -s to get verbose output.
 %define silentrules PARALLELMFLAGS=-s
 
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 4
+Release: 1
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -39,6 +40,7 @@ Patch0: %{name}-fedora.patch
 Patch1: %{name}-ia64-lib64.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Obsoletes: glibc-profile < 2.4
+Obsoletes: nss_db
 Provides: ldconfig
 # The dynamic linker supports DT_GNU_HASH
 Provides: rtld(GNU_HASH)
@@ -361,7 +363,7 @@ configure_CFLAGS="$build_CFLAGS -fno-asynchronous-unwind-tables"
 %ifarch %{systemtaparches}
 	--enable-systemtap \
 %endif
-	--disable-profile --enable-experimental-malloc --enable-nss-crypt ||
+	--disable-profile --enable-nss-crypt ||
 { cat config.log; false; }
 
 make %{?_smp_mflags} -r CFLAGS="$build_CFLAGS" %{silentrules}
@@ -1048,6 +1050,21 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Thu Jun 30 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-1
+- Update from master
+  - Fix quoting in some installed shell scripts (BZ#12935)
+  - Fix missing .ctors/.dtors lead word in soinit
+  - Improved st{r,p}{,n}cpy for SSE2 and SSSE3 on x86
+  - Avoid __check_pf calls in getaddrinfo unless really needed
+    (BZ#12907)
+  - Rate limit expensive _SC_NPROCESSORS_ONLN computation
+  - Add initgroups lookup support to getent
+  - Reenable nss_db with a completely new implementation
+  - Rewrite makedb to avoid using db library
+  - Add pldd program
+- Obsolete nss_db
+- Don't build tzdata-update and build-locale-archive statically
+
 * Tue Jun 28 2011 Andreas Schwab <schwab@redhat.com> - 2.14-4
 - Update from 2.14 branch
   - Fix crash in GB18030 encoder (#712901)
