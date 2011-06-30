@@ -565,7 +565,6 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	     IPv6 scope ids, nor retrieving the canonical name.  */
 	  if (req->ai_family == AF_INET && (req->ai_flags & AI_CANONNAME) == 0)
 	    {
-	      int family = req->ai_family;
 	      size_t tmpbuflen = 512;
 	      assert (tmpbuf == NULL);
 	      tmpbuf = alloca_account (tmpbuflen, alloca_used);
@@ -576,7 +575,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 
 	      while (1)
 		{
-		  rc = __gethostbyname2_r (name, family, &th, tmpbuf,
+		  rc = __gethostbyname2_r (name, AF_INET, &th, tmpbuf,
 					   tmpbuflen, &h, &herrno);
 		  if (rc != ERANGE || herrno != NETDB_INTERNAL)
 		    break;
@@ -638,18 +637,9 @@ gaih_inet (const char *name, const struct gaih_service *service,
 			      (*pat)->scopeid = 0;
 			    }
 			  (*pat)->next = NULL;
-			  (*pat)->family = req->ai_family;
-			  if (family == req->ai_family)
-			    memcpy ((*pat)->addr, h->h_addr_list[i],
-				    h->h_length);
-			  else
-			    {
-			      uint32_t *addr = (uint32_t *) (*pat)->addr;
-			      addr[3] = *(uint32_t *) h->h_addr_list[i];
-			      addr[2] = htonl (0xffff);
-			      addr[1] = 0;
-			      addr[0] = 0;
-			    }
+			  (*pat)->family = AF_INET;
+			  memcpy ((*pat)->addr, h->h_addr_list[i],
+				  h->h_length);
 			  pat = &((*pat)->next);
 			}
 		    }
@@ -2297,14 +2287,17 @@ getaddrinfo (const char *name, const char *service,
   size_t in6ailen = 0;
   bool seen_ipv4 = false;
   bool seen_ipv6 = false;
-  /* We might need information about what interfaces are available.
-     Also determine whether we have IPv4 or IPv6 interfaces or both.  We
-     cannot cache the results since new interfaces could be added at
-     any time.  */
-  __check_pf (&seen_ipv4, &seen_ipv6, &in6ai, &in6ailen);
+  bool check_pf_called = false;
 
   if (hints->ai_flags & AI_ADDRCONFIG)
     {
+      /* We might need information about what interfaces are available.
+	 Also determine whether we have IPv4 or IPv6 interfaces or both.  We
+	 cannot cache the results since new interfaces could be added at
+	 any time.  */
+      __check_pf (&seen_ipv4, &seen_ipv6, &in6ai, &in6ailen);
+      check_pf_called = true;
+
       /* Now make a decision on what we return, if anything.  */
       if (hints->ai_family == PF_UNSPEC && (seen_ipv4 || seen_ipv6))
 	{
@@ -2385,6 +2378,10 @@ getaddrinfo (const char *name, const char *service,
       struct addrinfo *q;
       struct addrinfo *last = NULL;
       char *canonname = NULL;
+
+      /* Now we definitely need the interface information.  */
+      if (! check_pf_called)
+	__check_pf (&seen_ipv4, &seen_ipv6, &in6ai, &in6ailen);
 
       /* If we have information about deprecated and temporary addresses
 	 sort the array now.  */

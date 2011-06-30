@@ -152,8 +152,8 @@ install-others	= $(inst_slibdir)/$(rtld-installed-name)
 install-bin-script = ldd
 endif
 
-others		= sprof sln
-install-bin	= sprof
+others		= sprof sln pldd
+install-bin	= sprof pldd
 others-static   = sln
 install-rootsbin = sln
 
@@ -165,6 +165,8 @@ install-rootsbin += ldconfig
 
 ldconfig-modules := cache readlib xmalloc xstrdup chroot_canon
 extra-objs	+= $(ldconfig-modules:=.o)
+
+pldd-modules := xmalloc
 
 # To find xmalloc.c and xstrdup.c
 vpath %.c ../locale/programs
@@ -414,6 +416,7 @@ $(objpfx)ld.so: $(objpfx)librtld.os $(ld-map)
 		  sed -e '/^=========/,/^=========/!d;/^=========/d'	\
 		      -e 's/\. = .* + SIZEOF_HEADERS;/& _begin = . - SIZEOF_HEADERS;/' \
 		  > $@.lds
+	test -s $@.lds
 	$(LINK.o) -nostdlib -nostartfiles -shared -o $@			\
 		  $(LDFLAGS-rtld) -Wl,-z,defs $(z-now-$(bind-now))	\
 		  $(filter-out $(map-file),$^) $(load-map-file)		\
@@ -497,6 +500,9 @@ $(objpfx)ldd: ldd.bash.in $(common-objpfx)soversions.mk \
 $(objpfx)sprof: $(libdl)
 
 $(objpfx)ldconfig: $(ldconfig-modules:%=$(objpfx)%.o)
+
+$(objpfx)pldd: $(pldd-modules:%=$(objpfx)%.o)
+
 SYSCONF-FLAGS := -D'SYSCONFDIR="$(sysconfdir)"'
 CFLAGS-ldconfig.c = $(SYSCONF-FLAGS) -D'LIBDIR="$(libdir)"' \
 		    -D'SLIBDIR="$(slibdir)"' -DIS_IN_ldconfig=1
@@ -977,8 +983,9 @@ ifeq (yes,$(build-shared))
 tests: $(objpfx)check-textrel.out $(objpfx)check-execstack.out
 
 all-built-dso = $(common-objpfx)libc.so \
-		$(sort $(wildcard $(common-objpfx)*/lib*.so \
-				  $(common-objpfx)iconvdata/*.so))
+		$(filter-out $(common-objpfx)linkobj/libc.so, \
+			     $(sort $(wildcard $(common-objpfx)*/lib*.so \
+					       $(common-objpfx)iconvdata/*.so)))
 
 $(objpfx)check-textrel.out: $(objpfx)check-textrel $(all-built-dso)
 	$(dir $<)$(notdir $<) $(filter-out $<, $^) > $@
