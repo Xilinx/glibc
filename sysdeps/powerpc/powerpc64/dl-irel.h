@@ -23,15 +23,10 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <ldsodefs.h>
+#include <dl-machine.h>
 
 #define ELF_MACHINE_IRELA	1
-
-typedef struct
-{
-  Elf64_Addr fd_func;
-  Elf64_Addr fd_toc;
-  Elf64_Addr fd_aux;
-} Elf64_FuncDesc;
 
 static inline Elf64_Addr
 __attribute ((always_inline))
