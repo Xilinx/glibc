@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <mntent.h>
 #include <stdio_ext.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/sysmacros.h>
 
