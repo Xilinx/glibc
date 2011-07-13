@@ -892,7 +892,27 @@ end
 
 %postun -p /sbin/ldconfig
 
-%post common -p /usr/sbin/build-locale-archive
+%triggerin common -p <lua> -- glibc
+if posix.stat("%{_prefix}/lib/locale/locale-archive.tmpl", "size") > 0 then
+  pid = posix.fork()
+  if pid == 0 then
+    posix.exec("%{_prefix}/sbin/build-locale-archive")
+  elseif pid > 0 then
+    posix.wait(pid)
+  end
+end
+
+%post common -p <lua>
+if posix.access("/etc/ld.so.cache") then
+  if posix.stat("%{_prefix}/lib/locale/locale-archive.tmpl", "size") > 0 then
+    pid = posix.fork()
+    if pid == 0 then
+      posix.exec("%{_prefix}/sbin/build-locale-archive")
+    elseif pid > 0 then
+      posix.wait(pid)
+    end
+  end
+end
 
 %triggerin common -p /usr/sbin/tzdata-update -- tzdata
 
