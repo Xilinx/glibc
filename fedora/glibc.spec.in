@@ -524,6 +524,10 @@ install -p -m 644 nis/nss $RPM_BUILD_ROOT/etc/default/nss
 install -m 644 nscd/nscd.conf $RPM_BUILD_ROOT/etc
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install -m 755 nscd/nscd.init $RPM_BUILD_ROOT/etc/rc.d/init.d/nscd
+mkdir -p $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/
+install -m 644 fedora/nscd.conf %{buildroot}/usr/lib/tmpfiles.d/
+mkdir -p $RPM_BUILD_ROOT/lib/systemd/system
+install -m 644 fedora/nscd.service fedora/nscd.socket $RPM_BUILD_ROOT/lib/systemd/system
 %endif
 
 # Include ld.so.conf
@@ -1045,6 +1049,9 @@ rm -f *.filelist*
 %config /etc/rc.d/init.d/nscd
 %dir %attr(0755,root,root) /var/run/nscd
 %dir %attr(0755,root,root) /var/db/nscd
+/lib/systemd/system/nscd.service
+/lib/systemd/system/nscd.socket
+/usr/lib/tmpfiles.d/nscd.conf
 %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/nscd.pid
 %attr(0666,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/socket
 %attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/passwd

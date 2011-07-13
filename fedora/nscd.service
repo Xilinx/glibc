@@ -1,0 +1,14 @@
+[Unit]
+Description=Name Service Cache Daemon
+After=syslog.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/nscd
+ExecStop=/usr/sbin/nscd --shutdown
+Restart=always
+PIDFile=/var/run/nscd/nscd.pid
+
+[Install]
+WantedBy=multi-user.target
+Also=nscd.socket
