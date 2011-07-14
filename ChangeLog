@@ -1,3 +1,237 @@
+2011-07-11  Roland McGrath  <roland@hack.frob.com>
+
+	* configure.in (-z relro check): Fix test code to make the variable
+	truly const.
+	* configure: Regenerated.
+
+2011-07-11  Ulrich Drepper  <drepper@gmail.com>
+
+	* nscd/nscd.h (struct traced_file): Define.
+	(struct database_dyn): Remove inotify_descr, reset_res, and filename
+	elements.  Add traced_files.
+	(inotify_fd): Declare.
+	(register_traced_file): Declare.
+	* nscd/connections.c (dbs): Remove reset_res and filename initializers.
+	(inotify_fd): Export.
+	(resolv_conf_descr): Remove.
+	(nscd_init): Move inotify descriptor creation to main.
+	Don't register files for notification here.
+	(register_traced_file): New function.
+	(invalidate_cache): Don't use reset_res to determine whether to call
+	res_init, go through the list of registered files.
+	(main_loop_poll): The inotify descriptors are now stored in the
+	structures for the traced files.
+	(main_loop_epoll): Likewise
+	* nscd/nscd.c (main): Create inotify socket here.  Pass extra argument
+	to __nss_disable_nscd.
+	* nscd/cache.c (prune_cache): There is no single inotify descriptor
+	for a database anymore.  Check the records for all the registered
+	files instead.
+	* nss/Makefile (libnss_files-routines): Add files-init.
+	(libnss_db-routines): Add db-init.
+	* nss/Versions [libnss_files] (GLIBC_PRIVATE): Add _nss_files_init.
+	[libnss_db] (GLIBC_PRIVATE): Add _nss_db_init.
+	* nss/nss_db/db-init.c: New file.
+	* nss/nss_files/files-init.c: New file.
+	* nss/nsswitch.c (nss_load_library): New function.  Broken out of
+	__nss_lookup_function.
+	(__nss_lookup_function): Call nss_load_library.
+	(nss_load_all_libraries): New function.
+	(__nss_disable_nscd): Take parameter with callback function for files
+	to register.  Set is_nscd.  Load all the DSOs for the NSS modules
+	used for the cached services.
+	* nss/nsswitch.h (__nss_disable_nscd): Adjust prototype.
+	* sysdeps/unix/sysv/linux/Makefile [subdir=nscd]: Pass the various -D
+	options for features to all the files in nscd.
+
+	* nss/nsswitch.c (nss_parse_file): Add missing fclose.
+
+2011-07-10  Roland McGrath  <roland@hack.frob.com>
+
+	* csu/elf-init.c (__libc_csu_init): Comment typo.
+
+2011-07-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/pl.po: Update from translation team.
+	* po/ja.po: Likewise.
+	* po/ru.po: Likewise.
+	* po/ko.po: Likewise.
+	* po/fr.po: Likewise.
+
+2011-07-09  Roland McGrath  <roland@hack.frob.com>
+
+	* configure.in (.ctors/.dtors header and trailer check):
+	Use an empirical test on a built program.
+	* configure: Regenerated.
+
+	* configure.in (-z relro check): Use an empirical test on a built DSO.
+	Detect, but do not require, on ia64.
+	* configure: Regenerated.
+
+	* configure.in (READELF): Find it with AC_CHECK_TOOL.
+	Update tests that use readelf to use $READELF instead.
+	* configure: Regenerated.
+
+2011-07-08  Ulrich Drepper  <drepper@gmail.com>
+
+	* malloc/hooks.c (memalign_check): Avoid using checked_request2size
+	if the result is not used.
+
+2011-07-05  Andreas Jaeger  <aj@suse.de>
+
+	[BZ#9696]
+	* stdlib/tst-strtod.c: Add testcase.
+
+2011-07-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/pathconf.c (distinguish_extX): New function.
+	(__statfs_link_max): Use it to distinguish between ext2/3 and ext4.
+	The latter has a higher limit.  Take additional parameter to pass to
+	the new function.
+	(__pathconf): Pass file to __statfs_link_max.
+	* sysdeps/unix/sysv/linux/fpathconf.c (__fpathconf): Pass fd to
+	__statfs_link_max.
+	* sysdeps/unix/sysv/linux/pathconf.h: Adjust prototype of
+	__statfs_link_max.
+
+	[BZ #12868]
+	* sysdeps/unix/sysv/linux/linux_fsinfo.h: Define Lustre constants.
+	* sysdeps/unix/sysv/linux/internal_statvfs.c (__statvfs_getflags):
+	Handle Lustre.
+	* sysdeps/unix/sysv/linux/pathconf.c (__statfs_link_max): Likewise.
+	(__statfs_filesize_max): Likewise.
+	Patch mostly by Andreas Dilger <adilger@whamcloud.com>.
+
+2011-07-05  Andreas Jaeger  <aj@suse.de>
+
+	* resolv/res_comp.c (dn_skipname): Remove unused variable.
+
+2011-07-06  Marek Polacek  <mpolacek@redhat.com>
+
+	* nis/nss_nisplus/nisplus-spwd.c (_nss_nisplus_setspent): Honour the
+	`status' variable.
+	* nis/nss_nisplus/nisplus-ethers.c (_nss_nisplus_setetherent):
+	Likewise.
+
+2011-07-04  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (strop-tests): Add strncat.
+	* string/test-strncat.c: New file.
+
+2011-06-30  Marek Polacek  <mpolacek@redhat.com>
+
+	* iconvdata/johab.c: Don't inline `johab_sym_hanja_to_ucs' function.
+
+2011-06-21  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/s390/s390-64/Makefile ($(inst_gconvdir)/gconv-modules):
+	Copy rule from iconvdata/Makefile.
+
+2011-07-06  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #12922]
+	* posix/getopt.c (_getopt_internal_r): When "W;" is in short options
+	but no long options are defined, just return 'W'.
+
+2011-06-22  Marek Polacek  <mpolacek@redhat.com>
+
+	[BZ #9696]
+	* stdlib/strtod_l.c (round_and_return): Set ERANGE instead of EDOM.
+
+2011-07-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* inet/getnetgrent_r.c (internal_getnetgrent_r): Fix check for known
+	netgroups to read.
+	(innetgr): Likewise.
+
+2011-07-05  Roland McGrath  <roland@hack.frob.com>
+
+	* config.make.in (install_root): Default to $(DESTDIR).
+
+2011-07-05  Ulrich Drepper  <drepper@gmail.com>
+
+	* nscd/nscd_getserv_r.c (nscd_getserv_r): Add cast to avoid warning.
+
+2011-07-02  Roland McGrath  <roland@hack.frob.com>
+
+	* Makerules ($(common-objpfx)format.lds): Fail if result is empty.
+
+	* Makefile ($(common-objpfx)testrun.sh): Generate to work relative to
+	containing directory rather than embedding absolute directory names.
+
+	* scripts/check-local-headers.sh: Rewritten using awk.
+	Match by word, not by line.  Print error messages for matches.
+	* Makefile ($(objpfx)check-local-headers.out): Pass AWK in to it.
+
+	* Makerules [shlib-lds-flags empty]:
+	($(common-objpfx)libc_pic.opts): New target.
+	($(common-objpfx)libc_pic.os.clean): New target.
+	($(common-objpfx)libc.so): Link it instead of libc_pic.os.
+
+	* config.make.in (OBJCOPY): New variable.
+	* aclocal.m4 (LIBC_PROG_BINUTILS): Substitute OBJCOPY too.
+	* configure: Regenerated.
+
+	* config.make.in (use-default-link): New variable.
+	* configure.in (use_default_link): Grok --with-default-link to set it.
+	* configure: Regenerated.
+	* Makerules [$(elf) = yes] [$(use-default-link) = yes]:
+	(shlib-lds, shlib-lds-flags): Define to empty.
+
+	* Makerules (shlib-lds): New variable.
+	(shlib-lds-flags): New variable.
+	(build-shlib, build-moduile, build-module-asneeded): Use it.
+	($(common-objpfx)libc.so): Use $(shlib-lds).
+	($(extra-modules-build:%=$(objpfx)%.so)): Likewise.
+	* iconvdata/extra-module.mk ($(objpfx)$(mod).so): Likewise.
+
+	* elf/dynamic-link.h (elf_get_dynamic_info): Make asserts accept
+	DT_FLAGS/DT_FLAGS_1 with zero flags.
+
+	* elf/Makefile ($(objpfx)ld.so): Use -defsym=_begin=0 instead of
+	linker script munging.
+
+2011-07-02  Ulrich Drepper  <drepper@gmail.com>
+
+	* crypt/sha512.h (struct sha512_ctx): Add union to access total also
+	as 128-bit value.
+	* crypt/sha512.c (sha512_process_block): Perform total addition using
+	128-bit if possible.
+	(__sha512_finish_ctx): Likewise.
+	* crypt/sha256.h (struct sha256_ctx): Add union to access total also
+	as 64-bit value.
+	* crypt/sha256.c (SWAP64): Define.
+	(sha256_process_block): Perform total addition using 64-bit if
+	possible.
+	(__sha256_finish_ctx): Likewise.
+
+2011-07-01  Ulrich Drepper  <drepper@gmail.com>
+
+	* nscd/pwdcache.c (cache_addpw): Cleanup.  Add branch prediction.
+	* nscd/initgrcache.c (addinitgroupsX): Likewise.
+	* nscd/hstcache.c (cache_addhst): Likewise.
+	* nscd/grpcache.c (cache_addgr): Likewise.
+	* nscd/aicache.c (addhstaiX): Likewise
+	* nscd/servicescache.c (cache_addserv): Handle zero negtimeout.
+
+2011-07-01  Thorsten Kukuk  <kukuk@suse.de>
+
+	* nscd/pwdcache.c (cache_addpw): Handle zero negtimeout.
+	* nscd/initgrcache.c (addinitgroupsX): Likewise.
+	* nscd/hstcache.c (cache_addhst): Likewise.
+	* nscd/grpcache.c (cache_addgr): Likewise.
+	* nscd/aicache.c (addhstaiX): Likewise
+
+2011-07-01  Andreas Schwab  <schwab@redhat.com>
+
+	* nis/nss_compat/compat-pwd.c (getpwent_next_nss_netgr): Query NIS
+	domain only when needed.
+
+2011-06-30  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/posix/getaddrinfo.c (gaih_inet): Make sure RES_USE_INET6
+	is always restored.
+
 2011-06-29  Ulrich Drepper  <drepper@gmail.com>
 
 	* nscd/grpcache.c (cache_addgr): Don't write notfound reply if we
