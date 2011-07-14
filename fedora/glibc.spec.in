@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 1
+Release: 2
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1077,6 +1077,22 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Thu Jul 14 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-2
+- Update from master
+  - Generalize framework to register monitoring of files in nscd
+  - Handle ext4 in {,f}pathconf
+  - Handle Lustre filesystem (BZ#12868)
+  - Handle W; without long options in getopt (BZ#12922)
+  - Change error code for underflows in strtod (BZ#9696)
+  - Fix handling of chained netgroups
+  - Optimize long-word additions in SHA implementation
+  - Handle nscd negtimeout==0
+  - nss_compat: query NIS domain only when needed
+  - Fix robust mutex handling after fork
+  - Make sure RES_USE_INET6 is always restored
+- Add systemd configuration for nscd
+- Be more careful running build-locale-archive
+
 * Thu Jun 30 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-1
 - Update from master
   - Fix quoting in some installed shell scripts (BZ#12935)
