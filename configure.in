@@ -1630,7 +1630,7 @@ EOF
     AC_LANG_CONFTEST([AC_LANG_SOURCE([[
 int _start (void) { return 42; }
 extern void _exit (int);
-const void *const relro[] = { &_start, &_exit, 0 };
+const void *relro[] = { &_start, &_exit, 0 };
 ]])])
     cat > conftest.awk <<\EOF
 BEGIN {
