@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 2
+Release: 3
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1075,6 +1075,15 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Wed Jul 20 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-3
+- Update from master
+  - S/390: Don't use r11 in INTERNAL_VSYSCALL_NCS macro
+  - Avoid warning in nscd config file parsing code
+  - Improve 64 bit strcat functions with SSE2/SSSE3
+  - Fix alloca accounting in strxfrm
+  - Avoid possible crashes in anormal nscd exits
+  - Updated Swedish and Dutch translations
+
 * Thu Jul 14 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-2
 - Update from master
   - Generalize framework to register monitoring of files in nscd
