@@ -1,0 +1,6 @@
+linuxthreads
+linuxthreads_db
+autom4te.cache
+glibc-linuxthreads-2.3.6
+manual
+po/*.mo
