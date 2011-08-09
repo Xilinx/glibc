@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 3
+Release: 4
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1070,6 +1070,23 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Tue Aug  9 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-4
+- Update from master
+  - Properly tokenize nameserver line for servers with IPv6 address
+  - Fix encoding name for IDN in getaddrinfo (#725755)
+  - Fix inline strncat/strncmp on x86
+  - Define SEEK_DATA and SEEK_HOLE
+  - Define AF_NFC and PF_NFC
+  - Update ptrace constants
+  - Add read barriers in cancellation initialization
+  - Add read barrier protecting DES initialization
+  - Fix overflow bug in optimized strncat for x86-64
+  - Check for overflows in expressions (BZ#12852)
+  - Fix check for AVX enablement (BZ#13007)
+  - Force La_x86_64_ymm to be 16-byte aligned
+  - Add const attr to gnu_dev_{major,minor,makedev}
+- Filter out GLIBC_PRIVATE symbols again
+
 * Wed Jul 20 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-3
 - Update from master
   - S/390: Don't use r11 in INTERNAL_VSYSCALL_NCS macro
