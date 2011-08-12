@@ -405,6 +405,7 @@ GCC=`cat Gcc`
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
 make -j1 install_root=$RPM_BUILD_ROOT install -C build-%{target} %{silentrules}
+chmod +x $RPM_BUILD_ROOT%{_prefix}/libexec/pt_chown
 %ifnarch %{auxarches}
 cd build-%{target} && \
   make %{?_smp_mflags} install_root=$RPM_BUILD_ROOT install-locales -C ../localedata objdir=`pwd` && \
@@ -797,8 +798,10 @@ eu-readelf -hS $RPM_BUILD_ROOT/usr/bin/getconf $RPM_BUILD_ROOT/usr/libexec/getco
 
 find_debuginfo_args='--strict-build-id -g'
 %ifarch %{debuginfocommonarches}
+echo %{_prefix}/libexec/pt_chown > workaround.filelist
 find_debuginfo_args="$find_debuginfo_args \
-  -l common.filelist -l utils.filelist -l nscd.filelist -p '.*/sbin/.*' \
+  -l common.filelist -l utils.filelist -l nscd.filelist -l workaround.filelist \
+  -p '.*/(sbin|libexec)/.*' \
   -o debuginfocommon.filelist \
   -l rpm.filelist -l nosegneg.filelist \
 "
