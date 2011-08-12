@@ -88,9 +88,7 @@ BuildRequires: gcc >= 4.1.0-0.17
 BuildRequires: elfutils >= 0.72
 BuildRequires: rpm >= 4.2-0.56
 %endif
-%filter_from_provides /GLIBC_PRIVATE/d
-%filter_from_requires /GLIBC_PRIVATE/d
-%filter_setup
+%global __filter_GLIBC_PRIVATE 1
 
 %description
 The glibc package contains standard libraries which are used by
