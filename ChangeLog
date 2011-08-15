@@ -1,3 +1,112 @@
+2011-08-14  Ulrich Drepper  <drepper@gmail.com>
+
+	* nscd/servicescache.c (cache_addserv): Make sure written is always
+	initialized.
+
+2011-08-14  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/i386/i486/bits/atomic.h
+	(__arch_compare_and_exchange_val_64_acq): Use RET alone at end of
+	statement expression, so as to suppress "set but not used" warning.
+	(__arch_c_compare_and_exchange_val_64_acq): Likewise.
+
+	* string/strncat.c (STRNCAT): Use prototype definition.
+
+	* locale/Makefile (locale-CPPFLAGS): Renamed CPPFLAGS-locale-programs.
+	(locale-CPPFLAGS): New variable; put LOCALEDIR, LOCALE_ALIAS_PATH and
+	-Iprograms here.
+	(cppflags-iterator.mk sequence): Use locale-programs in place of nonlib.
+	(localedef-modules): Add localedef.
+	(locale-modules): Add locale.
+
+	* sysdeps/generic/ldsodefs.h (struct unique_sym): Add a const.
+	* elf/rtld.c (dl_main): Invert order of assignment in last change,
+	to avoid a warning.
+
+2011-08-14  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/bits/resource.h (RLIM_INFINITY,
+	RLIM64_INFINITY): Fix 64-bit values for 32-bit sparc.
+
+2011-08-13  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/dl-open.c: Rename show_scope to _dl_schow_scope and export.
+	(dl_open_worker): Call _dl_show_scope when DL_DEBUG_SCOPES is set.
+	* elf/rtld.c (dl_main): Set l_name of vDSO.
+	Call _dl_show_scope when DL_DEBUG_SCOPES.
+	(process_dl_debug): Recognize scopes flag and also set it for all.
+	* sysdeps/generic/ldsodefs.h: Define DL_DEBUG_SCOPES.
+	Declare _dl_show_scope.
+
+	* elf/dl-libc.c (do_dlopen_args): Add caller_dlopen.
+	(do_dlopen): Pass caller_dlopen to dl_open.
+	(__libc_dlopen_mode): Initialize caller_dlopen.
+
+	* intl/l10nflist.c (_nl_normalize_codeset): Make it compile outside
+	of libc.  Make tolower call locale-independent.  Optimize a bit by
+	using isdigit instead of isalnum.
+	* locale/Makefile (locale-CPPFLAGS): Add -DNOT_IN_libc.
+
+2011-08-12  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/dl-load.c (_dl_map_object): Show in debug output whether a DSO
+	was a dependency or dynamically loaded.
+
+2011-08-11  Ulrich Drepper  <drepper@gmail.com>
+
+	* intl/l10nflist.c: Allow architecture-specific pop function.
+	* sysdeps/x86_64/l10nflist.c: New file.
+
+	* intl/l10nflist.c (_nl_make_l10nflist): Use locale-independent
+	classification.
+
+2011-08-10  Andreas Schwab  <schwab@redhat.com>
+
+	* include/dirent.h: Add libc_hidden_proto for scandirat and
+	scandirat64.  Don't declare __scandirat64.
+	* dirent/scandirat.c: Add libc_hidden_def.
+	* dirent/scandirat64.c (SCANDIRAT): Remove underscores.
+	* sysdeps/unix/sysv/linux/i386/scandir64.c (SCANDIRAT): Likewise.
+
+2011-08-10  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/ia64/sys/ptrace.h: Add missing comma in
+	enum.
+	* sysdeps/unix/sysv/linux/powerpc/sys/ptrace.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/sys/ptrace.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sys/ptrace.h: Likewise.
+
+2011-08-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* Versions.def [libc]: Add GLIBC_2.15.
+	* dirent/Makefile (routines): Add scandirat and scandirat64.
+	* dirent/Versions [libc]: Export scandirat and scandirat64 for
+	GLIBC_2.15.
+	* dirent/dirent.h: Declare scandirat and scandirat64.
+	* dirent/scandirat.c: New file.
+	* dirent/scandirat64.c: New file.
+	* sysdeps/wordsize-64/scandirat.c: New file.
+	* sysdeps/wordsize-64/scandirat64.c: New file.
+	* dirent/opendir.c: Define opendirat.
+	* dirent/scandir.c: Move code to scandirat.c.  Implement scandir
+	using scandirat.
+	* dirent/scandir64.c: Adjust for scandir.c change.
+	* include/dirent.h: Define scandir_cancel_struct.  Declare __opendirat,
+	__scandirat64, and __scandir_cancel_handler.
+	* sysdeps/unix/opendir.c: Rename __opendir to __opendirat.  Take
+	additional parameter and use openat instead of open (outside of ld.so).
+	Add new __opendir as wrapper around __opendirat.
+	* sysdeps/unix/sysv/linux/i386/scandir64.c: Reimplement __old_scandir64
+	here without requiring old scandirat implementation.
+
+2011-08-08  Ulrich Drepper  <drepper@gmail.com>
+
+	* dirent/scandir.c (cancel_handler): Renamed to
+	__scandir_cancel_handler.  Do not define if SKIP_SCANDIR_CANCEL is
+	defined.  Adjust users.
+	* dirent/scandir64.c: Define SKIP_SCANDIR_CANCEL.
+	* sysdeps/unix/sysv/linux/i386/scandir64.c: Likewise.
+
 2011-08-04  Ulrich Drepper  <drepper@gmail.com>
 
 	* string/test-string.h (IMPL): Use __STRING to expand name and then
