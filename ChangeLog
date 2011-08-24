@@ -1,3 +1,167 @@
+2011-08-24  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc64/strcmp.S: Rewrite.
+
+2011-08-24  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/Makefile: Add rules to build and run unload8 test.
+	* elf/unload8.c: New file.
+	* elf/unload8mod1.c: New file.
+	* elf/unload8mod1x.c: New file.
+	* elf/unload8mod2.c: New file.
+	* elf/unload8mod3.c: New file.
+
+	* elf/dl-close.c (_dl_close_worker): Reset private search list if
+	it wasn't used.
+
+2011-08-23  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc64/dl-machine.h (DL_STACK_END): Do not
+	subtract stack bias.
+	* sysdeps/sparc/sparc64/jmpbuf-unwind.h (_JMPBUF_UNWINDS): Use
+	%sp not %fp in calculations.
+	(_JMPBUF_UNWINDS_ADJ): Likewise.
+
+	* sysdeps/pthread/aio_suspend.c (do_aio_misc_wait): New function.
+	(aio_suspend): Call it to force an exception region around the
+	AIO_MISC_WAIT() invocation.
+
+2011-08-23  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/i386/i686/multiarch/strspn.S (ENTRY): Add missing
+	backslash.
+
+2011-07-04  Aurelien Jarno  <aurelien@aurel32.net>
+
+	* sysdeps/powerpc/dl-tls.h: Add _PPC_DL_TLS_H inclusion
+	protection macro.
+	* sysdeps/powerpc/powerpc64/dl-irel.h: Include <ldsodefs.h>
+	and <dl-machine.h>.
+	(Elf64_FuncDesc): Remove.
+
+2011-08-22  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sparc32/____longjmp_chk.S: Fix
+	sigaltstack check, add missing cfi directives.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/____longjmp_chk.S: Add
+	missing cfi directives, and sigaltstack handling.
+
+2011-08-16  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #11724]
+	* elf/dl-deps.c (_dl_map_object_deps): Only assume cycle when
+	object is seen twice.
+	* elf/dl-fini.c (_dl_sort_fini): Likewise.
+
+	* elf/Makefile (distribute): Add tst-initorder2.c.
+	(tests): Add tst-initorder2.
+	(modules-names): Add tst-initorder2a tst-initorder2b
+	tst-initorder2c tst-initorder2d.  Add rules to build them.
+	($(objpfx)tst-initorder2.out): New rule.
+	* elf/tst-initorder2.c: New file.
+	* elf/tst-initorder2.exp: New file.
+
+2011-08-22  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/i386/scandir64.c: Include <string.h>.
+
+	* elf/dl-deps.c (_dl_map_object_deps): Move check for missing
+	dependencies back to end of function.
+
+	* dlfcn/Makefile (LDLIBS-bug-atexit3-lib.so): Readd
+	$(elfobjdir)/ld.so.
+
+2011-08-21  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.S: Removed.
+	* sysdeps/unix/sysv/linux/x86_64/time.S: Removed.
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.c: New file.
+	* sysdeps/unix/sysv/linux/x86_64/time.c: New file.
+	* sysdeps/unix/sysv/linux/x86_64/bits/libc-vdso.h: Remove declaration
+	of __vdso_gettimeofday.
+	* sysdeps/unix/sysv/linux/x86_64/init-first.c: Remove definition of
+	__vdso_gettimeofday and __vdso_time.  Define __vdso_getcpu with
+	attribute_hidden.
+	(_libc_vdso_platform_setup): Remove initialization of
+	__vdso_gettimeofday and __vdso_time.
+
+2011-08-20  Ulrich Drepper  <drepper@gmail.com>
+
+	* nss/nss_files/files-alias.c (get_next_alias): Use feof_unlocked
+	and fgetc_unlocked.
+	* nss/nss_files/files-key.c (search): Use fgets_unlocked and
+	getc_unlocked.
+
+	* elf/dl-open.c (add_to_global): Report additions to the global scope
+	for LD_DEBUG=scopes.
+	(dl_open_worker): Also print scope of newly loaded dependencies.
+	(_dl_show_scope): Indicate if there is no scope.
+
+	[BZ #13114]
+	* stdio-common/Makefile (tests): Add bug24.
+	* stdio-common/bug24.c: New file.
+
+2011-08-19  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13114]
+	* libio/fileops.c (_IO_new_file_fopen): Fix handling of
+	non-existant file when using close-on-exec mode.
+
+2011-08-20  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/dl-trampoline.S (_dl_runtime_resolve): Fix CFI for
+	the very first instruction.
+
+	* sysdeps/x86_64/dl-trampoline.h: If MORE_CODE is defined, restore
+	the CFI state in the end.
+	* sysdeps/x86_64/dl-trampoline.S: Define MORE_CODE before first
+	inclusion of dl-trampoline.h.
+	Based on a patch by Jiri Olsa <jolsa@redhat.com>.
+
+2011-08-19  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Relax ctan (0.75 + 1.25 i)
+	expectations for long double.
+
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/scandir64.c: Renamed
+	from sysdeps/unix/sysv/linux/powerpc/scandir64.c.
+
+2011-08-14  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/Makefile (CFLAGS-tst-writev.c): The
+	artificual limit depends upon the system page size.
+
+2011-08-17  Ulrich Drepper  <drepper@gmail.com>
+
+	* Makeconfig (override CFLAGS): Add library-specific CFLAGS.
+	* resolv/Makefile: Define CFLAGS-libresolv.
+
+2011-08-17  Andreas Schwab  <schwab@redhat.com>
+
+	* nss/makedb.c (compute_tables): Make variables used in nested
+	function static.
+
+2011-08-17  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/pldd-xx.c (r_debug): Explicitly add padding when needed.
+	* elf/pldd.c (get_process_info): Use pread to re-read auxiliary vector
+	if buffer was too small.
+
+	* elf/pldd.c (main): Attach to all threads in the process.
+	Rewrite /proc handling to use *at functions.
+
+2011-08-16  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/dl-open.c (_dl_show_scope): Take additional parameter which
+	specifies first scope to show.
+	(dl_open_worker): Update callers.  Move printing scope of new
+	object to before the relocation.
+	* elf/rtld.c (dl_main): Update _dl_show_scope call.
+	* sysdeps/generic/ldsodefs.h: Update declaration.
+
+	* elf/dl-open.c (_dl_show_scope): Use _dl_debug_printf to generate the
+	string for the scope number.
+
 2011-08-14  Ulrich Drepper  <drepper@gmail.com>
 
 	* nscd/servicescache.c (cache_addserv): Make sure written is always
@@ -30,7 +194,7 @@
 
 2011-08-13  Ulrich Drepper  <drepper@gmail.com>
 
-	* elf/dl-open.c: Rename show_scope to _dl_schow_scope and export.
+	* elf/dl-open.c: Rename show_scope to _dl_show_scope and export.
 	(dl_open_worker): Call _dl_show_scope when DL_DEBUG_SCOPES is set.
 	* elf/rtld.c (dl_main): Set l_name of vDSO.
 	Call _dl_show_scope when DL_DEBUG_SCOPES.
@@ -262,14 +426,6 @@
 
 	* resolv/res_query.c (__libc_res_nquerydomain): Use size_t for
 	strlen results.
-
-2011-07-04  Aurelien Jarno  <aurelien@aurel32.net>
-
-	* sysdeps/powerpc/dl-tls.h: Add _PPC_DL_TLS_H inclusion
-	protection macro.
-	* sysdeps/powerpc/powerpc64/dl-irel.h: Include <ldsodefs.h>
-	and <dl-machine.h>.
-	(Elf64_FuncDesc): Remove.
 
 2011-07-13  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
 
@@ -2082,6 +2238,12 @@
 	* elf/noload.c: Include <memcheck.h>.
 	(main): Call mtrace.  Close all opened handles.
 
+2011-02-17  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #12454]
+	* elf/dl-deps.c (_dl_map_object_deps): Signal error early when
+	dependencies are missing.
+
 2011-02-22  Samuel Thibault  <samuel.thibault@ens-lyon.org>
 
 	Fix __if_freereq crash: Unlike the generic version which uses free,
@@ -2951,9 +3113,6 @@
 	* nss/nss_files/files-XXX.c (internal_getent): Declare linebuflen
 	as size_t.
 
-	* sysdeps/i386/i686/multiarch/strspn.S (ENTRY): Add missing
-	backslash.
-
 2010-09-24  Petr Baudis <pasky@suse.cz>
 
 	* debug/stack_chk_fail_local.c: Add missing licence exception.
@@ -3757,16 +3916,6 @@
 
 	* allocatestack.c (setxid_mark_thread): Ensure that the exiting
 	thread is woken up.
-
-	* elf/Makefile: Add rules to build and run unload8 test.
-	* elf/unload8.c: New file.
-	* elf/unload8mod1.c: New file.
-	* elf/unload8mod1x.c: New file.
-	* elf/unload8mod2.c: New file.
-	* elf/unload8mod3.c: New file.
-
-	* elf/dl-close.c (_dl_close_worker): Reset private search list if
-	it wasn't used.
 
 2010-06-21  Andreas Schwab  <schwab@redhat.com>
 
