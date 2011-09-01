@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 6
+Release: 7
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1071,6 +1071,12 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Thu Sep  1 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-7
+- Update from master
+  - Relocate objects in dependency order (#733462)
+- Avoid assertion failure when first DNS answer was empty (#730856)
+- Don't treat tls_offset == 1 as forced dynamic (#731228)
+
 * Wed Aug 24 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-6
 - Update from master
   - Correct cycle detection during dependency sorting
