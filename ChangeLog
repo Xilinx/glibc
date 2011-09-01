@@ -1,3 +1,8 @@
+2011-08-31  Andreas Schwab  <schwab@redhat.com>
+
+	* include/link.h (FORCED_DYNAMIC_TLS_OFFSET) [NO_TLS_OFFSET == 0]:
+	Change to -1.
+
 2011-08-24  David S. Miller  <davem@davemloft.net>
 
 	* sysdeps/sparc/sparc64/strcmp.S: Rewrite.
