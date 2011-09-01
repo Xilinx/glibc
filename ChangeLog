@@ -1,3 +1,7 @@
+2011-09-01  Andreas Schwab  <schwab@redhat.com>
+
+	* resolv/res_query.c (__libc_res_nquery): Update assertion.
+
 2011-08-31  Andreas Schwab  <schwab@redhat.com>
 
 	* include/link.h (FORCED_DYNAMIC_TLS_OFFSET) [NO_TLS_OFFSET == 0]:

@@ -248,7 +248,7 @@ __libc_res_nquery(res_state statp,
 	    && *resplen2 > (int) sizeof (HEADER))
 	  {
 	    /* Special case of partial answer.  */
-	    assert (hp != hp2);
+	    assert (n == 0 || hp != hp2);
 	    hp = hp2;
 	  }
 	else if (answerp2 != NULL && *resplen2 < (int) sizeof (HEADER)
