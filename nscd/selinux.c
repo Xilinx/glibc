@@ -265,6 +265,18 @@ avc_create_thread (void (*run) (void))
 {
   int rc;
 
+#if defined HAVE_LIBAUDIT && defined HAVE_LIBCAP
+  if (server_user != NULL && getuid () == 0)
+    {
+      /* We need to preserve the capabilities in the AVC thread.  */
+      if (prctl (PR_SET_KEEPCAPS, 1) == -1)
+	{
+	  dbg_log (_("Failed to set keep-capabilities"));
+	  error (EXIT_FAILURE, errno, _("prctl(KEEPCAPS) failed"));
+	}
+    }
+#endif
+
   rc =
     pthread_create (&avc_notify_thread, NULL, (void *(*) (void *)) run, NULL);
   if (rc != 0)
