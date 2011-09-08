@@ -1,3 +1,226 @@
+2011-09-08  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/dl-load.c (lose): Check for non-null l.
+
+2011-09-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/dl-load.c (open_verify): Use O_CLOEXEC.
+
+	* elf/dl-libc.c (dlerror_run): Pass back error code from
+	dl_catch_error.
+
+	[BZ #13123]
+	* elf/dl-load.c (lose): Free l_origin if it is valid.
+
+	* sysdeps/i386/i686/multiarch/strchr-sse2-bsf.S: Fix mixup in section
+	names.
+	* sysdeps/i386/i686/multiarch/strchr-sse2.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strlen-sse2-bsf.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strlen-sse2.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strrchr-sse2-bsf.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strrchr-sse2.S: Likewise.
+	Patch by Liubov Dmitrieva <liubov.dmitrieva@intel.com>.
+
+2011-08-01  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	* sysdeps/powerpc/fpu/e_hypot.c: New file.
+	* sysdeps/powerpc/fpu/e_hypotf.c: New file.
+	* sysdeps/powerpc/fpu/e_rem_pio2f.c: New file.
+	* sysdeps/powerpc/fpu/k_rem_pio2f.c: New file.
+	* sysdeps/powerpc/fpu/k_cosf.c: New file.
+	* sysdeps/powerpc/fpu/k_sinf.c: New file.
+	* sysdeps/powerpc/fpu/s_cosf.c: New file.
+	* sysdeps/powerpc/fpu/s_sinf.c: New file.
+	* sysdeps/powerpc/fpu/s_scalbnf.c: New file.
+	* sysdeps/powerpc/fpu/s_float_bitwise.h: New file.
+
+2011-08-15  Alan Modra  <amodra@gmail.com>
+
+	[BZ #13092]
+	* sysdeps/powerpc/Makefile (gmon): Move sysdep_routines to..
+	* sysdeps/powerpc/powerpc64/Makefile (gmon): ..here..
+	* sysdeps/powerpc/powerpc32/Makefile (gmon): ..and here.  Add
+	ppc_mcount to static-only-routines.
+	* sysdeps/powerpc/powerpc32/Versions: Export GLIBC_PRIVATE
+	__mcount_internal.
+	* sysdeps/powerpc/powerpc32/ppc-mcount.S (_mcount): Call
+	__mcount_internal with usual JUMPTARGET.  Remove useless nop.
+
+2011-08-18  David Flaherty  <flaherty@linux.vnet.ibm.com>
+
+	* sysdeps/ieee754/ldbl-128ibm/s_fmal.c: New file which checks
+	for finite and infinity parameters.
+
+2011-08-04  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* sysdeps/powerpc/powerpc32/power7/strncmp.S: Adjust the alignment
+	and add nop instructions for throughput optimization.
+	* sysdeps/powerpc/powerpc64/power7/strncmp.S: Likewise.
+
+2011-07-28  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* sysdeps/powerpc/powerpc32/power7/memcpy.S: Optimize the
+	aligned copy for power7 with vector-scalar instructions.
+	* sysdeps/powerpc/powerpc64/power7/memcpy.S: Likewise.
+
+2011-07-24  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/dl-trampoline.S (_dl_runtime_profile): Simplify
+	AVX check.
+
+2011-09-07  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #13144]
+	* sysdeps/unix/sysv/linux/x86_64/bits/sem.h (semdid_ds): Revert
+	last change.
+
+2011-09-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/init-first.c
+	(_libc_vdso_platform_setup): If vDSO is not present store pointer to
+	syscall wrapper around clock_gettime in __vdso_clock_gettime.
+	* sysdeps/unix/sysv/linux/x86_64/syscalls.list: Add entry for
+	clock_gettime.
+
+2011-09-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/clock_gettime.c (INTERNAL_GETTIME):
+	Forgot to demangle the pointer.
+
+	* sysdeps/i386/sysdep.h: Define atom_text_section.
+	* sysdeps/x86_64/sysdep.h: Likewise.
+	* sysdeps/i386/i686/multiarch/strchr-sse2-bsf.S: Place function in
+	section with atom_text_section.
+	* sysdeps/i386/i686/multiarch/strlen-sse2-bsf.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strrchr-sse2-bsf.S: Likewise.
+	* sysdeps/x86_64/multiarch/strchr-sse2-no-bsf.S: Likewise.
+	* sysdeps/x86_64/multiarch/strlen-no-bsf.S: Likewise.
+	* sysdeps/x86_64/multiarch/strrchr-sse2-no-bsf.S: Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/clock_gettime.c: New file.
+	* sysdeps/unix/sysv/linux/clock_gettime.c (SYSCALL_GETTIME): Allow
+	already be defined.  Change to take two parameters and don't assign
+	result to variable.  Adjust all users.
+	Define INTERNAL_GETTIME if not already defined.
+	Use INTERNAL_GETTIME instead of INTERNAL_VSYSCALL got clock_gettime
+	call.
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h: Don't define
+	HAVE_CLOCK_GETTIME_VSYSCALL.
+	* sysdeps/unix/clock_gettime.c: Adjust use of SYSDEP_GETTIME_CPU.
+
+	* sysdeps/unix/sysv/linux/getsysstats.c (__get_nprocs): Don't use
+	gettimeofday vsyscall, just use time.
+
+2011-09-06  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.c [!SHARED]: Include
+	<errno.h>.
+
+2011-09-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/kernel-features.h: Add entry for getcpu
+	syscall on x86-64.
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.c [!SHARED]: Use real
+	syscall.
+	* sysdeps/unix/sysv/linux/x86_64/time.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sched_getcpu.S [!SHARED]: Use real
+	syscall if possible.
+
+2011-09-05  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/pldd.c (get_process_info): Don't read whole ELF header, just
+	e_ident.  Don't pass to find_mapsXX.
+	* elf/pldd-xx.c (find_mapsXX): Remove second parameter.
+
+2011-07-20  Liubov Dmitrieva  <liubov.dmitrieva@intel.com>
+
+	* sysdeps/x86_64/multiarch/Makefile (sysdep_routines): Add
+	strchr-sse2-no-bsf strrchr-sse2-no-bsf
+	* sysdeps/x86_64/multiarch/strchr.S: Update.
+	Check bit_slow_BSF bit.
+	* sysdeps/x86_64/multiarch/strrchr.S: Likewise.
+	* sysdeps/x86_64/multiarch/strchr-sse2-no-bsf.S: New file.
+	* sysdeps/x86_64/multiarch/strrchr-sse2-no-bsf.S: New file.
+
+2011-09-05  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13134]
+	* sysdeps/posix/spawni.c (script_execute): Define only for compatibility
+	before glibc 2.15.
+	(tryshell): Define.
+	(__spawni): Change last parameter to be flag.  Test
+	SPAWN_XFLAGS_USE_PATH flag to use path or not.
+	Don't try to use shell unless SPAWN_XFLAGS_TRY_SHELL is set.
+	* sysdeps/mach/hurd/spawni.c: Change last parameter and adjust user.
+	* posix/spawni.c: Likewise.
+	* posix/spawn.c: Add compat version which passed SPAWN_XFLAGS_TRY_SHELL.
+	* posix/spawnp.c: Likewise.  Change normal version to use
+	SPAWN_XFLAGS_USE_PATH.
+	* posix/spawn_int.c: Define SPAWN_XFLAGS_USE_PATH and
+	SPAWN_XFLAGS_TRY_SHELL.
+
+	[BZ #13150]
+	* posix/glob.h: Remove gcc 1.x support.
+
+	[BZ #13068]
+	* elf/dl-misc.c (_dl_sysdep_read_whole_file): Use O_CLOEXEC.
+
+2011-07-20  Liubov Dmitrieva  <liubov.dmitrieva@intel.com>
+
+	* sysdeps/i386/i686/multiarch/Makefile (sysdep_routines): Add
+	strchr-sse2 strrchr-sse2 strchr-sse2-bsf
+	strrchr-sse2-bsf
+	* sysdeps/i386/i686/multiarch/strchr.S: New file.
+	* sysdeps/i386/i686/multiarch/strrchr.S: New file.
+	* sysdeps/i386/i686/multiarch/strchr-sse2.S: New file.
+	* sysdeps/i386/i686/multiarch/strchr-sse2-bsf.S: New file.
+	* sysdeps/i386/i686/multiarch/strrchr-sse2.S: New file.
+	* sysdeps/i386/i686/multiarch/strrchr-sse2-bsf.S: New file.
+
+2011-08-29  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* sysdeps/x86_64/wcscmp.S: New file.
+
+	* sysdeps/i386/i686/multiarch/Makefile: (sysdep_routines): Add
+	wcscmp-c wcscmp-sse2
+	* sysdeps/i386/i686/multiarch/wcscmp-c.c: New file.
+	* sysdeps/i386/i686/multiarch/wcscmp.S: New file.
+	* sysdeps/i386/i686/multiarch/wcscmp-sse2.S: New file.
+	* wcsmbs/wcscmp.c: Allow renaming.
+
+2011-09-05  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/fpu/s_fabsf.S: Use first argument
+	stack slot, rather than the struct return pointer slot.
+	* sysdeps/sparc/sparc32/fpu/s_fabs.c: Delete.
+	* sysdeps/sparc/sparc32/fpu/s_fabs.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_fabs.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sparcv9/fpu/Implies: Likewise.
+
+2011-09-05  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/ja.po: Update from translation team.
+
+	[BZ #13144]
+	* sysdeps/unix/sysv/linux/x86_64/bits/sem.h (semdid_ds): Fix to match
+	kernel in 64-bit binaries.
+
+2011-09-01  David S. Miller  <davem@davemloft.net>
+
+	* elf/elf.h (HWCAP_SPARC_*): Move to..
+	* sysdeps/sparc/sysdep.h: this new file and add new values.
+	* sysdeps/unix/sparc/sysdep.h: Include sysdeps/sparc/sysdep.h
+	* sysdeps/sparc/dl-procinfo.h: Include sysdep.h and increase
+	_DL_HWCAP_COUNT to 24.
+	* sysdeps/sparc/dl-procinfo.c (_dl_sparc_cap_flags): Add new
+	entries.
+	* sysdeps/sparc/sparc32/bits/atomic.h: Don't use magic local
+	__ATOMIC_HWCAP_SPARC_V9 define, use sysdep.h one instead.
+	* sysdeps/sparc/sparc32/dl-machine.h: Include sysdep.h
+	* sysdeps/sparc/sparc64/multiarch/memcpy.S: Use HWCAP_SPARC_*
+	instead of magic constants.
+	* sysdeps/sparc/sparc64/multiarch/memset.S: Likewise.
+
 2011-08-31  David S. Miller  <davem@davemloft.net>
 
 	* sysdeps/unix/sparc/sysdep.h (SETUP_PIC_REG): Define.
