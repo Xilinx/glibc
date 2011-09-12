@@ -28,7 +28,7 @@
 int
 __getpagesize ()
 {
-#if 0 && defined __ASSUME_AT_PAGESIZE
+#ifdef __ASSUME_AT_PAGESIZE
   assert (GLRO(dl_pagesize) != 0);
   return GLRO(dl_pagesize);
 #else
