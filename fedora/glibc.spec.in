@@ -666,9 +666,11 @@ echo '%{_prefix}/sbin/build-locale-archive' >> common.filelist
 echo '%{_prefix}/sbin/tzdata-update' >> common.filelist
 echo '%{_prefix}/sbin/nscd' > nscd.filelist
 
-cat > utils.filelist <<EOF
+cat >> rpm.filelist <<EOF
 %{_prefix}/%{_lib}/libmemusage.so
 %{_prefix}/%{_lib}/libpcprofile.so
+EOF
+cat > utils.filelist <<EOF
 %{_prefix}/bin/memusage
 %{_prefix}/bin/memusagestat
 %{_prefix}/bin/mtrace
