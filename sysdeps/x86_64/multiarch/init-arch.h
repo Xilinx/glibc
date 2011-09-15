@@ -31,11 +31,13 @@
 # define bit_SSSE3	(1 << 9)
 # define bit_SSE4_1	(1 << 19)
 # define bit_SSE4_2	(1 << 20)
+# define bit_ERMS	(1 << 9)
 
 # define index_SSE2	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_EDX_OFFSET
 # define index_SSSE3	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
 # define index_SSE4_1	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
 # define index_SSE4_2	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
+# define index_ERMS	COMMON_CPUID_INDEX_7*CPUID_SIZE+CPUID_EBX_OFFSET
 
 # define index_Fast_Rep_String		FEATURE_INDEX_1*FEATURE_SIZE
 # define index_Fast_Copy_Backward	FEATURE_INDEX_1*FEATURE_SIZE
@@ -51,6 +53,7 @@
 enum
   {
     COMMON_CPUID_INDEX_1 = 0,
+    COMMON_CPUID_INDEX_7,
     /* Keep the following line at the end.  */
     COMMON_CPUID_INDEX_MAX
   };
@@ -58,6 +61,7 @@ enum
 enum
   {
     FEATURE_INDEX_1 = 0,
+    FEATURE_INDEX_7,
     /* Keep the following line at the end.  */
     FEATURE_INDEX_MAX
   };
@@ -111,6 +115,7 @@ extern const struct cpu_features *__get_cpu_features (void)
 # define HAS_SSE4_1	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 19)
 # define HAS_SSE4_2	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 20)
 # define HAS_FMA	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 12)
+# define HAS_ERMS	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_7, ebx, 9)
 
 # define index_Fast_Rep_String		FEATURE_INDEX_1
 # define index_Fast_Copy_Backward	FEATURE_INDEX_1

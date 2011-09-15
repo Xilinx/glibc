@@ -1,0 +1,10 @@
+2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/init-arch.c (get_common_indeces):
+	Initialize COMMON_CPUID_INDEX_7.
+
+	* sysdeps/x86_64/multiarch/init-arch.h (bit_ERMS): New.
+	(index_ERMS): Likewise.
+	(COMMON_CPUID_INDEX_7): Likewise.
+	(FEATURE_INDEX_7): Likewise.
+	(HAS_ERMS): Likewise.
