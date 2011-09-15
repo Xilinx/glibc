@@ -35,15 +35,18 @@
 extern __typeof (memmove) __memmove_sse2 attribute_hidden;
 extern __typeof (memmove) __memmove_ssse3 attribute_hidden;
 extern __typeof (memmove) __memmove_ssse3_back attribute_hidden;
+extern __typeof (memmove) __memmove_erms attribute_hidden;
 
 #include "string/memmove.c"
 
 #ifndef NOT_IN_libc
 libc_ifunc (memmove,
-	    HAS_SSSE3
-	    ? (HAS_FAST_COPY_BACKWARD
-	       ? __memmove_ssse3_back : __memmove_ssse3)
-	    : __memmove_sse2);
+	    HAS_ERMS
+	    ? __memmove_erms
+	    : (HAS_SSSE3
+	       ? (HAS_FAST_COPY_BACKWARD
+		  ? __memmove_ssse3_back : __memmove_ssse3)
+	       : __memmove_sse2));
 
 #if SHLIB_COMPAT (libc, GLIBC_2_2_5, GLIBC_2_14)
 compat_symbol (libc, memmove, memcpy, GLIBC_2_2_5);

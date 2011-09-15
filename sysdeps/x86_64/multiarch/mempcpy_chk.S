@@ -32,7 +32,10 @@ ENTRY(__mempcpy_chk)
 	cmpl	$0, KIND_OFFSET+__cpu_features(%rip)
 	jne	1f
 	call	__init_cpu_features
-1:	leaq	__mempcpy_chk_sse2(%rip), %rax
+1:	leaq	__mempcpy_chk_erms(%rip), %rax
+	testl	$bit_ERMS, __cpu_features+CPUID_OFFSET+index_ERMS(%rip)
+	jnz	2f
+	leaq	__mempcpy_chk_sse2(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
 	jz	2f
 	leaq	__mempcpy_chk_ssse3(%rip), %rax
