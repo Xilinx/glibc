@@ -26,12 +26,25 @@ ENTRY(__bzero)
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
-1:	leaq	__bzero_x86_64(%rip), %rax
+1:	leaq	__bzero_erms(%rip), %rax
+	testl	$bit_ERMS, __cpu_features+CPUID_OFFSET+index_ERMS(%rip)
+	jnz	2f
+	leaq	__bzero_x86_64(%rip), %rax
 	testl	$bit_Prefer_SSE_for_memop, __cpu_features+FEATURE_OFFSET+index_Prefer_SSE_for_memop(%rip)
 	jz	2f
 	leaq	__bzero_sse2(%rip), %rax
 2:	ret
 END(__bzero)
+
+	.type	__bzero_erms, @function
+__bzero_erms:
+	cfi_startproc
+	CALL_MCOUNT
+	mov	%rsi,%rdx	/* Adjust parameter.  */
+	xorl	%esi,%esi	/* Fill with 0s.  */
+	jmp	__memset_erms
+	cfi_endproc
+	.size __bzero_erms, .-__bzero_erms
 
 	.type	__bzero_sse2, @function
 __bzero_sse2:

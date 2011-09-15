@@ -27,7 +27,10 @@ ENTRY(memset)
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
-1:	leaq	__memset_x86_64(%rip), %rax
+1:	leaq	__memset_erms(%rip), %rax
+	testl	$bit_ERMS, __cpu_features+CPUID_OFFSET+index_ERMS(%rip)
+	jnz	2f
+	leaq	__memset_x86_64(%rip), %rax
 	testl	$bit_Prefer_SSE_for_memop, __cpu_features+FEATURE_OFFSET+index_Prefer_SSE_for_memop(%rip)
 	jz	2f
 	leaq	__memset_sse2(%rip), %rax

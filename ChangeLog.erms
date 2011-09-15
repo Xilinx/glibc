@@ -1,6 +1,17 @@
 2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/multiarch/Makefile (sysdep_routines): Add
+	memset-erms.
+
+	* sysdeps/x86_64/multiarch/bzero.S: Optimize for ERMS.
+	* sysdeps/x86_64/multiarch/memset.S: Likewise.
+	* sysdeps/x86_64/multiarch/memset_chk.S: Likewise.
+
+	* sysdeps/x86_64/multiarch/memset-erms.S: New.
+
+2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/Makefile (sysdep_routines): Add
 	memcpy-erms, mempcpy-erms and memmove-erms.
 
 	* sysdeps/x86_64/multiarch/memcpy.S: Optimize for ERMS.

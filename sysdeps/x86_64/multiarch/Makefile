@@ -16,7 +16,7 @@ sysdep_routines += strncat-c stpncpy-c strncpy-c strcmp-ssse3 strncmp-ssse3 \
 		   strcat-sse2-unaligned strncat-sse2-unaligned \
 		   strcat-ssse3 strncat-ssse3 strlen-sse2-pminub \
 		   strrchr-sse2-no-bsf strchr-sse2-no-bsf \
-		   memcpy-erms mempcpy-erms memmove-erms 
+		   memcpy-erms mempcpy-erms memmove-erms memset-erms
 ifeq (yes,$(config-cflags-sse4))
 sysdep_routines += strcspn-c strpbrk-c strspn-c strstr-c strcasestr-c varshift
 CFLAGS-varshift.c += -msse4
