@@ -1,5 +1,10 @@
 2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/multiarch/ifunc-defines.sym: Add
+	COMMON_CPUID_INDEX_7 and FEATURE_INDEX_7.
+
+2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/multiarch/init-arch.c (get_common_indeces):
 	Initialize COMMON_CPUID_INDEX_7.
 
