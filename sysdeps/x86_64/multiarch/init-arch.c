@@ -33,10 +33,11 @@ get_common_indeces (unsigned int *family, unsigned int *model)
 	   __cpu_features.cpuid[COMMON_CPUID_INDEX_1].ebx,
 	   __cpu_features.cpuid[COMMON_CPUID_INDEX_1].ecx,
 	   __cpu_features.cpuid[COMMON_CPUID_INDEX_1].edx);
-  __cpuid (7, __cpu_features.cpuid[COMMON_CPUID_INDEX_7].eax,
-	   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ebx,
-	   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ecx,
-	   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].edx);
+  if (__cpu_features.max_cpuid >= 7)
+    __cpuid_count (7, 0, __cpu_features.cpuid[COMMON_CPUID_INDEX_7].eax,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ebx,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ecx,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].edx);
 
   unsigned int eax = __cpu_features.cpuid[COMMON_CPUID_INDEX_1].eax;
   *family = (eax >> 8) & 0x0f;
