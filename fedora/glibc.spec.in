@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 8
+Release: 9
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -347,7 +347,7 @@ configure_CFLAGS="$build_CFLAGS -fno-asynchronous-unwind-tables"
 	--prefix=%{_prefix} \
 	--enable-add-ons=../%{glibcportsdir},nptl$AddOns \
 	--with-headers=%{_prefix}/include $EnableKernel --enable-bind-now \
-	--with-tls --with-__thread --build=%{target} \
+	--build=%{target} \
 %ifarch %{multiarcharches}
 	--enable-multi-arch \
 %endif
@@ -1073,6 +1073,24 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Fri Sep 16 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-9
+- Update from master
+  - Define IP_MULTICAST_ALL
+  - Add fmax and fmin inlines for x86-64
+  - Avoid race between {,__de}allocate_stack and __reclaim_stacks
+    during fork (#737387)
+  - Optimized lrint and llrint for x86-64
+  - Also relocate in dependency order when doing symbol dependency
+    testing (#737459)
+  - Optimize logb code for 64-bit machines
+  - Fix jn precision (BZ#11589)
+  - Fix boundary conditions in scanf (BZ#13138)
+  - Don't lock string streams in stream cleanup code (BZ#12847)
+  - Define ELFOSABI_GNU
+  - Fix lround loss of precision
+  - Add range checking for FD_SET, FD_CLR, and FD_ISSET
+- Make sure AVC thread has capabilities
+
 * Thu Sep  8 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-8
 - Update from master
   - Use O_CLOEXEC when loading objects and cache in ld.so (BZ#13068)
