@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2006, 2007, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2006, 2007, 2010, 2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@
 #if INT_MAX == LONG_MAX
 # define need_long	0
 #else
-# define need_long 	1
+# define need_long	1
 #endif
 
 /* Those are flags in the conversion format. */
@@ -102,9 +102,9 @@
 # define __strtof_internal	__wcstof_internal
 
 # define L_(Str)	L##Str
-# define CHAR_T	  	wchar_t
+# define CHAR_T		wchar_t
 # define UCHAR_T	unsigned int
-# define WINT_T	  	wint_t
+# define WINT_T		wint_t
 # undef EOF
 # define EOF		WEOF
 #else
@@ -128,7 +128,7 @@
 			    return EOF
 
 # define L_(Str)	Str
-# define CHAR_T	  	char
+# define CHAR_T		char
 # define UCHAR_T	unsigned char
 # define WINT_T		int
 #endif
@@ -265,16 +265,39 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
   CHAR_T *wp = NULL;		/* Workspace.  */
   size_t wpmax = 0;		/* Maximal size of workspace.  */
   size_t wpsize;		/* Currently used bytes in workspace.  */
+  bool use_malloc = false;
 #define ADDW(Ch)							    \
   do									    \
     {									    \
-      if (wpsize == wpmax)						    \
+      if (__builtin_expect (wpsize == wpmax, 0))			    \
 	{								    \
 	  CHAR_T *old = wp;						    \
-	  wpmax = (UCHAR_MAX + 1 > 2 * wpmax ? UCHAR_MAX + 1 : 2 * wpmax);  \
-	  wp = (CHAR_T *) alloca (wpmax * sizeof (CHAR_T));		    \
-	  if (old != NULL)						    \
-	    MEMCPY (wp, old, wpsize);					    \
+	  size_t newsize = (UCHAR_MAX + 1 > 2 * wpmax			    \
+			    ? UCHAR_MAX + 1 : 2 * wpmax);		    \
+	  if (use_malloc || __libc_use_alloca (newsize))		    \
+	    {								    \
+	      wp = realloc (use_malloc ? wp : NULL, newsize);		    \
+	      if (wp == NULL)						    \
+		{							    \
+		  if (use_malloc)					    \
+		    free (old);						    \
+		  done = EOF;						    \
+		  goto errout;						    \
+		}							    \
+	      if (! use_malloc)						    \
+		MEMCPY (wp, old, wpsize);				    \
+	      wpmax = newsize;						    \
+	      use_malloc = true;					    \
+	    }								    \
+	  else								    \
+	    {								    \
+	      size_t s = wpmax * sizeof (CHAR_T);			    \
+	      wp = (CHAR_T *) extend_alloca (wp, s,			    \
+					     newsize * sizeof (CHAR_T));    \
+	      wpmax = s / sizeof (CHAR_T);				    \
+	      if (old != NULL)						    \
+		MEMCPY (wp, old, wpsize);				    \
+	    }								    \
 	}								    \
       wp[wpsize++] = (Ch);						    \
     }									    \
@@ -670,7 +693,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 		      if (Str != NULL)					      \
 			add_ptr_to_free (strptr);			      \
 		      else if (flags & POSIX_MALLOC)			      \
-			goto reteof;					      \
+			{						      \
+			  done = EOF;					      \
+			  goto errout;					      \
+			}						      \
 		    }							      \
 		  else							      \
 		    Str = ARG (Type *);					      \
@@ -711,8 +737,11 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			  newstr = (char *) realloc (*strptr,
 						     strleng + MB_CUR_MAX);
 			  if (newstr == NULL)
-			    /* c can't have `a' flag, only `m'.  */
-			    goto reteof;
+			    {
+			      /* c can't have `a' flag, only `m'.  */
+			      done = EOF;
+			      goto errout;
+			    }
 			  else
 			    {
 			      *strptr = newstr;
@@ -758,8 +787,11 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 				 effort.  */
 			      str = (char *) realloc (*strptr, strsize + 1);
 			      if (str == NULL)
-				/* c can't have `a' flag, only `m'.  */
-				goto reteof;
+				{
+				  /* c can't have `a' flag, only `m'.  */
+				  done = EOF;
+				  goto errout;
+				}
 			      else
 				{
 				  *strptr = (char *) str;
@@ -828,8 +860,12 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 						      (strsize + 1)
 						      * sizeof (wchar_t));
 			  if (wstr == NULL)
-			    /* C or lc can't have `a' flag, only `m' flag.  */
-			    goto reteof;
+			    {
+			      /* C or lc can't have `a' flag, only `m'
+				 flag.  */
+			      done = EOF;
+			      goto errout;
+			    }
 			  else
 			    {
 			      *strptr = (char *) wstr;
@@ -879,8 +915,11 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 						    ((strsize + 1)
 						     * sizeof (wchar_t)));
 			if (wstr == NULL)
-			  /* C or lc can't have `a' flag, only `m' flag.  */
-			  goto reteof;
+			  {
+			    /* C or lc can't have `a' flag, only `m' flag.  */
+			    done = EOF;
+			    goto errout;
+			  }
 			else
 			  {
 			    *strptr = (char *) wstr;
@@ -992,7 +1031,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			    if (newstr == NULL)
 			      {
 				if (flags & POSIX_MALLOC)
-				  goto reteof;
+				  {
+				    done = EOF;
+				    goto errout;
+				  }
 				/* We lose.  Oh well.  Terminate the
 				   string and stop converting,
 				   so at least we don't skip any input.  */
@@ -1042,7 +1084,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			      if (str == NULL)
 				{
 				  if (flags & POSIX_MALLOC)
-				    goto reteof;
+				    {
+				      done = EOF;
+				      goto errout;
+				    }
 				  /* We lose.  Oh well.  Terminate the
 				     string and stop converting,
 				     so at least we don't skip any input.  */
@@ -1088,7 +1133,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 		      if (newstr == NULL)
 			{
 			  if (flags & POSIX_MALLOC)
-			    goto reteof;
+			    {
+			      done = EOF;
+			      goto errout;
+			    }
 			  /* We lose.  Oh well.  Terminate the string
 			     and stop converting, so at least we don't
 			     skip any input.  */
@@ -1170,7 +1218,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			    if (wstr == NULL)
 			      {
 				if (flags & POSIX_MALLOC)
-				  goto reteof;
+				  {
+				    done = EOF;
+				    goto errout;
+				  }
 				/* We lose.  Oh well.  Terminate the string
 				   and stop converting, so at least we don't
 				   skip any input.  */
@@ -1242,7 +1293,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			  if (wstr == NULL)
 			    {
 			      if (flags & POSIX_MALLOC)
-				goto reteof;
+				{
+				  done = EOF;
+				  goto errout;
+				}
 			      /* We lose.  Oh well.  Terminate the
 				 string and stop converting, so at
 				 least we don't skip any input.  */
@@ -2433,7 +2487,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			      if (wstr == NULL)
 				{
 				  if (flags & POSIX_MALLOC)
-				    goto reteof;
+				    {
+				      done = EOF;
+				      goto errout;
+				    }
 				  /* We lose.  Oh well.  Terminate the string
 				     and stop converting, so at least we don't
 				     skip any input.  */
@@ -2515,7 +2572,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			      if (wstr == NULL)
 				{
 				  if (flags & POSIX_MALLOC)
-				    goto reteof;
+				    {
+				      done = EOF;
+				      goto errout;
+				    }
 				  /* We lose.  Oh well.  Terminate the
 				     string and stop converting,
 				     so at least we don't skip any input.  */
@@ -2657,7 +2717,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 			      if (newstr == NULL)
 				{
 				  if (flags & POSIX_MALLOC)
-				    goto reteof;
+				    {
+				      done = EOF;
+				      goto errout;
+				    }
 				  /* We lose.  Oh well.  Terminate the string
 				     and stop converting, so at least we don't
 				     skip any input.  */
@@ -2722,7 +2785,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 				  goto allocagain;
 				}
 			      if (flags & POSIX_MALLOC)
-				goto reteof;
+				{
+				  done = EOF;
+				  goto errout;
+				}
 			      /* We lose.  Oh well.  Terminate the
 				 string and stop converting,
 				 so at least we don't skip any input.  */
@@ -2765,7 +2831,10 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 		      if (newstr == NULL)
 			{
 			  if (flags & POSIX_MALLOC)
-			    goto reteof;
+			    {
+			      done = EOF;
+			      goto errout;
+			    }
 			  /* We lose.  Oh well.  Terminate the string
 			     and stop converting, so at least we don't
 			     skip any input.  */
@@ -2828,12 +2897,14 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
   /* Unlock stream.  */
   UNLOCK_STREAM (s);
 
+  if (use_malloc)
+    free (wp);
+
   if (errp != NULL)
     *errp |= errval;
 
-  if (done == EOF)
+  if (__builtin_expect (done == EOF, 0))
     {
-  reteof:
       if (__builtin_expect (ptrs_to_free != NULL, 0))
 	{
 	  struct ptrs_to_free *p = ptrs_to_free;
@@ -2848,7 +2919,6 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 	      ptrs_to_free = p;
 	    }
 	}
-      return EOF;
     }
   else if (__builtin_expect (strptr != NULL, 0))
     {

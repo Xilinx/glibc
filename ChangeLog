@@ -1,3 +1,378 @@
+2011-09-15  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_finite.c: New file.
+
+	* sysdeps/unix/sysv/linux/bits/in.h (IP_MULTICAST_ALL): Define.
+	Patch mostly by Neil Horman <nhorman@tuxdriver.com>.
+
+2011-09-15  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/unix/sysv/linux/i386/____longjmp_chk.S
+	(CALL_FAIL): Use HIDDEN_JUMPTARGET for __fortify_fail.
+	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S
+	(CALL_FAIL): Likewise.
+	* sysdeps/unix/sysv/linux/ia64/____longjmp_chk.S (CHECK_RSP): Likewise.
+	(CALL_FAIL): Macro removed.
+	Patch mostly by Mike Frysinger <vapier@gentoo.org>.
+
+2011-09-15  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/fpu/bits/mathinline.h: Add fmax and fmin optimizations
+	for __FINITE_MATH_ONLY__ == 1.
+
+2011-09-15  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/powerpc/fpu/e_hypot.c (__ieee754_hypot): Use
+	__ieee754_sqrt instead of sqrt.
+	* sysdeps/powerpc/fpu/e_hypotf.c (__ieee754_hypotf): Use
+	__ieee754_sqrtf instead of sqrtf.
+	* sysdeps/powerpc/fpu/e_rem_pio2f.c (__ieee754_rem_pio2f): Use
+	__floorf instead of floorf.
+	* sysdeps/powerpc/fpu/k_rem_pio2f.c (__fp_kernel_rem_pio2f): Use
+	__floorf, __truncf instead of floorf, truncf.
+
+2011-09-14  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/fpu/s_copysign.S [ELF]: Use correct section.
+
+	* sysdeps/x86_64/fpu/bits/mathinline.h (__MATH_INLINE): Use
+	__extern_always_inline.
+	Define lrint{f,} and llrint{f,} for 64-bit and in some situations for
+	32-bit.
+
+2011-09-14  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/rtld.c (dl_main): Also relocate in dependency order when
+	doing symbol dependency testing.
+
+2011-09-13  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/powerpc64/dl-machine.h (elf_machine_rela):
+	Always define `refsym'.
+
+2011-09-13  Andreas Schwab  <schwab@redhat.com>
+
+	* misc/sys/select.h (__FD_MASK): Renamed from __FDMASK.
+	(__FD_ELT): Renamed from __FDELT.
+	* misc/bits/select2.h (__FD_ELT): Likewise.
+	* bits/select.h (__FD_SET, __FD_CLR, __FD_ISSET): Use __FD_ELT,
+	__FD_MASK instead of __FDELT, __FDMASK.
+	* sysdeps/i386/bits/select.h (__FD_SET, __FD_CLR, __FD_ISSET):
+	Likewise.
+	* sysdeps/x86_64/bits/select.h (__FD_SET, __FD_CLR, __FD_ISSET):
+	Likewise.
+
+	* elf/Makefile (gen-ldd): Fix pattern.
+
+	* elf/rtld.c (dl_main): Only use USE___THREAD when defined.
+	(init_tls): Likewise.
+
+2011-09-12  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_logb.c: New file.
+
+2011-09-12  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/bits/socket.h (__cmsg_nxthdr): Cast to
+	`struct cmsghdr *' instead of `void *'.
+	* sysdeps/unix/sysv/linux/sparc/bits/socket.h (__cmsg_nxthdr):
+	Likewise.
+
+2011-09-11  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* elf/Makefile (gen-ldd): Prepend $(..) to $(ldd-rewrite-script)
+	if non-absolute.
+	* sysdeps/unix/sysv/linux/configure.in: Remove leading ../ from
+	ldd_rewrite_script.
+
+2011-09-11  Ulrich Drepper  <drepper@gmail.com>
+
+	* configure.in: Remove --with-tls option.
+	* config.h.in: Remove HAVE_TLS_SUPPORT entry.
+	* sysdeps/i386/elf/configure.in: Always test for TLS support and err
+	out in case it is missing.
+	* sysdeps/ia64/elf/configure.in: Likewise.
+	* sysdeps/powerpc/powerpc32/elf/configure.in: Likewise.
+	* sysdeps/powerpc/powerpc64/elf/configure.in: Likewise.
+	* sysdeps/s390/s390-32/elf/configure.in: Likewise.
+	* sysdeps/s390/s390-64/elf/configure.in: Likewise.
+	* sysdeps/sh/elf/configure.in: Likewise.
+	* sysdeps/sparc/sparc32/elf/configure.in: Likewise.
+	* sysdeps/sparc/sparc64/elf/configure.in: Likewise.
+	* sysdeps/x86_64/elf/configure.in: Likewise.
+	* sysdeps/mach/hurd/i386/tls.h: Remove test for HAVE_TLS_SUPPORT.
+	* sysdeps/mach/hurd/tls.h: Likewise.
+
+	[BZ #13067]
+	* malloc/obstack.h [!GNUC] (obstack_free): Avoid cast to int.
+
+	[BZ #13090]
+	* configure.in: Fix use of AC_INIT.
+
+	* elf/dl-support.c (_dl_pagesize): Initialize to EXEC_PAGESIZE.
+
+2011-09-10  Ulrich Drepper  <drepper@gmail.com>
+
+	* malloc/malloc.c: Replace MALLOC_FAILURE_ACTION with use of
+	__set_errno.
+	* malloc/hooks.c: Likewise.
+
+	* malloc/arena.c (ptmalloc_init_minimal): Removed.  Initialize all
+	variables statically.
+	(narenas): Initialize.
+	(list_lock): Initialize.
+	(ptmalloc_init): Don't call ptmalloc_init_minimal.  Remove
+	initializtion of main_arena and list_lock.  Small cleanups.
+	Replace all uses of malloc_getpagesize with GLRO(dl_pagesize).
+	* malloc/malloc.c: Remove malloc_getpagesize.  Include <ldsodefs.h>.
+	Add initializers to main_arena and mp_.
+	(malloc_state): Remove pagesize member.  Change all users to use
+	GLRO(dl_pagesize).
+
+	* elf/rtld.c (rtld_global_ro): Initialize _dl_pagesize.
+	* sysdeps/unix/sysv/linux/getpagesize.c: Simplify.  GLRO(dl_pagesize)
+	is always initialized.
+
+	* malloc/malloc.c: Removed unused configurations and dead code.
+	* malloc/arena.c: Likewise.
+	* malloc/hooks.c: Likewise.
+	* malloc/Makefile (CPPFLAGS-malloc.c): Don't add -DATOMIC_FASTBINS.
+
+	* include/tls.h: Removed.  USE___THREAD must always be defined.
+	* bits/libc-tsd.h: Don't handle !USE___THREAD.
+	* elf/dl-libc.c: Likewise.
+	* elf/dl-tsd.c: Likewise.
+	* include/errno.h: Likewise.
+	* include/netdb.h: Likewise.
+	* include/resolv.h: Likewise.
+	* inet/herrno-loc.c: Likewise.
+	* inet/herrno.c: Likewise.
+	* malloc/arena.c: Likewise.
+	* malloc/hooks.c: Likewise.
+	* malloc/malloc.c: Likewise.
+	* resolv/res-state.c: Likewise.
+	* resolv/res_libc.c: Likewise.
+	* sysdeps/i386/dl-machine.h: Likewise.
+	* sysdeps/ia64/dl-machine.h: Likewise.
+	* sysdeps/powerpc/powerpc32/dl-machine.h: Likewise.
+	* sysdeps/powerpc/powerpc64/dl-machine.h: Likewise.
+	* sysdeps/s390/s390-32/dl-machine.h: Likewise.
+	* sysdeps/s390/s390-64/dl-machine.h: Likewise.
+	* sysdeps/sh/dl-machine.h: Likewise.
+	* sysdeps/sparc/sparc32/dl-machine.h: Likewise.
+	* sysdeps/sparc/sparc64/dl-machine.h: Likewise.
+	* sysdeps/unix/i386/sysdep.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/ia64/sysdep.S: Likewise.
+	* sysdeps/unix/sysv/linux/s390/s390-32/sysdep.S: Likewise.
+	* sysdeps/unix/sysv/linux/s390/s390-32/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/s390-64/sysdep.S: Likewise.
+	* sysdeps/unix/sysv/linux/s390/s390-64/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/sh/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h: Likewise.
+	* sysdeps/unix/x86_64/sysdep.S: Likewise.
+	* sysdeps/x86_64/dl-machine.h: Likewise.
+	* tls.make.c: Likewise.
+
+	* configure.in: Remove --with-__thread option.  Make tests for
+	--no-whole-archive, __builtin_expect, symbol redirection, __thread,
+	tls_model attribute fail if no support is available.  Remove
+	USE_IN_LIBIO.
+	* Makeconfig: Adjust for dropped configure option.  All features are
+	now mandatory.
+	* Makerules: Likewise.
+	* Versions.def: Likewise.
+	* argp/argp-fmtstream.c: Likewise.
+	* argp/argp-fmtstream.h: Likewise.
+	* argp/argp-help.c: Likewise.
+	* assert/assert.c: Likewise.
+	* config.h.in: Likewise.
+	* config.make.in: Likewise.
+	* configure: Likewise.
+	* configure.in: Likewise.
+	* csu/Versions: Likewise.
+	* csu/init.c: Likewise.
+	* elf/tst-audit2.c: Likewise.
+	* elf/tst-tls10.c: Likewise.
+	* elf/tst-tls10.h: Likewise.
+	* elf/tst-tls11.c: Likewise.
+	* elf/tst-tls12.c: Likewise.
+	* elf/tst-tls14.c: Likewise.
+	* elf/tst-tlsmod11.c: Likewise.
+	* elf/tst-tlsmod12.c: Likewise.
+	* elf/tst-tlsmod13.c: Likewise.
+	* elf/tst-tlsmod13a.c: Likewise.
+	* elf/tst-tlsmod14a.c: Likewise.
+	* elf/tst-tlsmod15b.c: Likewise.
+	* elf/tst-tlsmod16a.c: Likewise.
+	* elf/tst-tlsmod16b.c: Likewise.
+	* elf/tst-tlsmod7.c: Likewise.
+	* elf/tst-tlsmod8.c: Likewise.
+	* elf/tst-tlsmod9.c: Likewise.
+	* gmon/gmon.c: Likewise.
+	* grp/fgetgrent_r.c: Likewise.
+	* grp/putgrent.c: Likewise.
+	* hurd/fopenport.c: Likewise.
+	* include/libc-symbols.h: Likewise.
+	* include/tls.h: Likewise.
+	* intl/gettextP.h: Likewise.
+	* intl/loadinfo.h: Likewise.
+	* locale/global-locale.c: Likewise.
+	* locale/localeinfo.h: Likewise.
+	* mach/devstream.c: Likewise.
+	* malloc/arena.c: Likewise.
+	* malloc/set-freeres.c: Likewise.
+	* misc/err.c: Likewise.
+	* misc/getttyent.c: Likewise.
+	* misc/mntent_r.c: Likewise.
+	* posix/getopt.c: Likewise.
+	* posix/wordexp.c: Likewise.
+	* pwd/fgetpwent_r.c: Likewise.
+	* resolv/Versions: Likewise.
+	* resolv/res_hconf.c: Likewise.
+	* shadow/fgetspent_r.c: Likewise.
+	* shadow/putspent.c: Likewise.
+	* stdio-common/printf_fphex.c: Likewise.
+	* stdio-common/tmpfile.c: Likewise.
+	* stdlib/abort.c: Likewise.
+	* stdlib/fmtmsg.c: Likewise.
+	* sunrpc/auth_unix.c: Likewise.
+	* sunrpc/clnt_perr.c: Likewise.
+	* sunrpc/clnt_tcp.c: Likewise.
+	* sunrpc/clnt_udp.c: Likewise.
+	* sunrpc/clnt_unix.c: Likewise.
+	* sunrpc/openchild.c: Likewise.
+	* sunrpc/svc_simple.c: Likewise.
+	* sunrpc/svc_tcp.c: Likewise.
+	* sunrpc/svc_udp.c: Likewise.
+	* sunrpc/svc_unix.c: Likewise.
+	* sunrpc/xdr.c: Likewise.
+	* sunrpc/xdr_array.c: Likewise.
+	* sunrpc/xdr_rec.c: Likewise.
+	* sunrpc/xdr_ref.c: Likewise.
+	* sunrpc/xdr_stdio.c: Likewise.
+
+2011-09-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/i386/fpu/libm-test-ulps: Adjust ULPs for jn tests.
+
+2011-07-03  Andreas Jaeger  <aj@suse.de>
+
+	* math/libm-test.inc (jn_test): Add tests for BZ#11589.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Add new ULPs for jn_test,
+	regenerate with gen-libm-tests.pl.
+
+2010-05-12  Petr Baudis  <pasky@suse.cz>
+
+	[BZ #11589]
+	* sysdeps/ieee754/dbl-64/e_jn.c: Compensate major precision loss
+	around j0() zero points by switching to j1().
+	* sysdeps/ieee754/flt-32/e_jnf.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_jnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_jnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_jnl.c: Likewise.
+
+2011-09-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/bsd/bsd4.4/bits/socket.h (__cmsg_nxthdr): Use NULL
+	instead of 0.
+	* sysdeps/unix/sysv/linux/bits/socket.h (__cmsg_nxthdr): Use (void*)0
+	instead of 0.                              .
+	* sysdeps/unix/sysv/linux/sparc/bits/socket.h: Likewise.
+	Patch in part by Pavel Roskin <proski@gnu.org>.
+
+	[BZ #13138]
+	* stdio-common/vfscanf.c (ADDW): Allocate large memory block with
+	realloc.
+	(_IO_vfscanf_internal): Remove reteof.  Use errout after setting done.
+	Free memory block if necessary.
+
+	[BZ #12847]
+	* libio/genops.c (INTDEF): For string streams the _lock pointer can
+	be NULL.  Don't lock in this case.
+
+2011-09-09  Roland McGrath  <roland@hack.frob.com>
+
+	* elf/elf.h (ELFOSABI_GNU): New macro.
+	(ELFOSABI_LINUX): Define to that.
+
+2011-07-29  Denis Zaitceff  <zaitceff@gmail.com>
+
+	* string/strncat.c (strncat): Undef the symbol in case it has been
+	defined in bits/string.h.
+
+2011-09-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* elf/sotruss.ksh: Clean up, fix, and complete help messages.
+
+	* elf/dl-iteratephdr.c (__dl_iterate_phdr): Fill in data from the real
+	link map.
+
+2011-08-17  Andreas Jaeger  <aj@suse.de>
+
+	* elf/sprof.c (load_shobj): Remove unused variable log_hashfraction.
+
+2011-08-18  Paul Pluzhnikov  <ppluzhnikov@google.com>
+	    Ian Lance Taylor  <iant@google.com>
+
+	* math/libm-test.inc (lround_test): New testcase.
+	* sysdeps/ieee754/dbl-64/s_lround.c (__lround): Don't lose precision.
+
+2011-09-08  Ulrich Drepper  <drepper@gmail.com>
+
+	* Makefile: Remove support for automatic cvs check-ins.
+	* Makerules: Likewise.
+	* config.make.in: Likewise.
+	* configure.in: Likewise.
+	* intl/Makefile: Likewise.
+	* locale/Makefile: Likewise.
+	* po/Makefile: Likewise.
+	* posix/Makefile: Likewise.
+	* sysdeps/gnu/Makefile: Likewise.
+	* sysdeps/mach/hurd/Makefile: Likewise.
+	* sysdeps/sparc/sparc32/Makefile: Likewise.
+
+	[BZ #13118]
+	* posix/Makefile (bug-regex32-ENV): Define.
+	Patch by John Stanley <jpsinthemix@verizon.net>.
+
+	* misc/Makefile (headers): Add bits/select2.h.
+	* misc/sys/select.h: Include bits/select2.h for _FORTIFY_SOURCE.
+	* misc/bits/select2.h: New file.
+	* include/bits/select2.h: New file.
+	* debug/Makefile (routines): Add fdelt_chk.
+	* debug/Versions: Export __fdelt_chk and __fdelt_warn for GLIBC_2.15.
+	* debug/tst-chk1.c (do_test): Add tests for FD_SET, FD_CLR, and
+	FD_ISSET.
+	* debug/fdelt_chk.c: New file.
+
+	* wcsmbs/test-wcscmp.c: Moved from string/*.  Adjust.
+	* wcsmbs/test-wmemcmp.c: Likewise.
+	* string/Makefile (strop-tests): Remove wcscmp and wmemcmp.
+	* wcsmbs/Makefile (strop-tests): Add wcscmp and wmemcmp.
+
+2011-09-08  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* string/Makefile (strop-tests): Add memcmp.
+	* string/test-wmemcmp.c: New file.
+	* string/test-memcmp.c: Add wmemcmp support.
+
+2011-09-08  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13153]
+	* manual/libc.texinfo (EDITION, VERSION, UPDATED): Update for
+	2011-07-19 change.
+
+	* sysdeps/mach/hurd/fork.c (__fork): Initialize REFS so we don't use a
+	garbage value in a __mach_port_mod_refs call in the cases of the
+	task-self and thread-self ports.
+
+2011-09-06  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* sysdeps/mach/hurd/sys/param.h (DEV_BSIZE): New macro.
+
 2011-09-02  Andreas Schwab  <schwab@redhat.com>
 
 	* nscd/selinux.c (avc_create_thread): Set PR_SET_KEEPCAPS before
@@ -5,7 +380,7 @@
 
 2011-09-08  Andreas Schwab  <schwab@redhat.com>
 
-	* elf/dl-load.c (lose): Check for non-null l.
+	* elf/dl-load.c (lose): Check for non-null L.
 
 2011-09-07  Ulrich Drepper  <drepper@gmail.com>
 
