@@ -44,7 +44,10 @@ ENTRY(__memmove_chk)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__memmove_chk_ia32@GOTOFF(%ebx), %eax
+1:	leal	__memmove_chk_erms@GOTOFF(%ebx), %eax
+	testl	$bit_ERMS, CPUID_OFFSET+index_ERMS+__cpu_features@GOTOFF(%ebx)
+	jnz	2f
+	leal	__memmove_chk_ia32@GOTOFF(%ebx), %eax
 	testl	$bit_SSSE3, CPUID_OFFSET+index_SSSE3+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	__memmove_chk_ssse3@GOTOFF(%ebx), %eax
@@ -63,7 +66,10 @@ ENTRY(__memmove_chk)
 	cmpl	$0, KIND_OFFSET+__cpu_features
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__memmove_chk_ia32, %eax
+1:	leal	__memmove_chk_erms, %eax
+	testl	$bit_ERMS, CPUID_OFFSET+index_ERMS+__cpu_features
+	jnz	2f
+	leal	__memmove_chk_ia32, %eax
 	testl	$bit_SSSE3, CPUID_OFFSET+index_SSSE3+__cpu_features
 	jz	2f
 	leal	__memmove_chk_ssse3, %eax
@@ -108,5 +114,17 @@ __memmove_chk_ia32:
 	jmp	__memmove_ia32
 	cfi_endproc
 	.size __memmove_chk_ia32, .-__memmove_chk_ia32
+
+	.type __memmove_chk_erms, @function
+	.p2align 4;
+__memmove_chk_erms:
+	cfi_startproc
+	CALL_MCOUNT
+	movl	12(%esp), %eax
+	cmpl	%eax, 16(%esp)
+	jb	__chk_fail
+	jmp	__memmove_erms
+	cfi_endproc
+	.size __memmove_chk_erms, .-__memmove_chk_erms
 # endif
 #endif

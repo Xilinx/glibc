@@ -44,7 +44,10 @@ ENTRY(memset)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__memset_ia32@GOTOFF(%ebx), %eax
+1:	leal	__memset_erms@GOTOFF(%ebx), %eax
+	testl	$bit_ERMS, CPUID_OFFSET+index_ERMS+__cpu_features@GOTOFF(%ebx)
+	jnz	2f
+	leal	__memset_ia32@GOTOFF(%ebx), %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	__memset_sse2@GOTOFF(%ebx), %eax
@@ -63,7 +66,10 @@ ENTRY(memset)
 	cmpl	$0, KIND_OFFSET+__cpu_features
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__memset_ia32, %eax
+1:	leal	__memset_erms, %eax
+	testl	$bit_ERMS, CPUID_OFFSET+index_ERMS+__cpu_features
+	jnz	2f
+	leal	__memset_ia32, %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features
 	jz	2f
 	leal	__memset_sse2, %eax

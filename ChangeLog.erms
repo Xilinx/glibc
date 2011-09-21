@@ -1,5 +1,30 @@
 2011-09-21  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/i386/i686/multiarch/bzero-erms.S: New.
+	* sysdeps/i386/i686/multiarch/memcpy-erms.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memmove-erms.S: Likewise.
+	* sysdeps/i386/i686/multiarch/mempcpy-erms.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memset-erms.S: Likewise.
+
+	* sysdeps/i386/i686/multiarch/Makefile (sysdep_routines): Add
+	bzero-erms, memcpy-erms, memmove-erms, mempcpy-erms and
+	memset-erms.
+
+	* sysdeps/i386/i686/multiarch/bzero.S: Optimize for ERMS.
+	* sysdeps/i386/i686/multiarch/memcpy.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memcpy_chk.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memmove.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memmove_chk.S: Likewise.
+	* sysdeps/i386/i686/multiarch/mempcpy.S: Likewise.
+	* sysdeps/i386/i686/multiarch/mempcpy_chk.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memset.S: Likewise.
+	* sysdeps/i386/i686/multiarch/memset_chk.S: Likewise.
+
+	* sysdeps/i386/i686/multiarch/ifunc-defines.sym: Add
+	COMMON_CPUID_INDEX_7 and FEATURE_INDEX_7.
+
+2011-09-21  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/multiarch/memset-erms.S: Check USE_AS_BZERO
 	instead of USE_AS_BZERO_P.
 
