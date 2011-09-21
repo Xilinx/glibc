@@ -1,3 +1,8 @@
+2011-09-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/memset-erms.S: Check USE_AS_BZERO
+	instead of USE_AS_BZERO_P.
+
 2011-09-15  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/multiarch/init-arch.c (get_common_indeces):

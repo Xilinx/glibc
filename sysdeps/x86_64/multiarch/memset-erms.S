@@ -31,7 +31,7 @@ END (__memset_chk_erms)
 # endif
 
 ENTRY (__memset_erms)
-# ifdef USE_AS_BZERO_P
+# ifdef USE_AS_BZERO
 	mov	%rsi, %rcx
 	xor	%eax, %eax
 # else
@@ -40,7 +40,7 @@ ENTRY (__memset_erms)
 	mov	%rdi, %rdx
 # endif
 	rep stosb
-# ifndef USE_AS_BZERO_P
+# ifndef USE_AS_BZERO
 	mov %rdx, %rax
 # endif
 	ret
