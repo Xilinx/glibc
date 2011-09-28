@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 9
+Release: 10
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1076,6 +1076,13 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Wed Sep 28 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-10
+- Update from master
+  - Correctly reparse group line after enlarging the buffer
+  - Fix parse error in bits/mathinline.h with --std=c99 (#740235)
+- Update nscd service file (#740284)
+- Drop nscd init file (#740196)
+
 * Fri Sep 16 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-9
 - Update from master
   - Define IP_MULTICAST_ALL
