@@ -1,3 +1,44 @@
+2011-09-28  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Adjust ULPs for jn tests.
+
+2011-09-27  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13226]
+	* manual/signal.texi (Longjmp in Handler): Grammar fixes.
+
+2011-09-27  Andreas Schwab  <schwab@redhat.com>
+
+	* nss/nss_files/files-initgroups.c (_nss_files_initgroups_dyn):
+	Reread the line before reparsing it.
+
+2011-09-26  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/x86_64/fpu/bits/mathinline.h: Use __asm instead of asm.
+
+2011-09-21  Chung-Lin Tang  <cltang@codesourcery.com>
+	    Maxim Kuvyrkov  <maxim@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+
+	* resolv/Makefile (LDLIBS-resolv.so): Link in $(elfobjdir)/ld.so
+	if needed for __stack_chk_guard.
+
+2011-09-19  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/posix/spawni.c (script_execute): Always define it.
+	It will be optimized away if unused.
+	(maybe_script_execute): New function.
+	(__spawni): Call it.
+
+	* Makerules: Don't include tls.make.
+	(config-tls): Always set to thread.
+	* tls.make.c: File removed.
+
+2011-09-19  Mike Frysinger  <vapier@gentoo.org>
+
+	* Makeconfig (CPPFLAGS): Prepend $(CPPFLAGS-config).
+	* config.make.in (CPPFLAGS-config): New substituted variable.
+
 2011-09-15  Ulrich Drepper  <drepper@gmail.com>
 
 	* sysdeps/ieee754/dbl-64/wordsize-64/s_finite.c: New file.
