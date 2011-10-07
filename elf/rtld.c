@@ -1393,7 +1393,9 @@ of this helper program; chances are you did not intend to run this program.\n\
 	      char *copy = malloc (len);
 	      if (copy == NULL)
 		_dl_fatal_printf ("out of memory\n");
-	      l->l_libname->name = l->l_name = memcpy (copy, dsoname, len);
+	      l->l_libname->name = memcpy (copy, dsoname, len);
+	      if (GLRO(dl_debug_mask))
+		l->l_name = copy;
 	    }
 
 	  /* Add the vDSO to the object list.  */
