@@ -1,3 +1,351 @@
+2011-10-10  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* inet/getnetgrent_r.c (nscd_getnetgrent): Use __rawmemchr instead
+	of rawmemchr.
+
+	* sysdeps/ieee754/ldbl-128ibm/s_isinf_nsl.c: New file.
+
+2011-10-09  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/ja.po: Update from translation team.
+
+2011-10-08  Roland McGrath  <roland@hack.frob.com>
+
+	* locale/programs/locarchive.c (prepare_address_space): New function.
+	(create_archive, enlarge_archive, open_archive): Use it.
+
+	* sysdeps/unix/sysv/linux/x86_64/time.c: Move #include <dl-vdso.h>
+	inside [SHARED], where it is used.
+
+	* nscd/nscd_proto.h: Declare __nscd_setnetgrent.
+
+	* nss/getent.c (netgroup_keys): Remove unused variable.
+	* sysdeps/ieee754/flt-32/s_isinf_nsf.c: Likewise.
+
+2011-10-08  Ulrich Drepper  <drepper@gmail.com>
+
+	* include/math.h: Declare __isinf_ns, __isinf_nsf, __isinf_nsl.
+	* sysdeps/ieee754/dbl-64/s_isinf_ns.c: New file.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_isinf_ns.c: New file.
+	* sysdeps/ieee754/flt-32/s_isinf_nsf.c: New file.
+	* sysdeps/ieee754/ldbl-128/s_isinf_nsl.c: New file.
+	* sysdeps/ieee754/ldbl-96/s_isinf_nsl.c: New file.
+	* math/Makefile (libm-calls): Add s_isinf_ns.
+	* math/divtc3.c: Use __isinf_nsl instead of isinf.
+	* math/multc3.c: Likewise.
+	* math/s_casin.c: Likewise.
+	* math/s_casinf.c: Likewise.
+	* math/s_casinl.c: Likewise.
+	* math/s_ccos.c: Likewise.
+	* math/s_ccosf.c: Likewise.
+	* math/s_ccosl.c: Likewise.
+	* math/s_ctan.c: Likewise.
+	* math/s_ctanf.c: Likewise.
+	* math/s_ctanh.c: Likewise.
+	* math/s_ctanhf.c: Likewise.
+	* math/s_ctanhl.c: Likewise.
+	* math/s_ctanl.c: Likewise.
+	* math/w_fmod.c: Likewise.
+	* math/w_fmodf.c: Likewise.
+	* math/w_fmodl.c: Likewise.
+	* math/w_remainder.c: Likewise.
+	* math/w_remainderf.c: Likewise.
+	* math/w_remainderl.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_finite.c: Undefine __finite.
+	* sysdeps/ieee754/dbl-64/s_isnan.c: Undefine __isnan.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_finite.c: Undefine __finite.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_isnan.c: Undefine __nan.
+	* sysdeps/ieee754/flt-32/s_finitef.c: Undefine __finitef.
+	* sysdeps/ieee754/flt-32/s_isnanf.c: Undefine __nan.
+	* sysdeps/x86_64/fpu/math_private.h: Add optimized versions of __isnsn,
+	__isnanf, __isinf_ns, __isinf_nsf, __finite, and __finitef.
+
+	* stdio-common/printf_fp.c: Use the fact that isinf returns the sign
+	of the number.
+	* stdio-common/printf_fphex.c: Likewise.
+	* stdio-common/printf_size.c: Likewise.
+
+	* math/e_exp10.c: Include math_private.h using <...> not "...".
+	* math/e_exp10f.c: Likewise.
+	* math/e_exp10l.c: Likewise.
+	* math/e_exp2l.c: Likewise.
+	* math/e_j0l.c: Likewise.
+	* math/e_j1l.c: Likewise.
+	* math/e_jnl.c: Likewise.
+	* math/e_lgammal_r.c: Likewise.
+	* math/e_rem_pio2l.c: Likewise.
+	* math/e_scalb.c: Likewise.
+	* math/e_scalbf.c: Likewise.
+	* math/e_scalbl.c: Likewise.
+	* math/k_cosl.c: Likewise.
+	* math/k_sinl.c: Likewise.
+	* math/k_tanl.c: Likewise.
+	* math/s_cacoshf.c: Likewise.
+	* math/s_catan.c: Likewise.
+	* math/s_catanf.c: Likewise.
+	* math/s_catanh.c: Likewise.
+	* math/s_catanhf.c: Likewise.
+	* math/s_catanhl.c: Likewise.
+	* math/s_catanl.c: Likewise.
+	* math/s_ccosh.c: Likewise.
+	* math/s_ccoshf.c: Likewise.
+	* math/s_ccoshl.c: Likewise.
+	* math/s_cexp.c: Likewise.
+	* math/s_cexpf.c: Likewise.
+	* math/s_cexpl.c: Likewise.
+	* math/s_clog.c: Likewise.
+	* math/s_clog10.c: Likewise.
+	* math/s_clog10f.c: Likewise.
+	* math/s_clog10l.c: Likewise.
+	* math/s_clogf.c: Likewise.
+	* math/s_clogl.c: Likewise.
+	* math/s_csin.c: Likewise.
+	* math/s_csinf.c: Likewise.
+	* math/s_csinh.c: Likewise.
+	* math/s_csinhf.c: Likewise.
+	* math/s_csinhl.c: Likewise.
+	* math/s_csinl.c: Likewise.
+	* math/s_csqrt.c: Likewise.
+	* math/s_csqrtf.c: Likewise.
+	* math/s_csqrtl.c: Likewise.
+	* math/s_ctan.c: Likewise.
+	* math/s_ctanf.c: Likewise.
+	* math/s_ctanh.c: Likewise.
+	* math/s_ctanhf.c: Likewise.
+	* math/s_ctanhl.c: Likewise.
+	* math/s_ctanl.c: Likewise.
+	* math/s_ldexp.c: Likewise.
+	* math/s_ldexpf.c: Likewise.
+	* math/s_ldexpl.c: Likewise.
+	* math/s_significand.c: Likewise.
+	* math/s_significandf.c: Likewise.
+	* math/s_significandl.c: Likewise.
+	* math/w_acos.c: Likewise.
+	* math/w_acosf.c: Likewise.
+	* math/w_acosh.c: Likewise.
+	* math/w_acoshf.c: Likewise.
+	* math/w_acoshl.c: Likewise.
+	* math/w_acosl.c: Likewise.
+	* math/w_asin.c: Likewise.
+	* math/w_asinf.c: Likewise.
+	* math/w_asinl.c: Likewise.
+	* math/w_atan2.c: Likewise.
+	* math/w_atan2f.c: Likewise.
+	* math/w_atan2l.c: Likewise.
+	* math/w_atanh.c: Likewise.
+	* math/w_atanhf.c: Likewise.
+	* math/w_atanhl.c: Likewise.
+	* math/w_cosh.c: Likewise.
+	* math/w_coshf.c: Likewise.
+	* math/w_coshl.c: Likewise.
+	* math/w_dremf.c: Likewise.
+	* math/w_exp10.c: Likewise.
+	* math/w_exp10f.c: Likewise.
+	* math/w_exp10l.c: Likewise.
+	* math/w_exp2.c: Likewise.
+	* math/w_exp2f.c: Likewise.
+	* math/w_fmod.c: Likewise.
+	* math/w_fmodf.c: Likewise.
+	* math/w_fmodl.c: Likewise.
+	* math/w_hypot.c: Likewise.
+	* math/w_hypotf.c: Likewise.
+	* math/w_hypotl.c: Likewise.
+	* math/w_j0.c: Likewise.
+	* math/w_j0f.c: Likewise.
+	* math/w_j0l.c: Likewise.
+	* math/w_j1.c: Likewise.
+	* math/w_j1f.c: Likewise.
+	* math/w_j1l.c: Likewise.
+	* math/w_jn.c: Likewise.
+	* math/w_jnf.c: Likewise.
+	* math/w_jnl.c: Likewise.
+	* math/w_lgamma.c: Likewise.
+	* math/w_lgamma_r.c: Likewise.
+	* math/w_lgammaf.c: Likewise.
+	* math/w_lgammaf_r.c: Likewise.
+	* math/w_lgammal.c: Likewise.
+	* math/w_lgammal_r.c: Likewise.
+	* math/w_log.c: Likewise.
+	* math/w_log10.c: Likewise.
+	* math/w_log10f.c: Likewise.
+	* math/w_log10l.c: Likewise.
+	* math/w_log2.c: Likewise.
+	* math/w_log2f.c: Likewise.
+	* math/w_log2l.c: Likewise.
+	* math/w_logf.c: Likewise.
+	* math/w_logl.c: Likewise.
+	* math/w_pow.c: Likewise.
+	* math/w_powf.c: Likewise.
+	* math/w_powl.c: Likewise.
+	* math/w_remainder.c: Likewise.
+	* math/w_remainderf.c: Likewise.
+	* math/w_remainderl.c: Likewise.
+	* math/w_scalb.c: Likewise.
+	* math/w_scalbf.c: Likewise.
+	* math/w_scalbl.c: Likewise.
+	* math/w_sinh.c: Likewise.
+	* math/w_sinhf.c: Likewise.
+	* math/w_sinhl.c: Likewise.
+	* math/w_sqrt.c: Likewise.
+	* math/w_sqrtf.c: Likewise.
+	* math/w_sqrtl.c: Likewise.
+	* math/w_tgamma.c: Likewise.
+	* math/w_tgammaf.c: Likewise.
+	* math/w_tgammal.c: Likewise.
+
+	* po/ja.po: Update from translation team.
+
+2011-09-29  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13179]
+	* sunrpc/netname.c (netname2host): Fix logic.
+
+	[BZ #6779]
+	[BZ #6783]
+	* math/w_remainderl.c (__remainderl): Handle (NaN, 0) and (Inf,y)
+	correctly.
+	* math/w_remainder.c (__remainder): Likewise.
+	* math/w_remainderf.c (__remainderf): Likewise.
+	* math/libm-test.inc (remainder_test): Add test cases.
+
+2011-10-04  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* stdlib/longlong.h: Update from GCC.  Fix zarch smul_ppmm and
+	sdiv_qrnnd.
+
+2011-10-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* string/test-memcmp.c: Avoid unncessary #defines.
+	Patch by Liubov Dmitrieva <liubov.dmitrieva@gmail.com>.
+
+2011-08-31  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* sysdeps/x86_64/multiarch/rawmemchr.S: Update.
+	Use new sse2 version for core i3 - i7 as it's faster
+	than sse42 version.
+	(bit_Prefer_PMINUB_for_stringop): New.
+	* sysdeps/x86_64/rawmemchr.S: Update.
+	Replace with faster SSE2 version.
+	* sysdeps/x86_64/memrchr.S: New file.
+	* sysdeps/x86_64/memchr.S: Update.
+	Replace with faster SSE2 version.
+
+2011-09-12  Marek Polacek  <mpolacek@redhat.com>
+
+	* elf/dl-load.c (lose): Add cast to avoid warning.
+
+2011-10-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/ca.po: Update from translation team.
+
+	* inet/getnetgrent_r.c: Hook up nscd.
+	* nscd/Makefile (routines): Add nscd_netgroup.
+	(nscd-modules): Add netgroupcache.
+	(CFLAGS-netgroupcache.c): Define.
+	* nscd/cache.c (readdfcts): Add entries for GETNETGRENT and INNETGR.
+	(cache_search): Add const to second parameter.
+	* nscd/connections.c (serv2str): Add entries for GETNETGRENT and
+	INNETGR.
+	(dbs): Add netgrdb entry.
+	(reqinfo): Add entries for GETNETGRENT, INNETGR, and GETFDNETGR.
+	(verify_persistent_db): Handle netgrdb.
+	(handle_request): Handle GETNETGRENT, INNETGR, and GETFDNETGR.
+	* nscd/nscd-client.h (request_type): Add GETNETGRENT, INNETGR, and
+	GETFDNETGR.
+	(netgroup_response_header): Define.
+	(innetgroup_response_header): Define.
+	(datahead): Add netgroup_response_header and innetgroup_response_header
+	elements.
+	* nscd/nscd.conf: Add entries for netgroup cache.
+	* nscd/nscd.h (dbtype): Add netgrdb.
+	(_PATH_NSCD_NETGROUP_DB): Define.
+	(netgroup_iov_disabled): Declare.
+	(xmalloc, xcalloc, xrealloc): Move declarations here.
+	(cache_search): Adjust prototype.
+	Add netgroup-related prototypes.
+	* nscd/nscd_conf.c (dbnames): Add netgrdb entry.
+	* nscd/nscd_proto.h (__nss_not_use_nscd_netgroup): Declare.
+	(__nscd_innetgr): Declare.
+	* nscd/selinux.c (perms): Use access_vector_t as element type and
+	add netgroup-related initializers.
+	* nscd/netgroupcache.c: New file.
+	* nscd/nscd_netgroup.c: New file.
+	* nss/Versions [libc] (GLIBC_PRIVATE): Export __nss_lookup.
+	* nss/getent.c (netgroup_keys): Use setnetgrent only for one parameter.
+	For four parameters use innetgr.
+	* nss/nss_files/files-init.c: Add definition and callback for netgr.
+	* nss/nsswitch.c (__nss_lookup): Add libc_hidden_def.
+	(__nss_disable_nscd): Set __nss_not_use_nscd_netgroup.
+	* nss/nsswitch.h (__nss_lookup): Add libc_hidden_proto.
+
+	* nscd/connections.c (register_traced_file): Don't register file
+	for disabled databases.
+
+2011-10-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* nscd/grpcache.c (cache_addgr): Initialize written in all cases.
+
+	* nss/nsswitch.c (__nss_lookup_function): Fix order of deleting
+	from tree and freeing node.
+
+2011-09-25  Jiri Olsa  <jolsa@redhat.com>
+
+	* nss/nsswitch.c (__nss_database_lookup): Handle
+	nss_parse_service_list out of memory case.
+
+2011-09-15  Jiri Olsa  <jolsa@redhat.com>
+
+	* nss/nsswitch.c (__nss_lookup_function): Handle __tsearch
+	out of memory case.
+
+2011-10-04  Andreas Schwab  <schwab@redhat.com>
+
+	* include/dlfcn.h (__RTLD_NOIFUNC): Define.
+	* elf/do-rel.h (elf_dynamic_do_rel): Add parameter skip_ifunc and
+	pass it down.
+	* elf/dynamic-link.h: Adjust prototypes of elf_machine_rel,
+	elf_machine_rela, elf_machine_lazy_rel.
+	(_ELF_DYNAMIC_DO_RELOC): Add parameter skip_ifunc and pass it down.
+	(ELF_DYNAMIC_DO_REL): Likewise.
+	(ELF_DYNAMIC_DO_RELA): Likewise.
+	(ELF_DYNAMIC_RELOCATE): Likewise.
+	* elf/dl-reloc.c (_dl_relocate_object): Pass __RTLD_NOIFUNC down
+	to ELF_DYNAMIC_DO_REL.
+	* elf/rtld.c (_dl_start): Adjust use of ELF_DYNAMIC_RELOCATE.
+	(dl_main): In trace mode always set __RTLD_NOIFUNC.
+	* elf/dl-conflict.c (_dl_resolve_conflicts): Adjust call to
+	elf_machine_rela.
+	* sysdeps/i386/dl-machine.h (elf_machine_rel): Add parameter
+	skip_ifunc, don't call ifunc function if non-zero.
+	(elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	(elf_machine_lazy_rela): Likewise.
+	* sysdeps/ia64/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/powerpc/powerpc32/dl-machine.h (elf_machine_rela):
+	Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/powerpc/powerpc64/dl-machine.h (elf_machine_rela):
+	Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/s390/s390-32/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/s390/s390-64/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/sh/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/sparc/sparc32/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/sparc/sparc64/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): Likewise.
+	(elf_machine_lazy_rel): Likewise.
+
+2011-09-28  Ulrich Drepper  <drepper@gmail.com>
+
+	* nss/nss_files/files-init.c (_nss_files_init): Use static
+	initialization for all the *_traced_file variables.
+
 2011-09-28  Andreas Schwab  <schwab@redhat.com>
 
 	* sysdeps/powerpc/fpu/libm-test-ulps: Adjust ULPs for jn tests.
@@ -43,6 +391,7 @@
 
 	* sysdeps/ieee754/dbl-64/wordsize-64/s_finite.c: New file.
 
+	[BZ #13192]
 	* sysdeps/unix/sysv/linux/bits/in.h (IP_MULTICAST_ALL): Define.
 	Patch mostly by Neil Horman <nhorman@tuxdriver.com>.
 
