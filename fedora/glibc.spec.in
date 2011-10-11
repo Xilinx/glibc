@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 10
+Release: 11
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1108,16 +1108,30 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Tue Oct 11 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-11
+- Update from master
+  - Clean up locarchive mmap reservation code
+  - Fix netname2host (BZ#13179)
+  - Fix remainder (NaN, 0) (BZ#6779, BZ#6783)
+  - S/390: Fix longlong.h inline asms for zarch
+  - Improve 64 bit memchr, memrchr, rawmemchr with SSE2
+  - Update translations
+  - Implement caching of netgroups in nscd
+  - Handle OOM in NSS
+  - Don't call ifunc functions in trace mode
+- Convert tzdata-update to lua (#729796)
+- Horrible workaround for horribly broken software (#737223)
+
 * Wed Sep 28 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-10
 - Update from master
-  - Correctly reparse group line after enlarging the buffer
+  - Correctly reparse group line after enlarging the buffer (#739360)
   - Fix parse error in bits/mathinline.h with --std=c99 (#740235)
 - Update nscd service file (#740284)
 - Drop nscd init file (#740196)
 
 * Fri Sep 16 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-9
 - Update from master
-  - Define IP_MULTICAST_ALL
+  - Define IP_MULTICAST_ALL (BZ#13192)
   - Add fmax and fmin inlines for x86-64
   - Avoid race between {,__de}allocate_stack and __reclaim_stacks
     during fork (#737387)
