@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 11
+Release: 12
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1108,6 +1108,17 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Mon Oct 17 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-12
+- Update from master
+  - Correctly handle missing initgroups database (#745675)
+  - Optimize many libm functions
+  - Optimize access to isXYZ and toXYZ tables
+  - Optimized memcmp and wmemcmp for x86-64 and x86-32
+  - Add parameter annotation to modf (BZ#13268)
+  - Support optimized isXXX functions in C++ code
+  - Check for zero size in memrchr for x86_64 (#745739)
+  - Optimized memchr, memrchr, rawmemchr for x86-32
+
 * Tue Oct 11 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-11
 - Update from master
   - Clean up locarchive mmap reservation code
