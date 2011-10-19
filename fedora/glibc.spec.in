@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 12
+Release: 13
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1108,6 +1108,11 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Wed Oct 19 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-13
+- Update from master
+  - Fix linkage conflict with feraiseexcept (#746753)
+  - More libm optimisations
+
 * Mon Oct 17 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-12
 - Update from master
   - Correctly handle missing initgroups database (#745675)
