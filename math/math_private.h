@@ -358,4 +358,41 @@ extern void __docos (double __x, double __dx, double __v[]);
 #define math_force_eval(x) __asm __volatile ("" : : "m" (x))
 #endif
 
+
+/* The standards only specify one variant of the fenv.h interfaces.
+   But at least for some architectures we can be more efficient if we
+   know what operations are going to be performed.  Therefore we
+   define additional interfaces.  By default they refer to the normal
+   interfaces.  */
+#define libc_fegetround() fegetround ()
+#define libc_fegetroundf() fegetround ()
+#define libc_fegetroundl() fegetround ()
+
+#define libc_fesetround(r) (void) fesetround (r)
+#define libc_fesetroundf(r) (void) fesetround (r)
+#define libc_fesetroundl(r) (void) fesetround (r)
+
+#define libc_feholdexcept(e) (void) feholdexcept (e)
+#define libc_feholdexceptf(e) (void) feholdexcept (e)
+#define libc_feholdexceptl(e) (void) feholdexcept (e)
+
+#define libc_feholdexcept_setround(e, r) \
+  do { feholdexcept (e); fesetround (r); } while (0)
+#define libc_feholdexcept_setroundf(e, r) \
+  do { feholdexcept (e); fesetround (r); } while (0)
+#define libc_feholdexcept_setroundl(e, r) \
+  do { feholdexcept (e); fesetround (r); } while (0)
+
+#define libc_fetestexcept(e) fetestexcept (e)
+#define libc_fetestexceptf(e) fetestexcept (e)
+#define libc_fetestexceptl(e) fetestexcept (e)
+
+#define libc_fesetenv(e) (void) fesetenv (e)
+#define libc_fesetenvf(e) (void) fesetenv (e)
+#define libc_fesetenvl(e) (void) fesetenv (e)
+
+#define libc_feupdateenv(e) (void) feupdateenv (e)
+#define libc_feupdateenvf(e) (void) feupdateenv (e)
+#define libc_feupdateenvl(e) (void) feupdateenv (e)
+
 #endif /* _MATH_PRIVATE_H_ */

@@ -1,3 +1,84 @@
+2011-10-19  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/x86_64/fpu/math_private.h (libc_feupdateenv): Use
+	__feraiseexcept instead of feraiseexcept.
+
+2011-10-18  Ulrich Drepper  <drepper@gmail.com>
+
+	* math/math_private.h: Define defaults for libc_fetestexcept and
+	libc_feupdateenv.
+	* sysdeps/ieee754/dbl-64/s_fma.c: Use libc_fe* interfaces.
+	* sysdeps/ieee754/dbl-64/s_fmaf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_exp2f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_expf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_nearbyintf.c: Likewise.
+	* sysdeps/x86_64/fpu/math_private.h: Define special versions of
+	libc_fetestexcept and libc_feupdateenv.
+
+	* math/math_private.h: Define defaults for libc_feholdexcept_setround,
+	libc_feholdexcept_setroundf, libc_feholdexcept_setroundl.
+	* sysdeps/ieee754/dbl-64/e_exp2.c: Use libc_feholdexcept_setround.
+	* sysdeps/x86_64/fpu/math_private.h: Define special version of
+	libc_feholdexcept_setround.
+
+	* sysdeps/x86_64/fpu/multiarch/Makefile [math] (libm-sysdep-routines):
+	Add s_nearbyint-c and s_nearbyintf-c.
+	* sysdeps/x86_64/fpu/bits/mathinline.h: Define nearbyint and
+	nearbyintf inlines.
+	* sysdeps/x86_64/fpu/multiarch/s_nearbyint-c.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_nearbyint.S: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_nearbyintf-c.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_nearbyintf.S: New file.
+
+	* math/math_private.h: Define defaults for libc_fegetround,
+	libc_fegetroundf, libc_fegetroundl, libc_fesetround, libc_fesetroundf,
+	libc_fesetroundl, libc_feholdexcept, libc_feholdexceptf,
+	libc_feholdexceptl, libc_fesetenv, libc_fesetenvf, libc_fesetenvl.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_nearbyint.c: Use
+	libc_feholdexcept, libc_fesetround, libc_fesetenv instead of the
+	standard functions.
+	* sysdeps/ieee754/dbl-64/e_exp2.c: Likewise.
+	Remove comments and hacks for old compiler versions.
+	* sysdeps/x86_64/fpu/math_private.h: Define special versions of
+	libc_fegetround, libc_fesetround, libc_feholdexcept, and
+	libc_feholdexceptl.
+
+2011-10-18  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/x86_64/fpu/bits/fenv.h: Add C linkage markers.
+	(__feraiseexcept_renamed): Add __NTH.
+	(feraiseexcept): Add __NTH.  Rename local variables to fix
+	namespace violations.
+
+2011-10-17  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/e_exp2.c (__ieee754_exp2): Small optimization.
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_frexp.c: New file.
+
+	* sysdeps/x86_64/fpu/math_private.h: Relax asm requirements for
+	recently added interfaces.
+	* sysdeps/x86_64/fpu/bits/mathinline.h: Likewise.
+
+	* sysdeps/x86_64/fpu/math_private.h: Add some parenthesis to be safe
+	about macro parameter expansion.
+
+	* sysdeps/x86_64/fpu/bits/mathinline.h: Don't define inlines if
+	__NO_MATH_INLINES is defined.  Cleanups.
+
+	* sysdeps/x86_64/fpu/math_private.h: Define __rint, __rintf, __floor,
+	and __floorf is target has SSE4.1.
+	* sysdeps/x86_64/fpu/multiarch/s_floor-c.c: Undef first.
+	* sysdeps/x86_64/fpu/multiarch/s_floorf-c.: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_rint-c.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_rintf-c.c: Likewise.
+
+	* sysdeps/x86_64/fpu/bits/mathinline.h (floor): Use correct function
+	name.
+	(floorf): Likewise.
+
+	* nscd/netgroupcache.c (addgetnetgrentX): Fix #ifdef nesting.
+
 2011-10-17  Andreas Schwab  <schwab@redhat.com>
 
 	* misc/sys/cdefs.h: Fix last change.

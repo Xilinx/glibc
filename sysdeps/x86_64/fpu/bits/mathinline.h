@@ -30,34 +30,35 @@
 #endif
 
 
-#if defined __GNUC__ && __GNUC__ >= 2
-# ifdef __USE_ISOC99
+/* The gcc, version 2.7 or below, has problems with all this inlining
+   code.  So disable it for this version of the compiler.  */
+#if __GNUC_PREREQ (2, 8) && defined __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 
 /* Test for negative number.  Used in the signbit() macro.  */
 __MATH_INLINE int
 __NTH (__signbitf (float __x))
 {
-#  if __WORDSIZE == 32
+# if __WORDSIZE == 32
   __extension__ union { float __f; int __i; } __u = { __f: __x };
   return __u.__i < 0;
-#  else
+# else
   int __m;
   __asm ("pmovmskb %1, %0" : "=r" (__m) : "x" (__x));
   return __m & 0x8;
-#  endif
+# endif
 }
 __MATH_INLINE int
 __NTH (__signbit (double __x))
 {
-#  if __WORDSIZE == 32
+# if __WORDSIZE == 32
   __extension__ union { double __d; int __i[2]; } __u = { __d: __x };
   return __u.__i[1] < 0;
-#  else
+# else
   int __m;
   __asm ("pmovmskb %1, %0" : "=r" (__m) : "x" (__x));
   return __m & 0x80;
-#  endif
+# endif
 }
 __MATH_INLINE int
 __NTH (__signbitl (long double __x))
@@ -65,6 +66,16 @@ __NTH (__signbitl (long double __x))
   __extension__ union { long double __l; int __i[3]; } __u = { __l: __x };
   return (__u.__i[2] & 0x8000) != 0;
 }
+
+__END_NAMESPACE_C99
+#endif
+
+
+#if (__GNUC_PREREQ (2, 8) && !defined __NO_MATH_INLINES \
+     && defined __OPTIMIZE__)
+
+# ifdef __USE_ISOC99
+__BEGIN_NAMESPACE_C99
 
 /* Round to nearest integer.  */
 #  if __WORDSIZE == 64 || defined __SSE_MATH__
@@ -100,14 +111,10 @@ __NTH (llrint (double __x))
   __asm ("cvtsd2si %1, %0" : "=r" (__res) : "xm" (__x));
   return __res;
 }
-
-__END_NAMESPACE_C99
 #  endif
 
 #  if defined __FINITE_MATH_ONLY__ && __FINITE_MATH_ONLY__ > 0 \
       && (__WORDSIZE == 64 || defined __SSE2_MATH__)
-__BEGIN_NAMESPACE_C99
-
 /* Determine maximum of two values.  */
 __MATH_INLINE float
 __NTH (fmaxf (float __x, float __y))
@@ -149,16 +156,34 @@ __MATH_INLINE double
 __NTH (rint (double __x))
 {
   double __res;
-  __asm ("roundsd $4, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundsd $4, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
 __MATH_INLINE float
 __NTH (rintf (float __x))
 {
   float __res;
-  __asm ("roundss $4, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundss $4, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
+
+#   ifdef __USE_ISOC99
+/* Round to nearest integer without raising inexact exception.  */
+__MATH_INLINE double
+__NTH (nearbyint (double __x))
+{
+  double __res;
+  __asm ("roundsd $0xc, %1, %0" : "=x" (__res) : "xm" (__x));
+  return __res;
+}
+__MATH_INLINE float
+__NTH (nearbyintf (float __x))
+{
+  float __res;
+  __asm ("roundss $0xc, %1, %0" : "=x" (__res) : "xm" (__x));
+  return __res;
+}
+#   endif
 
 __END_NAMESPACE_C99
 #  endif
@@ -169,7 +194,7 @@ __MATH_INLINE double
 __NTH (ceil (double __x))
 {
   double __res;
-  __asm ("roundsd $2, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundsd $2, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
 __END_NAMESPACE_STD
@@ -179,7 +204,7 @@ __MATH_INLINE float
 __NTH (ceilf (float __x))
 {
   float __res;
-  __asm ("roundss $2, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundss $2, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
 __END_NAMESPACE_C99
@@ -187,20 +212,20 @@ __END_NAMESPACE_C99
 __BEGIN_NAMESPACE_STD
 /* Largest integer not greater than X.  */
 __MATH_INLINE double
-__NTH (ceil (double __x))
+__NTH (floor (double __x))
 {
   double __res;
-  __asm ("roundsd $1, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundsd $1, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
 __END_NAMESPACE_STD
 
 __BEGIN_NAMESPACE_C99
 __MATH_INLINE float
-__NTH (ceilf (float __x))
+__NTH (floorf (float __x))
 {
   float __res;
-  __asm ("roundss $1, %1, %0" : "=x" (__res) : "x" (__x));
+  __asm ("roundss $1, %1, %0" : "=x" (__res) : "xm" (__x));
   return __res;
 }
 __END_NAMESPACE_C99
