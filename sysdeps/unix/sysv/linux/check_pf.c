@@ -27,10 +27,13 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+#include <asm/types.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+
 #include <not-cancel.h>
 #include <kernel-features.h>
 
-#include "netlinkaccess.h"
 
 #ifndef IFA_F_HOMEADDRESS
 # define IFA_F_HOMEADDRESS 0
