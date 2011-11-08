@@ -354,8 +354,9 @@ extern void __docos (double __x, double __dx, double __v[]);
 
 #ifndef math_opt_barrier
 #define math_opt_barrier(x) \
-({ __typeof (x) __x = x; __asm ("" : "+m" (__x)); __x; })
-#define math_force_eval(x) __asm __volatile ("" : : "m" (x))
+({ __typeof (x) __x = (x); __asm ("" : "+m" (__x)); __x; })
+#define math_force_eval(x) \
+({ __typeof (x) __x = (x); __asm __volatile ("" : : "m" (__x)); })
 #endif
 
 
@@ -394,5 +395,12 @@ extern void __docos (double __x, double __dx, double __v[]);
 #define libc_feupdateenv(e) (void) feupdateenv (e)
 #define libc_feupdateenvf(e) (void) feupdateenv (e)
 #define libc_feupdateenvl(e) (void) feupdateenv (e)
+
+#define __nan(str) \
+  (__builtin_constant_p (str) && str[0] == '\0' ? NAN : __nan (str))
+#define __nanf(str) \
+  (__builtin_constant_p (str) && str[0] == '\0' ? NAN : __nan (str))
+#define __nanl(str) \
+  (__builtin_constant_p (str) && str[0] == '\0' ? NAN : __nan (str))
 
 #endif /* _MATH_PRIVATE_H_ */

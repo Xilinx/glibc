@@ -1,5 +1,5 @@
 /* This file is part of the GNU C Library.
-   Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+   Copyright (C) 2008, 2009, 2010, 2011 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -23,19 +23,24 @@
 #define bit_Fast_Unaligned_Load		(1 << 4)
 #define bit_Prefer_PMINUB_for_stringop	(1 << 5)
 
+#define bit_SSE2	(1 << 26)
+#define bit_SSSE3	(1 << 9)
+#define bit_SSE4_1	(1 << 19)
+#define bit_SSE4_2	(1 << 20)
+#define bit_AVX		(1 << 28)
+#define bit_POPCOUNT	(1 << 23)
+#define bit_FMA		(1 << 12)
+#define bit_FMA4	(1 << 16)
+
 #ifdef	__ASSEMBLER__
 
 # include <ifunc-defines.h>
-
-# define bit_SSE2	(1 << 26)
-# define bit_SSSE3	(1 << 9)
-# define bit_SSE4_1	(1 << 19)
-# define bit_SSE4_2	(1 << 20)
 
 # define index_SSE2	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_EDX_OFFSET
 # define index_SSSE3	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
 # define index_SSE4_1	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
 # define index_SSE4_2	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
+# define index_AVX	COMMON_CPUID_INDEX_1*CPUID_SIZE+CPUID_ECX_OFFSET
 
 # define index_Fast_Rep_String		FEATURE_INDEX_1*FEATURE_SIZE
 # define index_Fast_Copy_Backward	FEATURE_INDEX_1*FEATURE_SIZE
@@ -51,6 +56,7 @@
 enum
   {
     COMMON_CPUID_INDEX_1 = 0,
+    COMMON_CPUID_INDEX_80000001,	/* for AMD */
     /* Keep the following line at the end.  */
     COMMON_CPUID_INDEX_MAX
   };
@@ -101,16 +107,18 @@ extern const struct cpu_features *__get_cpu_features (void)
 # endif
 
 # define HAS_CPU_FEATURE(idx, reg, bit) \
-  ((__get_cpu_features ()->cpuid[idx].reg & (1 << (bit))) != 0)
+  ((__get_cpu_features ()->cpuid[idx].reg & (bit)) != 0)
 
 /* Following are the feature tests used throughout libc.  */
 
-# define HAS_SSE2	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, edx, 26)
-# define HAS_POPCOUNT	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 23)
-# define HAS_SSSE3	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 9)
-# define HAS_SSE4_1	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 19)
-# define HAS_SSE4_2	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 20)
-# define HAS_FMA	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, 12)
+# define HAS_SSE2	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, edx, bit_SSE2)
+# define HAS_POPCOUNT	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_POPCOUNT)
+# define HAS_SSSE3	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_SSSE3)
+# define HAS_SSE4_1	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_SSE4_1)
+# define HAS_SSE4_2	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_SSE4_2)
+# define HAS_FMA	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_FMA)
+# define HAS_AVX	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_1, ecx, bit_AVX)
+# define HAS_FMA4	HAS_CPU_FEATURE (COMMON_CPUID_INDEX_80000001, ecx, bit_FMA4)
 
 # define index_Fast_Rep_String		FEATURE_INDEX_1
 # define index_Fast_Copy_Backward	FEATURE_INDEX_1

@@ -37,8 +37,12 @@
 
 #include "endian.h"
 #include "mydefs.h"
-#include "dla.h"
+#include <dla.h>
 #include "math_private.h"
+
+#ifndef SECTION
+# define SECTION
+#endif
 
 static const int4 tab54[32] = {
    262143, 11585, 1782, 511, 210, 107, 63, 42,
@@ -47,10 +51,15 @@ static const int4 tab54[32] = {
 	3,     3,    3,   3,   3,   3,  3,  3 };
 
 
-double __halfulp(double x, double y)
+double
+SECTION
+__halfulp(double x, double y)
 {
   mynumber v;
-  double z,u,uu,j1,j2,j3,j4,j5;
+  double z,u,uu;
+#ifndef DLA_FMS
+  double j1,j2,j3,j4,j5;
+#endif
   int4 k,l,m,n;
   if (y <= 0) {               /*if power is negative or zero */
     v.x = y;

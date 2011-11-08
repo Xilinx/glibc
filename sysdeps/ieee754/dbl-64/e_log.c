@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001 Free Software Foundation
+ * Copyright (C) 2001, 2011 Free Software Foundation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,10 +36,14 @@
 
 
 #include "endian.h"
-#include "dla.h"
+#include <dla.h>
 #include "mpa.h"
 #include "MathLib.h"
 #include "math_private.h"
+
+#ifndef SECTION
+# define SECTION
+#endif
 
 void __mplog(mp_no *, mp_no *, int);
 
@@ -47,7 +51,9 @@ void __mplog(mp_no *, mp_no *, int);
 /* An ultimate log routine. Given an IEEE double machine number x     */
 /* it computes the correctly rounded (to nearest) value of log(x).   */
 /*********************************************************************/
-double __ieee754_log(double x) {
+double
+SECTION
+__ieee754_log(double x) {
 #define M 4
   static const int pr[M]={8,10,18,32};
   int i,j,n,ux,dx,p;
@@ -56,8 +62,11 @@ double __ieee754_log(double x) {
 #endif
   double dbl_n,u,p0,q,r0,w,nln2a,luai,lubi,lvaj,lvbj,
 	 sij,ssij,ttij,A,B,B0,y,y1,y2,polI,polII,sa,sb,
-	 t1,t2,t3,t4,t5,t6,t7,t8,t,ra,rb,ww,
+	 t1,t2,t7,t8,t,ra,rb,ww,
 	 a0,aa0,s1,s2,ss2,s3,ss3,a1,aa1,a,aa,b,bb,c;
+#ifndef DLA_FMS
+  double t3,t4,t5,t6;
+#endif
   number num;
   mp_no mpx,mpy,mpy1,mpy2,mperr;
 
@@ -68,7 +77,7 @@ double __ieee754_log(double x) {
 
   num.d = x;  ux = num.i[HIGH_HALF];  dx = num.i[LOW_HALF];
   n=0;
-  if (ux < 0x00100000) {
+  if (__builtin_expect(ux < 0x00100000, 0)) {
     if (__builtin_expect(((ux & 0x7fffffff) | dx) == 0, 0))
       return MHALF/ZERO; /* return -INF */
     if (__builtin_expect(ux < 0, 0))
@@ -82,7 +91,7 @@ double __ieee754_log(double x) {
   /* Regular values of x */
 
   w = x-ONE;
-  if (ABS(w) > U03) { goto case_03; }
+  if (__builtin_expect(ABS(w) > U03, 1)) { goto case_03; }
 
 
   /*--- Stage I, the case abs(x-1) < 0.03 */
@@ -204,4 +213,6 @@ double __ieee754_log(double x) {
   }
   return y1;
 }
+#ifndef __ieee754_log
 strong_alias (__ieee754_log, __log_finite)
+#endif

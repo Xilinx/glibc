@@ -1,3 +1,623 @@
+2011-11-07  Andreas Schwab  <schwab@redhat.com>
+
+	* libio/genops.c (_IO_flush_all_lockp): Only register cleanup
+	handler when locking.
+
+	* nss/nss_files/files-initgroups.c (_nss_files_initgroups_dyn):
+	Fix size of allocated buffer.
+
+2011-11-04  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #10103]
+	* math/math.h [__NO_LONG_DOUBLE_MATH && !_LIBC]: Provide
+	declarations for long double functions.
+	* math/complex.h [__NO_LONG_DOUBLE_MATH && !_LIBC]: Likewise.
+
+	* elf/sprof.c (load_shobj): Fix off-by-one when reading link name.
+
+2011-11-03  Andreas Schwab  <schwab@redhat.com>
+
+	* nscd/nscd.c (main): Don't start AVC thread until credentials are
+	installed.
+
+	* nss/makedb.c (set_file_creation_context): Do nothing if SELinux
+	is disabled.
+
+2011-11-02  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* bits/ioctl-types.h (_IOT_sgttyb): Set number of chars to 4.
+
+2011-11-01  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* include/alloca.h (stackinfo_alloca_round): Define.
+	(extend_alloca): Use it.
+	[_STACK_GROWS_UP]: Correct check for adjacent allocation.
+	* elf/dl-deps.c (_dl_map_object_deps): Don't round alloca size
+	here.
+
+	* scripts/check-local-headers.sh: Ignore libaudit.h.
+
+	* nscd/Makefile (extra-objs): Make recursively expanded.
+
+2011-11-01  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/strcmp.S: Fix test for non-ASCII locales.
+	* sysdeps/x86_64/multiarch/strcmp-sse42.S: Likewise.
+
+	* posix/tst-rfc3484.c: Add missing __free_in6ai dummy function.
+	* posix/tst-rfc3484-2.c: Likewise.
+	* posix/tst-rfc3484-3.c: Likewise.
+
+	* sysdeps/unix/sysv/linux/bits/uio.h: Declare process_vm_readv and
+	process_vm_writev.
+	* sysdeps/unix/sysv/linux/syscalls.list: Add process_vm_readv and
+	process_vm_writev.
+	* sysdeps/unix/sysv/linux/Versions: Export process_vm_readv and
+	process_vm_writev from libc using GLIBC_2.15 version.
+
+	* nscd/connections.c: Use kernel headers instead of <netlink/netlink.h>.
+
+2011-10-31  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	* elf/dl-deps.c (_dl_map_object_deps): Reuse alloca space to reduce
+	stack usage.
+
+2011-10-31  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13367]
+	* nss/getent.c (initgroups_keys): Show error message in case no group
+	names are given.
+
+	* include/ifaddrs.h: Declare __free_in6ai and __bump_nl_timestamp.
+	* inet/check_pf.c: Provide dummy versions of __free_in6ai and
+	__bump_nl_timestamp.
+	* nscd/connections (nscd_init): When host database is served open
+	netlink socket and request notification about configuration changes.
+	(main_loop_poll): Track netlink file descriptor and bump timestamp
+	in case data becomes available.
+	(main_loop_epoll): Likewise.
+	* nscd/nscd-client.h (DB_VERSION): Bump to 2.
+	(database_pers_head): Add extra_data fileds.
+	Declare __nscd_get_mapping and __nscd_get_nl_timestamp.
+	* nscd/nscd_gethst_r.c (__nscd_get_nl_timestamp): New function.
+	* nscd/nscd_helper.c (__nscd_get_mapping): Renamed from get_mapping.
+	Adjust caller.
+	* sysdeps/posix/getaddrinfo.c (getaddrinfo): Don't call free on
+	in6ai data, call __free_in6ai.
+	* sysdeps/unix/sysv/linux/Makefile [subdir=nscd] (sysdep-CFLAGS):
+	Add -DHAVE_NETLINK.
+	* sysdeps/unix/sysv/linux/check_pf.c: Major rewrite.  Cache the
+	interface information.  Reuse previous data if netlink timestamp
+	is not changed.
+	(__bump_nl_timestamp): New function.
+	(__free_in6ai): New function.
+
+2011-10-30  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/unix/sysv/linux/check_pf.c (make_request): Don't call
+	close_not_cancel_no_status here.
+	(__check_pf): Reorganize code a bit to not call close twice if OOM.
+
+2011-10-29  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13276]
+	* malloc/malloc.c (munmap_chunk): Don't use assertion to check munmap
+	return value.
+
+	* posix/sys/wait.h: Mark wait3 and wait4 with __THROWNL.
+	* libio/stdio.h: Mark sprintf, vsprintf snprintf, vsnprintf, vasprintf,
+	asprintf, __asprintf, obstack_printf, obstack_vprintf with __THROWNL.
+
+2011-07-03  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #10709]
+	* sysdeps/ieee754/dbl-64/s_sin.c (__sin): Fix incorrect rounding
+	of sin. Patch suggested by Paul Zimmermann <zimmerma+gcc@loria.fr>.
+	* math/libm-test.inc (sin_test): Add test case.
+
+2011-10-29  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13337]
+	* elf/sprof.c (load_shobj): Correctly NUL-terminate link name.
+	Patch by Thomas Jarosch <thomas.jarosch@intra2net.com>.
+
+	* elf/chroot_canon.c (chroot_canon): Cleanups.
+
+	* elf/dl-lookup.c (_dl_setup_hash): Avoid warning.
+
+	[BZ #13335]
+	* elf/chroot_canon.c (chroot_canon): Fix readlink call.
+	Patch by Thomas Jarosch <thomas.jarosch@intra2net.com>.
+
+	* string/test-strchr.c: Make usable for strchrnul testing.
+	* string/test-strchrnul.c: New file.
+	* string/Makefile (strop-tests): Add strchrnul.
+
+	* po/it.po: Update from translation team.
+	* po/es.po: Likewise.
+
+2011-10-28  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/multiarch/strstr.c (__m128i_strloadu_tolower): Take
+	the three constants needed as parameters.  Drop the others.
+	(strcasestr_sse42): Load uclow, uchigh, and lcqword and pass to
+	__m128i_strloadu_tolower.
+	Create and initialize variable zero and use it in all the places
+	where _mm_setzero_si128 was used.
+
+	* sysdeps/x86_64/fpu/multiarch/Makefile: Don't build brandred-avx.c,
+	doasin-avx.c, dosincos-avx.c, e_asin-avx.c, mpatan-avx.c,
+	mpatan2-avx.c, mpsqrt-avx.c, mptan-avx.c, sincos32-avx.c.
+	* sysdeps/x86_64/fpu/multiarch/e_asin.c: There are no _avx variants
+	anymore.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2-avx.c: Don't redirect __mpatan2.
+	* sysdeps/x86_64/fpu/multiarch/s_atan-avx.c: Don't redirect __mpatan.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-avx.c: Don't redirect __branred,
+	__docos, __dubsin, __mpcos, __mpcos1, __mpsin, __mpsin1.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-avx.c: Don't redirect __branred,
+	__mpranred, __mptan.
+	* sysdeps/x86_64/fpu/multiarch/brandred-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/doasin-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/dosincos-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/e_asin-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/mpatan-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/mpatan2-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/mpsqrt-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/mptan-avx.c: Removed.
+	* sysdeps/x86_64/fpu/multiarch/sincos32-avx.c: Removed.
+
+2011-10-28  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/i386/i686/multiarch/strnlen-c.c (libc_hidden_def): Only
+	redefine if SHARED.
+	* sysdeps/i386/i686/multiarch/wcscmp-c.c (libc_hidden_def): Likewise.
+
+	* sysdeps/i386/i686/multiarch/Makefile (sysdep_routines): Move
+	wide char related routines to wcsmbs subdir.
+
+2011-10-27  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #13344]
+	* misc/sys/cdefs.h (__THROWNL): Define.
+	* posix/unistd.h: Use __THREADNL instead of __THREAD
+	for memory synchronization functions.
+
+2011-10-26  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13349]
+	* libio/Versions (GLIBC_2.0): Remove open_obstack_stream, which
+	doesn't exist.
+	* manual/stdio.texi (Obstack Streams): Node removed.
+
+2011-10-26  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/ieee754/flt-32/e_j0f.c: Fix use of math_force_eval.
+	* sysdeps/ieee754/dbl-64/s_round.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_roundf.c: Likewise.
+
+	* math/math_private.h (math_force_eval): Allow non-addressable
+	arguments.
+	* sysdeps/i386/fpu/math_private.h (math_force_eval): Likewise.
+
+2011-10-25  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/e_rem_pio2.c: Comment everything out, the
+	file is not needed.
+
+	* sysdeps/x86_64/fpu/multiarch/e_asin.c: Support AVX variants.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_exp.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_log.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_atan.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_sin.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_tan.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/Makefile: Fix some CFLAGS-* variables.
+	Add AVX variants.
+	* sysdeps/x86_64/fpu/multiarch/brandred-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/doasin-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/dosincos-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_asin-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_exp-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_log-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpa-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpatan-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpatan2-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpexp-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mplog-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpsqrt-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mptan-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_atan-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/sincos32-avx.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/slowexp-avx.c: New file.
+
+	* sysdeps/x86_64/multiarch/init-arch.h: Make bit_* macros available
+	all the time.  Define bit_AVX.  Define HAS_* macros using bit_* macros.
+
+	* sysdeps/x86_64/multiarch/strcmp-sse42.S: Move common code to earlier
+	place.  Use VEX encoding when compiling for AVX.
+
+2011-10-25  Andreas Schwab  <schwab@redhat.com>
+
+	* wcsmbs/wcscmp.c (WCSCMP): Compare as wchar_t, not wint_t.
+	* wcsmbs/wmemcmp.c (WMEMCMP): Likewise.
+
+	* string/test-strchr.c (do_test): Don't generate NUL bytes.
+
+2011-10-25  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/e_atanh.c: Use math_force_eval instead of a
+	useless if() expression.
+	* sysdeps/ieee754/dbl-64/e_j0.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_ceil.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_expm1.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_floor.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_log1p.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_round.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_ceil.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_floor.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_round.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_atanhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_j0f.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_ceilf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_expm1f.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_floorf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_log1pf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_roundf.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_atanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_j0l.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_roundl.c: Likewise.
+
+	* sysdeps/x86_64/fpu/math_private.h: Use VEX encoding when possible.
+
+2011-10-25  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/dl-deps.c (_dl_map_object_deps): Remove always true
+	condition.
+	* elf/dl-fini.c (_dl_sort_fini): Likewise.
+
+2011-10-25  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/branred.c: Move FMA4 code into separate
+	.text section.  Avoid duplicate constants.
+	* sysdeps/ieee754/dbl-64/doasin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_asin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_exp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/halfulp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpa.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpa.h: Likewise.
+	* sysdeps/ieee754/dbl-64/mpatan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpatan.h: Likewise.
+	* sysdeps/ieee754/dbl-64/mpatan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpexp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpexp.h: Likewise.
+	* sysdeps/ieee754/dbl-64/mpsqrt.c: Likewise.
+	* sysdeps/ieee754/dbl-64/mpsqrt.h: Likewise.
+	* sysdeps/ieee754/dbl-64/mptan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_sin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/sincos32.c: Likewise.
+	* sysdeps/ieee754/dbl-64/slowexp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/slowpow.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/brandred-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/doasin-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/dosincos-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_asin-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_exp-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_log-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_pow-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/halfulp-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpa-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpatan-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpatan2-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpexp-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mplog-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpsqrt-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mptan-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_atan-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/sincos32-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/slowexp-fma4.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/slowpow-fma4.c: Likewise.
+
+2011-10-24  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/dla.h: Move to ...
+	* sysdeps/x86_64/fpu/dla.h: ...here.
+	(DLA_FMS): Some compilers fail to inline __builtin_fma in some
+	situations.  Use __builtin_fma only for gcc 4.6 and up.
+
+	* config.make.in: Add have-mfma4 entry.
+	* configure.in: Substitute libc_cv_cc_fma4.
+	* math/Makefile (dbl-only-routines): Add sincostab.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Don't include sincos.tbl.
+	Use __sincostab not sincos.
+	* sysdeps/ieee754/dbl-64/e_asin.c: Don't define aliases when function
+	name is a macro.
+	* sysdeps/ieee754/dbl-64/e_exp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.  Define singArctan2
+	using __copysign.
+	* sysdeps/ieee754/dbl-64/mpa.c: Don't export __acr.  Don't define
+	__cr and __cpymn.  Define __cpy unless NO___CPY is defined.  Define
+	norm, denorm, and __mp_dbl unless NO___MP_DBL is defined.
+	* sysdeps/ieee754/dbl-64/mpa.h: Don't declare __acr, __cr, __cpymn,
+	and __inv.
+	* sysdeps/ieee754/dbl-64/mpsqrt.c: Make fastiroot static.
+	* sysdeps/ieee754/dbl-64/s_atan.c: Define __signArctan using
+	__copysign.
+	* sysdeps/ieee754/dbl-64/s_sin.c: Use __sincostab not sincos.  Don't
+	define aliases when function name is a macro.
+	* sysdeps/ieee754/dbl-64/sincostab.c: Renamed from
+	sysdeps/ieee754/dbl-64/sincos.tbl.
+	* sysdeps/x86_64/fpu/multiarch/Makefile: Add entries to build
+	fma4-enabled routines.
+	* sysdeps/x86_64/fpu/multiarch/brandred-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/doasin-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/dosincos-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_asin-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_asin.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_exp-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_exp.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_log-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_log.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_pow-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/e_pow.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/halfulp-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpa-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpatan-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpatan2-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpexp-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mplog-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mpsqrt-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/mptan-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_atan-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_atan.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_sin.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/s_tan.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/sincos32-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/slowexp-fma4.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/slowpow-fma4.c: New file.
+
+	* sysdeps/ieee754/dbl-64/doasin.c: Adjust for DLA_FMA -> DLA_FMS
+	rename.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/halfulp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_atan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Likewise.
+
+2011-10-24  Andreas Schwab  <schwab@redhat.com>
+
+	* wcsmbs/wcslen.c: Don't define WCSLEN, reverse logic.
+
+2011-10-23  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_remquo.c: New file.
+
+	* sysdeps/ieee754/dbl-64/e_fmod.c (__ieee754_fmod): Add some branch
+	prediction.
+	* sysdeps/ieee754/dbl-64/wordsize-64/e_fmod.c: New file.
+
+	* string/strnlen.c: Don't define STRNLEN, reverse logic.
+	Remove unused variable magic_bits.
+	* sysdeps/i386/i686/multiarch/rtld-strnlen.c: New file.
+
+	* string/strnlen.c: Define and use STRNLEN macro.
+	* sysdeps/i386/i686/multiarch/Makefile [string] (sysdep_routines):
+	Add strnlen-sse2, strnlen-c, wcslen-sse2, and wcslen-c.
+	* sysdeps/i386/i686/multiarch/strlen-sse2.S: Add support for strnlen.
+	* wcsmbs/wcslen.c: Define and use WCSLEN.
+	* sysdeps/i386/i686/multiarch/strnlen-c.c: New file.
+	* sysdeps/i386/i686/multiarch/strnlen-sse2.S: New file.
+	* sysdeps/i386/i686/multiarch/strnlen.S: New file.
+	* sysdeps/i386/i686/multiarch/wcslen-c.c: New file.
+	* sysdeps/i386/i686/multiarch/wcslen-sse2.S: New file.
+	* sysdeps/i386/i686/multiarch/wcslen.S: New file.
+	Patch by Liubov Dmitrieva <liubov.dmitrieva@gmail.com>.
+
+2011-10-20  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* sysdeps/x86_64/multiarch/Makefile (sysdep_routines): Add
+	strnlen-sse2-no-bsf.
+	Rename strlen-no-bsf to strlen-sse2-no-bsf.
+	* sysdeps/x86_64/multiarch/strlen-no-bsf.S: Rename to
+	* sysdeps/x86_64/multiarch/strlen-sse2-no-bsf.S:
+	Add strnlen support.
+	(USE_AS_STRNLEN): New macro.
+	* sysdeps/x86_64/multiarch/strnlen-sse2-no-bsf.S: New file.
+	* sysdeps/x86_64/multiarch/strcat-ssse3.S: Update.
+	Rename strlen-no-bsf.S to strlen-sse2-no-bsf.S
+	* sysdeps/x86_64/wcslen.S: New file.
+
+2011-10-20  Michael Zolotukhin  <michael.v.zolotukhin@gmail.com>
+
+	* sysdeps/i386/i686/multiarch/memcpy-ssse3.S: Update.
+	XMM-moves are used for copying on small sizes.
+
+2011-10-19  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* wcsmbs/Makefile (strop-tests): Add wcschr.
+	* wcsmbs/test-wcschr.c: New file.
+	* string/test-strchr.c: Update.
+	Add wcschr support.
+	(WIDE): New macro.
+
+2011-10-18  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* wcsmbs/Makefile (strop-tests): Add wcslen.
+	* wcsmbs/test-wcslen.c: New file.
+	* string/test-strlen.c: Update.
+	Add wcslen support.
+	(WIDE): New macro.
+
+2011-10-23  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/it.po: Update from translation team.
+
+2011-09-22  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* sysdeps/x86_64/wcscmp.S: Update.
+	Fix wrong comparison semantics.
+	wcscmp shall use signed comparison not unsigned.
+	Don't use substraction to avoid overflow bug.
+	* sysdeps/i386/i686/multiarch/wcscmp-sse2.S: Likewise.
+	* wcsmbc/wcscmp.c: Likewise.
+	* string/test-strcmp.c: Likewise.
+	Add new tests to check cases with negative values.
+
+2011-10-23  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/ieee754/dbl-64/dla.h: Move DLA_FMA definition to...
+	* sysdeps/x86_64/dla.h: ...here.  New file.
+	* sysdeps/ieee754/dbl-64/doasin.c: Use <dla.h> not "dla.h".
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_sqrt.c: Likewise.
+	* sysdeps/ieee754/dbl-64/halfulp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_atan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Likewise.
+
+2011-10-23  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/ieee754/ldbl-128ibm/e_jnl.c: Add __jnl_finite and
+	__ynl_finite aliases.
+
+2011-10-22  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/fpu/libm-test-ulps: Update.
+
+	* sysdeps/ieee754/dbl-64/dla.h: When compiling with FMA4 support
+	define DLA_FMA.
+	[DLA_FMA] (EMULV): Use DLA_FMA.
+	[DLA_FMA] (MUL12): Use EMULV.
+	* sysdeps/ieee754/dbl-64/doasin.c [DLA_FMA]: Don't define variables
+	that are not needed.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/halfulp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_atan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Likewise.
+
+2011-10-22  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* math/s_nan.c: Undef __nan.
+	* math/s_nanf.c: Undef __nanf.
+	* math/s_nanl.c: Undef __nanl.
+	* sysdeps/ieee754/ldbl-128ibm/s_atanl.c: Include <math.h> before
+	"math_private.h".
+
+2011-10-22  Ulrich Drepper  <drepper@gmail.com>
+
+	* math/s_catan.c: Add branch predictions.
+	* math/s_catanf.c: Likewise.
+	* math/s_catanh.c: Likewise.
+	* math/s_catanhf.c: Likewise.
+	* math/s_catanhl.c: Likewise.
+	* math/s_catanl.c: Likewise.
+	* math/s_cexp.c: Likewise.
+	* math/s_cexpf.c: Likewise.
+	* math/s_cexpl.c: Likewise.
+	* math/s_clog.c: Likewise.
+	* math/s_clog10.c: Likewise.
+	* math/s_clog10f.c: Likewise.
+	* math/s_clog10l.c: Likewise.
+	* math/s_clogf.c: Likewise.
+	* math/s_clogl.c: Likewise.
+	* math/s_csqrt.c: Likewise.
+	* math/s_csqrtf.c: Likewise.
+	* math/s_csqrtl.c: Likewise.
+	* math/s_ctanf.c: Likewise.
+	* math/s_ctanh.c: Likewise.
+	* math/s_ctanhf.c: Likewise.
+	* math/s_ctanhl.c: Likewise.
+	* math/s_ctanl.c: Likewise.
+
+	* math/math_private.h: Define __nan, __nanf, __nanl.
+	* math/s_cacosh.c: Include <math_private.h>.
+	* math/s_cacoshl.c: Likewise.
+	* math/s_casinh.c: Likewise.
+	* math/s_casinhf.c: Likewise.
+	* math/s_casinhl.c: Likewise.
+	* math/s_ccos.c: Rely entire on ccosh.
+	* math/s_ccosf.c: Rely entire on ccoshf.
+	* math/s_ccosl.c: Rely entirely on ccoshl.
+	* math/s_ccosh.c: Add branch predicion helpers.  Add branch prediction.
+	Remove tests for FE_INVALID.
+	* math/s_ccoshf.c: Likewise.
+	* math/s_ccoshl.c: Likewise.
+	* math/s_csin.c: Likewise.
+	* math/s_csinf.c: Likewise.
+	* math/s_csinh.c Likewise.
+	* math/s_csinhf.c: Likewise.
+	* math/s_csinhl.c: Likewise.
+	* math/s_csinl.c: Likewise.
+	* math/s_ctan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_acosh.c: Use __ieee754_sqrt.
+	* sysdeps/ieee754/flt-32/e_acoshf.c: Use __ieee754_sqrtf.
+	* sysdeps/ieee754/ldbl-96/e_acoshl.c: Use __ieee754_sqrtl.
+
+2011-10-21  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/multiarch/init-arch.c (__init_cpu_features): Fix
+	compilation problems.
+
+	* sysdeps/ieee754/dbl-64/e_log.c (__ieee754_log): Add a few more
+	__builtin_expect.
+
+2011-10-20  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/i386/configure.in: Test for -mfma4 option.
+	* config.h.in: Add HAVE_FMA4_SUPPORT entry.
+	* sysdeps/x86_64/multiarch/init-arch.h: Define HAS_FMA4 and
+	COMMON_CPUID_INDEX_80000001.
+	* sysdeps/x86_64/multiarch/init-arch.c: Read 80000001 leaf for AMD.
+	* sysdeps/x86_64/fpu/multiarch/s_fma.c: Test for FMA4 support and
+	use it if FMA3 is not supported.
+	* sysdeps/x86_64/fpu/multiarch/s_fmaf.c: Likewise.
+
+	* sysdeps/x86_64/multiarch/s_fma.c: Moved to ../fpu/multiarch.
+	* sysdeps/x86_64/multiarch/s_fmaf.c: Likewise.
+
+2011-10-20  Andreas Schwab  <schwab@redhat.com>
+
+	[BZ #12892]
+	* elf/dl-fini.c (_dl_sort_fini): Ignore relocation dependency if
+	it would create a cycle with a link time dependency.
+
+2011-10-19  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/multiarch/rawmemchr.S: Small optimization to safe an
+	instruction.
+	* string/Makefile (strop-tests): Add rawmemchr.
+	* string/test-rawmemchr.c: New file.
+
+	* sysdeps/x86_64/multiarch/init-arch.h: Define bit_AVX and index_AVX.
+	* sysdeps/x86_64/multiarch/strcmp-sse42.S: New file.  Split out from...
+	* sysdeps/x86_64/multiarch/strcmp.S: ...here.  Include strcmp-sse42.S
+	when compiling str{,n}casecmp and when AVX is available.  Hook up
+	new optimized code in initializers.
+
 2011-10-19  Andreas Schwab  <schwab@redhat.com>
 
 	* sysdeps/x86_64/fpu/math_private.h (libc_feupdateenv): Use

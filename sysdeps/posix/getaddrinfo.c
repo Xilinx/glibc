@@ -2321,7 +2321,7 @@ getaddrinfo (const char *name, const char *service,
 	       || (hints->ai_family == PF_INET6 && ! seen_ipv6))
 	{
 	  /* We cannot possibly return a valid answer.  */
-	  free (in6ai);
+	  __free_in6ai (in6ai);
 	  return EAI_NONAME;
 	}
     }
@@ -2335,7 +2335,7 @@ getaddrinfo (const char *name, const char *service,
 	{
 	  if (hints->ai_flags & AI_NUMERICSERV)
 	    {
-	      free (in6ai);
+	      __free_in6ai (in6ai);
 	      return EAI_NONAME;
 	    }
 
@@ -2357,7 +2357,7 @@ getaddrinfo (const char *name, const char *service,
       if (last_i != 0)
 	{
 	  freeaddrinfo (p);
-	  free (in6ai);
+	  __free_in6ai (in6ai);
 
 	  return -(last_i & GAIH_EAI);
 	}
@@ -2369,7 +2369,7 @@ getaddrinfo (const char *name, const char *service,
     }
   else
     {
-      free (in6ai);
+      __free_in6ai (in6ai);
       return EAI_FAMILY;
     }
 
@@ -2557,7 +2557,7 @@ getaddrinfo (const char *name, const char *service,
       p->ai_canonname = canonname;
     }
 
-  free (in6ai);
+  __free_in6ai (in6ai);
 
   if (p)
     {
