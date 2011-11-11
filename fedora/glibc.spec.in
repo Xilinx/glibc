@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 14
+Release: 15
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1108,12 +1108,18 @@ rm -f *.filelist*
 %endif
 
 %changelog
-* Tue Nov  8 2011 Andreas Schwab <schwab@redhat.com> - 2.4.90-14
+* Fri Nov 11 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-15
+- Update from master
+  - Fix db makefile rule for group.db
+  - Mark setjmp and ucontext functions as non-leaf (#752905)
+  - Check malloc arana limit atomically
+
+* Tue Nov  8 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-14
 - Update from master
   - Fix locking in _IO_flush_all_lockp
-  - Fix buffer allocation in files initgroups handler
+  - Fix buffer allocation in files initgroups handler (#750361)
   - Don't start AVC thread until credentials are installed
-  - Don't fail in makedb if SELinux is disabled
+  - Don't fail in makedb if SELinux is disabled (#750858)
   - New Linux syscalls process_vm_readv and process_vm_writev
   - Unify getent output for initgroups database (BZ#13367)
   - Cache network interface information
