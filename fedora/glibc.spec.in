@@ -24,7 +24,7 @@
 Summary: The GNU libc libraries
 Name: glibc
 Version: %{glibcversion}
-Release: 15
+Release: 16
 # GPLv2+ is used in a bunch of programs, LGPLv2+ is used for libraries.
 # Things that are linked directly into dynamically linked programs
 # and shared libraries (e.g. crt files, lib*_nonshared.a) have an additional
@@ -1108,6 +1108,11 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Mon Nov 14 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-16
+- Update from master
+  - Don't call reused_arena when _int_new_arena failed (#753601)
+  - Fix grouping and reuse other locales in various locales (BZ#13147)
+
 * Fri Nov 11 2011 Andreas Schwab <schwab@redhat.com> - 2.14.90-15
 - Update from master
   - Fix db makefile rule for group.db
