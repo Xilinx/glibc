@@ -1,7 +1,141 @@
+2011-11-16  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/i386/i686/multiarch/strcmp-ssse3.S
+	[USE_AS_STRCASECMP_L]: Fix argument offsets for non-PIC.
+	[USE_AS_STRNCASECMP_L]: Likewise.
+	(__strcasecmp_ssse3, __strncasecmp_ssse3): Handle
+	NO_TLS_DIRECT_SEG_REFS.
+	* sysdeps/i386/i686/multiarch/strcmp-sse4.S [USE_AS_STRCASECMP_L]:
+	Fix argument offsets for non-PIC.
+	[USE_AS_STRNCASECMP_L]: Likewise.
+	(__strcasecmp_sse4_2, __strncasecmp_sse4_2): Handle
+	NO_TLS_DIRECT_SEG_REFS.
+
+2011-11-15  Ulrich Drepper  <drepper@gmail.com>
+
+	* locale/loadarchive.c (_nl_load_locale_from_archive): Open files to
+	O_CLOEXEC.
+	* locale/loadlocale.c (_nl_load_locale): Likewise.
+
+2011-11-15  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/clock_gettime.c (SYSDEP_GETTIME_CPU)
+	[__ASSUME_POSIX_CPU_TIMERS > 0]: Assign to retval and break.
+	* sysdeps/unix/sysv/linux/x86_64/clock_gettime.c
+	(SYSCALL_GETTIME): Set errno on error.
+
+	* sysdeps/unix/sysv/linux/check_pf.c (make_request): Properly
+	count references to noai6ai_cached.
+
+2011-11-15  Ulrich Drepper  <drepper@gmail.com>
+
+	* time/getdate.c (__getdate_r): Set FD_CLOEXEC for given file.
+
+	* sysdeps/unix/sysv/linux/readonly-area.c (__readonly_area): Set
+	FD_CLOEXEC for /proc/self/maps.
+
+	* sysdeps/unix/sysv/linux/getsysstats.c (phys_pages_info): Set
+	FD_CLOEXEC for /proc/meminfo.
+
+	* sysdeps/posix/getaddrinfo.c (gaiconf_init): Set FD_CLOEXEC for
+	gai.conf.
+
+	* resolv/res_query.c (res_hostalias):  Don't allow cancellation and set
+	FD_CLOEXEC for given file.
+
+	* resolv/res_hconf.c (do_init): Set FD_CLOEXEC for host.conf.
+
+	* resolv/gethnamaddr.c (_sethtent): Don't allow cancellation and set
+	FD_CLOEXEC for /etc/hosts.
+	(_gethtent): Likewise.
+
+	* nss/nsswitch.c (nss_parse_file): Set FD_CLOEXEC.
+
+	* nss/nss_files/files-netgrp.c (_nss_files_setnetgrent): Don't allow
+	cancellation and set FD_CLOEXEC for /etc/netgroup.
+
+	* nss/nss_files/files-key.c (search): Don't allow cancellation when
+	reading /etc/publickey.
+
+	* nss/nss_files/files-initgroups.c (_nss_files_initgroups_dyn): Don't
+	allow cancellation when reading /etc/group.
+
+	* nss/nss_files/files-alias.c (internal_setent): Don't allow
+	cancellation.
+	(get_next_alias): Likewise for included file.  Also set FD_CLOEXEC.
+
+	* nss/nss_files/files-XXX.c (internal_setent): Don't allow cancellation
+	when using data file.
+
+	* nis/nss-default.c (init): Set FD_CLOEXEC for /etc/default/nss.
+
+	* nis/nis_file.c (read_nis_obj): Set FD_CLOEXEC.
+	(write_nis_obj): Use "c" and "e" in fopen.
+
+	* misc/mntent_r.c (__setmntent): Also append e to fopen format.
+
+	* misc/getusershell.c (initshells): Set FD_CLOEXEC for /etc/shells.
+
+	* misc/getttyent.c (setttyent): Set FD_CLOEXEC.
+
+	* misc/getpass.c (getpass): Set FD_CLOEXEC for /dev/tty.
+
+	* intl/localealias.c (read_alias_file): Set FD_CLOEXEC for
+	locale.alias.
+
+	* inet/ruserpass.c (ruserpass): Set FD_CLOEXEC for .netrc.
+
+	* inet/rcmd.c (iruserfopen): Set FD_CLOEXEC for hosts.equiv.
+
+	* iconv/gconv_conf.c (read_conf_file): Set FD_CLOEXEC for config file.
+
+	* hesiod/hesiod.c (parse_config_file): Prevent cancellation in config
+	file parsing and set FD_CLOEXEC.
+
+2011-11-14  Ulrich Drepper  <drepper@gmail.com>
+
+	* time/tzfile.c (__tzfile_read): Use "e" in fopen call.
+
 2011-11-14  Andreas Schwab  <schwab@redhat.com>
 
 	* malloc/arena.c (arena_get2): Don't call reused_arena when
 	_int_new_arena failed.
+
+2011-11-14  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/i386/i686/multiarch/Makefile [subdir=string]
+	(sysdep_routines): Add strcasecmp_l-sse4 and strncase_l-sse4.
+	* sysdeps/i386/i686/multiarch/strcasecmp.S: Re-enable SSE4.2 code.
+	* sysdeps/i386/i686/multiarch/strcmp.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strncase.S: Likewise.
+	* sysdeps/i386/i686/multiarch/strcmp-sse4.S: Change to allow reuse
+	to compile strcasecmp and strncasecmp.
+	* sysdeps/i386/i686/multiarch/strcasecmp_l-sse4.S: New file.
+	* sysdeps/i386/i686/multiarch/strncase_l-sse4.S: New file.
+
+	* sysdeps/i386/i686/multiarch/strcmp-ssse3.S: Use L macro consistently.
+
+2011-11-13  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/i386/i686/multiarch/Makefile [subdir=string]: Add
+	locale-defines.sym to gen-as-const-headers.
+	(sysdep_routines): Add strcasecmp_l-c, strcasecmp-c,
+	strcasecmp_l-ssse3, strncase_l-c, strncase-c, and strncase_l-ssse3.
+	* sysdeps/i386/i686/multiarch/strcmp-ssse3.S: Change to allow reuse
+	to compile strcasecmp and strncasecmp.
+	* sysdeps/i386/i686/multiarch/strcmp.S: Allow to use for
+	strcasecmp_l and strncasecmp_l.
+	* sysdeps/i386/i686/multiarch/locale-defines.sym: New file.
+	* sysdeps/i386/i686/multiarch/strcasecmp-c.c: New file.
+	* sysdeps/i386/i686/multiarch/strcasecmp.S: New file.
+	* sysdeps/i386/i686/multiarch/strcasecmp_l-c.c: New file.
+	* sysdeps/i386/i686/multiarch/strcasecmp_l-ssse3.S: New file.
+	* sysdeps/i386/i686/multiarch/strcasecmp_l.S: New file.
+	* sysdeps/i386/i686/multiarch/strncase-c.c: New file.
+	* sysdeps/i386/i686/multiarch/strncase.S: New file.
+	* sysdeps/i386/i686/multiarch/strncase_l-c.c: New file.
+	* sysdeps/i386/i686/multiarch/strncase_l-ssse3.S: New file.
+	* sysdeps/i386/i686/multiarch/strncase_l.S: New file.
 
 2011-11-12  Ulrich Drepper  <drepper@gmail.com>
 

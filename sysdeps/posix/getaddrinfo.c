@@ -1893,7 +1893,7 @@ gaiconf_init (void)
   size_t nscopelist = 0;
   bool scopelist_nullbits = false;
 
-  FILE *fp = fopen (GAICONF_FNAME, "rc");
+  FILE *fp = fopen (GAICONF_FNAME, "rce");
   if (fp != NULL)
     {
       struct stat64 st;
