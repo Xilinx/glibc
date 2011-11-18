@@ -32,13 +32,8 @@
 
 struct stat
   {
-#ifdef __MICROBLAZEEL__
-    unsigned short int __pad1;
-    __dev_t st_dev;			/* Device.  */
-#else
     __dev_t st_dev;			/* Device.  */
     unsigned short int __pad1;
-#endif
 #ifndef __USE_FILE_OFFSET64
     __ino_t st_ino;			/* File serial number.	*/
 #else
@@ -48,13 +43,8 @@ struct stat
     __nlink_t st_nlink;			/* Link count.  */
     __uid_t st_uid;			/* User ID of the file's owner.	*/
     __gid_t st_gid;			/* Group ID of the file's group.*/
-#ifdef __MICROBLAZEEL__
-    unsigned short int __pad2;
-    __dev_t st_rdev;			/* Device number, if device.  */
-#else
     __dev_t st_rdev;			/* Device number, if device.  */
     unsigned short int __pad2;
-#endif
 	unsigned long	__pad3;
 #ifndef __USE_FILE_OFFSET64
     __off_t st_size;			/* Size of file, in bytes.  */
@@ -101,26 +91,16 @@ struct stat
 #ifdef __USE_LARGEFILE64
 struct stat64
   {
-#ifdef __MICROBLAZEEL__
-    unsigned short int __pad1;
-    __dev_t st_dev;			/* Device.  */
-#else
     __dev_t st_dev;			/* Device.  */
     unsigned short int __pad1;
-#endif
 
     __ino_t __st_ino;			/* 32bit file serial number.	*/
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */
     __uid_t st_uid;			/* User ID of the file's owner.	*/
     __gid_t st_gid;			/* Group ID of the file's group.*/
-#ifdef __MICROBLAZEEL__
-    unsigned short int __pad2;
-    __dev_t st_rdev;			/* Device number, if device.  */
-#else
     __dev_t st_rdev;			/* Device number, if device.  */
     unsigned short int __pad2;
-#endif
 	unsigned long	__pad3;
     __off64_t st_size;			/* Size of file, in bytes.  */
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
