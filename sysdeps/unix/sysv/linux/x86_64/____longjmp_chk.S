@@ -20,6 +20,8 @@
 #include <jmpbuf-offsets.h>
 #include <asm-syntax.h>
 
+#include "sigaltstack.h"
+
 	.section .rodata.str1.1,"aMS",@progbits,1
 	.type	longjmp_msg,@object
 longjmp_msg:
@@ -41,7 +43,7 @@ longjmp_msg:
 # define CALL_FAIL	subq	$8, %rsp;				      \
 			cfi_remember_state;				      \
 			cfi_def_cfa_offset(16);				      \
-			movq	$longjmp_msg, %rdi;			      \
+			mov	$longjmp_msg, %RDI_LP;			      \
 			call	HIDDEN_JUMPTARGET(__fortify_fail);	      \
 			nop;						      \
 			cfi_restore_state
@@ -57,9 +59,9 @@ ENTRY(____longjmp_chk)
 	movq	(JB_RBP*8)(%rdi), %r9
 	movq	(JB_PC*8)(%rdi), %rdx
 #ifdef PTR_DEMANGLE
-	PTR_DEMANGLE (%r8)
-	PTR_DEMANGLE (%r9)
-	PTR_DEMANGLE (%rdx)
+	PTR_DEMANGLE (%R8_LP)
+	PTR_DEMANGLE (%R9_LP)
+	PTR_DEMANGLE (%RDX_LP)
 #endif
 
 	cmpq	%r8, %rsp
@@ -72,19 +74,19 @@ ENTRY(____longjmp_chk)
 	cfi_register (%rsi, %rbx)
 
 	xorl	%edi, %edi
-	leaq	-24(%rsp), %rsi
+	lea	-sizeSS(%rsp), %RSI_LP
 	movl	$__NR_sigaltstack, %eax
 	syscall
 	/* Without working sigaltstack we cannot perform the test.  */
 	testl	%eax, %eax
 	jne	.Lok2
-	testl	$1, -16(%rsp)
+	testl	$1, (-sizeSS + oSS_FLAGS)(%rsp)
 	jz	.Lfail
 
-	movq	-24(%rsp), %rax
-	addq	-8(%rsp), %rax
+	mov	(-sizeSS + oSS_SP)(%rsp), %RAX_LP
+	add	(-sizeSS + oSS_SIZE)(%rsp), %RAX_LP
 	subq	%r8, %rax
-	cmpq	-8(%rsp), %rax
+	cmp	(-sizeSS + oSS_SIZE)(%rsp), %RAX_LP
 	jae	.Lok2
 
 .Lfail:	CALL_FAIL
