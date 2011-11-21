@@ -1,5 +1,9 @@
 2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/multiarch/memcpy-ssse3.S: Use RXX_LP.
+
+2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/multiarch/memcpy-ssse3-back.S: Use RXX_LP.
 
 2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
