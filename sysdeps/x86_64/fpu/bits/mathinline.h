@@ -21,8 +21,6 @@
 # error "Never use <bits/mathinline.h> directly; include <math.h> instead."
 #endif
 
-#include <bits/wordsize.h>
-
 #ifndef __extern_always_inline
 # define __MATH_INLINE __inline
 #else
@@ -39,7 +37,7 @@ __BEGIN_NAMESPACE_C99
 __MATH_INLINE int
 __NTH (__signbitf (float __x))
 {
-# if __WORDSIZE == 32
+# ifndef __x86_64__
   __extension__ union { float __f; int __i; } __u = { __f: __x };
   return __u.__i < 0;
 # else
@@ -51,7 +49,7 @@ __NTH (__signbitf (float __x))
 __MATH_INLINE int
 __NTH (__signbit (double __x))
 {
-# if __WORDSIZE == 32
+# ifndef __x86_64__
   __extension__ union { double __d; int __i[2]; } __u = { __d: __x };
   return __u.__i[1] < 0;
 # else
@@ -78,7 +76,7 @@ __END_NAMESPACE_C99
 __BEGIN_NAMESPACE_C99
 
 /* Round to nearest integer.  */
-#  if __WORDSIZE == 64 || defined __SSE_MATH__
+#  if defined __x86_64__ || defined __SSE_MATH__
 __MATH_INLINE long int
 __NTH (lrintf (float __x))
 {
@@ -87,7 +85,7 @@ __NTH (lrintf (float __x))
   return __res;
 }
 #  endif
-#  if __WORDSIZE == 64 || defined __SSE2_MATH__
+#  if defined __x86_64__ || defined __SSE_MATH__
 __MATH_INLINE long int
 __NTH (lrint (double __x))
 {
@@ -96,7 +94,7 @@ __NTH (lrint (double __x))
   return __res;
 }
 #  endif
-#  if __WORDSIZE == 64
+#  ifdef __x86_64__
 __MATH_INLINE long long int
 __NTH (llrintf (float __x))
 {
@@ -114,7 +112,7 @@ __NTH (llrint (double __x))
 #  endif
 
 #  if defined __FINITE_MATH_ONLY__ && __FINITE_MATH_ONLY__ > 0 \
-      && (__WORDSIZE == 64 || defined __SSE2_MATH__)
+      && (defined __x86_64__ || defined __SSE2_MATH__)
 /* Determine maximum of two values.  */
 __MATH_INLINE float
 __NTH (fmaxf (float __x, float __y))
@@ -147,7 +145,7 @@ __NTH (fmin (double __x, double __y))
 __END_NAMESPACE_C99
 # endif
 
-# if defined __SSE4_1__ && (__WORDSIZE == 64 || defined __SSE2_MATH__)
+# if defined __SSE4_1__ && (defined __x86_64__ || defined __SSE2_MATH__)
 #  if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 
