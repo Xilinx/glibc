@@ -1,5 +1,14 @@
 2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/fpu/math_private.h (EXTRACT_WORDS64): Use
+	long long int instead of long int.
+	(INSERT_WORDS64): Likwise.
+	(__isnan): Likwise.
+	(__isinf_ns): Likewise.
+	(__finite): Likewise.
+
+2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/jmpbuf-unwind.h (_JMPBUF_CFA_UNWINDS_ADJ): Cast
 	_Unwind_GetCFA return to _Unwind_Ptr first.
 

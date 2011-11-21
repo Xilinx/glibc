@@ -29,7 +29,7 @@
 #undef EXTRACT_WORDS64
 #define EXTRACT_WORDS64(i, d)						      \
   do {									      \
-    long int i_;							      \
+    long long int i_;							      \
     asm (MOVD " %1, %0" : "=rm" (i_) : "x" ((double) (d)));		      \
     (i) = i_;								      \
   } while (0)
@@ -38,7 +38,7 @@
 #undef INSERT_WORDS64
 #define INSERT_WORDS64(d, i) \
   do {									      \
-    long int i_ = i;							      \
+    long long int i_ = i;						      \
     double d__;								      \
     asm (MOVD " %1, %0" : "=x" (d__) : "rm" (i_));			      \
     d = d__;								      \
@@ -66,22 +66,22 @@
 #endif
 
 #define __isnan(d) \
-  ({ long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
-     (__di & 0x7fffffffffffffffl) > 0x7ff0000000000000l; })
+  ({ long long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
+     (__di & 0x7fffffffffffffffll) > 0x7ff0000000000000ll; })
 #define __isnanf(d) \
   ({ int __di; GET_FLOAT_WORD (__di, (float) d);			      \
      (__di & 0x7fffffff) > 0x7f800000; })
 
 #define __isinf_ns(d) \
-  ({ long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
-     (__di & 0x7fffffffffffffffl) == 0x7ff0000000000000l; })
+  ({ long long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
+     (__di & 0x7fffffffffffffffll) == 0x7ff0000000000000ll; })
 #define __isinf_nsf(d) \
   ({ int __di; GET_FLOAT_WORD (__di, (float) d);			      \
      (__di & 0x7fffffff) == 0x7f800000; })
 
 #define __finite(d) \
-  ({ long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
-     (__di & 0x7fffffffffffffffl) < 0x7ff0000000000000l; })
+  ({ long long int __di; EXTRACT_WORDS64 (__di, (double) (d));		      \
+     (__di & 0x7fffffffffffffffll) < 0x7ff0000000000000ll; })
 #define __finitef(d) \
   ({ int __di; GET_FLOAT_WORD (__di, (float) d);			      \
      (__di & 0x7fffffff) < 0x7f800000; })
