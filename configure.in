@@ -2402,11 +2402,6 @@ if test -z "${lib_names_awk}"; then
 fi
 AC_SUBST(lib_names_awk)
 
-if test -z "${use_default_syscall_macros}"; then
-  use_default_syscall_macros=yes
-fi
-AC_SUBST(use_default_syscall_macros)
-
 if test "`(cd $srcdir; pwd)`" = "`pwd`"; then
   config_makefile=
 else

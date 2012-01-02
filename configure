@@ -607,7 +607,6 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 RELEASE
 VERSION
-use_default_syscall_macros
 lib_names_awk
 stubs_biarch_h
 mach_interface_list
@@ -8012,11 +8011,6 @@ fi
 
 if test -z "${lib_names_awk}"; then
   lib_names_awk=scripts/lib-names.awk
-fi
-
-
-if test -z "${use_default_syscall_macros}"; then
-  use_default_syscall_macros=yes
 fi
 
 

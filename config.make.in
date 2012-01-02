@@ -82,7 +82,6 @@ multi-arch = @multi_arch@
 
 stubs-biarch_h = @stubs_biarch_h@
 lib-names_awk = @lib_names_awk@
-use-default-syscall-macros = @use_default_syscall_macros@
 
 mach-interface-list = @mach_interface_list@
 

@@ -1,3 +1,17 @@
+2012-01-02  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config.make.in (use-default-syscall-macros): Removed.
+	* configure.in (use_default_syscall_macros): Likewise.
+	* configure: Regenerated.
+
+	* sysdeps/unix/sysv/linux/Makefile: Don't check
+	use-default-syscall-macros.
+
+	* sysdeps/unix/sysv/linux/x86_64/Makefile
+	(syscall-list-64bit-options): Add -D__LP64__.
+
+	* sysdeps/x86_64/preconfigure: Don't set use_default_syscall_macros.
+
 2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
 
 	PR libc/12495
