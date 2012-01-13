@@ -20,8 +20,9 @@
 #include <pthread.h>
 #include "internals.h"
 #include "pt-machine.h"
+#include "spinlock.h"
 
-
+/* NOTE MS Look at ppc implementation where __compare_and_swap is directly used */
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {

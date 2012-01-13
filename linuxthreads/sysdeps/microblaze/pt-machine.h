@@ -25,22 +25,61 @@
 extern long int testandset (int *spinlock);
 extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
-/* Spinlock implementation; required.  */
+#if 0
+/* Use compare_and_swap and test one implementation not two - the same as ppc */
+#define IMPLEMENT_TAS_WITH_CAS
+#define HAS_COMPARE_AND_SWAP
+
+PT_EI int
+__compare_and_swap (long int *p, long int oldval, long int newval)
+{
+	int t, test;
+
+/* NOTE MS: Microblaze version below 7.20.a has no lwx/swx instruction
+ * and they behave as lw/sw. lw/sw are not able to setup carry bit that's why
+ * code has to automatically do it by addc. */
+	__asm__ __volatile__(
+	"	addc	r0, r0, r0;"	/* clean carry bit*/\
+	"1:	lwx	%0, %4, r0;"	/* atomic_add_return */\
+	"	cmp	%1, %0, %2;"	/* compare signed values current/old */\
+	"	bnei	%1, 2f;"	/* if is not equal - jump over */\
+	"	swx	%3, %4, r0;"	/* save newval */\
+	"	addic	%1, r0, 0;"	/* check Carry if saving was OK */\
+	"	bnei	%1, 1b;"	/* jump if swx wasn't successful */\
+	"2:"
+		: "=&r" (t),
+		"=&r" (test)
+		: "r" (oldval),
+		"r" (newval),
+		"r" (p)
+		: "cc", "memory");
+
+	return t == oldval;
+}
+#else
 PT_EI long int
 testandset (int *spinlock)
 {
-  long int ret;
+	int t, test;
 
-/* TODO: disable interrupts? */
-  __asm__ __volatile__(
-    "lw %0,r0,%2\n\tsw %3,r0,%2"
-    : "=&r"(ret), "=m"(*spinlock)
-    : "r"(spinlock), "r"(1), "m"(*spinlock)
-    );
+/* NOTE MS: Microblaze version below 7.20.a has no lwx/swx instruction
+ * and they behave as lw/sw. lw/sw are not able to setup carry bit that's why
+ * code has to automatically do it by addc. */
+	__asm__ __volatile__(
+	"	addc	r0, r0, r0;"	/* clean carry bit*/\
+	"1:	lwx	%0, %3, r0;"	/* atomic_add_return*/\
+	"	swx	%2, %3, r0;"	/* save value back*/\
+	"	addic	%1, r0, 0;"	/* check Carry if saving was OK*/\
+	"	bnei	%1, 1b;"	/* jump if swx wasn't successful*/\
+		: "=&r" (t),
+		"=&r" (test)
+		: "r" (1),
+		"r" (spinlock)
+		: "cc", "memory");
 
-  return ret;
+	return t;
 }
-
+#endif
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
