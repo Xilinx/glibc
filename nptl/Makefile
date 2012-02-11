@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2008,2009,2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2008,2009,2010,2012 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -352,11 +352,10 @@ CFLAGS-funlockfile.c = -D_IO_MTSAFE_IO
 link-libc-static := $(common-objpfx)libc.a $(static-gnulib) \
 		    $(common-objpfx)libc.a
 
-ifeq ($(build-static),yes)
 tests-static += tst-locale1 tst-locale2 tst-stackguard1-static
 tests += tst-stackguard1-static
 xtests-static += tst-setuid1-static
-endif
+
 # These tests are linked with libc before libpthread
 tests-reverse += tst-cancel5 tst-cancel23 tst-vfork1x tst-vfork2x
 
@@ -519,7 +518,7 @@ $(objpfx)libpthread.so: +postinit += $(addprefix $(objpfx),$(crtn-objs))
 # Depend on ld.so too to get proper versions of ld.so symbols.
 $(objpfx)libpthread.so: $(common-objpfx)libc.so \
 			$(common-objpfx)libc_nonshared.a \
-			$(if $(filter yes,$(elf)), $(elfobjdir)/ld.so)
+			$(elfobjdir)/ld.so
 
 # Make sure we link with the thread library.
 ifeq ($(build-shared),yes)

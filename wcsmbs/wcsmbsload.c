@@ -1,4 +1,5 @@
-/* Copyright (C) 1998-2002,2004,2005,2008,2010 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2002,2004,2005,2008,2010,2011,2012
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -74,7 +75,7 @@ const struct gconv_fcts __wcsmbs_gconv_fcts_c =
   .towc = (struct __gconv_step *) &to_wc,
   .towc_nsteps = 1,
   .tomb = (struct __gconv_step *) &to_mb,
-  .tomb_nsteps = 1
+  .tomb_nsteps = 1,
 };
 
 
@@ -166,7 +167,7 @@ __wcsmbs_load_conv (struct __locale_data *new_category)
       int use_translit;
 
       /* Allocate the gconv_fcts structure.  */
-      new_fcts = malloc (sizeof *new_fcts);
+      new_fcts = calloc (1, sizeof *new_fcts);
       if (new_fcts == NULL)
 	goto failed;
 
@@ -186,14 +187,13 @@ __wcsmbs_load_conv (struct __locale_data *new_category)
 	 represent all others.  */
       new_fcts->towc = __wcsmbs_getfct ("INTERNAL", complete_name,
 					&new_fcts->towc_nsteps);
-      new_fcts->tomb = (new_fcts->towc != NULL
-			? __wcsmbs_getfct (complete_name, "INTERNAL",
-					   &new_fcts->tomb_nsteps)
-			: NULL);
+      if (new_fcts->towc != NULL)
+	new_fcts->tomb = __wcsmbs_getfct (complete_name, "INTERNAL",
+					  &new_fcts->tomb_nsteps);
 
       /* If any of the conversion functions is not available we don't
 	 use any since this would mean we cannot convert back and
-	 forth.*/
+	 forth.  NB: NEW_FCTS was allocated with calloc.  */
       if (new_fcts->tomb == NULL)
 	{
 	  if (new_fcts->towc != NULL)
@@ -228,7 +228,7 @@ __wcsmbs_clone_conv (struct gconv_fcts *copy)
   *copy = *orig;
 
   /* Now increment the usage counters.
-     Note: This assumes copy->towc_nsteps == 1 and copy->tomb_nsteps == 1.  */
+     Note: This assumes copy->*_nsteps == 1.  */
   if (copy->towc->__shlib_handle != NULL)
     ++copy->towc->__counter;
   if (copy->tomb->__shlib_handle != NULL)
@@ -242,14 +242,17 @@ internal_function
 __wcsmbs_named_conv (struct gconv_fcts *copy, const char *name)
 {
   copy->towc = __wcsmbs_getfct ("INTERNAL", name, &copy->towc_nsteps);
-  if (copy->towc != NULL)
+  if (copy->towc == NULL)
+    return 1;
+
+  copy->tomb = __wcsmbs_getfct (name, "INTERNAL", &copy->tomb_nsteps);
+  if (copy->tomb == NULL)
     {
-      copy->tomb = __wcsmbs_getfct (name, "INTERNAL", &copy->tomb_nsteps);
-      if (copy->tomb == NULL)
-	__gconv_close_transform (copy->towc, copy->towc_nsteps);
+      __gconv_close_transform (copy->towc, copy->towc_nsteps);
+      return 1;
     }
 
-  return copy->towc == NULL || copy->tomb == NULL ? 1 : 0;
+  return 0;
 }
 
 void internal_function

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,1992,1994-2001,2003,2004,2007
+/* Copyright (C) 1991,1992,1994-2001,2003,2004,2007,2011,2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -66,14 +66,13 @@
 __BEGIN_DECLS
 
 /* This prints an "Assertion failed" message and aborts.  */
-extern void __assert_fail (__const char *__assertion, __const char *__file,
-			   unsigned int __line, __const char *__function)
+extern void __assert_fail (const char *__assertion, const char *__file,
+			   unsigned int __line, const char *__function)
      __THROW __attribute__ ((__noreturn__));
 
 /* Likewise, but prints the error text for ERRNUM.  */
-extern void __assert_perror_fail (int __errnum, __const char *__file,
-				  unsigned int __line,
-				  __const char *__function)
+extern void __assert_perror_fail (int __errnum, const char *__file,
+				  unsigned int __line, const char *__function)
      __THROW __attribute__ ((__noreturn__));
 
 
@@ -108,8 +107,15 @@ __END_DECLS
 #  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 #   define __ASSERT_FUNCTION	__func__
 #  else
-#   define __ASSERT_FUNCTION	((__const char *) 0)
+#   define __ASSERT_FUNCTION	((const char *) 0)
 #  endif
 # endif
 
 #endif /* NDEBUG.  */
+
+
+#if defined __USE_ISOC11 && !defined __cplusplus
+/* Static assertion.  Requires support in the compiler.  */
+# undef static_assert
+# define static_assert _Static_assert
+#endif

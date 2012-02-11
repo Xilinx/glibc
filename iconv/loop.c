@@ -1,5 +1,5 @@
 /* Conversion loop frame work.
-   Copyright (C) 1998-2003, 2005, 2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1998-2003, 2005, 2008, 2011, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -66,8 +66,8 @@
 #undef FCTNAME2
 #if defined _STRING_ARCH_unaligned || !defined DEFINE_UNALIGNED
 /* We can handle unaligned memory access.  */
-# define get16(addr) *((__const uint16_t *) (addr))
-# define get32(addr) *((__const uint32_t *) (addr))
+# define get16(addr) *((const uint16_t *) (addr))
+# define get32(addr) *((const uint32_t *) (addr))
 
 /* We need no special support for writing values either.  */
 # define put16(addr, val) *((uint16_t *) (addr)) = (val)
@@ -78,13 +78,13 @@
 /* Distinguish between big endian and little endian.  */
 # if __BYTE_ORDER == __LITTLE_ENDIAN
 #  define get16(addr) \
-     (((__const unsigned char *) (addr))[1] << 8			      \
-      | ((__const unsigned char *) (addr))[0])
+     (((const unsigned char *) (addr))[1] << 8				      \
+      | ((const unsigned char *) (addr))[0])
 #  define get32(addr) \
-     (((((__const unsigned char *) (addr))[3] << 8			      \
-	| ((__const unsigned char *) (addr))[2]) << 8			      \
-       | ((__const unsigned char *) (addr))[1]) << 8			      \
-      | ((__const unsigned char *) (addr))[0])
+     (((((const unsigned char *) (addr))[3] << 8			      \
+	| ((const unsigned char *) (addr))[2]) << 8			      \
+       | ((const unsigned char *) (addr))[1]) << 8			      \
+      | ((const unsigned char *) (addr))[0])
 
 #  define put16(addr, val) \
      ({ uint16_t __val = (val);						      \
@@ -103,13 +103,13 @@
 	(void) 0; })
 # else
 #  define get16(addr) \
-     (((__const unsigned char *) (addr))[0] << 8			      \
-      | ((__const unsigned char *) (addr))[1])
+     (((const unsigned char *) (addr))[0] << 8				      \
+      | ((const unsigned char *) (addr))[1])
 #  define get32(addr) \
-     (((((__const unsigned char *) (addr))[0] << 8			      \
-	| ((__const unsigned char *) (addr))[1]) << 8			      \
-       | ((__const unsigned char *) (addr))[2]) << 8			      \
-      | ((__const unsigned char *) (addr))[3])
+     (((((const unsigned char *) (addr))[0] << 8			      \
+	| ((const unsigned char *) (addr))[1]) << 8			      \
+       | ((const unsigned char *) (addr))[2]) << 8			      \
+      | ((const unsigned char *) (addr))[3])
 
 #  define put16(addr, val) \
      ({ uint16_t __val = (val);						      \
@@ -390,6 +390,7 @@ SINGLE(LOOPFCT) (struct __gconv_step *step,
   UNPACK_BYTES
 #else
   /* Add the bytes from the state to the input buffer.  */
+  assert ((state->__count & 7) <= sizeof (state->__value));
   for (inlen = 0; inlen < (size_t) (state->__count & 7); ++inlen)
     bytebuf[inlen] = state->__value.__wchb[inlen];
 #endif
@@ -474,7 +475,7 @@ SINGLE(LOOPFCT) (struct __gconv_step *step,
       /* We don't have enough input for another complete input
 	 character.  */
       assert (inend - inptr > (state->__count & ~7));
-      assert (inend - inptr <= 7);
+      assert (inend - inptr <= sizeof (state->__value));
       state->__count = (state->__count & ~7) | (inend - inptr);
       inlen = 0;
       while (inptr < inend)

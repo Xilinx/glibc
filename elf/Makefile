@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+# Copyright (C) 1995-2011, 2012 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -200,9 +200,8 @@ tests = tst-tls1 tst-tls2 tst-tls9 tst-leaks1
 ifeq (yes,$(have-initfini-array))
 tests += tst-array1 tst-array2 tst-array3 tst-array4 tst-array5
 endif
-ifeq (yes,$(build-static))
 tests-static = tst-tls1-static tst-tls2-static tst-stackguard1-static
-ifeq (yesyesyes,$(build-static)$(build-shared)$(elf))
+ifeq (yes,$(build-shared))
 tests-static += tst-tls9-static
 tst-tls9-static-ENV = \
        LD_LIBRARY_PATH=$(objpfx):$(common-objpfx):$(common-objpfx)dlfcn
@@ -211,7 +210,6 @@ ifeq (yes,$(have-initfini-array))
 tests-static += tst-array1-static tst-array5-static
 endif
 tests += $(tests-static)
-endif
 ifeq (yes,$(build-shared))
 tests += loadtest restest1 preloadtest loadfail multiload origtest resolvfail \
 	 constload1 order vismain noload filter unload \

@@ -1,5 +1,5 @@
 /* Malloc implementation for multiple threads without lock contention.
-   Copyright (C) 1996-2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1996-2009, 2010, 2011, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Wolfram Gloger <wg@malloc.de>
    and Doug Lea <dl@cs.oswego.edu>, 2001.
@@ -179,7 +179,6 @@
 
     Configuration and functionality options:
 
-    USE_DL_PREFIX              NOT defined
     USE_PUBLIC_MALLOC_WRAPPERS NOT defined
     USE_MALLOC_LOCK            NOT defined
     MALLOC_DEBUG               NOT defined
@@ -226,10 +225,6 @@
 
 #include <ldsodefs.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <unistd.h>
 #include <stdio.h>    /* needed for malloc_stats */
 #include <errno.h>
@@ -239,14 +234,6 @@ extern "C" {
 
 /* For va_arg, va_start, va_end.  */
 #include <stdarg.h>
-
-/* For writev and struct iovec.  */
-#include <sys/uio.h>
-/* For syslog.  */
-#include <sys/syslog.h>
-
-/* For various dynamic linking things.  */
-#include <dlfcn.h>
 
 
 /*
@@ -401,40 +388,10 @@ __malloc_assert (const char *assertion, const char *file, unsigned int line,
 
 
 /*
-  USE_DL_PREFIX will prefix all public routines with the string 'dl'.
-  This is necessary when you only want to use this malloc in one part
-  of a program, using your regular system malloc elsewhere.
-*/
-
-/* #define USE_DL_PREFIX */
-
-
-/*
    Two-phase name translation.
    All of the actual routines are given mangled names.
    When wrappers are used, they become the public callable versions.
-   When DL_PREFIX is used, the callable names are prefixed.
 */
-
-#ifdef USE_DL_PREFIX
-#define public_cALLOc    dlcalloc
-#define public_fREe      dlfree
-#define public_cFREe     dlcfree
-#define public_mALLOc    dlmalloc
-#define public_mEMALIGn  dlmemalign
-#define public_rEALLOc   dlrealloc
-#define public_vALLOc    dlvalloc
-#define public_pVALLOc   dlpvalloc
-#define public_mALLINFo  dlmallinfo
-#define public_mALLOPt   dlmallopt
-#define public_mTRIm     dlmalloc_trim
-#define public_mSTATs    dlmalloc_stats
-#define public_mUSABLe   dlmalloc_usable_size
-#define public_iCALLOc   dlindependent_calloc
-#define public_iCOMALLOc dlindependent_comalloc
-#define public_gET_STATe dlget_state
-#define public_sET_STATe dlset_state
-#else /* USE_DL_PREFIX */
 
 /* Special defines for the GNU C library.  */
 #define public_cALLOc    __libc_calloc
@@ -464,8 +421,6 @@ __malloc_assert (const char *assertion, const char *file, unsigned int line,
 
 void * __default_morecore (ptrdiff_t);
 void *(*__morecore)(ptrdiff_t) = __default_morecore;
-
-#endif /* USE_DL_PREFIX */
 
 
 #include <string.h>
@@ -1112,15 +1067,8 @@ int      __posix_memalign(void **, size_t, size_t);
 #define DEFAULT_MMAP_MAX       (65536)
 #endif
 
-#ifdef __cplusplus
-} /* end of extern "C" */
-#endif
-
 #include <malloc.h>
 
-#ifndef BOUNDED_N
-#define BOUNDED_N(ptr, sz) (ptr)
-#endif
 #ifndef RETURN_ADDRESS
 #define RETURN_ADDRESS(X_) (NULL)
 #endif
@@ -1141,11 +1089,10 @@ typedef struct malloc_chunk* mchunkptr;
 static void*  _int_malloc(mstate, size_t);
 static void     _int_free(mstate, mchunkptr, int);
 static void*  _int_realloc(mstate, mchunkptr, INTERNAL_SIZE_T,
-			     INTERNAL_SIZE_T);
+			   INTERNAL_SIZE_T);
 static void*  _int_memalign(mstate, size_t, size_t);
 static void*  _int_valloc(mstate, size_t);
 static void*  _int_pvalloc(mstate, size_t);
-/*static void*  cALLOc(size_t, size_t);*/
 static int      mTRIm(mstate, size_t);
 static size_t   mUSABLe(void*);
 static void     mSTATs(void);
@@ -1192,9 +1139,6 @@ static void      free_atfork(void* mem, const void *caller);
 #if !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
 # define MAP_ANONYMOUS MAP_ANON
 #endif
-#if !defined(MAP_FAILED)
-# define MAP_FAILED ((char*)-1)
-#endif
 
 #ifndef MAP_NORESERVE
 # ifdef MAP_AUTORESRV
@@ -1204,27 +1148,8 @@ static void      free_atfork(void* mem, const void *caller);
 # endif
 #endif
 
-/*
-   Nearly all versions of mmap support MAP_ANONYMOUS,
-   so the following is unlikely to be needed, but is
-   supplied just in case.
-*/
-
-#ifndef MAP_ANONYMOUS
-
-static int dev_zero_fd = -1; /* Cached file descriptor for /dev/zero. */
-
-#define MMAP(addr, size, prot, flags) ((dev_zero_fd < 0) ? \
- (dev_zero_fd = open("/dev/zero", O_RDWR), \
-  mmap((addr), (size), (prot), (flags), dev_zero_fd, 0)) : \
-   mmap((addr), (size), (prot), (flags), dev_zero_fd, 0))
-
-#else
-
 #define MMAP(addr, size, prot, flags) \
  (mmap((addr), (size), (prot), (flags)|MAP_ANONYMOUS, -1, 0))
-
-#endif
 
 
 /*
@@ -2962,7 +2887,7 @@ public_mALLOc(size_t bytes)
   mstate ar_ptr;
   void *victim;
 
-  __malloc_ptr_t (*hook) (size_t, __const __malloc_ptr_t)
+  __malloc_ptr_t (*hook) (size_t, const __malloc_ptr_t)
     = force_reg (__malloc_hook);
   if (__builtin_expect (hook != NULL, 0))
     return (*hook)(bytes, RETURN_ADDRESS (0));
@@ -3004,7 +2929,7 @@ public_fREe(void* mem)
   mstate ar_ptr;
   mchunkptr p;                          /* chunk corresponding to mem */
 
-  void (*hook) (__malloc_ptr_t, __const __malloc_ptr_t)
+  void (*hook) (__malloc_ptr_t, const __malloc_ptr_t)
     = force_reg (__free_hook);
   if (__builtin_expect (hook != NULL, 0)) {
     (*hook)(mem, RETURN_ADDRESS (0));
@@ -3043,7 +2968,7 @@ public_rEALLOc(void* oldmem, size_t bytes)
 
   void* newp;             /* chunk to return */
 
-  __malloc_ptr_t (*hook) (__malloc_ptr_t, size_t, __const __malloc_ptr_t) =
+  __malloc_ptr_t (*hook) (__malloc_ptr_t, size_t, const __malloc_ptr_t) =
     force_reg (__realloc_hook);
   if (__builtin_expect (hook != NULL, 0))
     return (*hook)(oldmem, bytes, RETURN_ADDRESS (0));
@@ -3136,7 +3061,7 @@ public_mEMALIGn(size_t alignment, size_t bytes)
   void *p;
 
   __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, size_t,
-					__const __malloc_ptr_t)) =
+					const __malloc_ptr_t)) =
     force_reg (__memalign_hook);
   if (__builtin_expect (hook != NULL, 0))
     return (*hook)(alignment, bytes, RETURN_ADDRESS (0));
@@ -3175,6 +3100,8 @@ public_mEMALIGn(size_t alignment, size_t bytes)
 	 ar_ptr == arena_for_chunk(mem2chunk(p)));
   return p;
 }
+/* For ISO C11.  */
+weak_alias (public_mEMALIGn, aligned_alloc)
 libc_hidden_def (public_mEMALIGn)
 
 void*
@@ -3189,7 +3116,7 @@ public_vALLOc(size_t bytes)
   size_t pagesz = GLRO(dl_pagesize);
 
   __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, size_t,
-					__const __malloc_ptr_t)) =
+					const __malloc_ptr_t)) =
     force_reg (__memalign_hook);
   if (__builtin_expect (hook != NULL, 0))
     return (*hook)(pagesz, bytes, RETURN_ADDRESS (0));
@@ -3235,7 +3162,7 @@ public_pVALLOc(size_t bytes)
   size_t rounded_bytes = (bytes + page_mask) & ~(page_mask);
 
   __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, size_t,
-					__const __malloc_ptr_t)) =
+					const __malloc_ptr_t)) =
     force_reg (__memalign_hook);
   if (__builtin_expect (hook != NULL, 0))
     return (*hook)(pagesz, rounded_bytes, RETURN_ADDRESS (0));
@@ -3288,7 +3215,7 @@ public_cALLOc(size_t n, size_t elem_size)
     }
   }
 
-  __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, __const __malloc_ptr_t)) =
+  __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, const __malloc_ptr_t)) =
     force_reg (__malloc_hook);
   if (__builtin_expect (hook != NULL, 0)) {
     sz = bytes;
@@ -5083,7 +5010,7 @@ __posix_memalign (void **memptr, size_t alignment, size_t size)
   /* Call the hook here, so that caller is posix_memalign's caller
      and not posix_memalign itself.  */
   __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, size_t,
-					__const __malloc_ptr_t)) =
+					const __malloc_ptr_t)) =
     force_reg (__memalign_hook);
   if (__builtin_expect (hook != NULL, 0))
     mem = (*hook)(alignment, size, RETURN_ADDRESS (0));

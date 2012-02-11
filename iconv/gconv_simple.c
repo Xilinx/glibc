@@ -1,5 +1,5 @@
 /* Simple transformations functions.
-   Copyright (C) 1997-2005, 2007, 2008, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1997-2005, 2007, 2008, 2009, 2011, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -34,7 +34,7 @@
 #define BUILTIN_TRANSFORMATION(From, To, Cost, Name, Fct, BtowcFct, \
 			       MinF, MaxF, MinT, MaxT) \
   extern int Fct (struct __gconv_step *, struct __gconv_step_data *,	      \
-		  __const unsigned char **, __const unsigned char *,	      \
+		  const unsigned char **, const unsigned char *,	      \
 		  unsigned char **, size_t *, int, int);
 #include "gconv_builtin.h"
 
@@ -965,7 +965,7 @@ ucs4le_internal_loop_single (struct __gconv_step *step,
 	    cnt = 2;							      \
 	    ch &= 0x1f;							      \
 	  }								      \
-        else if (__builtin_expect ((ch & 0xf0) == 0xe0, 1))		      \
+	else if (__builtin_expect ((ch & 0xf0) == 0xe0, 1))		      \
 	  {								      \
 	    /* We expect three bytes.  */				      \
 	    cnt = 3;							      \
@@ -1065,6 +1065,7 @@ ucs4le_internal_loop_single (struct __gconv_step *step,
 									      \
     state->__count = inend - *inptrp;					      \
 									      \
+    assert (ch != 0xc0 && ch != 0xc1);					      \
     if (ch >= 0xc2 && ch < 0xe0)					      \
       {									      \
 	/* We expect two bytes.  The first byte cannot be 0xc0 or	      \
@@ -1221,7 +1222,7 @@ ucs4le_internal_loop_single (struct __gconv_step *step,
     else								      \
       {									      \
 	put16 (outptr, val);						      \
-        outptr += sizeof (uint16_t);					      \
+	outptr += sizeof (uint16_t);					      \
 	inptr += 4;							      \
       }									      \
   }

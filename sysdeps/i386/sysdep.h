@@ -1,5 +1,5 @@
 /* Assembler macros for i386.
-   Copyright (C) 1991-93,95,96,98,2002,2003,2005,2006,2011
+   Copyright (C) 1991-93,95,96,98,2002,2003,2005,2006,2011,2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -24,25 +24,11 @@
 
 /* Syntactic details of assembler.  */
 
-#ifdef HAVE_ELF
-
 /* ELF uses byte-counts for .align, most others use log2 of count of bytes.  */
 #define ALIGNARG(log2) 1<<log2
 /* For ELF we need the `.type' directive to make shared libs work right.  */
 #define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg;
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name;
-
-/* In ELF C symbols are asm symbols.  */
-#undef	NO_UNDERSCORES
-#define NO_UNDERSCORES
-
-#else
-
-#define ALIGNARG(log2) log2
-#define ASM_TYPE_DIRECTIVE(name,type)	/* Nothing is specified.  */
-#define ASM_SIZE_DIRECTIVE(name)	/* Nothing is specified.  */
-
-#endif
 
 
 /* Define an entry point visible from C.
@@ -105,13 +91,11 @@
 #define CALL_MCOUNT		/* Do nothing.  */
 #endif
 
-#ifdef	NO_UNDERSCORES
 /* Since C identifiers are not normally prefixed with an underscore
    on this system, the asm identifier `syscall_error' intrudes on the
    C name space.  Make sure we use an innocuous name.  */
 #define	syscall_error	__syscall_error
 #define mcount		_mcount
-#endif
 
 #define	PSEUDO(name, syscall_name, args)				      \
   .globl syscall_error;							      \
@@ -160,11 +144,7 @@ __i686.get_pc_thunk.reg:						      \
 
 /* Local label name for asm code. */
 #ifndef L
-#ifdef HAVE_ELF
 #define L(name)		.L##name
-#else
-#define L(name)		name
-#endif
 #endif
 
 #define atom_text_section .section ".text.atom", "ax"
