@@ -1,5 +1,5 @@
 /* obstack.h - object stack macros
-   Copyright (C) 1988-1994,1996-1999,2003,2004,2005,2009,2011
+   Copyright (C) 1988-1994,1996-1999,2003,2004,2005,2009,2011,2012
 	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Summary:
 
@@ -250,7 +249,7 @@ extern int obstack_exit_failure;
 
 #define obstack_memory_used(h) _obstack_memory_used (h)
 
-#if defined __GNUC__ && defined __STDC__ && __STDC__
+#if defined __GNUC__
 /* NextStep 2.0 cc is really gcc 1.93 but it defines __GNUC__ = 2 and
    does not implement __extension__.  But that compiler doesn't define
    __GNUC_MINOR__.  */
@@ -402,7 +401,7 @@ __extension__								\
      __o->next_free = __o->object_base = (char *)__obj;			\
    else (obstack_free) (__o, __obj); })
 
-#else /* not __GNUC__ or not __STDC__ */
+#else /* not __GNUC__ */
 
 # define obstack_object_size(h) \
  (unsigned) ((h)->next_free - (h)->object_base)
@@ -500,7 +499,7 @@ __extension__								\
        = (h)->temp.tempint + (char *) (h)->chunk), 0)			\
    : ((obstack_free) ((h), (h)->temp.tempint + (char *) (h)->chunk), 0)))
 
-#endif /* not __GNUC__ or not __STDC__ */
+#endif /* not __GNUC__ */
 
 #ifdef __cplusplus
 }	/* C++ */

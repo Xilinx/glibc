@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006
+/* Copyright (C) 1992,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2012
 	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Alan Modra <amodra@bigpond.net.au> rewrote the INLINE_SYSCALL macro */
 
@@ -53,11 +52,7 @@
    of the kernel.  But these symbols do not follow the SYS_* syntax
    so we have to redefine the `SYS_ify' macro here.  */
 #undef SYS_ify
-#ifdef __STDC__
-# define SYS_ify(syscall_name)	__NR_##syscall_name
-#else
-# define SYS_ify(syscall_name)	__NR_/**/syscall_name
-#endif
+#define SYS_ify(syscall_name)	__NR_##syscall_name
 
 #ifdef __ASSEMBLER__
 

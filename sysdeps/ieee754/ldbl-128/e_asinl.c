@@ -28,8 +28,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* __ieee754_asin(x)
  * Method :
@@ -63,11 +63,7 @@
 #include "math_private.h"
 long double sqrtl (long double);
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
   one = 1.0L,
   huge = 1.0e+4932L,
   pio2_hi = 1.5707963267948966192313216916397514420986L,
@@ -132,14 +128,8 @@ static long double
 
 
 
-#ifdef __STDC__
 long double
 __ieee754_asinl (long double x)
-#else
-double
-__ieee754_asinl (x)
-     long double x;
-#endif
 {
   long double t, w, p, q, c, r, s;
   int32_t ix, sign, flag;

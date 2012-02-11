@@ -1,5 +1,5 @@
 /* Inline math functions for x86-64.
-   Copyright (C) 2002-2004, 2007, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2002-2004,2007,2009,2011,2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _MATH_H
 # error "Never use <bits/mathinline.h> directly; include <math.h> instead."
@@ -62,21 +61,20 @@ __MATH_INLINE int
 __NTH (__signbitl (long double __x))
 {
   __extension__ union { long double __l; int __i[3]; } __u = { __l: __x };
-  return (__u.__i[2] & 0x8000) != 0;
+  return __u.__i[2] & 0x8000;
 }
 
 __END_NAMESPACE_C99
 #endif
 
 
-#if (__GNUC_PREREQ (2, 8) && !defined __NO_MATH_INLINES \
-     && defined __OPTIMIZE__)
+#if __GNUC_PREREQ (2, 8) && !defined __NO_MATH_INLINES && defined __OPTIMIZE__
 
 # ifdef __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 
 /* Round to nearest integer.  */
-#  if defined __x86_64__ || defined __SSE_MATH__
+#  ifdef __SSE_MATH__
 __MATH_INLINE long int
 __NTH (lrintf (float __x))
 {
@@ -85,7 +83,7 @@ __NTH (lrintf (float __x))
   return __res;
 }
 #  endif
-#  if defined __x86_64__ || defined __SSE_MATH__
+#  ifdef __SSE2_MATH__
 __MATH_INLINE long int
 __NTH (lrint (double __x))
 {
@@ -112,40 +110,64 @@ __NTH (llrint (double __x))
 #  endif
 
 #  if defined __FINITE_MATH_ONLY__ && __FINITE_MATH_ONLY__ > 0 \
-      && (defined __x86_64__ || defined __SSE2_MATH__)
+      && defined __SSE2_MATH__
 /* Determine maximum of two values.  */
 __MATH_INLINE float
 __NTH (fmaxf (float __x, float __y))
 {
+#   ifdef __AVX__
+  float __res;
+  __asm ("vmaxss %2, %1, %0" : "=x" (__res) : "x" (x), "xm" (__y));
+  return __res;
+#   else
   __asm ("maxss %1, %0" : "+x" (__x) : "xm" (__y));
   return __x;
+#   endif
 }
 __MATH_INLINE double
 __NTH (fmax (double __x, double __y))
 {
+#   ifdef __AVX__
+  float __res;
+  __asm ("vmaxsd %2, %1, %0" : "=x" (__res) : "x" (x), "xm" (__y));
+  return __res;
+#   else
   __asm ("maxsd %1, %0" : "+x" (__x) : "xm" (__y));
   return __x;
+#   endif
 }
 
 /* Determine minimum of two values.  */
 __MATH_INLINE float
 __NTH (fminf (float __x, float __y))
 {
+#   ifdef __AVX__
+  float __res;
+  __asm ("vminss %2, %1, %0" : "=x" (__res) : "x" (x), "xm" (__y));
+  return __res;
+#   else
   __asm ("minss %1, %0" : "+x" (__x) : "xm" (__y));
   return __x;
+#   endif
 }
 __MATH_INLINE double
 __NTH (fmin (double __x, double __y))
 {
+#   ifdef __AVX__
+  float __res;
+  __asm ("vminsd %2, %1, %0" : "=x" (__res) : "x" (x), "xm" (__y));
+  return __res;
+#   else
   __asm ("minsd %1, %0" : "+x" (__x) : "xm" (__y));
   return __x;
+#   endif
 }
 #  endif
 
 __END_NAMESPACE_C99
 # endif
 
-# if defined __SSE4_1__ && (defined __x86_64__ || defined __SSE2_MATH__)
+# if defined __SSE4_1__ && defined __SSE2_MATH__
 #  if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99
 __BEGIN_NAMESPACE_C99
 

@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for NPTL portion of the library.
@@ -335,14 +334,24 @@ ifneq (,$(patsubst .,,$(multidir)))
 generated-dirs := $(firstword $(subst /, , $(multidir)))
 crti-objs += $(multidir)/crti.o
 crtn-objs += $(multidir)/crtn.o
+# Conditionals on the existence of a sysdeps version of crti.S are
+# temporary until all targets either have such a file or have been
+# removed, after which the old approach of postprocessing compiler
+# output will be removed.
+ifeq (,$(wildcard $(sysdirs:%=%/crti.S)))
 omit-deps += $(multidir)/crti $(multidir)/crtn
+endif
 $(objpfx)$(multidir):
 	mkdir -p $@
 endif
 extra-objs += $(crti-objs) $(crtn-objs)
+ifeq (,$(wildcard $(sysdirs:%=%/crti.S)))
 omit-deps += crti crtn
 
 CFLAGS-pt-initfini.s = -g0 -fPIC -fno-inline-functions $(fno-unit-at-a-time)
+else
+extra-objs += pt-crti.o
+endif
 endif
 
 CFLAGS-flockfile.c = -D_IO_MTSAFE_IO
@@ -542,14 +551,23 @@ $(addprefix $(objpfx),$(tests) $(test-srcs)): $(objpfx)libpthread.a
 endif
 
 ifeq ($(build-shared),yes)
+ifeq (,$(wildcard $(sysdirs:%=%/crti.S)))
 vpath pt-initfini.c $(sysdirs)
 
 $(objpfx)pt-initfini.s: pt-initfini.c
 	$(compile.c) -S $(CFLAGS-pt-initfini.s) -finhibit-size-directive \
 		$(patsubst -f%,-fno-%,$(exceptions)) -o $@
+endif
 
 $(objpfx)tst-cleanup0.out: /dev/null $(objpfx)tst-cleanup0
 	$(make-test-out) 2>&1 | cmp - tst-cleanup0.expect > $@
+
+ifneq (,$(wildcard $(sysdirs:%=%/crti.S)))
+
+$(objpfx)crti.o: $(objpfx)pt-crti.o
+	ln -f $< $@
+
+else
 
 # We only have one kind of startup code files.  Static binaries and
 # shared libraries are build using the PIC version.
@@ -571,6 +589,8 @@ $(objpfx)crti.o: $(objpfx)crti.S $(objpfx)defs.h
 
 $(objpfx)crtn.o: $(objpfx)crtn.S $(objpfx)defs.h
 	$(compile.S) -g0 $(ASFLAGS-.os) -o $@
+
+endif
 
 ifneq ($(multidir),.)
 $(objpfx)$(multidir)/crti.o: $(objpfx)crti.o $(objpfx)$(multidir)/

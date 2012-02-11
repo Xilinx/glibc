@@ -1,5 +1,5 @@
 /* memset with SSE2
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010, 2012 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef NOT_IN_libc
 
@@ -56,7 +55,7 @@
    jump table with relative offsets.   */
 # define BRANCH_TO_JMPTBL_ENTRY(TABLE)				\
     /* We first load PC into EBX.  */				\
-    call	__i686.get_pc_thunk.bx;				\
+    SETUP_PIC_REG(bx);						\
     /* Get the address of the jump table.  */			\
     add		$(TABLE - .), %ebx;				\
     /* Get the entry and convert the relative offset to the	\
@@ -65,15 +64,6 @@
     add		%ecx, %edx;					\
     /* We loaded the jump table and adjuested EDX. Go.  */	\
     jmp		*%ebx
-
-	.section	.gnu.linkonce.t.__i686.get_pc_thunk.bx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.bx
-	.hidden	__i686.get_pc_thunk.bx
-	ALIGN (4)
-	.type	__i686.get_pc_thunk.bx,@function
-__i686.get_pc_thunk.bx:
-	movl	(%esp), %ebx
-	ret
 #else
 # define ENTRANCE
 # define RETURN_END	ret
@@ -272,7 +262,7 @@ L(128bytesormore):
 	mov	$SHARED_CACHE_SIZE, %ebx
 #else
 # ifdef SHARED
-	call	__i686.get_pc_thunk.bx
+	SETUP_PIC_REG(bx)
 	add	$_GLOBAL_OFFSET_TABLE_, %ebx
 	mov	__x86_shared_cache_size@GOTOFF(%ebx), %ebx
 # else
@@ -291,7 +281,7 @@ L(128bytesormore):
 #else
 # ifdef SHARED
 #  define RESTORE_EBX_STATE
-	call	__i686.get_pc_thunk.bx
+	SETUP_PIC_REG(bx)
 	add	$_GLOBAL_OFFSET_TABLE_, %ebx
 	cmp	__x86_data_cache_size@GOTOFF(%ebx), %ecx
 # else

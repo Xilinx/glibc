@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -927,11 +926,7 @@ VTABLE_LABEL(builtinbuf_vtable, builtinbuf, 10)
 # endif
 #endif /* !defined(builtinbuf_vtable) && defined(__cplusplus) */
 
-#if defined(__STDC__) || defined(__cplusplus)
-# define _IO_va_start(args, last) va_start(args, last)
-#else
-# define _IO_va_start(args, last) va_start(args)
-#endif
+#define _IO_va_start(args, last) va_start(args, last)
 
 extern struct _IO_fake_stdiobuf _IO_stdin_buf, _IO_stdout_buf, _IO_stderr_buf;
 

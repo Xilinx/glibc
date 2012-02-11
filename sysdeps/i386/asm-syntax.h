@@ -14,24 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #undef ALIGN
 #define ALIGN(log) .align 1<<log
 
 #undef L
-#ifdef __ELF__
-# ifdef __STDC__
-#  define L(body) .L##body
-# else
-#  define L(body) .L/**/body
-# endif
-#else
-# ifdef __STDC__
-#  define L(body) L##body
-# else
-#  define L(body) L/**/body
-# endif
-#endif
+#define L(body) .L##body

@@ -1,6 +1,6 @@
 /* Initialize CPU feature data.
    This file is part of the GNU C Library.
-   Copyright (C) 2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@redhat.com>.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <atomic.h>
 #include <cpuid.h>
@@ -143,6 +142,18 @@ __init_cpu_features (void)
     }
   else
     kind = arch_kind_other;
+
+  if (__cpu_features.cpuid[COMMON_CPUID_INDEX_1].ecx & bit_AVX)
+    {
+      /* Reset the AVX bit in case OSXSAVE is disabled.  */
+      if ((__cpu_features.cpuid[COMMON_CPUID_INDEX_1].ecx & bit_OSXSAVE) != 0
+	  && ({ unsigned int xcrlow;
+		unsigned int xcrhigh;
+		asm ("xgetbv"
+		     : "=a" (xcrlow), "=d" (xcrhigh) : "c" (0));
+		(xcrlow & 6) == 6; }))
+	__cpu_features.feature[index_YMM_Usable] |= bit_YMM_Usable;
+    }
 
   __cpu_features.family = family;
   __cpu_features.model = model;

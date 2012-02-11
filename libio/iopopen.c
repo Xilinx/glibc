@@ -1,4 +1,4 @@
-/* Copyright (C) 1993, 1997-2002, 2003, 2004, 2007, 2008
+/* Copyright (C) 1993, 1997-2002, 2003, 2004, 2007, 2008, 2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -34,9 +33,7 @@
 #if _IO_HAVE_SYS_WAIT
 #include <signal.h>
 #include <unistd.h>
-#ifdef __STDC__
 #include <stdlib.h>
-#endif
 #ifdef _LIBC
 # include <unistd.h>
 # include <shlib-compat.h>

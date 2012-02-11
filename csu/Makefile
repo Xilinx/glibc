@@ -13,9 +13,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 # This directory contains the C startup code (that which calls main).  This
 # consists of the startfile, built from start.c and installed as crt0.o
@@ -73,10 +72,6 @@ endif
 before-compile += $(objpfx)abi-tag.h
 generated += abi-tag.h
 
-ifeq ($(have-initfini),yes)
-
-CPPFLAGS += -DHAVE_INITFINI
-
 # These are the special initializer/finalizer files.  They are always the
 # first and last file in the link.  crti.o ... crtn.o define the global
 # "functions" _init and _fini to run the .init and .fini sections.
@@ -84,6 +79,13 @@ crtstuff = crti crtn
 
 install-lib += $(crtstuff:=.o)
 extra-objs += $(crtstuff:=.o)
+
+# Conditionals on the existence of a sysdeps version of crti.S are
+# temporary until all targets either have such a file or have been
+# removed, after which the old approach of postprocessing compiler
+# output will be removed.
+ifeq (,$(wildcard $(sysdirs:%=%/crti.S)))
+
 generated += $(crtstuff:=.S) initfini.s defs.h
 omit-deps += $(crtstuff)
 

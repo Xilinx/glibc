@@ -2164,6 +2164,7 @@ dnl sysdeps/CPU/configure.in checks set this via arch-specific asm tests
 AC_SUBST(libc_cv_cpp_asm_debuginfo)
 AC_SUBST(libc_cv_cc_sse4)
 AC_SUBST(libc_cv_cc_avx)
+AC_SUBST(libc_cv_cc_sse2avx)
 AC_SUBST(libc_cv_cc_novzeroupper)
 AC_SUBST(libc_cv_cc_fma4)
 AC_SUBST(libc_cv_as_i686)
@@ -2189,7 +2190,6 @@ AC_SUBST(libc_cv_pic_default)
 
 AC_SUBST(profile)
 AC_SUBST(static_nss)
-AC_SUBST(nopic_initfini)
 
 AC_SUBST(DEFINES)
 

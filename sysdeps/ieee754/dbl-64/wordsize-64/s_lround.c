@@ -1,1 +1,1 @@
-/* The code is the same as llround.  Use an alias, see ll_round.c.  */
+/* The code is the same as llround.  Use an alias, see s_llround.c.  */

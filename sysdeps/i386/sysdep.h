@@ -14,11 +14,35 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdeps/generic/sysdep.h>
+
+#include <features.h> /* For __GNUC_PREREQ.  */
+
+/* It is desirable that the names of PIC thunks match those used by
+   GCC so that multiple copies are eliminated by the linker.  Because
+   GCC 4.6 and earlier use __i686 in the names, it is necessary to
+   override that predefined macro.  */
+#if defined __i686 && defined __ASSEMBLER__
+#undef __i686
+#define __i686 __i686
+#endif
+
+#ifdef	__ASSEMBLER__
+# if __GNUC_PREREQ (4, 7)
+#  define GET_PC_THUNK(reg) __x86.get_pc_thunk.reg
+# else
+#  define GET_PC_THUNK(reg) __i686.get_pc_thunk.reg
+# endif
+#else
+# if __GNUC_PREREQ (4, 7)
+#  define GET_PC_THUNK_STR(reg) "__x86.get_pc_thunk." #reg
+# else
+#  define GET_PC_THUNK_STR(reg) "__i686.get_pc_thunk." #reg
+# endif
+#endif
 
 #ifdef	__ASSEMBLER__
 
@@ -109,6 +133,24 @@ lose: SYSCALL_PIC_SETUP							      \
 #define	PSEUDO_END(name)						      \
   END (name)
 
+# define SETUP_PIC_REG(reg) \
+  .ifndef GET_PC_THUNK(reg);						      \
+  .section .gnu.linkonce.t.GET_PC_THUNK(reg),"ax",@progbits;		      \
+  .globl GET_PC_THUNK(reg);						      \
+  .hidden GET_PC_THUNK(reg);						      \
+  .p2align 4;								      \
+  .type GET_PC_THUNK(reg),@function;					      \
+GET_PC_THUNK(reg):							      \
+  movl (%esp), %e##reg;							      \
+  ret;									      \
+  .size GET_PC_THUNK(reg), . - GET_PC_THUNK(reg);			      \
+  .previous;								      \
+  .endif;								      \
+  call GET_PC_THUNK(reg)
+
+# define LOAD_PIC_REG(reg) \
+  SETUP_PIC_REG(reg); addl $_GLOBAL_OFFSET_TABLE_, %e##reg
+
 #undef JUMPTARGET
 #ifdef PIC
 #define JUMPTARGET(name)	name##@PLT
@@ -119,23 +161,6 @@ lose: SYSCALL_PIC_SETUP							      \
 0:  popl %ebx;								      \
     cfi_adjust_cfa_offset (-4);						      \
     addl $_GLOBAL_OFFSET_TABLE+[.-0b], %ebx;
-
-# define SETUP_PIC_REG(reg) \
-  .ifndef __i686.get_pc_thunk.reg;					      \
-  .section .gnu.linkonce.t.__i686.get_pc_thunk.reg,"ax",@progbits;	      \
-  .globl __i686.get_pc_thunk.reg;					      \
-  .hidden __i686.get_pc_thunk.reg;					      \
-  .type __i686.get_pc_thunk.reg,@function;				      \
-__i686.get_pc_thunk.reg:						      \
-  movl (%esp), %e##reg;							      \
-  ret;									      \
-  .size __i686.get_pc_thunk.reg, . - __i686.get_pc_thunk.reg;		      \
-  .previous;								      \
-  .endif;								      \
-  call __i686.get_pc_thunk.reg
-
-# define LOAD_PIC_REG(reg) \
-  SETUP_PIC_REG(reg); addl $_GLOBAL_OFFSET_TABLE_, %e##reg
 
 #else
 #define JUMPTARGET(name)	name
@@ -148,5 +173,25 @@ __i686.get_pc_thunk.reg:						      \
 #endif
 
 #define atom_text_section .section ".text.atom", "ax"
+
+#else /* __ASSEMBLER__ */
+
+# define SETUP_PIC_REG_STR(reg)						\
+  ".ifndef " GET_PC_THUNK_STR (reg) "\n"				\
+  ".section .gnu.linkonce.t." GET_PC_THUNK_STR (reg) ",\"ax\",@progbits\n" \
+  ".globl " GET_PC_THUNK_STR (reg) "\n"					\
+  ".hidden " GET_PC_THUNK_STR (reg) "\n"				\
+  ".p2align 4\n"							\
+  ".type " GET_PC_THUNK_STR (reg) ",@function\n"			\
+GET_PC_THUNK_STR (reg) ":"						\
+  "movl (%%esp), %%e" #reg "\n"						\
+  "ret\n"								\
+  ".size " GET_PC_THUNK_STR (reg) ", . - " GET_PC_THUNK_STR (reg) "\n"	\
+  ".previous\n"								\
+  ".endif\n"								\
+  "call " GET_PC_THUNK_STR (reg)
+
+# define LOAD_PIC_REG_STR(reg) \
+  SETUP_PIC_REG_STR (reg) "\naddl $_GLOBAL_OFFSET_TABLE_, %%e" #reg
 
 #endif	/* __ASSEMBLER__ */

@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,1993,1995-2000,2002-2006,2007,2011
+/* Copyright (C) 1992,1993,1995-2000,2002-2006,2007,2011-2012
 	Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.org>, August 1995.
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LINUX_I386_SYSDEP_H
 #define _LINUX_I386_SYSDEP_H 1
@@ -514,20 +513,11 @@ asm (".L__X'%ebx = 1\n\t"
 # define check_consistency()						      \
   ({ int __res;								      \
      __asm__ __volatile__						      \
-       ("call __i686.get_pc_thunk.cx;"					      \
-	"addl $_GLOBAL_OFFSET_TABLE_, %%ecx;"				      \
+       (LOAD_PIC_REG_STR (cx) ";"					      \
 	"subl %%ebx, %%ecx;"						      \
 	"je 1f;"							      \
 	"ud2;"								      \
 	"1:\n"								      \
-	".section .gnu.linkonce.t.__i686.get_pc_thunk.cx,\"ax\",@progbits;"   \
-	".globl __i686.get_pc_thunk.cx;"				      \
-	".hidden __i686.get_pc_thunk.cx;"				      \
-	".type __i686.get_pc_thunk.cx,@function;"			      \
-	"__i686.get_pc_thunk.cx:"					      \
-	"movl (%%esp), %%ecx;"						      \
-	"ret;"								      \
-	".previous"							      \
 	: "=c" (__res));						      \
      __res; })
 #endif

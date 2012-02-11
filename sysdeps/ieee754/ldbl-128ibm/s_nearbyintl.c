@@ -1,6 +1,6 @@
 /* Round to int long double floating-point values without raising inexact.
    IBM extended format long double version.
-   Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2008, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This has been coded in assembler because GCC makes such a mess of it
    when it's coded in C.  */
@@ -28,14 +27,8 @@
 #include <ieee754.h>
 
 
-#ifdef __STDC__
 long double
 __nearbyintl (long double x)
-#else
-long double
-__nearbyintl (x)
-     long double x;
-#endif
 {
   fenv_t env;
   static const long double TWO52 = 4503599627370496.0L;

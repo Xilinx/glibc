@@ -1,5 +1,5 @@
 /* Configuration for localedef program.
-   Copyright (C) 1995,1996,1997,1998,2000,2005 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998,2000,2005,2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1995.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LD_CONFIG_H
 #define _LD_CONFIG_H	1
@@ -28,14 +27,6 @@
 #endif
 
 #define DEFAULT_CHARMAP "ANSI_X3.4-1968" /* ASCII */
-
-#ifndef PARAMS
-# if __STDC__
-#  define PARAMS(args) args
-# else
-#  define PARAMS(args) ()
-# endif
-#endif
 
 /* This must be one higer than the last used LC_xxx category value.  */
 #define __LC_LAST	13

@@ -1,5 +1,5 @@
 /* Declarations for math functions.
-   Copyright (C) 1991-1993, 1995-1999, 2001, 2002, 2004, 2006, 2009, 2011
+   Copyright (C) 1991-1993, 1995-1999, 2001, 2002, 2004, 2006, 2009, 2011, 2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*
  *	ISO C99 Standard: 7.12 Mathematics	<math.h>
@@ -84,11 +83,7 @@ __BEGIN_DECLS
 #  define _Mfloat_		float
 # endif
 # define _Mdouble_		_Mfloat_
-# ifdef __STDC__
-#  define __MATH_PRECNAME(name,r) name##f##r
-# else
-#  define __MATH_PRECNAME(name,r) name/**/f/**/r
-# endif
+# define __MATH_PRECNAME(name,r) name##f##r
 # define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
 # define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 # include <bits/mathcalls.h>
@@ -97,9 +92,8 @@ __BEGIN_DECLS
 # undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
 
-# if (__STDC__ - 0 || __GNUC__ - 0) \
-     && (!(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
-	 || defined __LDBL_COMPAT)
+# if !(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
+     || defined __LDBL_COMPAT
 #  ifdef __LDBL_COMPAT
 
 #   ifdef __USE_ISOC99
@@ -132,11 +126,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #   define _Mlong_double_	long double
 #  endif
 #  define _Mdouble_		_Mlong_double_
-#  ifdef __STDC__
-#   define __MATH_PRECNAME(name,r) name##l##r
-#  else
-#   define __MATH_PRECNAME(name,r) name/**/l/**/r
-#  endif
+#  define __MATH_PRECNAME(name,r) name##l##r
 #  define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
 #  define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 #  define __MATH_DECLARE_LDOUBLE   1
@@ -146,7 +136,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
 
-# endif /* __STDC__ || __GNUC__ */
+# endif /* !(__NO_LONG_DOUBLE_MATH && _LIBC) || __LDBL_COMPAT */
 
 #endif	/* Use misc or ISO C99.  */
 #undef	__MATHDECL_1

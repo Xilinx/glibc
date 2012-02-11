@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2001, 2002, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1999, 2001-2002, 2006, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* 
  * Powerpc Feature masks for the Aux Vector Hardware Capabilities (AT_HWCAP). 
@@ -169,14 +168,10 @@
 #define VRSAVE	256
 
 
-#ifdef __ELF__
-
 /* This seems to always be the case on PPC.  */
 #define ALIGNARG(log2) log2
 /* For ELF we need the `.type' directive to make shared libs work right.  */
 #define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg;
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name
 
-#endif /* __ELF__ */
 #endif	/* __ASSEMBLER__ */
-

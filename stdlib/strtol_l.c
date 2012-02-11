@@ -1,5 +1,6 @@
 /* Convert string representing a number to integer value, using given locale.
-   Copyright (C) 1997, 2002, 2004, 2006, 2007, 2010 Free Software Foundation, Inc.
+   Copyright (C) 1997, 2002, 2004, 2006, 2007, 2010, 2012
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 #if HAVE_CONFIG_H
@@ -536,16 +536,10 @@ libc_hidden_def (INTERNAL (__strtol_l))
 /* External user entry point.  */
 
 #if _LIBC - 0 == 0
-# undef PARAMS
-# if defined (__STDC__) && __STDC__
-#  define PARAMS(Args) Args
-# else
-#  define PARAMS(Args) ()
-# endif
 
 /* Prototype.  */
-extern INT __strtol_l PARAMS ((const STRING_TYPE *nptr, STRING_TYPE **endptr,
-			       int base));
+extern INT __strtol_l (const STRING_TYPE *nptr, STRING_TYPE **endptr,
+		       int base);
 #endif
 
 

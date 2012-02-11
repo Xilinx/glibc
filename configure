@@ -611,7 +611,6 @@ lib_names_awk
 stubs_biarch_h
 mach_interface_list
 DEFINES
-nopic_initfini
 static_nss
 profile
 libc_cv_pic_default
@@ -622,6 +621,7 @@ use_ldconfig
 libc_cv_as_i686
 libc_cv_cc_fma4
 libc_cv_cc_novzeroupper
+libc_cv_cc_sse2avx
 libc_cv_cc_avx
 libc_cv_cc_sse4
 libc_cv_cpp_asm_debuginfo
@@ -7657,6 +7657,7 @@ fi
 
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether -fPIC is default" >&5
 $as_echo_n "checking whether -fPIC is default... " >&6; }
 if ${libc_cv_pic_default+:} false; then :
@@ -7675,7 +7676,6 @@ rm -f conftest.*
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $libc_cv_pic_default" >&5
 $as_echo "$libc_cv_pic_default" >&6; }
-
 
 
 

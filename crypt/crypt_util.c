@@ -16,8 +16,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * see <http://www.gnu.org/licenses/>.
  *
  * @(#)crypt_util.c	2.56 12/20/96
  *
@@ -49,7 +48,6 @@
 #include "crypt-private.h"
 
 /* Prototypes for local functions.  */
-#if __STDC__ - 0
 #ifndef __GNU_LIBRARY__
 void _ufc_clearmem (char *start, int cnt);
 void _ufc_copymem (char *from, char *to, int cnt);
@@ -58,7 +56,6 @@ void _ufc_copymem (char *from, char *to, int cnt);
 STATIC void shuffle_sb (long32 *k, ufc_long saltbits);
 #else
 STATIC void shuffle_sb (long64 *k, ufc_long saltbits);
-#endif
 #endif
 
 

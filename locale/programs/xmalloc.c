@@ -1,5 +1,5 @@
 /* xmalloc.c -- malloc with out of memory checking
-   Copyright (C) 1990,91,92,93,94,95,96,97,2004,2005
+   Copyright (C) 1990,91,92,93,94,95,96,97,2004,2005,2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -14,18 +14,13 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#if __STDC__
 #define VOID void
-#else
-#define VOID char
-#endif
 
 #include <sys/types.h>
 

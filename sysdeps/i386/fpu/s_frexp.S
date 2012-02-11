@@ -1,5 +1,5 @@
 /* ix87 specific frexp implementation for double.
-   Copyright (C) 1997, 2000, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997, 2000, 2005, 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,19 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 #include "bp-sym.h"
 #include "bp-asm.h"
 
-#ifdef __ELF__
 	.section .rodata
-#else
-	.text
-#endif
 
 	.align ALIGNARG(4)
 	ASM_TYPE_DIRECTIVE(two54,@object)

@@ -60,7 +60,6 @@ typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
 
 /* These library features are always available in the GNU C library.  */
 #define _G_HAVE_ATEXIT 1
-#define _G_HAVE_SYS_CDEFS 1
 #define _G_HAVE_SYS_WAIT 1
 #define _G_NEED_STDARG_H 1
 #define _G_va_list __gnuc_va_list
@@ -89,12 +88,5 @@ typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
 #define _G_USING_THUNKS	1
 #define _G_VTABLE_LABEL_PREFIX "__vt_"
 #define _G_VTABLE_LABEL_PREFIX_ID __vt_
-
-
-#if defined __cplusplus || defined __STDC__
-# define _G_ARGS(ARGLIST) ARGLIST
-#else
-# define _G_ARGS(ARGLIST) ()
-#endif
 
 #endif	/* _G_config.h */

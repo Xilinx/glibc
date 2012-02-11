@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 /* What to do if the standard debugging hooks are in place and a
    corrupt pointer is detected: do nothing (0), print an error message
@@ -30,7 +29,7 @@ malloc_hook_ini(size_t sz, const __malloc_ptr_t caller)
 {
   __malloc_hook = NULL;
   ptmalloc_init();
-  return public_mALLOc(sz);
+  return __libc_malloc(sz);
 }
 
 static void*
@@ -39,7 +38,7 @@ realloc_hook_ini(void* ptr, size_t sz, const __malloc_ptr_t caller)
   __malloc_hook = NULL;
   __realloc_hook = NULL;
   ptmalloc_init();
-  return public_rEALLOc(ptr, sz);
+  return __libc_realloc(ptr, sz);
 }
 
 static void*
@@ -47,7 +46,7 @@ memalign_hook_ini(size_t alignment, size_t sz, const __malloc_ptr_t caller)
 {
   __memalign_hook = NULL;
   ptmalloc_init();
-  return public_mEMALIGn(alignment, sz);
+  return __libc_memalign(alignment, sz);
 }
 
 /* Whether we are using malloc checking.  */
@@ -389,13 +388,13 @@ struct malloc_save_state {
 };
 
 void*
-public_gET_STATe(void)
+__malloc_get_state(void)
 {
   struct malloc_save_state* ms;
   int i;
   mbinptr b;
 
-  ms = (struct malloc_save_state*)public_mALLOc(sizeof(*ms));
+  ms = (struct malloc_save_state*)__libc_malloc(sizeof(*ms));
   if (!ms)
     return 0;
   (void)mutex_lock(&main_arena.mutex);
@@ -440,7 +439,7 @@ public_gET_STATe(void)
 }
 
 int
-public_sET_STATe(void* msptr)
+__malloc_set_state(void* msptr)
 {
   struct malloc_save_state* ms = (struct malloc_save_state*)msptr;
   size_t i;

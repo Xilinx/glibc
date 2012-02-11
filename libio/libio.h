@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -59,29 +58,9 @@
 #endif
 
 #ifndef __P
-# if _G_HAVE_SYS_CDEFS
-#  include <sys/cdefs.h>
-# else
-#  ifdef __STDC__
-#   define __P(p) p
-#   define __PMT(p) p
-#  else
-#   define __P(p) ()
-#   define __PMT(p) ()
-#  endif
-# endif
+# include <sys/cdefs.h>
 #endif /*!__P*/
 
-/* For backward compatibility */
-#ifndef _PARAMS
-# define _PARAMS(protos) __P(protos)
-#endif /*!_PARAMS*/
-
-#ifndef __STDC__
-# ifndef const
-#  define const
-# endif
-#endif
 #define _IO_UNIFIED_JUMPTABLES 1
 #ifndef _G_HAVE_PRINTF_FP
 # define _IO_USE_DTOA 1

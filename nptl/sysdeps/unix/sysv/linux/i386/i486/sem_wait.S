@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005, 2007, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2003, 2005, 2007, 2011-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -108,7 +107,7 @@ __new_sem_wait:
 
 	negl	%esi
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	SETUP_PIC_REG(bx)
 #else
 	movl	$8f, %ebx
 8:
@@ -322,7 +321,7 @@ __old_sem_wait:
 	je	3b
 	negl	%esi
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	SETUP_PIC_REG(bx)
 #else
 	movl	$4f, %ebx
 4:
