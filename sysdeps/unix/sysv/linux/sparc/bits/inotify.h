@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2012 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,30 +15,15 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef	_SYS_EVENTFD_H
-#define	_SYS_EVENTFD_H	1
+#ifndef	_SYS_INOTIFY_H
+# error "Never use <bits/inotify.h> directly; include <sys/inotify.h> instead."
+#endif
 
-#include <stdint.h>
-
-/* Get the platform-dependent flags.  */
-#include <bits/eventfd.h>
-
-/* Type for event counter.  */
-typedef uint64_t eventfd_t;
-
-
-__BEGIN_DECLS
-
-/* Return file descriptor for generic event channel.  Set initial
-   value to COUNT.  */
-extern int eventfd (int __count, int __flags) __THROW;
-
-/* Read event counter and possibly wait for events.  */
-extern int eventfd_read (int __fd, eventfd_t *__value);
-
-/* Increment event counter.  */
-extern int eventfd_write (int __fd, eventfd_t __value);
-
-__END_DECLS
-
-#endif /* sys/eventfd.h */
+/* Flags for the parameter of inotify_init1.  */
+enum
+  {
+    IN_CLOEXEC = 0x400000,
+#define IN_CLOEXEC IN_CLOEXEC
+    IN_NONBLOCK = 0x004000
+#define IN_NONBLOCK IN_NONBLOCK
+  };
