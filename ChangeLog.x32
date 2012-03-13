@@ -1,3 +1,10 @@
+2012-03-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* scripts/data/c++-types-x32-linux-gnu.data: Update clock_t.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h (__CLOCK_T_TYPE):
+	Set to __SQUAD_TYPE for x32.
+
 2012-03-01  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/sys/ucontext.h (ucontext): Restore
