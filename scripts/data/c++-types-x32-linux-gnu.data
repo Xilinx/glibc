@@ -3,7 +3,7 @@ blkcnt_t:x
 blksize_t:x
 caddr_t:Pc
 clockid_t:i
-clock_t:l
+clock_t:x
 daddr_t:i
 dev_t:y
 fd_mask:l
