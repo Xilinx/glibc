@@ -27,41 +27,41 @@ struct timex
   /* mode selector */
   unsigned int modes;
   /* time offset (usec) */
-  __SNATIVE_LONG_TYPE offset;
+  __SSYSCALL_LONG_TYPE offset;
   /* frequency offset (scaled ppm) */
-  __SNATIVE_LONG_TYPE freq;
+  __SSYSCALL_LONG_TYPE freq;
   /* maximum error (usec) */
-  __SNATIVE_LONG_TYPE maxerror;
+  __SSYSCALL_LONG_TYPE maxerror;
   /* estimated error (usec) */
-  __SNATIVE_LONG_TYPE esterror;
+  __SSYSCALL_LONG_TYPE esterror;
   /* clock command/status */
   int status;
   /* pll time constant */
-  __SNATIVE_LONG_TYPE constant;
+  __SSYSCALL_LONG_TYPE constant;
   /* clock precision (usec) (read only) */
-  __SNATIVE_LONG_TYPE precision;
+  __SSYSCALL_LONG_TYPE precision;
   /* clock frequency tolerance (ppm) (read only) */
-  __SNATIVE_LONG_TYPE tolerance;
+  __SSYSCALL_LONG_TYPE tolerance;
   /* (read only) */
   struct timeval time;
   /* (modified) usecs between clock ticks */
-  __SNATIVE_LONG_TYPE tick;
+  __SSYSCALL_LONG_TYPE tick;
   /* pps frequency (scaled ppm) (ro) */
-  __SNATIVE_LONG_TYPE ppsfreq;
+  __SSYSCALL_LONG_TYPE ppsfreq;
   /* pps jitter (us) (ro) */
-  __SNATIVE_LONG_TYPE jitter;
+  __SSYSCALL_LONG_TYPE jitter;
   /* interval duration (s) (shift) (ro) */
   int shift;
   /* pps stability (scaled ppm) (ro) */
-  __SNATIVE_LONG_TYPE stabil;
+  __SSYSCALL_LONG_TYPE stabil;
   /* jitter limit exceeded (ro) */
-  __SNATIVE_LONG_TYPE jitcnt;
+  __SSYSCALL_LONG_TYPE jitcnt;
   /* calibration intervals (ro) */
-  __SNATIVE_LONG_TYPE calcnt;
+  __SSYSCALL_LONG_TYPE calcnt;
   /* calibration errors (ro) */
-  __SNATIVE_LONG_TYPE errcnt;
+  __SSYSCALL_LONG_TYPE errcnt;
   /* stability limit exceeded (ro) */
-  __SNATIVE_LONG_TYPE stbcnt;
+  __SSYSCALL_LONG_TYPE stbcnt;
 
   /* TAI offset (ro) */
   int tai;

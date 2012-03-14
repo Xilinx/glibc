@@ -27,9 +27,9 @@ typedef int mqd_t;
 
 struct mq_attr
 {
-  __SNATIVE_LONG_TYPE mq_flags;		/* Message queue flags.  */
-  __SNATIVE_LONG_TYPE mq_maxmsg;	/* Maximum number of messages.  */
-  __SNATIVE_LONG_TYPE mq_msgsize;	/* Maximum message size.  */
-  __SNATIVE_LONG_TYPE mq_curmsgs;	/* Number of messages currently queued.  */
-  __SNATIVE_LONG_TYPE __pad[4];
+  __SSYSCALL_LONG_TYPE mq_flags;		/* Message queue flags.  */
+  __SSYSCALL_LONG_TYPE mq_maxmsg;	/* Maximum number of messages.  */
+  __SSYSCALL_LONG_TYPE mq_msgsize;	/* Maximum message size.  */
+  __SSYSCALL_LONG_TYPE mq_curmsgs;	/* Number of messages currently queued.  */
+  __SSYSCALL_LONG_TYPE __pad[4];
 };

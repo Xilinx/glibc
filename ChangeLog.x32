@@ -1,3 +1,19 @@
+2012-03-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h: Replace
+	__SNATIVE_LONG_TYPE and __UNATIVE_LONG_TYPE with
+	__SSYSCALL_LONG_TYPE and __USYSCALL_LONG_TYPE.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipc.h: Updated.
+	* sysdeps/unix/sysv/linux/x86_64/bits/mqueue.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/msq.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/sem.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/shm.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/stat.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/statfs.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/timex.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h: Likewise.
+
 2012-03-13  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* scripts/data/c++-types-x32-linux-gnu.data: Update clock_t.
