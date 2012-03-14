@@ -1,5 +1,9 @@
 2012-03-14  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/siginfo.h: New.
+
+2012-03-14  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h: Replace
 	__SNATIVE_LONG_TYPE and __UNATIVE_LONG_TYPE with
 	__SSYSCALL_LONG_TYPE and __USYSCALL_LONG_TYPE.
