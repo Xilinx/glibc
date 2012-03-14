@@ -44,7 +44,7 @@ extern int __getpagesize (void) __THROW __attribute__ ((__const__));
 
 
 /* Type to count number of attaches.  */
-typedef __UNATIVE_LONG_TYPE shmatt_t;
+typedef __USYSCALL_LONG_TYPE shmatt_t;
 
 /* Data structure describing a shared memory segment.  */
 struct shmid_ds
@@ -66,8 +66,8 @@ struct shmid_ds
     __pid_t shm_cpid;			/* pid of creator */
     __pid_t shm_lpid;			/* pid of last shmop */
     shmatt_t shm_nattch;		/* number of current attaches */
-    __UNATIVE_LONG_TYPE __unused4;
-    __UNATIVE_LONG_TYPE __unused5;
+    __USYSCALL_LONG_TYPE __unused4;
+    __USYSCALL_LONG_TYPE __unused5;
   };
 
 #ifdef __USE_MISC
@@ -84,25 +84,25 @@ struct shmid_ds
 
 struct	shminfo
   {
-    __UNATIVE_LONG_TYPE shmmax;
-    __UNATIVE_LONG_TYPE shmmin;
-    __UNATIVE_LONG_TYPE shmmni;
-    __UNATIVE_LONG_TYPE shmseg;
-    __UNATIVE_LONG_TYPE shmall;
-    __UNATIVE_LONG_TYPE __unused1;
-    __UNATIVE_LONG_TYPE __unused2;
-    __UNATIVE_LONG_TYPE __unused3;
-    __UNATIVE_LONG_TYPE __unused4;
+    __USYSCALL_LONG_TYPE shmmax;
+    __USYSCALL_LONG_TYPE shmmin;
+    __USYSCALL_LONG_TYPE shmmni;
+    __USYSCALL_LONG_TYPE shmseg;
+    __USYSCALL_LONG_TYPE shmall;
+    __USYSCALL_LONG_TYPE __unused1;
+    __USYSCALL_LONG_TYPE __unused2;
+    __USYSCALL_LONG_TYPE __unused3;
+    __USYSCALL_LONG_TYPE __unused4;
   };
 
 struct shm_info
   {
     int used_ids;
-    __UNATIVE_LONG_TYPE shm_tot;	/* total allocated shm */
-    __UNATIVE_LONG_TYPE shm_rss;	/* total resident shm */
-    __UNATIVE_LONG_TYPE shm_swp;	/* total swapped shm */
-    __UNATIVE_LONG_TYPE swap_attempts;
-    __UNATIVE_LONG_TYPE swap_successes;
+    __USYSCALL_LONG_TYPE shm_tot;	/* total allocated shm */
+    __USYSCALL_LONG_TYPE shm_rss;	/* total resident shm */
+    __USYSCALL_LONG_TYPE shm_swp;	/* total swapped shm */
+    __USYSCALL_LONG_TYPE swap_attempts;
+    __USYSCALL_LONG_TYPE swap_successes;
   };
 
 #endif /* __USE_MISC */

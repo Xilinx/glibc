@@ -25,8 +25,8 @@
 
 struct statfs
   {
-    __SNATIVE_LONG_TYPE f_type;
-    __SNATIVE_LONG_TYPE f_bsize;
+    __SSYSCALL_LONG_TYPE f_type;
+    __SSYSCALL_LONG_TYPE f_bsize;
 #ifndef __USE_FILE_OFFSET64
     __fsblkcnt_t f_blocks;
     __fsblkcnt_t f_bfree;
@@ -41,27 +41,27 @@ struct statfs
     __fsfilcnt64_t f_ffree;
 #endif
     __fsid_t f_fsid;
-    __SNATIVE_LONG_TYPE f_namelen;
-    __SNATIVE_LONG_TYPE f_frsize;
-    __SNATIVE_LONG_TYPE f_flags;
-    __SNATIVE_LONG_TYPE f_spare[4];
+    __SSYSCALL_LONG_TYPE f_namelen;
+    __SSYSCALL_LONG_TYPE f_frsize;
+    __SSYSCALL_LONG_TYPE f_flags;
+    __SSYSCALL_LONG_TYPE f_spare[4];
   };
 
 #ifdef __USE_LARGEFILE64
 struct statfs64
   {
-    __SNATIVE_LONG_TYPE f_type;
-    __SNATIVE_LONG_TYPE f_bsize;
+    __SSYSCALL_LONG_TYPE f_type;
+    __SSYSCALL_LONG_TYPE f_bsize;
     __fsblkcnt64_t f_blocks;
     __fsblkcnt64_t f_bfree;
     __fsblkcnt64_t f_bavail;
     __fsfilcnt64_t f_files;
     __fsfilcnt64_t f_ffree;
     __fsid_t f_fsid;
-    __SNATIVE_LONG_TYPE f_namelen;
-    __SNATIVE_LONG_TYPE f_frsize;
-    __SNATIVE_LONG_TYPE f_flags;
-    __SNATIVE_LONG_TYPE f_spare[4];
+    __SSYSCALL_LONG_TYPE f_namelen;
+    __SSYSCALL_LONG_TYPE f_frsize;
+    __SSYSCALL_LONG_TYPE f_flags;
+    __SSYSCALL_LONG_TYPE f_spare[4];
   };
 #endif
 

@@ -52,6 +52,6 @@ struct ipc_perm
     unsigned short int __pad1;
     unsigned short int __seq;		/* Sequence number.  */
     unsigned short int __pad2;
-    __UNATIVE_LONG_TYPE __unused1;
-    __UNATIVE_LONG_TYPE __unused2;
+    __USYSCALL_LONG_TYPE __unused1;
+    __USYSCALL_LONG_TYPE __unused2;
   };
