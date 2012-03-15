@@ -1,5 +1,10 @@
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/siginfo.h: Updated from
+	master.
+
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/getcpu.c (getcpu_ifunc):
 	Replace getcpu with __vdso_getcpu.
 
