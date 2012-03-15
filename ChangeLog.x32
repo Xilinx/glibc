@@ -1,5 +1,19 @@
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* Makefile (data-machine): Removed.
+	(check-data): Updated.
+
+	* config.make.in (data-machine): Removed.
+
+	* configure.in (data_machine): Don't substitute.
+	* configure: Regenerated.
+
+	* sysdeps/x86_64/preconfigure: Don't set data_machine.
+
+	* sysdeps/x86_64/x32/shlib-version: Add ABI.
+
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/siginfo.h: Updated from
 	master.
 

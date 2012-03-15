@@ -258,15 +258,13 @@ tests-clean:
 
 tests: $(objpfx)c++-types-check.out $(objpfx)check-local-headers.out
 ifneq ($(CXX),no)
-ifeq ($(data-machine),)
-data-machine = $(config-machine) $(base-machine)
-endif
 check-data := $(firstword $(wildcard \
 		$(foreach D,$(add-ons) scripts,\
 			  $(patsubst %,$D/data/c++-types-%.data,\
 				     $(abi-name) \
 				     $(addsuffix -$(config-os),\
-						 $(data-machine))))))
+						 $(config-machine) \
+						 $(base-machine))))))
 ifneq (,$(check-data))
 $(objpfx)c++-types-check.out: $(check-data) scripts/check-c++-types.sh
 	scripts/check-c++-types.sh $< $(CXX) $(filter-out -std=gnu99 -Wstrict-prototypes,$(CFLAGS)) $(CPPFLAGS) > $@

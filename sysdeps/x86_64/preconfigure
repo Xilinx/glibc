@@ -4,7 +4,6 @@ x86_64)
   lib_names_awk=sysdeps/x86_64/lib-names.awk
   if echo __LP64__ | ${CC-cc} $CFLAGS $CPPFLAGS -E - | grep __LP64__ > /dev/null; then
     machine=x86_64/x32
-    data_machine=x32
     libc_cv_slibdir="/libx32"
     if test "$libdir" = '${exec_prefix}/lib'; then
       libdir='${exec_prefix}/libx32';

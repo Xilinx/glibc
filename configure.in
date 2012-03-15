@@ -532,9 +532,6 @@ if test -r $preconfigure; then
   . $preconfigure
 fi
 
-# sysdeps preconfigure fragment may set data_machine.
-AC_SUBST(data_machine)
-
 # For the multi-arch option we need support in the assembler.
 AC_CACHE_CHECK([for assembler gnu_indirect_function symbol type support],
 	       libc_cv_asm_gnu_indirect_function, [dnl

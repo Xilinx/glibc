@@ -28,7 +28,6 @@ ldd-rewrite-script = @ldd_rewrite_script@
 # System configuration.
 config-machine = @host_cpu@
 base-machine = @base_machine@
-data-machine = @data_machine@
 config-vendor = @host_vendor@
 config-os = @host_os@
 config-sysdirs = @sysnames@

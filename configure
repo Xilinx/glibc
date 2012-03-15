@@ -687,7 +687,6 @@ sysdeps_add_ons
 sysnames
 submachine
 multi_arch
-data_machine
 base_machine
 add_on_subdirs
 add_ons
@@ -4034,9 +4033,6 @@ if test -r $preconfigure; then
 $as_echo "running preconfigure fragment for $base_machine" >&6; }
   . $preconfigure
 fi
-
-# sysdeps preconfigure fragment may set data_machine.
-
 
 # For the multi-arch option we need support in the assembler.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for assembler gnu_indirect_function symbol type support" >&5
