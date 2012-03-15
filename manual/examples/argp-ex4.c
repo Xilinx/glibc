@@ -1,4 +1,19 @@
-/* Argp example #4 -- a program with somewhat more complicated options */
+/* Argp example #4 -- a program with somewhat more complicated options
+   Copyright (C) 1991-2012 Free Software Foundation, Inc.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, if not, see <http://www.gnu.org/licenses/>.
+*/
 
 /* This program uses the same features as example 3, but has more
    options, and somewhat more structure in the -help output.  It
@@ -131,7 +146,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
 /* Our argp parser.  */
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
   int i, j;
   struct arguments arguments;

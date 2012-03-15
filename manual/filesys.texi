@@ -2,7 +2,7 @@
 @c %MENU% Functions for manipulating files
 @chapter File System Interface
 
-This chapter describes the GNU C library's functions for manipulating
+This chapter describes @theglibc{}'s functions for manipulating
 files.  Unlike the input and output functions (@pxref{I/O on Streams};
 @pxref{Low-Level I/O}), these functions are concerned with operating
 on the files themselves rather than on their contents.
@@ -63,7 +63,7 @@ the current working directory, storing it in the character array
 @var{buffer} that you provide.  The @var{size} argument is how you tell
 the system the allocation size of @var{buffer}.
 
-The GNU library version of this function also permits you to specify a
+The @glibcadj{} version of this function also permits you to specify a
 null pointer for the @var{buffer} argument.  Then @code{getcwd}
 allocates a buffer automatically, as with @code{malloc}
 (@pxref{Unconstrained Allocation}).  If the @var{size} is greater than
@@ -117,12 +117,12 @@ software.
 @comment BSD
 @deftypefn {Deprecated Function} {char *} getwd (char *@var{buffer})
 This is similar to @code{getcwd}, but has no way to specify the size of
-the buffer.  The GNU library provides @code{getwd} only
+the buffer.  @Theglibc{} provides @code{getwd} only
 for backwards compatibility with BSD.
 
 The @var{buffer} argument should be a pointer to an array at least
-@code{PATH_MAX} bytes long (@pxref{Limits for Files}).  In the GNU
-system there is no limit to the size of a file name, so this is not
+@code{PATH_MAX} bytes long (@pxref{Limits for Files}).  On @gnuhurdsystems{}
+there is no limit to the size of a file name, so this is not
 necessarily enough space to contain the directory name.  That is why
 this function is deprecated.
 @end deftypefn
@@ -242,7 +242,7 @@ field you can count on in all POSIX systems.
 
 @item ino_t d_fileno
 This is the file serial number.  For BSD compatibility, you can also
-refer to this member as @code{d_ino}.  In the GNU system and most POSIX
+refer to this member as @code{d_ino}.  On @gnulinuxhurdsystems{} and most POSIX
 systems, for most files this the same as the @code{st_ino} member that
 @code{stat} will return for the file.  @xref{File Attributes}.
 
@@ -354,7 +354,7 @@ The process has too many files open.
 @item ENFILE
 The entire system, or perhaps the file system which contains the
 directory, cannot support any additional open files at the moment.
-(This problem cannot happen on the GNU system.)
+(This problem cannot happen on @gnuhurdsystems{}.)
 
 @item ENOMEM
 Not enough memory available.
@@ -413,7 +413,7 @@ descriptor which is created by the @code{opendir} call.  For instance,
 to switch the current working directory to the directory just read the
 @code{fchdir} function could be used.  Historically the @code{DIR} type
 was exposed and programs could access the fields.  This does not happen
-in the GNU C library.  Instead a separate function is provided to allow
+in @theglibc{}.  Instead a separate function is provided to allow
 access.
 
 @comment dirent.h
@@ -582,7 +582,7 @@ added or removed since you last called @code{opendir} or
 
 @comment dirent.h
 @comment BSD
-@deftypefun long int telldir (DIR *@var{dirstream})
+@deftypefun {long int} telldir (DIR *@var{dirstream})
 The @code{telldir} function returns the file position of the directory
 stream @var{dirstream}.  You can use this value with @code{seekdir} to
 restore the directory stream to that position.
@@ -634,7 +634,7 @@ the global variable @code{errno} contains more information on the error.
 
 As described above the fourth argument to the @code{scandir} function
 must be a pointer to a sorting function.  For the convenience of the
-programmer the GNU C library contains implementations of functions which
+programmer @theglibc{} contains implementations of functions which
 are very helpful for this purpose.
 
 @comment dirent.h
@@ -1075,7 +1075,8 @@ The directory or file system that would contain the new link is full
 and cannot be extended.
 
 @item EPERM
-In the GNU system and some others, you cannot make links to directories.
+On @gnulinuxhurdsystems{} and some others, you cannot make links to
+directories.
 Many systems allow only privileged users to do so.  This error
 is used to report the problem.
 
@@ -1099,7 +1100,7 @@ A hardware error occurred while trying to read or write the to filesystem.
 @cindex symbolic link
 @cindex link, symbolic
 
-The GNU system supports @dfn{soft links} or @dfn{symbolic links}.  This
+@gnusystems{} support @dfn{soft links} or @dfn{symbolic links}.  This
 is a kind of ``file'' that is essentially a pointer to another file
 name.  Unlike hard links, symbolic links can be made to directories or
 across file systems with no restrictions.  You can also make a symbolic
@@ -1352,8 +1353,8 @@ The file name to be deleted doesn't exist.
 @item EPERM
 On some systems @code{unlink} cannot be used to delete the name of a
 directory, or at least can only be used this way by a privileged user.
-To avoid such problems, use @code{rmdir} to delete directories.  (In the
-GNU system @code{unlink} can never delete the name of a directory.)
+To avoid such problems, use @code{rmdir} to delete directories.  (On
+@gnulinuxhurdsystems{} @code{unlink} can never delete the name of a directory.)
 
 @item EROFS
 The directory containing the file name to be deleted is on a read-only
@@ -1381,7 +1382,7 @@ The directory to be deleted is not empty.
 @end table
 
 These two error codes are synonymous; some systems use one, and some use
-the other.  The GNU system always uses @code{ENOTEMPTY}.
+the other.  @gnulinuxhurdsystems{} always use @code{ENOTEMPTY}.
 
 The prototype for this function is declared in the header file
 @file{unistd.h}.
@@ -1458,7 +1459,7 @@ that are the current working directories of processes.
 
 @item ENOTEMPTY
 @itemx EEXIST
-The directory @var{newname} isn't empty.  The GNU system always returns
+The directory @var{newname} isn't empty.  @gnulinuxhurdsystems{} always return
 @code{ENOTEMPTY} for this, but some other systems return @code{EEXIST}.
 
 @item EINVAL
@@ -1770,17 +1771,18 @@ Here is a list of them.
 @comment sys/types.h
 @comment POSIX.1
 @deftp {Data Type} mode_t
-This is an integer data type used to represent file modes.  In the
-GNU system, this is equivalent to @code{unsigned int}.
+This is an integer data type used to represent file modes.  In
+@theglibc{}, this is an unsigned type no narrower than @code{unsigned
+int}.
 @end deftp
 
 @cindex inode number
 @comment sys/types.h
 @comment POSIX.1
 @deftp {Data Type} ino_t
-This is an arithmetic data type used to represent file serial numbers.
+This is an unsigned integer type used to represent file serial numbers.
 (In Unix jargon, these are sometimes called @dfn{inode numbers}.)
-In the GNU system, this type is equivalent to @code{unsigned long int}.
+In @theglibc{}, this type is no narrower than @code{unsigned int}.
 
 If the source is compiled with @code{_FILE_OFFSET_BITS == 64} this type
 is transparently replaced by @code{ino64_t}.
@@ -1789,9 +1791,9 @@ is transparently replaced by @code{ino64_t}.
 @comment sys/types.h
 @comment Unix98
 @deftp {Data Type} ino64_t
-This is an arithmetic data type used to represent file serial numbers
-for the use in LFS.  In the GNU system, this type is equivalent to
-@code{unsigned long long int}.
+This is an unsigned integer type used to represent file serial numbers
+for the use in LFS.  In @theglibc{}, this type is no narrower than
+@code{unsigned int}.
 
 When compiling with @code{_FILE_OFFSET_BITS == 64} this type is
 available under the name @code{ino_t}.
@@ -1801,21 +1803,20 @@ available under the name @code{ino_t}.
 @comment POSIX.1
 @deftp {Data Type} dev_t
 This is an arithmetic data type used to represent file device numbers.
-In the GNU system, this is equivalent to @code{int}.
+In @theglibc{}, this is an integer type no narrower than @code{int}.
 @end deftp
 
 @comment sys/types.h
 @comment POSIX.1
 @deftp {Data Type} nlink_t
-This is an arithmetic data type used to represent file link counts.
-In the GNU system, this is equivalent to @code{unsigned short int}.
+This is an integer type used to represent file link counts.
 @end deftp
 
 @comment sys/types.h
 @comment Unix98
 @deftp {Data Type} blkcnt_t
-This is an arithmetic data type used to represent block counts.
-In the GNU system, this is equivalent to @code{unsigned long int}.
+This is a signed integer type used to represent block counts.
+In @theglibc{}, this type is no narrower than @code{int}.
 
 If the source is compiled with @code{_FILE_OFFSET_BITS == 64} this type
 is transparently replaced by @code{blkcnt64_t}.
@@ -1824,9 +1825,8 @@ is transparently replaced by @code{blkcnt64_t}.
 @comment sys/types.h
 @comment Unix98
 @deftp {Data Type} blkcnt64_t
-This is an arithmetic data type used to represent block counts for the
-use in LFS.  In the GNU system, this is equivalent to @code{unsigned
-long long int}.
+This is a signed integer type used to represent block counts for the
+use in LFS.  In @theglibc{}, this type is no narrower than @code{int}.
 
 When compiling with @code{_FILE_OFFSET_BITS == 64} this type is
 available under the name @code{blkcnt_t}.
@@ -2481,16 +2481,16 @@ read_umask (void)
 @end smallexample
 
 @noindent
-However, it is better to use @code{getumask} if you just want to read
-the mask value, because it is reentrant (at least if you use the GNU
-operating system).
+However, on @gnuhurdsystems{} it is better to use @code{getumask} if
+you just want to read the mask value, because it is reentrant.
 @end deftypefun
 
 @comment sys/stat.h
 @comment GNU
 @deftypefun mode_t getumask (void)
 Return the current value of the file creation mask for the current
-process.  This function is a GNU extension.
+process.  This function is a GNU extension and is only available on
+@gnuhurdsystems{}.
 @end deftypefun
 
 @comment sys/stat.h
@@ -3035,7 +3035,7 @@ set the real size of the file.
 @cindex special files
 
 The @code{mknod} function is the primitive for making special files,
-such as files that correspond to devices.  The GNU library includes
+such as files that correspond to devices.  @Theglibc{} includes
 this function for compatibility with BSD.
 
 The prototype for @code{mknod} is declared in @file{sys/stat.h}.
@@ -3176,7 +3176,7 @@ you can create with @code{tmpnam}.  You can rely on being able to call
 @code{tmpnam} at least this many times before it might fail saying you
 have made too many temporary file names.
 
-With the GNU library, you can create a very large number of temporary
+With @theglibc{}, you can create a very large number of temporary
 file names.  If you actually created the files, you would probably run
 out of disk space before you ran out of names.  Some other systems have
 a fixed, small limit on the number of temporary files.  The limit is

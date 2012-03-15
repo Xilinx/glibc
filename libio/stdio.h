@@ -408,12 +408,7 @@ extern int asprintf (char **__restrict __ptr,
 #endif
 
 #ifdef __USE_XOPEN2K8
-/* Write formatted output to a file descriptor.
-
-   These functions are not part of POSIX and therefore no official
-   cancellation point.  But due to similarity with an POSIX interface
-   or due to the implementation they are cancellation points and
-   therefore not marked with __THROW.  */
+/* Write formatted output to a file descriptor.  */
 extern int vdprintf (int __fd, const char *__restrict __fmt,
 		     _G_va_list __arg)
      __attribute__ ((__format__ (__printf__, 2, 0)));
@@ -628,7 +623,7 @@ extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __wur;
 
 #if !defined __USE_ISOC11 \
-    || (defined __cplusplus && __cplusplus <= 201103L && !defined __USE_GNU)
+    || (defined __cplusplus && __cplusplus <= 201103L)
 /* Get a newline-terminated string from stdin, removing the newline.
    DO NOT USE THIS FUNCTION!!  There is no limit on how much it will read.
 

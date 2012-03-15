@@ -1,4 +1,19 @@
-/* Argp example #2 -- a pretty minimal program using argp */
+/* Argp example #2 -- a pretty minimal program using argp
+   Copyright (C) 1991-2012 Free Software Foundation, Inc.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, if not, see <http://www.gnu.org/licenses/>.
+*/
 
 /* This program doesn't use any options or arguments, but uses
    argp to be compliant with the GNU standard command line
@@ -19,6 +34,7 @@
    for a given program, even if it uses different argument
    parsers for various tasks).  */
 
+#include <stdlib.h>
 #include <argp.h>
 
 const char *argp_program_version =
@@ -37,7 +53,8 @@ static char doc[] =
    option will print out @code{argp_program_version}.  */
 static struct argp argp = { 0, 0, 0, doc };
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
   argp_parse (&argp, argc, argv, 0, 0, 0);
   exit (0);

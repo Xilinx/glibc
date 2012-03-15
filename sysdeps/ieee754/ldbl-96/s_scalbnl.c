@@ -21,8 +21,8 @@
  * exponentiation or a multiplication.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double
 two64   =  1.8446744073709551616e19L,
@@ -43,11 +43,13 @@ __scalbnl (long double x, int n)
 	    k = (hx&0x7fff) - 64;
 	    }
 	if (__builtin_expect(k==0x7fff, 0)) return x+x;	/* NaN or Inf */
-	k = k+n;
-	if (__builtin_expect(n> 50000 || k > 0x7ffe, 0))
-	  return huge*__copysignl(huge,x); /* overflow  */
 	if (__builtin_expect(n< -50000, 0))
 	  return tiny*__copysignl(tiny,x);
+	if (__builtin_expect(n> 50000 || k+n > 0x7ffe, 0))
+	  return huge*__copysignl(huge,x); /* overflow  */
+	/* Now k and n are bounded we know that k = k+n does not
+	   overflow.  */
+	k = k+n;
 	if (__builtin_expect(k > 0, 1))		/* normal result */
 	    {SET_LDOUBLE_EXP(x,(es&0x8000)|k); return x;}
 	if (k <= -64)

@@ -71,7 +71,7 @@ enum
 #endif
 
 
-#ifdef __USE_UNIX98
+#if defined __USE_POSIX199506 || defined __USE_UNIX98
 /* Mutex protocols.  */
 enum
 {

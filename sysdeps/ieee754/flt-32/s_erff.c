@@ -17,8 +17,8 @@
 static char rcsid[] = "$NetBSD: s_erff.c,v 1.4 1995/05/10 20:47:07 jtc Exp $";
 #endif
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const float
 tiny	    = 1e-30,
@@ -200,7 +200,7 @@ float __erfcf(float x)
 				sb5+s*(sb6+s*sb7))))));
 	    }
 	    GET_FLOAT_WORD(ix,x);
-	    SET_FLOAT_WORD(z,ix&0xfffff000);
+	    SET_FLOAT_WORD(z,ix&0xffffe000);
 	    r  =  __ieee754_expf(-z*z-(float)0.5625)*
 			__ieee754_expf((z-x)*(z+x)+R/S);
 	    if(hx>0) return r/x; else return two-r/x;

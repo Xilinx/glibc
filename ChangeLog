@@ -1,3 +1,1925 @@
+2012-03-14  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/Makefile (sysdep_headers): Add
+	bits/syscall.h.
+	($(objpfx)syscall-%.h): Rename rule to $(objpfx)bits/syscall%h.
+	($(objpfx)syscall-%.d): Rename rule to $(objpfx)bits/syscall%d.
+	($(inst_includedir)/bits/syscall.h): Remove rule.
+	($(objpfx)bits/syscall.d): Include instead of
+	$(objpfx)syscall-list.d.
+	(generated): Change syscall-list.h and syscall-list.d to
+	bits/syscall.h and bits/syscall.d.
+
+2012-03-14  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13846]
+	* manual/llio.texi (Memory-mapped I/O): Fix wrong function name.
+
+2012-03-14  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13841]
+	* math/s_csqrt.c: Include <float.h>.
+	(__csqrt): Scale large or subnormal inputs.
+	* math/s_csqrtf.c: Likewise.
+	* math/s_csqrtl.c: Likewise.
+	* math/libm-test.inc (csqrt_test): Add more tests.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+	[BZ #13840]
+	* math/libm-test.inc (hypot_test): Add more tests.
+
+2012-03-13  David S. Miller  <davem@davemloft.net>
+
+	[BZ #13840]
+	* sysdeps/ieee754/flt-32/e_hypotf.c (__ieee754_hypotf): Rewrite to use
+	double-precision for the calculation instead of scaling.
+
+2012-03-13  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/ieee754/dbl-64/s_nearbyint.c (__nearbyint): Do not
+	manipulate bits before adding and subtracting TWO52[sx].
+	* sysdeps/ieee754/dbl-64/s_rint.c (__rint): Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_nearbyint.c (__nearbyint):
+	Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_rint.c (__rint): Likewise.
+
+2012-03-13  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/Makefile: Remove rtld-global-offsets.sym handling.
+	* sysdeps/sparc/elf/rtld-global-offsets.sym: Delete.
+	* sysdeps/sparc/sparc64/multiarch/memcpy.S: Don't include
+	rtld-global-offsets.h
+	* sysdeps/sparc/sparc64/multiarch/memset.S: Likewise.
+
+	* sysdeps/ieee754/ldbl-128/s_expm1l.c (__expm1l): Use expl for
+	large parameters.
+
+	* sysdeps/unix/sysv/linux/sparc/sparc64/dl-fxstatat64.c: New file.
+
+	* sysdeps/unix/sysv/linux/openat.c (OPENAT_NOT_CANCEL): Declare syscall
+	'err' in the ifdef scope in which it is actually used.
+
+	* nss/nss_db/db-init.c: Include string.h
+
+2012-03-12  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/generic/dl-osinfo.h (_dl_setup_stack_chk_guard): Fix
+	masking out of the most significant byte of random value used.
+	* sysdeps/unix/sysv/linux/dl-osinfo.h (_dl_setup_stack_chk_guard):
+	Fix coding style in previous change.
+
+	* sysdeps/unix/sysv/linux/kernel-features.h
+	(__ASSUME_CLONE_THREAD_FLAGS): Set on sparc when 2.5.64 and later.
+	(__ASSUME_TGKILL): Set on sparc when 2.6.1 and later, simplify
+	expression.
+	(__ASSUME_FADVISE64_64_SYSCALL): Set on sparc when 2.6.1 and
+	later.
+
+2012-03-11  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sparc64/makecontext.c
+	(__makecontext): Fix signedness of pointer casts setting up 'sp'.
+	* sysdeps/unix/sysv/linux/sparc/sysdep.h (INLINE_SYSCALL) Use 'long'
+	for 'resultvar' otherwise things get truncated on 64-bit.
+
+	* sysdeps/unix/sysv/linux/dl-osinfo.h (_dl_setup_stack_chk_guard):
+	Fix masking out of the most significant byte of random value used.
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update.
+
+2012-03-10  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+2012-03-09  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/dl-machine.h (elf_machine_rela): Protect local
+	variables with appropriate CPP guards.
+	* sysdeps/sparc/sparc32/dl-trampoline.S: Propagate the stack_ptr from the
+	frame pointer, not the stack pointer.  Correct layout comments.  Fix test
+	on resulting framesize and the management of the outregs buffer for pltexit.
+	Preserve floating point return values across _dl_call_pltexit call.
+	* sysdeps/sparc/sparc64/dl-trampoline.S: Fix test on resulting
+	framesize and the management of the outregs buffer for pltexit.
+	Preserve floating point return values across _dl_call_pltexit
+	call.
+	* elf/sotruss-lib.c (la_sparc32_gnu_pltenter, la_sparc64_gnu_pltenter,
+	la_sparc32_gnu_pltexit, la_sparc64_gnu_pltexit): New functions.
+	(print_exit): Fix format string for return register value.
+
+2012-03-10  Joseph Myers  <joseph@codesourcery.com>
+
+	* sunrpc/Makefile (others): Add rpcgen.
+	($(objpfx)rpcgen): Remove special build rule and dependency on
+	libc.
+	* sunrpc/rpcgen.c: New file.
+
+2012-03-09  Paul Eggert  <eggert@cs.ucla.edu>
+
+	[BZ #13673]
+	* posix/bug-regex33.c: Replace FSF snail mail address with URL.
+	* stdio-common/bug-vfprintf-nargs.c: Likewise.
+	* sysdeps/i386/crti.S: Likewise.
+	* sysdeps/i386/crtn.S: Likewise.
+	* sysdeps/powerpc/powerpc32/crti.S: Likewise.
+	* sysdeps/powerpc/powerpc32/crtn.S: Likewise.
+	* sysdeps/powerpc/powerpc64/crti.S: Likewise.
+	* sysdeps/powerpc/powerpc64/crtn.S: Likewise.
+	* sysdeps/sh/crti.S: Likewise.
+	* sysdeps/sh/crtn.S: Likewise.
+	* sysdeps/x86_64/fpu/e_expf.S: Likewise.
+
+	[BZ #13673]
+	* locale/programs/charmap-kw.gperf: Replace FSF snail mail address
+	with URL.
+	* locale/programs/locfile-kw.gperf: Likewise.
+	* locale/programs/charmap-kw.h: Regenerated.
+	* locale/programs/locfile-kw.h: Likewise.
+
+	[BZ #13673]
+	* intl/plural.y: Replace FSF snail mail address with URL.
+	* intl/plural.c: Regenerated.
+
+2012-03-09  Richard Henderson  <rth@twiddle.net>
+
+	* include/math_private.h: Remove file.
+	* math/math_private.h: Move file ...
+	* sysdeps/generic/math_private.h: ... here.
+
+	* sysdeps/i386/fpu/math_private.h: Use include_next for math_private.h.
+	* sysdeps/powerpc/fpu/math_private.h: Likewise.
+	* sysdeps/x86_64/fpu/math_private.h: Likewise.
+
+	* sysdeps/i386/fpu/s_fpclassifyl.c: Use <> to include both <math.h>
+	and <math_private.h>.
+	* sysdeps/i386/fpu/s_isinfl.c: Likewise.
+	* sysdeps/i386/fpu/s_isnanl.c: Likewise.
+	* sysdeps/i386/fpu/s_nextafterl.c: Likewise.
+	* sysdeps/i386/fpu/s_nexttoward.c: Likewise.
+	* sysdeps/i386/fpu/s_nexttowardf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/branred.c: Likewise.
+	* sysdeps/ieee754/dbl-64/doasin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/dosincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_acosh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_asin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atan2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atanh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_cosh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_exp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_fmod.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_hypot.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_j0.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_j1.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_jn.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_lgamma_r.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log10.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_log2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_pow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_rem_pio2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_remainder.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_sinh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_sqrt.c: Likewise.
+	* sysdeps/ieee754/dbl-64/halfulp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/k_rem_pio2.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_asinh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_atan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_cbrt.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_ceil.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_copysign.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_erf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_expm1.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_fabs.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_finite.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_floor.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_fpclassify.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_frexp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_ilogb.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_isinf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_isinf_ns.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_isnan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_llrint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_llround.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_log1p.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_logb.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_lrint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_lround.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_modf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_nearbyint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_remquo.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_rint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_round.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_scalbln.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_scalbn.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_signbit.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_sin.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_sincos.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_tanh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/s_trunc.c: Likewise.
+	* sysdeps/ieee754/dbl-64/sincos32.c: Likewise.
+	* sysdeps/ieee754/dbl-64/slowexp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/slowpow.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/e_acosh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/e_cosh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/e_fmod.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_ceil.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_finite.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_floor.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_frexp.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_isinf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_isinf_ns.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_isnan.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_logb.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_lround.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_modf.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_nearbyint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_remquo.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_rint.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_round.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_scalbln.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_scalbn.c: Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_trunc.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_acosf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_acoshf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_asinf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_atan2f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_atanhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_coshf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_fmodf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_hypotf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_j0f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_j1f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_jnf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_lgammaf_r.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_log10f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_log2f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_logf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_powf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_rem_pio2f.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_remainderf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_sinhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_sqrtf.c: Likewise.
+	* sysdeps/ieee754/flt-32/k_cosf.c: Likewise.
+	* sysdeps/ieee754/flt-32/k_rem_pio2f.c: Likewise.
+	* sysdeps/ieee754/flt-32/k_sinf.c: Likewise.
+	* sysdeps/ieee754/flt-32/k_tanf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_asinhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_atanf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_cbrtf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_ceilf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_copysignf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_cosf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_erff.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_expm1f.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_fabsf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_finitef.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_floorf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_fpclassifyf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_frexpf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_ilogbf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_isinf_nsf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_isinff.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_isnanf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_llrintf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_llroundf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_log1pf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_logbf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_lrintf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_lroundf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_modff.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_nearbyintf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_nextafterf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_remquof.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_rintf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_roundf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_scalblnf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_scalbnf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_signbitf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_sincosf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_sinf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_tanf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_tanhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/s_truncf.c: Likewise.
+	* sysdeps/ieee754/k_standard.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_acoshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_acosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_asinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_atan2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_atanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_coshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_fmodl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_hypotl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_j0l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_j1l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_jnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_lgammal_r.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_log10l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_log2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_logl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_powl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_rem_pio2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_remainderl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/e_sinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/k_cosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/k_sincosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/k_sinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/k_tanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_asinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_atanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_cbrtl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_ceill.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_copysignl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_cosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_erfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_expm1l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_fabsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_finitel.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_floorl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_fpclassifyl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_frexpl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_ilogbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_isinf_nsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_isinfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_isnanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_llrintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_llroundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_log1pl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_logbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_lrintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_lroundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_modfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_nearbyintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_nextafterl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_nexttoward.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_nexttowardf.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_remquol.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_rintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_roundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_scalblnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_scalbnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_signbitl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_sincosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_sinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_tanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_tanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/s_truncl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128/w_expl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_acoshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_acosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_asinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_atan2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_atanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_coshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_fmodl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_hypotl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_jnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_log10l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_log2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_logl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_powl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_rem_pio2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_remainderl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_sinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_cosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_sincosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_sinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_tanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_asinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_atanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_copysignl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_cosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_ctanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_ctanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_erfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_expm1l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_fabsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_finitel.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_fpclassifyl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_frexpl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_ilogbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_isinf_nsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_isinfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_isnanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_log1pl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_logbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_modfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_nexttoward.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_nexttowardf.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_remquol.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_scalblnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_scalbnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_signbitl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_sincosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_sinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_tanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_tanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_acoshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_asinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_atan2l.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_atanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_coshl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_hypotl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_j0l.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_j1l.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_jnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_lgammal_r.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_remainderl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/e_sinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_asinhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_cbrtl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_ceill.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_copysignl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_cosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_erfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_fabsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_finitel.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_floorl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_fpclassifyl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_frexpl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_ilogbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_isinf_nsl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_isinfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_isnanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_llrintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_llroundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_logbl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_lrintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_lroundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_modfl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_nearbyintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_nextafterl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_nexttoward.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_nexttowardf.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_remquol.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_rintl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_roundl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_scalblnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_scalbnl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_signbitl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_sincosl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_sinl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_tanhl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_tanl.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/s_truncl.c: Likewise.
+	* sysdeps/ieee754/s_lib_version.c: Likewise.
+	* sysdeps/ieee754/s_matherr.c: Likewise.
+	* sysdeps/ieee754/s_signgam.c: Likewise.
+	* sysdeps/powerpc/fpu/e_hypot.c: Likewise.
+	* sysdeps/powerpc/fpu/e_hypotf.c: Likewise.
+	* sysdeps/powerpc/fpu/e_rem_pio2f.c: Likewise.
+	* sysdeps/powerpc/fpu/k_cosf.c: Likewise.
+	* sysdeps/powerpc/fpu/k_rem_pio2f.c: Likewise.
+	* sysdeps/powerpc/fpu/k_sinf.c: Likewise.
+	* sysdeps/powerpc/fpu/s_cosf.c: Likewise.
+	* sysdeps/powerpc/fpu/s_float_bitwise.h: Likewise.
+	* sysdeps/powerpc/fpu/s_isnan.c: Likewise.
+	* sysdeps/powerpc/fpu/s_rint.c: Likewise.
+	* sysdeps/powerpc/fpu/s_rintf.c: Likewise.
+	* sysdeps/powerpc/fpu/s_sinf.c: Likewise.
+	* sysdeps/powerpc/fpu/w_sqrt.c: Likewise.
+	* sysdeps/powerpc/fpu/w_sqrtf.c: Likewise.
+	* sysdeps/powerpc/powerpc32/fpu/s_llrintf.c: Likewise.
+	* sysdeps/powerpc/powerpc32/power4/fpu/slowexp.c: Likewise.
+	* sysdeps/powerpc/powerpc32/power4/fpu/slowpow.c: Likewise.
+	* sysdeps/powerpc/powerpc64/power4/fpu/slowexp.c: Likewise.
+	* sysdeps/powerpc/powerpc64/power4/fpu/slowpow.c: Likewise.
+	* sysdeps/powerpc/powerpc64/power4/fpu/w_sqrt.c: Likewise.
+	* sysdeps/powerpc/powerpc64/power4/fpu/w_sqrtf.c: Likewise.
+
+2012-03-09  Joseph Myers  <joseph@codesourcery.com>
+
+	* sunrpc/rpc_cout.c: Remove __GNU_LIBRARY__ conditionals.
+	* sunrpc/rpc_main.c: Likewise.
+	* sunrpc/rpc_svcout.c: Likewise.
+
+2012-03-09  David S. Miller  <davem@davemloft.net>
+
+	* include/math_private.h: New file.
+
+2012-03-09  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/bits/socket_type.h: New file.
+	* sysdeps/unix/sysv/linux/sparc/bits/socket_type.h: Likewise.
+	* sysdeps/unix/sysv/linux/bits/socket.h: Get enum __socket_type
+	from <bits/socket_type.h>.
+	(enum __socket_type): Don't define here.
+	* sysdeps/unix/sysv/linux/sparc/bits/socket.h: Remove.
+	* sysdeps/unix/sysv/linux/Makefile (sysdep_headers): Add
+	bits/socket_type.h.
+
+	[BZ #13566]
+	* libio/stdio.h (gets): Always declare for C++ up to C++11 without
+	checking __USE_GNU.
+
+	* Makerules ($(inst_includedir)/%.h): New rule.
+	* stdio-common/Makefile (headers): Add bits/stdio_lim.h.
+	(install-others): Remove variable setting.
+	($(inst_includedir)/bits/stdio_lim.h): Remove rule.
+
+2012-03-08  Richard Henderson  <rth@twiddle.net>
+
+	* sysdeps/powerpc/fpu/math_private.h (__ieee754_sqrt): Convert
+	from macro to inline function; merge with the
+	!__LIBC_INTERNAL_MATH_INLINES version.
+	(__ieee754_sqrtf): Likewise.
+
+	* sysdeps/x86_64/fpu/math_private.h (__rint): Convert from macro
+	to inline function.
+	(__rintf, __floor, __floorf): Likewise.
+
+	* sysdeps/x86_64/fpu/math_private.h (__ieee754_sqrt): Convert from
+	macro to inline function.
+	(__ieee754_sqrtf, __ieee754_sqrtl): Likewise.
+
+	* sysdeps/ieee754/ldbl-opt/math_ldbl_opt.h: Include <math_private.h>,
+	not <math/math_private.h>.
+
+2012-03-08  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sparc64/get_clockfreq.c: Update
+	copyright year.
+	* sysdeps/unix/sysv/linux/sparc/sysdep.h: Likewise.
+
+2012-03-08  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* resolv/gai_misc.c (handle_requests): Fix struct timespec
+	normalization.
+	* rt/tst-cpuclock2.c (test_nanosleep): Likewise.
+	* sysdeps/pthread/aio_misc.c (handle_fildes_io): Likewise.
+
+2012-03-08  Ulrich Drepper  <drepper@gmail.com>
+
+	* stdio-common/tst-fphex.c: Various cleanups.  The macros cannot
+	be defined individually, they must be defined as a block.  Define
+	S for printing a string instead of hidint the different by using a
+	macro for adding the 'l'.
+	* stdio-common/tst-fphex-wide.c: Adjust.
+
+2012-03-07  Marek Polacek  <polacek@redhat.com>
+
+	* stdio-common/tst-long-dbl-fphex.c: Fix test for non ldbl-96 targets.
+
+2012-03-08  Marek Polacek  <polacek@redhat.com>
+
+	[BZ #13806]
+	* stdio-common/Makefile (tests): Add tst-fphex-wide.
+	* stdio-common/tst-fphex.c: Define a few macros to make the
+	test reusable.  Use them.
+	* stdio-common/tst-fphex-wide.c: New file.
+
+2012-03-08  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #6911]
+	* manual/macros.texi (gnusystems): New macro.
+	(nongnusystems): Likewise.
+	(gnulinuxhurdsystems): Likewise.
+	(gnuhurdsystems): Likewise..
+	(gnulinuxsystems): Likewise.
+	* manual/charset.texi: Use new macros or @theglibc{} to refer to
+	variants of the GNU system, not "GNU system".
+	* manual/conf.texi: Likewise.
+	* manual/errno.texi: Likewise.  Update example of errno macro
+	expansion.
+	* manual/filesys.texi: Likewise.
+	(getumask): Document as specific to GNU/Hurd.
+	* manual/install.texi: Likewise.  Reword some references to
+	GNU/Linux.
+	* manual/intro.texi: Likewise.
+	* manual/io.texi: Likewise.
+	(File Name Portability): Detail which constraints are inapplicable
+	to all GNU systems and which are only inapplicable to GNU/Hurd.
+	* manual/job.texi: Likewise.
+	* manual/llio.texi: Likewise.
+	(O_NOCTTY): Document as present on GNU/Linux.
+	* manual/maint.texi: Likewise.
+	* manual/memory.texi: Likewise.
+	* manual/pattern.texi: Likewise.
+	* manual/pipe.texi: Likewise.
+	* manual/process.texi: Likewise.
+	* manual/resource.texi: Likewise.
+	(RUSAGE_CHILDREN): Remove statement about specifying a particular
+	child on GNU/Hurd.
+	* manual/setjmp.texi: Likewise.
+	* manual/signal.texi: Likewise.
+	* manual/startup.texi: Likewise.
+	* manual/stdio.texi: Likewise.
+	* manual/terminal.texi: Likewise.
+	(ONLCR): Document as POSIX.
+	(OXTABS): Document availability on GNU/Linux as XTABS.
+	(ONOEOT): Document availability separately from other bits.
+	(VLNEXT, VDISCARD, VSTATUS): Document availability individually.
+	* manual/time.texi: Likewise.
+	* manual/users.texi: Likewise.
+	* INSTALL: Regenerated.
+	* sysdeps/gnu/errlist.c: Regenerated.
+
+	* aclocal.m4 (LIBC_TRY_LINK_STATIC): New macro.
+	* configure.in (libc_cv_preinit_array): Use LIBC_TRY_LINK_STATIC.
+	(libc_cv_ctors_header): Likewise.  Use asm ("") instead of calling
+	puts.
+	* configure: Regenerated.
+
+2012-03-07  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/i386/configure.in (cpuid.h): Use AC_CHECK_HEADER with no
+	default includes instead of AC_HEADER_CHECK.
+	* sysdeps/i386/configure: Regenerated.
+
+	[BZ #10716]
+	* math/s_cacosh.c (__cacosh): Convert negative log results to 0.
+	* math/s_cacoshf.c (__cacoshf): Likewise.
+	* math/s_cacoshl.c (__cacoshl): Likewise.
+	* math/s_casinh.c (__casinh): Set signs of result from argument.
+	* math/s_casinhf.c (__casinhf): Likewise.
+	* math/s_casinhl.c (__casinhl): Likewise.
+	* math/libm-test.inc (cacos_test, cacosh_test, casin_test)
+	(casinh_test): Add more tests.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* po/zh_TW.po: Update from translation team.
+
+	* login/Makefile (distribute): Remove variable.
+	* catgets/Makefile: Likewise.
+	* mach/Makefile: Likewise.
+	* malloc/Makefile: Likewise.
+	* misc/Makefile: Likewise.
+	* iconv/Makefile: Likewise.
+	* nscd/Makefile: Likewise.
+	* hurd/Makefile: Likewise.
+	* manual/Makefile: Likewise.
+	* locale/Makefile: Likewise.
+	* intl/Makefile: Likewise.
+	* conform/Makefile: Likewise.
+	* nss/Makefile: Likewise.
+	* time/Makefile: Likewise.
+	* soft-fp/Makefile: Likewise.
+	* dirent/Makefile: Likewise.
+	* gmon/Makefile: Likewise.
+	* po/Makefile: Likewise.
+	* rt/Makefile: Likewise.
+	* socket/Makefile: Likewise.
+	* math/Makefile: Likewise.
+	* signal/Makefile: Likewise.
+	* debug/Makefile: Likewise.
+	* elf/Makefile: Likewise.
+	* timezone/Makefile: Likewise.
+	* stdlib/Makefile: Likewise.
+	* iconvdata/Makefile: Likewise.
+	* sunrpc/Makefile: Likewise.
+	* io/Makefile: Likewise.
+	* argp/Makefile: Likewise.
+	* inet/Makefile: Likewise.
+	* hesiod/Makefile: Likewise.
+	* grp/Makefile: Likewise.
+	* csu/Makefile: Likewise.
+	* wctype/Makefile: Likewise.
+	* crypt/Makefile: Likewise.
+	* libio/Makefile: Likewise.
+	* string/Makefile: Likewise.
+	* nis/Makefile: Likewise.
+	* resolv/Makefile: Likewise.
+	* stdio-common/Makefile: Likewise.
+	* wcsmbs/Makefile: Likewise.
+	* dlfcn/Makefile: Likewise.
+	* posix/Makefile: Likewise.
+
+	* timezone/Makefile: Don't install timezone files, just the programs
+	and scripts.
+
+2012-03-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* nss/databases.def: Add missing gshadow entry.
+
+	* stdio-common/vfprintf.c: Fix formatting.  Missing copyright update.
+
+2012-03-06  Marek Polacek  <polacek@redhat.com>
+
+	[BZ #13726]
+	* sysdeps/ieee754/ldbl-96/printf_fphex.c: Adjust position of wnumstr.
+	* sysdeps/x86_64/fpu/printf_fphex.c: Likewise.
+	* stdio-common/Makefile (tests): Add tst-long-dbl-fphex.
+	* stdio-common/tst-long-dbl-fphex.c: New file.
+
+2012-03-06  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sparc64/get_clockfreq.c
+	(set_obp_int): New function.
+	(get_obp_int): New function.
+	(__get_clockfreq_via_dev_openprom): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sysdep.h (INTERNAL_SYSCALL_ERROR_P):
+	Avoid unused variable warnings on 'val' and use builtin_expect.
+	(INLINE_SYSCALL): Don't wrap INTERNAL_SYSCALL_ERROR_P with
+	__builtin_expect.
+	(INLINE_CLONE_SYSCALL): Likewise.
+
+2012-03-05  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update.
+
+2012-03-05  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+	* sysdeps/ieee754/ldbl-128ibm/e_coshl.c: Drop exp(-x) term
+	only for |x| >= 40.
+	* sysdeps/ieee754/ldbl-128ibm/e_sinhl.c: Likewise.
+
+2012-03-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.c (gettimeofday_ifunc):
+	Replace gettimeofday with __vdso_gettimeofday.
+
+	* sysdeps/unix/sysv/linux/x86_64/init-first.c
+	(_libc_vdso_platform_setup): Replace clock_gettime and getcpu with
+	__vdso_clock_gettime and __vdso_getcpu.
+
+	* sysdeps/unix/sysv/linux/x86_64/time.c (time_ifunc): Replace
+	time with __vdso_time.
+
+2012-03-05  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/lang.texi (size_t): Note types to which size_t may be
+	equivalent with the GNU C Library, but do not describe when
+	differences between them are significant.
+
+2012-03-05  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+
+2012-03-05  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #3976]
+	* sysdeps/ieee754/dbl-64/e_pow.c: Include <fenv.h>.
+	(__ieee754_pow): Save and restore rounding mode and use
+	round-to-nearest for main computations.
+	* math/libm-test.inc (pow_test_tonearest): New function.
+	(pow_test_towardzero): Likewise.
+	(pow_test_downward): Likewise.
+	(pow_test_upward): Likewise.
+	(main): Call the new functions.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+	[BZ #3976]
+	* math/libm-test.inc (cosh_test_tonearest): New function.
+	(cosh_test_towardzero): Likewise.
+	(cosh_test_downward): Likewise.
+	(cosh_test_upward): Likewise.
+	(sinh_test_tonearest): Likewise.
+	(sinh_test_towardzero): Likewise.
+	(sinh_test_downward): Likewise.
+	(sinh_test_upward): Likewise.
+	(main): Call the new functions.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-05  Tom de Vries  <tom@codesourcery.com>
+
+	* sysdeps/generic/dl-osinfo.h (_dl_setup_stack_chk_guard): Ensure
+	default stack guard is set in last bytes.
+	* sysdeps/unix/sysv/linux/dl-osinfo.h (_dl_setup_stack_chk_guard): Same.
+
+2012-03-05  Kees Cook  <keescook@chromium.org>
+
+	* stdio-common/vfprintf.c (vfprintf): add missing errno settings.
+
+	[BZ #13656]
+	* stdio-common/vfprintf.c (vfprintf): Check for nargs overflow and
+	possibly allocate from heap instead of stack.
+	* stdio-common/bug-vfprintf-nargs.c: New file.
+	* stdio-common/Makefile (tests): Add nargs overflow test.
+
+2012-03-03  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+2012-03-03  Marek Polacek  <polacek@redhat.com>
+
+	* include/sys/cdefs.h: Remove __GNUC_PREREQ macro.
+	* math/math_private.h: Likewise.
+	* stdlib/tst-strtod.c: Likewise.
+	* sysdeps/i386/i486/bits/atomic.h: Likewise.
+	* sysdeps/x86_64/bits/atomic.h: Likewise.
+
+2012-03-02  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_llrint.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_llrintf.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_lrint.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_lrintf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_llrint.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_llrintf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_lrint.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_lrintf.S: New file.
+
+2012-03-02  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13792]
+	* manual/examples/README: New file, says the example source files
+	can be used under GPL>=2.
+	* manual/Makefile (%.c.texi): Eat the leading part of the file until a
+	line containing just "*/".
+	* manual/examples/add.c: Add copyright header (GPL>=2).
+	* manual/examples/argp-ex1.c: Likewise.
+	* manual/examples/argp-ex2.c: Likewise.
+	* manual/examples/argp-ex3.c: Likewise.
+	* manual/examples/argp-ex4.c: Likewise.
+	* manual/examples/atexit.c: Likewise.
+	* manual/examples/db.c: Likewise.
+	* manual/examples/dir.c: Likewise.
+	* manual/examples/dir2.c: Likewise.
+	* manual/examples/execinfo.c: Likewise.
+	* manual/examples/filecli.c: Likewise.
+	* manual/examples/filesrv.c: Likewise.
+	* manual/examples/fmtmsgexpl.c: Likewise.
+	* manual/examples/genpass.c: Likewise.
+	* manual/examples/inetcli.c: Likewise.
+	* manual/examples/inetsrv.c: Likewise.
+	* manual/examples/isockad.c: Likewise.
+	* manual/examples/longopt.c: Likewise.
+	* manual/examples/memopen.c: Likewise.
+	* manual/examples/memstrm.c: Likewise.
+	* manual/examples/mkfsock.c: Likewise.
+	* manual/examples/mkisock.c: Likewise.
+	* manual/examples/mygetpass.c: Likewise.
+	* manual/examples/pipe.c: Likewise.
+	* manual/examples/popen.c: Likewise.
+	* manual/examples/rprintf.c: Likewise.
+	* manual/examples/search.c: Likewise.
+	* manual/examples/select.c: Likewise.
+	* manual/examples/setjmp.c: Likewise.
+	* manual/examples/sigh1.c: Likewise.
+	* manual/examples/sigusr.c: Likewise.
+	* manual/examples/stpcpy.c: Likewise.
+	* manual/examples/strdupa.c: Likewise.
+	* manual/examples/strftim.c: Likewise.
+	* manual/examples/strncat.c: Likewise.
+	* manual/examples/subopt.c: Likewise.
+	* manual/examples/swapcontext.c: Likewise.
+	* manual/examples/termios.c: Likewise.
+	* manual/examples/testopt.c: Likewise.
+	* manual/examples/testpass.c: Likewise.
+	* manual/examples/timeval_subtract.c: Likewise.
+
+	[BZ #13792]
+	* manual/time.texi (Elapsed Time): Move timeval_subtract example
+	function to ...
+	* manual/timeval_subtract.c.texi: ... here, new file.
+
+2012-03-02  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update for recently added tests.
+
+2012-03-02  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #3976]
+	* sysdeps/ieee754/dbl-64/s_sin.c: Include <fenv.h>
+	(__sin): Save and restore rounding mode and use round-to-nearest
+	for all computations.
+	(__cos): Save and restore rounding mode and use round-to-nearest
+	for all computations.
+	* sysdeps/ieee754/dbl-64/s_tan.c: Include "math_private.h" and
+	<fenv.h>.
+	(tan): Save and restore rounding mode and use round-to-nearest for
+	all computations.
+	* math/libm-test.inc (cos_test_tonearest): New function.
+	(cos_test_towardzero): Likewise.
+	(cos_test_downward): Likewise.
+	(cos_test_upward): Likewise.
+	(sin_test_tonearest): Likewise.
+	(sin_test_towardzero): Likewise.
+	(sin_test_downward): Likewise.
+	(sin_test_upward): Likewise.
+	(tan_test_tonearest): Likewise.
+	(tan_test_towardzero): Likewise.
+	(tan_test_downward): Likewise.
+	(tan_test_upward): Likewise.
+	(main): Call the new functions.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+	[BZ #10135]
+	* sysdeps/ieee754/dbl-64/s_scalbln.c (__scalbln): First test for
+	small n, then large n, before computing and testing k+n.
+	* sysdeps/ieee754/dbl-64/s_scalbn.c (__scalbn): Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_scalbln.c (__scalbln):
+	Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_scalbn.c (__scalbn):
+	Likewise.
+	* sysdeps/ieee754/flt-32/s_scalblnf.c (__scalblnf): Likewise.
+	* sysdeps/ieee754/flt-32/s_scalbnf.c (__scalbnf): Likewise.
+	* sysdeps/ieee754/ldbl-128/s_scalblnl.c (__scalblnl): Likewise.
+	* sysdeps/ieee754/ldbl-128/s_scalbnl.c (__scalbnl): Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_scalblnl.c (__scalblnl): Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/s_scalbnl.c (__scalbnl): Likewise.
+	* sysdeps/ieee754/ldbl-96/s_scalblnl.c (__scalblnl): Likewise.
+	* sysdeps/ieee754/ldbl-96/s_scalbnl.c (__scalbnl): Likewise.
+	* math/libm-test.inc (scalbn_test): Add more tests.
+	(scalbln_test): Likewise.
+
+	* manual/filesys.texi (mode_t): Describe constraints on size and
+	signedness, not exact equivalence to a particular type.
+	(ino_t): Likewise.
+	(ino64_t): Likewise.
+	(dev_t): Likewise.
+	(nlink_t): Likewise.
+	(blkcnt_t): Likewise.
+	(blkcnt64_t): Likewise.
+	* manual/llio.texi (off_t): Likewise.
+
+	[BZ #3976]
+	* sysdeps/ieee754/dbl-64/e_exp.c: Include <fenv.h>.
+	(__ieee754_exp): Save and restore rounding mode and use
+	round-to-nearest for all computations.
+	* math/libm-test.inc (exp_test_tonearest): New function.
+	(exp_test_towardzero): Likewise.
+	(exp_test_downward): Likewise.
+	(exp_test_upward): Likewise.
+	(main): Call the new functions.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-01  Chris Demetriou  <cgd@google.com>
+
+	* sysdeps/gnu/errlist-compat.awk: Don't depend on AWK internals to
+	have predictable order.
+
+2012-03-01  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sparc32/getpagesize.c: Delete.
+
+	* sysdeps/sparc/sparc64/fpu/s_finite.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_finitef.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_isinf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_isinff.S: New file.
+
+	* sysdeps/sparc/sparc32/fpu/s_signbit.S: New file.
+	* sysdeps/sparc/sparc32/fpu/s_signbitf.S: New file.
+	* sysdeps/sparc/sparc32/fpu/s_signbitl.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_isnan.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_isnan.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_isnanf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_signbit.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_signbitf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_signbitl.S: New file.
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update.
+
+	* sysdeps/sparc/sparc32/fpu/libm-test-ulps: Move...
+	* sysdeps/sparc/fpu/libm-test-ulps: to here.
+	* sysdeps/sparc/sparc64/fpu/libm-test-ulps: Delete.
+
+	* sysdeps/sparc/crti.S: Remove HAVE_BINUTILS_GOTDATA checks.
+	* sysdeps/sparc/sparc32/dl-machine.h: Likewise.
+	* sysdeps/sparc/sparc32/elf/start.S: Likewise.
+	* sysdeps/sparc/sparc32/fpu/w_sqrt.S: Likewise.
+	* sysdeps/sparc/sparc32/fpu/w_sqrtf.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/w_sqrt.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/w_sqrtf.S: Likewise.
+	* sysdeps/sparc/sparc64/dl-machine.h: Likewise.
+	* sysdeps/sparc/sparc64/elf/start.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/w_sqrt.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/w_sqrtf.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/____longjmp_chk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/____longjmp_chk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/brk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/sysdep.h: Likewise.
+	* config.h.in (HAVE_BINUTILS_GOTDATA): Delete.
+	* sysdeps/sparc/elf/configure.in: Remove binutils GOTDATA checks.
+	* sysdeps/sparc/elf/configure: Regenerated.
+
+2012-03-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in (AS, LD): Require binutils 2.20 or later.
+	* configure: Regenerated.
+	* manual/install.texi (Tools for Compilation): Give binutils 2.20
+	as required minimum version.
+	* INSTALL: Regenerated.
+
+	[BZ #2541]
+	[BZ #4108]
+	* sysdeps/ieee754/flt-32/s_erff.c (__erfcf): Mask out one more bit
+	before squaring exponent.
+	* sysdeps/ieee754/ldbl-128ibm/s_erfl.c (__erfcl): Mask out whole
+	bottom long double and 27 bits of top long double before squaring
+	exponent.
+	* math/libm-test.inc (erfc_test): Add more tests.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/powerpc/fpu/libm-test-ulps: Likewise.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-01  Kai Tietz  <ktietz@redhat.com>
+
+	* soft-fp/soft-fp.h (_FP_STRUCT_LAYOUT): New macro.
+	* soft-fp/quad.h (_FP_UNION_Q): Use _FP_STRUCT_LAYOUT on struct
+	containing bit-fields.
+	* soft-fp/extended.h (_FP_UNION_E): Likewise.
+	* soft-fp/single.h (_FP_UNION_S): Likewise.
+	* soft-fp/double.h (_FP_UNION_D): Likewise.
+
+2012-02-29  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13786]
+	* sysdeps/i386/i686/multiarch/strcmp.S [USE_AS_STRCASECMP_L]: Do
+	not include ../strcmp.S.
+	[USE_AS_STRNCASECMP_L]: Likewise.
+	* sysdeps/i386/i686/multiarch/strcasecmp_l-c.c
+	(__strcasecmp_l_ia32): Define as alias to __strcasecmp_l_nonascii.
+	* sysdeps/i386/i686/multiarch/strncase_l-c.c
+	(__strncasecmp_l_ia32): Define as alias to
+	__strncasecmp_l_nonascii.
+
+	[BZ #5794]
+	* math/libm-test.inc (expm1_test): Add test for bug 5794.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+	* sysdeps/i386/fpu/libm-test-ulps: Reduce some expected errors.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-02-29  Jeff Law  <law@redhat.com>
+
+	* resolv/res_query.c (__libc_res_nquerydomain): Avoid
+	out of bounds read.
+
+2012-02-29  Marek Polacek  <polacek@redhat.com>
+
+	[BZ #13706]
+	* elf/rtld.c (dl_main): Always set l_used to 1 for vDSO.
+	* elf/Makefile: Add rules to run tst-unused-dep.out.
+
+2012-02-28  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/fpu/w_sqrt.S: New file.
+	* sysdeps/sparc/sparc32/fpu/w_sqrtf.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/w_sqrt.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/w_sqrtf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/w_sqrt.S: New file.
+	* sysdeps/sparc/sparc64/fpu/w_sqrtf.S: New file.
+
+2012-02-29  Joseph Myers  <joseph@codesourcery.com>
+
+	* math/libm-test.inc (llround_test): Move one test from
+	lround_test.  Use TEST_f_L in moved test.
+	(lround_test): Move misplaced test to llround_test.  Add testcase
+	from bug 2561.
+
+2012-02-28  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/x86_64/fpu/e_expf.S: New file.
+	Contributed by Dmitrieva Liubov <liubov.dmitrieva@gmail.com>.
+
+2012-02-28  Stanislav Brabec  <sbrabec@suse.cz>
+
+	[BZ #13637]
+	* posix/regex_internal.c (re_string_skip_chars): Fix miscomputation
+	of remain_len that may cause incomplete multi-byte character and
+	false match.
+	* posix/bug-regex33.c: New file.
+	* posix/Makefile (tests): Add bug-regex33.
+
+2012-02-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/macros.texi: New file.
+	* Makefile (INSTALL, NOTES): Depend on manual/macros.texi.
+	* manual/libc.texinfo: Include macros.texi.
+	* manual/creatute.texi: Likewise.
+	* manual/install.texi: Likewise.
+	* manual/arith.texi: Use macros @Theglibc{}, @theglibc{} and
+	@glibcadj{} in references to the GNU C Library.
+	* manual/charset.texi: Likewise.
+	* manual/conf.texi: Likewise.
+	* manual/contrib.texi: Likewise.  Consistently use "GNU C Library"
+	when not using those macros.
+	* manual/creature.texi: Likewise.
+	* manual/crypt.texi: Likewise.
+	* manual/errno.texi: Likewise.
+	* manual/filesys.texi: Likewise.
+	* manual/header.texi: Likewise.
+	* manual/install.texi: Likewise.
+	* manual/intro.texi: Likewise.
+	* manual/io.texi: Likewise.
+	* manual/job.texi: Likewise.
+	* manual/lang.texi: Likewise.
+	* manual/libc.texiinfo: Likewise.
+	* manual/llio.texi: Likewise.
+	* manual/locale.texi: Likewise.
+	* manual/maint.texi: Likewise.
+	* manual/math.texi: Likewise.
+	* manual/memory.texi: Likewise.
+	* manual/message.texi: Likewise.
+	* manual/nss.texi: Likewise.
+	* manual/pattern.texi: Likewise.
+	* manual/process.texi: Likewise.
+	* manual/resource.texi: Likewise.
+	* manual/search.texi: Likewise.
+	* manual/setjmp.texi: Likewise.
+	* manual/signal.texi: Likewise.
+	* manual/socket.texi: Likewise.
+	* manual/startup.texi: Likewise.
+	* manual/stdio.texi: Likewise.
+	* manual/string.texi: Likewise.
+	* manual/sysinfo.texi: Likewise.
+	* manual/syslog.texi: Likewise.
+	* manual/terminal.texi: Likewise.
+	* manual/time.texi: Likewise.
+	* manual/users.texi: Likewise.
+	* INSTALL: Regenerated.
+	* NOTES: Regenerated.
+	* sysdeps/gnu/errlist.c: Regenerated.
+
+2012-02-28  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* include/dirent.h: Include <dirstream.h> before
+	<dirent/dirent.h>.
+
+2012-02-28  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/fpu/s_copysign.S: New file.
+	* sysdeps/sparc/sparc32/fpu/s_copysignf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_copysign.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_copysignf.S: New file.
+
+2012-02-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_floor.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_floorf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_floor.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_floorf.S: New file.
+
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceil.S: Fix accidental use of
+	frame pointer instead of stack pointer relative arg slot.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceilf.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_ceil.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_ceilf.S: Likewise.
+
+2012-02-27  Carlos O'Donell  <carlos_odonell@mentor.com>
+
+	[BZ #3992]
+	* stdlib/fmtmsg.c: Use of uint32_t requires stdint.h.
+
+2012-02-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceil.S: Fix comment formatting.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceilf.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_rint.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_rintf.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_ceil.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_ceilf.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_rint.S: Likewise.
+	* sysdeps/sparc/sparc64/fpu/s_rintf.S: Likewise.
+
+2012-02-27  Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in (CC): Restrict allowed GCC versions to 4.3 and
+	later.  Allow versions 5-9.
+	* configure: Regenerated.
+	* manual/install.texi (Tools for Compilation): Give GCC 4.3 as
+	required minimum version and 4.6 as recommended version.  Do not
+	mention bugs in GCC 2.7 and 2.8.
+	* INSTALL: Regenerated.
+
+2012-02-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceil.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_ceilf.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_rint.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/s_rintf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_ceil.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_ceilf.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_rint.S: New file.
+	* sysdeps/sparc/sparc64/fpu/s_rintf.S: New file.
+
+	* sysdeps/ieee754/ldbl-128/s_nearbyintl.c (__nearbyintl): Do not
+	manipulate bits before adding and subtracting TWO112[sx].
+	* sysdeps/ieee754/ldbl-128/s_rintl.c (__rintl): Likewise.
+
+2012-02-27  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13775]
+	* libio/bits/stdio-ldbl.h (vdprintf, dprintf): Put these under
+	[__USE_XOPEN2K8] rather than [__USE_GNU], to match the stdio.h decls.
+	* libio/stdio.h (vdprintf, dprintf): Remove comment about these not
+	being in POSIX, because they are in 1003.1-2008.
+
+	* rt/tst-aio.c: Include <fcntl.h>.
+	* rt/tst-aio7.c: Likewise.
+	* rt/tst-aio64.c: Likewise.
+
+	* stdio-common/tst-fmemopen.c (main): Remove spurious const.
+
+2012-02-27  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/install.texi (--with-headers): Describe headers as
+	interface headers, not private headers.
+	(Specific advice for GNU/Linux systems): Describe use of headers
+	from "make headers_install", not private headers from older
+	kernels.
+	* INSTALL: Regenerated.
+	* sysdeps/unix/sysv/linux/configure.in (LIBC_LINUX_VERSION):
+	Change to 2.6.19.
+	* sysdeps/unix/sysv/linux/configure: Regenerated.
+
+	* manual/llio.texi (fclean): Remove documentation.
+
+	* manual/Makefile (libc-texi-generated): New variable.  Include
+	version.texi.
+	(libc.dvi, libc.pdf, libc.info, libc/index.html): Depend on
+	$(libc-texi-generated), not duplicated list of files.
+	(version.texi, stamp-version): New rules.
+	(realclean): Remove $(libc-texi-generated), not individual files
+	from that list.  Do not remove dir-add.texinfo.
+	* manual/libc.texinfo: Comment out uses of edition numbers and
+	references to printed manual.  Remove last-updated dates.
+	(EDITION): Comment out.
+	(ISBN): Likewise.
+	(VERSION, UPDATED): Remove.
+	(version.texi): Include.
+
+2012-02-27  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/posix/spawni.c: Include <signal.h>.
+	* sysdeps/pthread/aio_cancel.c: Include <fcntl.h>.
+	* sysdeps/pthread/aio_fsync.c: Likewise.
+
+2012-02-26  Ulrich Drepper  <drepper@gmail.com>
+
+	* conform/Makefile (tests): Run only when not cross-compiling and
+	when fast-check is not defined.
+
+	* conform/conformtest.pl: XPG7 and POSIX2008 require C99.
+	* conform/data/limits.h-data: Fixes for POSIX2008.
+	* conform/run-conformtest.sh: Run all tests.
+	* include/arpa/inet.h: Changes to allow conformtest.pl to use the
+	headers.
+	* include/bits/dlfcn.h: Likewise.
+	* include/langinfo.h: Likewise.
+	* include/monetary.h: Likewise.
+	* include/sys/poll.h: Likewise.
+
+	* io/fcntl.h: Define AT_NO_AUTOMOUNT and AT_EMPTY_PATH only
+	for __USE_GNU.
+	* posix/spawn.h: Define __need_sigset_t.
+	* posix/sys/wait.h: Don't include <sys/resource.h>, define id_t here.
+	* posix/unistd.h: Declare ctermid only for XPG before XPG6.
+	* rt/aio.h: Don't include fcntl.h and signal.h.  Use bits/siginfo.h
+	to get sigevent_t only.
+	* sysdeps/unix/sysv/linux/bits/socket.h: Declare sendmmsg and recvmmsg
+	only for __USE_GNU.
+	* sysdeps/unix/sysv/linux/sparc/bits/socket.h: Likewise.
+	* sysdeps/unix/sysv/linux/bits/uio.h: Declare process_vm_readv and
+	process_vm_writev only for __USE_GNU.
+	* termios/termios.h: Declare tcgetsid also for POSIX2008.
+
+	* conform/Makefile: For now ignore errors from run-conformtest.
+	* conform/conformtest.pl: Simplify code.  Add -ansi to CFLAGS for
+	POSIX to avoid namespace pollution.  Don't prepend headers.
+	* conform/data/aio.h-data: Fixes for POSIX testing.
+	* conform/data/fcntl.h-data: Likewise.
+	* conform/data/glob.h-data: Likewise.
+	* conform/data/grp.h-data: Likewise.
+	* conform/data/pthread.h-data: Likewise.
+	* conform/data/pwd.h-data: Likewise.
+	* conform/data/signal.h-data: Likewise.
+	* conform/data/spawn.h-data: Likewise.
+	* conform/data/stdio.h-data: Likewise.
+	* conform/data/stdlib.h-data: Likewise.
+	* conform/data/stropts.h-data: Likewise.
+	* conform/data/sys/mman.h-data: Likewise.
+	* conform/data/sys/stat.h-data: Likewise.
+	* conform/data/sys/types.h-data: Likewise.
+	* conform/data/sys/wait.h-data: Likewise.
+	* conform/data/time.h-data: Likewise.
+	* conform/data/unistd.h-data: Likewise.
+	* conform/data/utime.h-data: Likewise.
+
+	* io/sys/stat.h: fchmod was always in POSIX.
+	* posix/sys/wait.h: Include <sys/resource.h> only for waitid.
+	* posix/unistd.h: fsync and ftruncate were in early POSIX as well.
+	* rt/aio.h: Define __need_timespec before including <time.h>.
+	* sysdeps/unix/sysv/linux/bits/siginfo.h: Don't name siginfo_t
+	struct.  Add forward declaration of pthread_attr_t and use it in
+	sigevent.
+	* sysdeps/unix/sysv/linux/s390/bits/siginfo.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/siginfo.h: Likewise.
+	* sysdeps/unix/sysv/linux/bits/time.h: Don't let __STRICT_ANSI__
+	always remove CLK_TCK definition.
+
+2012-02-26  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/ieee754/dbl-64/k_tan.c: Replace with empty file.
+
+2012-02-25  Ulrich Drepper  <drepper@gmail.com>
+
+	* conform/run-conformtest.sh: New file.
+	* conform/Makefile: Run run-conformtest for tests.
+	* conform/conformtest.pl: Many bug fixes.  Add ISO C99, ISO C11
+	support.
+
+	* conform/data/uchar.h-data: New file.
+	* conform/data/aio.h-data: Fixes for ISO C and POSIX 1995 testing.
+	* conform/data/arpa/inet.h-data: Likewise.
+	* conform/data/assert.h-data: Likewise.
+	* conform/data/complex.h-data: Likewise.
+	* conform/data/cpio.h-data: Likewise.
+	* conform/data/ctype.h-data: Likewise.
+	* conform/data/dirent.h-data: Likewise.
+	* conform/data/dlfcn.h-data: Likewise.
+	* conform/data/errno.h-data: Likewise.
+	* conform/data/fcntl.h-data: Likewise.
+	* conform/data/float.h-data: Likewise.
+	* conform/data/fmtmsg.h-data: Likewise.
+	* conform/data/fnmatch.h-data: Likewise.
+	* conform/data/ftw.h-data: Likewise.
+	* conform/data/glob.h-data: Likewise.
+	* conform/data/grp.h-data: Likewise.
+	* conform/data/iconv.h-data: Likewise.
+	* conform/data/inttypes.h-data: Likewise.
+	* conform/data/langinfo.h-data: Likewise.
+	* conform/data/libgen.h-data: Likewise.
+	* conform/data/limits.h-data: Likewise.
+	* conform/data/locale.h-data: Likewise.
+	* conform/data/math.h-data: Likewise.
+	* conform/data/monetary.h-data: Likewise.
+	* conform/data/mqueue.h-data: Likewise.
+	* conform/data/ndbm.h-data: Likewise.
+	* conform/data/net/if.h-data: Likewise.
+	* conform/data/netdb.h-data: Likewise.
+	* conform/data/netinet/in.h-data: Likewise.
+	* conform/data/nl_types.h-data: Likewise.
+	* conform/data/poll.h-data: Likewise.
+	* conform/data/pthread.h-data: Likewise.
+	* conform/data/pwd.h-data: Likewise.
+	* conform/data/regex.h-data: Likewise.
+	* conform/data/sched.h-data: Likewise.
+	* conform/data/search.h-data: Likewise.
+	* conform/data/semaphore.h-data: Likewise.
+	* conform/data/setjmp.h-data: Likewise.
+	* conform/data/signal.h-data: Likewise.
+	* conform/data/spawn.h-data: Likewise.
+	* conform/data/stdarg.h-data: Likewise.
+	* conform/data/stdio.h-data: Likewise.
+	* conform/data/stdlib.h-data: Likewise.
+	* conform/data/string.h-data: Likewise.
+	* conform/data/strings.h-data: Likewise.
+	* conform/data/stropts.h-data: Likewise.
+	* conform/data/sys/ipc.h-data: Likewise.
+	* conform/data/sys/mman.h-data: Likewise.
+	* conform/data/sys/msg.h-data: Likewise.
+	* conform/data/sys/resource.h-data: Likewise.
+	* conform/data/sys/select.h-data: Likewise.
+	* conform/data/sys/sem.h-data: Likewise.
+	* conform/data/sys/shm.h-data: Likewise.
+	* conform/data/sys/socket.h-data: Likewise.
+	* conform/data/sys/stat.h-data: Likewise.
+	* conform/data/sys/statvfs.h-data: Likewise.
+	* conform/data/sys/time.h-data: Likewise.
+	* conform/data/sys/timeb.h-data: Likewise.
+	* conform/data/sys/times.h-data: Likewise.
+	* conform/data/sys/types.h-data: Likewise.
+	* conform/data/sys/uio.h-data: Likewise.
+	* conform/data/sys/un.h-data: Likewise.
+	* conform/data/sys/utsname.h-data: Likewise.
+	* conform/data/sys/wait.h-data: Likewise.
+	* conform/data/syslog.h-data: Likewise.
+	* conform/data/tar.h-data: Likewise.
+	* conform/data/termios.h-data: Likewise.
+	* conform/data/utime.h-data: Likewise.
+	* conform/data/utmpx.h-data: Likewise.
+	* conform/data/varargs.h-data: Likewise.
+	* conform/data/wchar.h-data: Likewise.
+	* conform/data/wctype.h-data: Likewise.
+	* conform/data/wordexp.h-data: Likewise.
+
+	* include/stropts.h: New file.
+	* include/uchar.h: New file.
+	* include/aio.h: Changes to allow conformtest.pl to use the headers.
+	* include/assert.h: Likewise.
+	* include/ctype.h: Likewise.
+	* include/dirent.h: Likewise.
+	* include/dlfcn.h: Likewise.
+	* include/fcntl.h: Likewise.
+	* include/fnmatch.h: Likewise.
+	* include/glob.h: Likewise.
+	* include/grp.h: Likewise.
+	* include/libio.h: Likewise.
+	* include/locale.h: Likewise.
+	* include/math.h: Likewise.
+	* include/net/if.h: Likewise.
+	* include/netdb.h: Likewise.
+	* include/netinet/in.h: Likewise.
+	* include/pthread.h: Likewise.
+	* include/pwd.h: Likewise.
+	* include/regex.h: Likewise.
+	* include/sched.h: Likewise.
+	* include/search.h: Likewise.
+	* include/setjmp.h: Likewise.
+	* include/signal.h: Likewise.
+	* include/stdio.h: Likewise.
+	* include/stdlib.h: Likewise.
+	* include/string.h: Likewise.
+	* include/sys/cdefs.h: Likewise.
+	* include/sys/mman.h: Likewise.
+	* include/sys/msg.h: Likewise.
+	* include/sys/resource.h: Likewise.
+	* include/sys/select.h: Likewise.
+	* include/sys/socket.h: Likewise.
+	* include/sys/stat.h: Likewise.
+	* include/sys/statvfs.h: Likewise.
+	* include/sys/time.h: Likewise.
+	* include/sys/times.h: Likewise.
+	* include/sys/uio.h: Likewise.
+	* include/sys/utsname.h: Likewise.
+	* include/sys/wait.h: Likewise.
+	* include/termios.h: Likewise.
+	* include/time.h: Likewise.
+	* include/ulimit.h: Likewise.
+	* include/unistd.h: Likewise.
+	* include/utime.h: Likewise.
+	* include/wchar.h: Likewise.
+	* include/wctype.h: Likewise.
+	* include/wordexp.h: Likewise.
+
+	* posix/tar.h (TSVTX): Should not be visible for POSIX before 2008.
+
+	* time/time.h: TIME_UTC must be a macro.
+	Make timespec_get available for ISO C11 only as well.
+
+2012-02-24  Ulrich Drepper  <drepper@gmail.com>
+
+	* stdlib/fmtmsg.c (fmtmsg): Lock around use of severity list.
+	Reported by Peng Haitao <penght@cn.fujitsu.com>.
+
+2012-02-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in: Use -o not -a in test for unsupported multi-arch.
+
+2012-02-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/texinfo.tex: Update to version 2012-01-19.16.
+
+2012-02-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/Makefile (licenses): Change fdl-1.1.texi to fdl-1.3.texi.
+
+2012-02-24  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #13738]
+	* manual/libc.texinfo (FDL_VERSION): Set to 1.3.
+	* manual/fdl-1.3.texi: New file.
+	* manual/fdl-1.1.texi: File removed.
+
+	[BZ #13738]
+	* manual/libc.texinfo (FDL_VERSION): New @set.
+	Use it for mention of FDL in cover text.
+	(Documentation License): Use it in @include file name.
+
+2012-02-22  Joseph Myers  <joseph@codesourcery.com>
+	    Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #5461]
+	* manual/arith.texi (strtoll): Refer to LLONG_MAX and LLONG_MIN,
+	not LONG_LONG_MAX and LONG_LONG_MIN.
+	* manual/lang.texi (LONG_LONG_MIN): Document first as ISO
+	LLONG_MIN.  Refer to LONG_LONG_MIN only as older GCC-specific
+	name.
+	(LONG_LONG_MAX, LLONG_MAX, ULONG_LONG_MAX, ULLONG_MAX): Likewise.
+
+2012-02-22  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #2547]
+	[BZ #11365]
+	* sysdeps/ieee754/flt-32/s_nearbyintf.c (__nearbyintf): Do not
+	manipulate bits before adding and subtracting TWO23[sx].
+	* math/libm-test.inc (nearbyint_test): Add more tests.
+
+2012-02-22  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #2548]
+	* sysdeps/ieee754/flt-32/s_rintf.c (__rintf): Do not manipulate
+	bits before adding and subtracting TWO23[sx].
+	* math/libm-test.inc (rint_test): Add more tests.
+	(rint_test_tonearest): Likewise.
+	(rint_test_towardzero): Likewise.
+	(rint_test_downward): Likewise.
+	(rint_test_upward: Likewise.
+
+2012-02-22  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #10110]
+	* include/stdc-predef.h: New file.  Extracted from features.h.
+	* include/features.h: Include stdc-predef.h.
+	* Makefile (headers): Add stdc-predef.h.
+	* CONFORMANCE (Compiler limitations): Update.
+
+2012-02-22  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/libc.texinfo (VERSION, UPDATED): Revert.
+
+2012-02-21  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/fpu/libm-test-ulps: More jn test ULP updates.
+	* sysdeps/sparc/sparc64/fpu/libm-test-ulps: Likewise.
+
+2012-02-20  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/__longjmp.S: Unwind in the 'thread' path
+	using a normal save/restore sequence, rather than allocating a
+	dummy stack frame just to store a frame pointer and restore.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/____longjmp_chk.S: Likewise.
+
+2012-02-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/install.texi: Fix stray word in line-wrapped comment.
+
+2012-02-20  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/elf/configure.in (PI_STATIC_AND_HIDDEN): Define if
+	both binutils and gcc support GOTDATA.
+
+	* sysdeps/unix/sparc/sysdep.h: Document why we don't use
+	"rd %pc" in the PIC register setup sequences.
+
+	* sysdeps/sparc/crti.S: Try to use GOTDATA relocs.
+	* sysdeps/sparc/sparc32/dl-machine.h (RTLD_START): Likewise.
+	* sysdeps/sparc/sparc32/elf/start.S: Likewise.
+	* sysdeps/sparc/sparc64/dl-machine.h (RTLD_START): Likewise.
+	* sysdeps/sparc/sparc64/elf/start.S: Likewise.
+	* sysdeps/sparc/sparc64/multiarch/memcpy.S: Likewise.
+	* sysdeps/sparc/sparc64/multiarch/memset.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/____longjmp_chk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sysdep.h
+	(SYSCALL_ERROR_HANDLER): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/____longjmp_chk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/brk.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/sysdep.h
+	(SYSCALL_ERROR_HANDLER): Likewise.
+
+	* config.h.in (HAVE_BINUTILS_GOTDATA): New.
+	(HAVE_GCC_GOTDATA): New.
+	* sysdeps/sparc/elf/configure.in: Test for GOTDATA
+	relocation support in both binutils and gcc.
+	* sysdeps/sparc/elf/configure: Regenerate.
+
+	* sysdeps/sparc/sparc32/elf/configure.in: Delete.
+	* sysdeps/sparc/sparc32/elf/configure: Delete.
+	* sysdeps/sparc/sparc64/elf/configure.in: Delete.
+	* sysdeps/sparc/sparc64/elf/configure: Delete.
+	* sysdeps/sparc/elf/configure.in: New file.
+	* sysdeps/sparc/elf/configure: Generate.
+
+	* sysdeps/sparc/sparc32/elf/configure.in: Delete WDISP22 check.
+	* sysdeps/sparc/sparc32/elf/configure: Regenerate.
+	* sysdeps/sparc/sparc64/elf/configure.in: Likewise.
+	* sysdeps/sparc/sparc64/elf/configure: Regenerate.
+	* config.h.in (BROKEN_SPARC_WDISP22): Remove.
+
+2012-02-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/install.texi: Do not mention specific glibc version
+	numbers.
+	* manual/libc.texinfo (VERSION, UPDATED): Update.
+	(@copying): Use @copyright{} and range of years.
+
+2012-02-21  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13695]
+	* csu/Makefile (distribute): Remove initfini.c and defs.awk.
+	[crti.S not in sysdirs] (generated): Do not append.
+	[crti.S not in sysdirs] (omit-deps): Likewise.
+	[crti.S not in sysdirs] ($(crtstuff:%=$(objpfx)%.o)): Remove rule.
+	[crti.S not in sysdirs] ($(objpfx)initfini.s): Likewise.
+	[crti.S not in sysdirs] ($(objpfx)crti.S): Likewise.
+	[crti.S not in sysdirs] ($(objpfx)crtn.S): Likewise.
+	[crti.S not in sysdirs] ($(patsubst %,$(objpfx)crt%.o,i n)):
+	Likewise.
+	[crti.S not in sysdirs] ($(objpfx)defs.h): Likewise.
+	[crti.S not in sysdirs] (CFLAGS-initfini.s): Remove variable.
+	[crti.S not in sysdirs] (initfini.c): Remove vpath directive.
+	* csu/defs.awk: Remove file.
+	* sysdeps/generic/initfini.c: Likewise.
+	* sysdeps/powerpc/powerpc32/Makefile (CFLAGS-initfini.s): Remove
+	variable.
+	* sysdeps/powerpc/powerpc64/Makefile (CFLAGS-initfini.s):
+	Likewise.
+
+2012-02-20  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/bits/epoll.h: New file.
+	* sysdeps/unix/sysv/linux/sparc/bits/epoll.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/epoll.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sys/epoll.h: Remove
+	* sysdeps/unix/sysv/linux/x86_64/sys/epoll.h: Likewise.
+	* sysdeps/unix/sysv/linux/sys/epoll.h: Get flags from
+	<bits/epoll.h>.
+	(EPOLL_CLOEXEC, EPOLL_NONBLOCK): Don't define here.
+	(__EPOLL_PACKED): Define to empty if not defined by
+	<bits/epoll.h>.
+	(struct epoll_event): Use __EPOLL_PACKED to make possibly packed.
+	* sysdeps/unix/sysv/linux/Makefile (sysdep_headers): Add
+	bits/epoll.h.
+
+2012-02-20  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/bits/timerfd.h: New file.
+	* sysdeps/unix/sysv/linux/sparc/bits/timerfd.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sys/timerfd.h: Remove.
+	* sysdeps/unix/sysv/linux/sys/timerfd.h: Get flags from
+	<bits/timerfd.h>.
+	(TFD_CLOEXEC, TFD_NONBLOCK): Don't define here.
+	* sysdeps/unix/sysv/linux/Makefile (sysdep_headers): Add
+	bits/timerfd.h.
+
+2012-02-20  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/i386/fpu/libm-test-ulps: Resort with gen-libm-test.pl -n
+	in C locale.
+	* sysdeps/powerpc/fpu/libm-test-ulps: Likewise.
+	* sysdeps/sh/sh4/fpu/libm-test-ulps: Likewise.
+	* sysdeps/sparc/sparc32/fpu/libm-test-ulps: Likewise.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-02-20  Aurelien Jarno  <aurelien@aurel32.net>
+
+	* sysdeps/sparc/sparc32/fpu/libm-test-ulps: Adjust ULPs for jn tests.
+	* sysdeps/sparc/sparc64/fpu/libm-test-ulps: Likewise.
+
+2012-02-19  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* manual/errno.texi (Error Codes): Add EHWPOISON entry.
+	* sysdeps/unix/sysv/linux/bits/errno.h (EHWPOISON): Define if not
+	defined.
+	* sysdeps/unix/sysv/linux/sparc/bits/errno.h (EHWPOISON):
+	Likewise.
+	* sysdeps/unix/sysv/linux/sparc/Versions: Add new errlist compat
+	entry for 2.16.
+
+2012-02-19  Aurelien Jarno  <aurelien@aurel32.net>
+
+	* math/w_acos.c: Use non-signaling floating-point comparisons.
+	* math/w_acosf.c: Likewise.
+	* math/w_acosh.c: Likewise.
+	* math/w_acoshf.c: Likewise.
+	* math/w_acoshl.c: Likewise.
+	* math/w_acosl.c: Likewise.
+	* math/w_asin.c: Likewise.
+	* math/w_asinf.c: Likewise.
+	* math/w_asinl.c: Likewise.
+	* math/w_atanh.c: Likewise.
+	* math/w_atanhf.c: Likewise.
+	* math/w_atanhl.c: Likewise.
+	* math/w_exp2.c: Likewise.
+	* math/w_exp2f.c: Likewise.
+	* math/w_exp2l.c: Likewise.
+	* math/w_j0.c: Likewise.
+	* math/w_j0f.c: Likewise.
+	* math/w_j0l.c: Likewise.
+	* math/w_j1.c: Likewise.
+	* math/w_j1f.c: Likewise.
+	* math/w_j1l.c: Likewise.
+	* math/w_jn.c: Likewise.
+	* math/w_jnf.c: Likewise.
+	* math/w_log.c: Likewise.
+	* math/w_log10.c: Likewise.
+	* math/w_log10f.c: Likewise.
+	* math/w_log10l.c: Likewise.
+	* math/w_log2.c: Likewise.
+	* math/w_log2f.c: Likewise.
+	* math/w_log2l.c: Likewise.
+	* math/w_logf.c: Likewise.
+	* math/w_logl.c: Likewise.
+	* math/w_sqrt.c: Likewise.
+	* math/w_sqrtf.c: Likewise.
+	* math/w_sqrtl.c: Likewise.
+	* sysdeps/ieee754/dbl-64/e_atanh.c: Likewise.
+	* sysdeps/ieee754/dbl-64/w_exp.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_atanhf.c: Likewise.
+	* sysdeps/ieee754/flt-32/w_expf.c: Likewise.
+	* sysdeps/ieee754/ldbl-96/w_expl.c: Likewise.
+
+2012-02-19  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #9739]
+	* manual/string.texi (strnlen): Use correct parameter name in
+	equivalent expression.
+
+2012-02-19  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #11174]
+	* manual/users.texi (seteuid): Consistently use neweuid for
+	argument name.
+
+2012-02-19  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13704]
+	* manual/nss.texi (Services in the NSS configuration): Correct
+	list of services in example configuration file.
+
+2012-02-19  Nick Bowler  <nbowler@draconx.ca>
+
+	[BZ #11322]
+	* manual/arith.texi: Remove statements about negative zero
+	behaving identically to zero.
+
+2012-02-18  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #5993]
+	* manual/install.texi: Do not document upgrading from libc5.
+
+2012-02-18  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #4596]
+	* manual/conf.texi (_POSIX_VERSION): Do not mention __POSIX__.
+
+2012-02-18  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sparc/sysdep.h (SPARC_PIC_THUNK): New macro.
+	(SETUP_PIC_REG): Use SPARC_PIC_THUNK and don't save and restore
+	%o7 across the call.
+	(SETUP_PIC_REG_LEAF): Do %o7 save/restore in this new macro
+	instead.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sysdep.h: Use
+	SETUP_PIC_REG_LEAF.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/sysdep.h: Likewise.
+	* sysdeps/sparc/crti.S: Use SETUP_PIC_REG.
+	* sysdeps/sparc/crtn.S: Likewise.
+
+2012-02-17  Ulrich Drepper  <drepper@gmail.com>
+
+	* aout/Makefile: Remove.
+
+2012-02-18  Rafe Kettler  <rafe.kettler@gmail.com>
+
+	[BZ #13058]
+	* manual/examples/argp-ex1.c (main): Format definition in GNU
+	style.
+	* manual/examples/argp-ex2.c (main): Likewise.
+	* manual/examples/argp-ex3.c (main): Likewise.
+	* manual/examples/argp-ex4.c (main): Likewise.
+	* manual/examples/longopt.c (main): Use new-style prototype
+	definition.
+	* manual/examples/strncat.c (main): Specify return type and use
+	(void) for arguments.
+	* manual/examples/subopt.c (main): Use char **argv argument.
+
+2012-02-17  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #5077]
+	* manual/lang.texi (FLT_EPSILON): Avoid description depending on
+	rounding modes.
+
+2012-02-17  Fabrice Bauzac  <fabrice.bauzac@wanadoo.fr>
+
+	[BZ #6907]
+	* manual/string.texi (strchr): Change when strchrnul is
+	recommended.
+
+2012-02-17  Dwayne Grant McConnell  <decimal@us.ibm.com>
+
+	[BZ #174]
+	* manual/locale.texi (setlocale): Document LOCPATH.
+
+2012-02-17  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #10210]
+	* manual/process.texi (execle): Move @dots{} before last argument.
+
+2012-02-17  Paul Bolle  <pebolle@tiscali.nl>
+
+	[BZ #12047]
+	* manual/charset.texi (Generic Charset Conversion): Fix typo
+	(LC_TYPE -> LC_CTYPE).
+
+2012-02-17  Nicolas Boulenguez  <nicolas.boulenguez@free.fr>
+
+	[BZ #5805]
+	* manual/arith.texi (scalbn): Use @var{} on parameter names.
+	(scalbnf): Likewise.
+	(scalbnl): Likewise.
+	(scalbln): Likewise.
+	(scalblnf): Likewise.
+	(scalblnl): Likewise.
+	* manual/errno.texi (vwarn): Name last parameter as @var{ap}.
+	(vwarnx): Likewise.
+	(verr): Likewise.
+	(verrx): Likewise.
+	* manual/filesys.texi (telldir): Use braces around return type.
+	* manual/llio.texi (mmap): Add space after comma.
+	(mmap64): Likewise.
+	* manual/math.texi (jn): Use @var{} on parameter names.
+	(jnf): Likewise.
+	(jnl): Likewise.
+	(yn): Likewise.
+	(ynf): Likewise.
+	(ynl): Likewise.
+	* manual/memory.texi (alloca): Remove semicolon on @deftypefun
+	line.
+	* manual/resource.texi (ulimit): Use @dots{} instead of literal
+	"...".
+	(sched_get_priority_min): Remove semicolon on @deftypefun line.
+	(sched_get_priority_max): Likewise.
+	* manual/signal.texi (sigvec): Add space after comma.
+	* manual/socket.texi (if_nametoindex): Use @var{} on parameter
+	names.
+	(if_indextoname): Likewise.
+	(if_freenameindex): Likewise.
+	(sendto): Use ',' instead of '.' in prototype.
+	* manual/startup.texi (syscall): Use @dots{} instead of literal
+	"...".
+	* manual/stdio.texi (__fpending): Separate initial words of
+	paragraph from @deftypefun line.
+	* manual/syslog.texi (syslog): Use @dots{} instead of literal
+	"...".
+	(vsyslog): Use @var{} on parameter names.
+	* manual/terminal.texi (stty): Use @var{} on parameter names.
+	* manual/users.texi (getutmp): Use @var{} on parameter names.
+	(getutmpx): Likewise.
+
+2012-02-17  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #6884]
+	* manual/stdio.texi (fopen): Fix typos in description of
+	",ccs=STRING".
+
+2012-02-17  Aurelien Jarno  <aurelien@aurel32.net>
+
+	[BZ #4026]
+	* sysdeps/unix/sysv/linux/clock_settime.c: include <time.h> to
+	get clock_id definition.
+
+2012-02-17  Thomas Schwinge  <thomas@schwinge.name>
+
+	[BZ #4822]
+	* sysdeps/mach/hurd/malloc-machine.h: #include <sys/mman.h>.
+	(madvise): Cast every argument to void on its own.
+
+2012-02-17  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #9902]
+	* manual/startup.texi (Exit Status): Fix typo.
+
+2012-02-17  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #10140]
+	* manual/examples/argp-ex1.c: Include <stdlib.h>.
+	* manual/examples/argp-ex2.c: Likewise.
+	* manual/examples/argp-ex3.c: Likewise.
+
+2012-02-16  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/s390/s390-32/crti.S, sysdeps/s390/s390-32/crtn.S: New files.
+	* sysdeps/s390/s390-32/initfini.c: Remove.
+	* sysdeps/s390/s390-64/crti.S, sysdeps/s390/s390-64/crtn.S:
+	* sysdeps/s390/s390-64/initfini.c: Remove.
+
+2012-02-15  Kaz Kojima  <kkojima@rr.iij4u.or.jp>
+
+	* sysdeps/sh/crti.S, sysdeps/sh/crtn.S: New files, based on
+	compiler output for sysdeps/generic/initfini.c.
+	* sysdeps/sh/elf/initfini.c: Remove file.
+
+2012-02-16  David S. Miller  <davem@davemloft.net>
+
+	[BZ #11494]
+	* sysdeps/unix/sysv/linux/sparc/bits/fcntl.h (O_FSYNC): Define.
+
+	* sysdeps/sparc/Makefile: Add -fPIC when building crt{i,n}.S
+	* sysdeps/sparc/crti.S: New file.
+	* sysdeps/sparc/crtn.S: New file.
+	* sysdeps/sparc/sparc32/Makefile: Remove initfini handling.
+	* sysdeps/sparc/sparc64/Makefile: Likewise.
+
+2012-02-15  Mike Frysinger  <vapier@gentoo.org>
+
+	[BZ #3335]
+	* sysdeps/unix/sysv/linux/getcwd.c: Include sys/param.h.
+
+2012-02-15  Roland McGrath  <roland@hack.frob.com>
+
+	[BZ #4822]
+	* sysdeps/mach/hurd/malloc-machine.h (madvise): New macro.
+
+	* mach/devstream.c (cookie_io_functions_t): Macro removed.
+	(write, read, close): Likewise.
+	Patch by Aurelien Jarno <aurelien@aurel32.net>.
+
+2012-02-15  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/bits/signalfd.h: New file.
+	* sysdeps/unix/sysv/linux/sparc/bits/signalfd.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sys/signalfd.h: Remove.
+	* sysdeps/unix/sysv/linux/sys/signalfd.h: Get flags from
+	<bits/signalfd.h>.
+	(SFD_CLOEXEC, SFD_NONBLOCK): Don't define here.
+	* sysdeps/unix/sysv/linux/Makefile (sysdep_headers): Add
+	bits/signalfd.h.
+
 2012-02-14  Marek Polacek  <polacek@redhat.com>
 
 	* sysdeps/x86_64/crti.S: New file.

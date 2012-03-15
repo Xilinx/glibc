@@ -41,13 +41,151 @@ ildouble: 1
 ldouble: 1
 
 # cacos
+Test "Imaginary part of: cacos (+0 + 0.5 i) == pi/2 - 0.4812118250596034474977589134243684231352 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: cacos (+0 + 1.0 i) == pi/2 - 0.8813735870195430252326093249797923090282 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Imaginary part of: cacos (+0 + 1.5 i) == pi/2 - 1.194763217287109304111930828519090523536 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: cacos (+0 - 0.5 i) == pi/2 + 0.4812118250596034474977589134243684231352 i":
+float: 1
+ifloat: 1
+Test "Imaginary part of: cacos (+0 - 1.0 i) == pi/2 + 0.8813735870195430252326093249797923090282 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: cacos (+0 - 1.5 i) == pi/2 + 1.194763217287109304111930828519090523536 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: cacos (-0 + 0.5 i) == pi/2 - 0.4812118250596034474977589134243684231352 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: cacos (-0 + 1.0 i) == pi/2 - 0.8813735870195430252326093249797923090282 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Imaginary part of: cacos (-0 + 1.5 i) == pi/2 - 1.194763217287109304111930828519090523536 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: cacos (-0 - 0.5 i) == pi/2 + 0.4812118250596034474977589134243684231352 i":
+float: 1
+ifloat: 1
+Test "Imaginary part of: cacos (-0 - 1.0 i) == pi/2 + 0.8813735870195430252326093249797923090282 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: cacos (-0 - 1.5 i) == pi/2 + 1.194763217287109304111930828519090523536 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: cacos (-1.5 + +0 i) == pi - 0.9624236501192068949955178268487368462704 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: cacos (-1.5 - 0 i) == pi + 0.9624236501192068949955178268487368462704 i":
+ildouble: 1
+ldouble: 1
+Test "Real part of: cacos (0.5 + +0 i) == 1.047197551196597746154214461093167628066 - 0 i":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+Test "Real part of: cacos (0.5 - 0 i) == 1.047197551196597746154214461093167628066 + +0 i":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
 Test "Imaginary part of: cacos (0.75 + 1.25 i) == 1.11752014915610270578240049553777969 - 1.13239363160530819522266333696834467 i":
 float: 1
 ifloat: 1
 ildouble: 2
 ldouble: 2
+Test "Imaginary part of: cacos (1.5 + +0 i) == +0 - 0.9624236501192068949955178268487368462704 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: cacos (1.5 - 0 i) == +0 + 0.9624236501192068949955178268487368462704 i":
+ildouble: 1
+ldouble: 1
 
 # cacosh
+Test "Real part of: cacosh (+0 + 0.5 i) == 0.4812118250596034474977589134243684231352 + pi/2 i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (+0 + 1.0 i) == 0.8813735870195430252326093249797923090282 + pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: cacosh (+0 + 1.5 i) == 1.194763217287109304111930828519090523536 + pi/2 i":
+double: 1
+idouble: 1
+Test "Real part of: cacosh (+0 - 0.5 i) == 0.4812118250596034474977589134243684231352 - pi/2 i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (+0 - 1.0 i) == 0.8813735870195430252326093249797923090282 - pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: cacosh (+0 - 1.5 i) == 1.194763217287109304111930828519090523536 - pi/2 i":
+double: 1
+idouble: 1
+Test "Real part of: cacosh (-0 + 0.5 i) == 0.4812118250596034474977589134243684231352 + pi/2 i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (-0 + 1.0 i) == 0.8813735870195430252326093249797923090282 + pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: cacosh (-0 + 1.5 i) == 1.194763217287109304111930828519090523536 + pi/2 i":
+double: 1
+idouble: 1
+Test "Real part of: cacosh (-0 - 0.5 i) == 0.4812118250596034474977589134243684231352 - pi/2 i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (-0 - 1.0 i) == 0.8813735870195430252326093249797923090282 - pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: cacosh (-0 - 1.5 i) == 1.194763217287109304111930828519090523536 - pi/2 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: cacosh (-0.5 + +0 i) == +0 + 2.094395102393195492308428922186335256131 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: cacosh (-0.5 - 0 i) == +0 - 2.094395102393195492308428922186335256131 i":
+double: 1
+idouble: 1
+Test "Real part of: cacosh (-1.5 + +0 i) == 0.9624236501192068949955178268487368462704 + pi i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (-1.5 - 0 i) == 0.9624236501192068949955178268487368462704 - pi i":
+float: 1
+ifloat: 1
 Test "Real part of: cacosh (-2 - 3 i) == 1.9833870299165354323470769028940395 - 2.1414491111159960199416055713254211 i":
 double: 1
 float: 7
@@ -65,8 +203,78 @@ ldouble: 1
 Test "Real part of: cacosh (0.75 + 1.25 i) == 1.13239363160530819522266333696834467 + 1.11752014915610270578240049553777969 i":
 ildouble: 1
 ldouble: 1
+Test "Real part of: cacosh (1.5 + +0 i) == 0.9624236501192068949955178268487368462704 + +0 i":
+float: 1
+ifloat: 1
+Test "Real part of: cacosh (1.5 - 0 i) == 0.9624236501192068949955178268487368462704 - 0 i":
+float: 1
+ifloat: 1
 
 # casin
+Test "Imaginary part of: casin (+0 + 0.5 i) == +0 + 0.4812118250596034474977589134243684231352 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: casin (+0 + 1.0 i) == +0 + 0.8813735870195430252326093249797923090282 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Imaginary part of: casin (+0 + 1.5 i) == +0 + 1.194763217287109304111930828519090523536 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: casin (+0 - 0.5 i) == +0 - 0.4812118250596034474977589134243684231352 i":
+float: 1
+ifloat: 1
+Test "Imaginary part of: casin (+0 - 1.0 i) == +0 - 0.8813735870195430252326093249797923090282 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: casin (+0 - 1.5 i) == +0 - 1.194763217287109304111930828519090523536 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: casin (-0 + 0.5 i) == -0 + 0.4812118250596034474977589134243684231352 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: casin (-0 + 1.0 i) == -0 + 0.8813735870195430252326093249797923090282 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Imaginary part of: casin (-0 + 1.5 i) == -0 + 1.194763217287109304111930828519090523536 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Imaginary part of: casin (-0 - 0.5 i) == -0 - 0.4812118250596034474977589134243684231352 i":
+float: 1
+ifloat: 1
+Test "Imaginary part of: casin (-0 - 1.0 i) == -0 - 0.8813735870195430252326093249797923090282 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: casin (-0 - 1.5 i) == -0 - 1.194763217287109304111930828519090523536 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: casin (-1.5 + +0 i) == -pi/2 + 0.9624236501192068949955178268487368462704 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: casin (-1.5 - 0 i) == -pi/2 - 0.9624236501192068949955178268487368462704 i":
+ildouble: 1
+ldouble: 1
 Test "Real part of: casin (0.75 + 1.25 i) == 0.453276177638793913448921196101971749 + 1.13239363160530819522266333696834467 i":
 double: 1
 float: 1
@@ -79,8 +287,66 @@ float: 1
 ifloat: 1
 ildouble: 2
 ldouble: 2
+Test "Imaginary part of: casin (1.5 + +0 i) == pi/2 + 0.9624236501192068949955178268487368462704 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Imaginary part of: casin (1.5 - 0 i) == pi/2 - 0.9624236501192068949955178268487368462704 i":
+ildouble: 1
+ldouble: 1
 
 # casinh
+Test "Real part of: casinh (+0 + 1.5 i) == 0.9624236501192068949955178268487368462704 + pi/2 i":
+ildouble: 1
+ldouble: 1
+Test "Real part of: casinh (+0 - 1.5 i) == 0.9624236501192068949955178268487368462704 - pi/2 i":
+ildouble: 1
+ldouble: 1
+Test "Real part of: casinh (-0 + 1.5 i) == -0.9624236501192068949955178268487368462704 + pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: casinh (-0 - 1.5 i) == -0.9624236501192068949955178268487368462704 - pi/2 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: casinh (-0.5 + +0 i) == -0.4812118250596034474977589134243684231352 + +0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Real part of: casinh (-0.5 - 0 i) == -0.4812118250596034474977589134243684231352 - 0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Real part of: casinh (-1.0 + +0 i) == -0.8813735870195430252326093249797923090282 + +0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Real part of: casinh (-1.0 - 0 i) == -0.8813735870195430252326093249797923090282 - 0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "Real part of: casinh (-1.5 + +0 i) == -1.194763217287109304111930828519090523536 + +0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
+Test "Real part of: casinh (-1.5 - 0 i) == -1.194763217287109304111930828519090523536 - 0 i":
+double: 2
+float: 1
+idouble: 2
+ifloat: 1
 Test "Real part of: casinh (-2 - 3 i) == -1.9686379257930962917886650952454982 - 0.96465850440760279204541105949953237 i":
 double: 5
 float: 1
@@ -95,6 +361,12 @@ idouble: 3
 ifloat: 6
 ildouble: 5
 ldouble: 5
+Test "Real part of: casinh (0.5 + +0 i) == 0.4812118250596034474977589134243684231352 + +0 i":
+float: 1
+ifloat: 1
+Test "Real part of: casinh (0.5 - 0 i) == 0.4812118250596034474977589134243684231352 - 0 i":
+float: 1
+ifloat: 1
 Test "Real part of: casinh (0.75 + 1.25 i) == 1.03171853444778027336364058631006594 + 0.911738290968487636358489564316731207 i":
 float: 1
 ifloat: 1
@@ -105,6 +377,22 @@ idouble: 1
 ifloat: 1
 ildouble: 1
 ldouble: 1
+Test "Real part of: casinh (1.0 + +0 i) == 0.8813735870195430252326093249797923090282 + +0 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: casinh (1.0 - 0 i) == 0.8813735870195430252326093249797923090282 - 0 i":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+Test "Real part of: casinh (1.5 + +0 i) == 1.194763217287109304111930828519090523536 + +0 i":
+double: 1
+idouble: 1
+Test "Real part of: casinh (1.5 - 0 i) == 1.194763217287109304111930828519090523536 - 0 i":
+double: 1
+idouble: 1
 
 # catan
 Test "Real part of: catan (-2 - 3 i) == -1.4099210495965755225306193844604208 - 0.22907268296853876629588180294200276 i":
@@ -327,6 +615,151 @@ ifloat: 1
 ildouble: 1
 ldouble: 1
 
+# cos_downward
+Test "cos_downward (1) == 0.5403023058681397174009366074429766037323":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_downward (2) == -0.4161468365471423869975682295007621897660":
+float: 1
+ifloat: 1
+Test "cos_downward (3) == -0.9899924966004454572715727947312613023937":
+float: 1
+ifloat: 1
+Test "cos_downward (4) == -0.6536436208636119146391681830977503814241":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_downward (5) == 0.2836621854632262644666391715135573083344":
+float: 1
+ifloat: 1
+Test "cos_downward (7) == 0.7539022543433046381411975217191820122183":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_downward (8) == -0.1455000338086135258688413818311946826093":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_downward (9) == -0.9111302618846769883682947111811653112463":
+ildouble: 1
+ldouble: 1
+
+# cos_tonearest
+Test "cos_tonearest (7) == 0.7539022543433046381411975217191820122183":
+float: 1
+ifloat: 1
+Test "cos_tonearest (8) == -0.1455000338086135258688413818311946826093":
+ildouble: 1
+ldouble: 1
+Test "cos_tonearest (9) == -0.9111302618846769883682947111811653112463":
+ildouble: 1
+ldouble: 1
+
+# cos_towardzero
+Test "cos_towardzero (1) == 0.5403023058681397174009366074429766037323":
+ildouble: 1
+ldouble: 1
+Test "cos_towardzero (10) == -0.8390715290764524522588639478240648345199":
+ildouble: 1
+ldouble: 1
+Test "cos_towardzero (2) == -0.4161468365471423869975682295007621897660":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_towardzero (3) == -0.9899924966004454572715727947312613023937":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_towardzero (5) == 0.2836621854632262644666391715135573083344":
+float: 1
+ifloat: 1
+Test "cos_towardzero (7) == 0.7539022543433046381411975217191820122183":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_towardzero (8) == -0.1455000338086135258688413818311946826093":
+float: 1
+ifloat: 1
+
+# cos_upward
+Test "cos_upward (10) == -0.8390715290764524522588639478240648345199":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_upward (2) == -0.4161468365471423869975682295007621897660":
+ildouble: 1
+ldouble: 1
+Test "cos_upward (3) == -0.9899924966004454572715727947312613023937":
+ildouble: 1
+ldouble: 1
+Test "cos_upward (5) == 0.2836621854632262644666391715135573083344":
+ildouble: 1
+ldouble: 1
+Test "cos_upward (6) == 0.9601702866503660205456522979229244054519":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cos_upward (7) == 0.7539022543433046381411975217191820122183":
+float: 1
+ifloat: 1
+Test "cos_upward (9) == -0.9111302618846769883682947111811653112463":
+float: 2
+ifloat: 2
+
+# cosh_downward
+Test "cosh_downward (22) == 1792456423.065795780980053377632656584997":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "cosh_downward (23) == 4872401723.124451300068625740569997090344":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cosh_downward (24) == 13244561064.92173614708845674912733665919":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# cosh_tonearest
+Test "cosh_tonearest (22) == 1792456423.065795780980053377632656584997":
+ildouble: 1
+ldouble: 1
+
+# cosh_towardzero
+Test "cosh_towardzero (22) == 1792456423.065795780980053377632656584997":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "cosh_towardzero (23) == 4872401723.124451300068625740569997090344":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "cosh_towardzero (24) == 13244561064.92173614708845674912733665919":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# cosh_upward
+Test "cosh_upward (23) == 4872401723.124451300068625740569997090344":
+ildouble: 1
+ldouble: 1
+
 # cpow
 Test "Real part of: cpow (0.75 + 1.25 i, 0.0 + 1.0 i) == 0.331825439177608832276067945276730566 + 0.131338600281188544930936345230903032 i":
 float: 1
@@ -415,13 +848,42 @@ ifloat: 1
 Test "Real part of: csqrt (-2 - 3 i) == 0.89597747612983812471573375529004348 - 1.6741492280355400404480393008490519 i":
 float: 1
 ifloat: 1
+Test "Imaginary part of: csqrt (0x1.fffffep+127 + 1.0 i) == 1.844674352395372953599975585936590505260e+19 + 2.710505511993121390769065968615872097053e-20 i":
+float: 1
+ifloat: 1
+Test "Real part of: csqrt (0x1.fffffffffffffp+1023 + 0x1.fffffffffffffp+1023 i) == 1.473094556905565378990473658199034571917e+154 + 6.101757441282702188537080005372547713595e+153 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: csqrt (0x1.fffffffffffffp+1023 + 0x1.fffffffffffffp+1023 i) == 1.473094556905565378990473658199034571917e+154 + 6.101757441282702188537080005372547713595e+153 i":
+double: 1
+idouble: 1
+Test "Imaginary part of: csqrt (0x1.fffffffffffffp+1023 + 0x1p+1023 i) == 1.379778091031440685006200821918878702861e+154 + 3.257214233483129514781233066898042490248e+153 i":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+Test "Imaginary part of: csqrt (0x1.fp+16383 + 0x1.fp+16383 i) == 1.179514222452201722651836720466795901016e+2466 + 4.885707879516577666702435054303191575148e+2465 i":
+ildouble: 1
+ldouble: 1
+Test "Imaginary part of: csqrt (0x1p-1073 + 0x1p-1073 i) == 3.453664695497464982856905711457966660085e-162 + 1.430554756764195530630723976279903095110e-162 i":
+ildouble: 1
+ldouble: 1
+Test "Imaginary part of: csqrt (0x1p-1074 + 0x1p-1074 i) == 2.442109726130830256743814843868934877597e-162 + 1.011554969366634726113090867589031782487e-162 i":
+ildouble: 1
+ldouble: 1
+Test "Imaginary part of: csqrt (0x1p-147 + 0x1p-147 i) == 8.225610928685557596194006925540350401606e-23 + 3.407159605465907500737319471202779419102e-23 i":
+ildouble: 1
+ldouble: 1
+Test "Imaginary part of: csqrt (0x1p-149 + 0x1p-149 i) == 4.112805464342778798097003462770175200803e-23 + 1.703579802732953750368659735601389709551e-23 i":
+ildouble: 1
+ldouble: 1
 
 # ctan
 Test "Real part of: ctan (-2 - 3 i) == 0.376402564150424829275122113032269084e-2 - 1.00323862735360980144635859782192726 i":
 double: 1
 idouble: 1
-ildouble: 439
-ldouble: 439
+ildouble: 1
+ldouble: 1
 Test "Imaginary part of: ctan (-2 - 3 i) == 0.376402564150424829275122113032269084e-2 - 1.00323862735360980144635859782192726 i":
 float: 1
 ifloat: 1
@@ -444,11 +906,11 @@ double: 1
 float: 2
 idouble: 1
 ifloat: 2
-ildouble: 5
-ldouble: 5
+ildouble: 3
+ldouble: 3
 Test "Imaginary part of: ctanh (-2 - 3 i) == -0.965385879022133124278480269394560686 + 0.988437503832249372031403430350121098e-2 i":
-ildouble: 25
-ldouble: 25
+ildouble: 1
+ldouble: 1
 Test "Imaginary part of: ctanh (0 + pi/4 i) == 0.0 + 1.0 i":
 float: 1
 ifloat: 1
@@ -467,6 +929,16 @@ double: 1
 idouble: 1
 
 # erfc
+Test "erfc (0x1.f7303cp+1) == 2.705500297238986897105236321218861842255e-8":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+Test "erfc (0x1.ffa002p+2) == 1.233585992097580296336099501489175967033e-29":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
 Test "erfc (1.25) == 0.0770998717435417698634765188027188596":
 ildouble: 1
 ldouble: 1
@@ -502,6 +974,41 @@ ifloat: 2
 ildouble: 8
 ldouble: 8
 
+# exp_downward
+Test "exp_downward (1) == e":
+ildouble: 1
+ldouble: 1
+Test "exp_downward (2) == e^2":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "exp_downward (3) == e^3":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# exp_towardzero
+Test "exp_towardzero (1) == e":
+ildouble: 1
+ldouble: 1
+Test "exp_towardzero (2) == e^2":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+Test "exp_towardzero (3) == e^3":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# exp_upward
+Test "exp_upward (1) == e":
+float: 1
+ifloat: 1
+
 # expm1
 Test "expm1 (0.75) == 1.11700001661267466854536981983709561":
 double: 1
@@ -511,6 +1018,9 @@ double: 1
 float: 1
 idouble: 1
 ifloat: 1
+Test "expm1 (11356.25) == 9.05128237311923300051376115753226014206e+4931":
+ildouble: 1
+ldouble: 1
 
 # gamma
 Test "gamma (-0.5) == log(2*sqrt(pi))":
@@ -783,6 +1293,137 @@ Test "log1p (-0.25) == -0.287682072451780927439219005993827432":
 float: 1
 ifloat: 1
 
+# pow_downward
+Test "pow_downward (1.0625, 1.125) == 1.070582293028761362162622578677070098674":
+ildouble: 1
+ldouble: 1
+Test "pow_downward (1.5, 1.03125) == 1.519127098714743184071644334163037684948":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# pow_towardzero
+Test "pow_towardzero (1.0625, 1.125) == 1.070582293028761362162622578677070098674":
+ildouble: 1
+ldouble: 1
+Test "pow_towardzero (1.5, 1.03125) == 1.519127098714743184071644334163037684948":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# pow_upward
+Test "pow_upward (1.0625, 1.125) == 1.070582293028761362162622578677070098674":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "pow_upward (1.5, 1.03125) == 1.519127098714743184071644334163037684948":
+ildouble: 1
+ldouble: 1
+
+# sin_downward
+Test "sin_downward (1) == 0.8414709848078965066525023216302989996226":
+ildouble: 1
+ldouble: 1
+Test "sin_downward (10) == -0.5440211108893698134047476618513772816836":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "sin_downward (3) == 0.1411200080598672221007448028081102798469":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "sin_downward (4) == -0.7568024953079282513726390945118290941359":
+ildouble: 1
+ldouble: 1
+Test "sin_downward (5) == -0.9589242746631384688931544061559939733525":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "sin_downward (6) == -0.2794154981989258728115554466118947596280":
+float: 1
+ifloat: 1
+Test "sin_downward (7) == 0.6569865987187890903969990915936351779369":
+ildouble: 1
+ldouble: 1
+Test "sin_downward (8) == 0.9893582466233817778081235982452886721164":
+ildouble: 1
+ldouble: 1
+Test "sin_downward (9) == 0.4121184852417565697562725663524351793439":
+ildouble: 1
+ldouble: 1
+
+# sin_tonearest
+Test "sin_tonearest (1) == 0.8414709848078965066525023216302989996226":
+float: 1
+ifloat: 1
+Test "sin_tonearest (10) == -0.5440211108893698134047476618513772816836":
+ildouble: 1
+ldouble: 1
+Test "sin_tonearest (4) == -0.7568024953079282513726390945118290941359":
+ildouble: 1
+ldouble: 1
+Test "sin_tonearest (9) == 0.4121184852417565697562725663524351793439":
+ildouble: 1
+ldouble: 1
+
+# sin_towardzero
+Test "sin_towardzero (1) == 0.8414709848078965066525023216302989996226":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "sin_towardzero (10) == -0.5440211108893698134047476618513772816836":
+float: 1
+ifloat: 1
+Test "sin_towardzero (3) == 0.1411200080598672221007448028081102798469":
+ildouble: 1
+ldouble: 1
+Test "sin_towardzero (4) == -0.7568024953079282513726390945118290941359":
+float: 1
+ifloat: 1
+Test "sin_towardzero (5) == -0.9589242746631384688931544061559939733525":
+float: 1
+ifloat: 1
+Test "sin_towardzero (6) == -0.2794154981989258728115554466118947596280":
+ildouble: 1
+ldouble: 1
+Test "sin_towardzero (7) == 0.6569865987187890903969990915936351779369":
+ildouble: 1
+ldouble: 1
+Test "sin_towardzero (8) == 0.9893582466233817778081235982452886721164":
+ildouble: 1
+ldouble: 1
+Test "sin_towardzero (9) == 0.4121184852417565697562725663524351793439":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# sin_upward
+Test "sin_upward (1) == 0.8414709848078965066525023216302989996226":
+float: 1
+ifloat: 1
+Test "sin_upward (2) == 0.9092974268256816953960198659117448427023":
+float: 2
+ifloat: 2
+ildouble: 1
+ldouble: 1
+Test "sin_upward (4) == -0.7568024953079282513726390945118290941359":
+float: 1
+ifloat: 1
+Test "sin_upward (6) == -0.2794154981989258728115554466118947596280":
+ildouble: 1
+ldouble: 1
+Test "sin_upward (9) == 0.4121184852417565697562725663524351793439":
+float: 1
+ifloat: 1
+
 # sincos
 Test "sincos (0.80190127184058835, &sin_res, &cos_res) puts 0.69534156199418473 in cos_res":
 double: 1
@@ -810,14 +1451,173 @@ Test "sincos (pi/6, &sin_res, &cos_res) puts 0.866025403784438646763723170752936
 float: 1
 ifloat: 1
 
+# sinh
 Test "sinh (0x8p-32) == 1.86264514923095703232705808926175479e-9":
-ldouble: 1
 ildouble: 1
+ldouble: 1
+
+# sinh_downward
+Test "sinh_downward (22) == 1792456423.065795780701106568345764104225":
+float: 1
+ifloat: 1
+ildouble: 4
+ldouble: 4
+Test "sinh_downward (23) == 4872401723.124451299966006944252978187305":
+float: 1
+ifloat: 1
+Test "sinh_downward (24) == 13244561064.92173614705070540368454568168":
+float: 1
+ifloat: 1
+ildouble: 5
+ldouble: 5
+
+# sinh_tonearest
+Test "sinh_tonearest (22) == 1792456423.065795780701106568345764104225":
+ildouble: 3
+ldouble: 3
+Test "sinh_tonearest (23) == 4872401723.124451299966006944252978187305":
+ildouble: 1
+ldouble: 1
+Test "sinh_tonearest (24) == 13244561064.92173614705070540368454568168":
+ildouble: 6
+ldouble: 6
+
+# sinh_towardzero
+Test "sinh_towardzero (22) == 1792456423.065795780701106568345764104225":
+float: 1
+ifloat: 1
+ildouble: 4
+ldouble: 4
+Test "sinh_towardzero (23) == 4872401723.124451299966006944252978187305":
+float: 1
+ifloat: 1
+Test "sinh_towardzero (24) == 13244561064.92173614705070540368454568168":
+float: 1
+ifloat: 1
+ildouble: 5
+ldouble: 5
+
+# sinh_upward
+Test "sinh_upward (22) == 1792456423.065795780701106568345764104225":
+ildouble: 16
+ldouble: 16
+Test "sinh_upward (23) == 4872401723.124451299966006944252978187305":
+ildouble: 27
+ldouble: 27
+Test "sinh_upward (24) == 13244561064.92173614705070540368454568168":
+ildouble: 7
+ldouble: 7
 
 # tan
 Test "tan (pi/4) == 1":
 double: 1
 idouble: 1
+
+# tan_downward
+Test "tan_downward (1) == 1.5574077246549022305069748074583601730873":
+float: 1
+ifloat: 1
+Test "tan_downward (10) == 0.6483608274590866712591249330098086768169":
+float: 1
+ifloat: 1
+Test "tan_downward (2) == -2.1850398632615189916433061023136825434320":
+float: 1
+ifloat: 1
+Test "tan_downward (4) == 1.1578212823495775831373424182673239231198":
+ildouble: 1
+ldouble: 1
+Test "tan_downward (5) == -3.3805150062465856369827058794473439087096":
+ildouble: 1
+ldouble: 1
+Test "tan_downward (6) == -0.2910061913847491570536995888681755428312":
+float: 1
+ifloat: 1
+Test "tan_downward (8) == -6.7997114552203786999252627596086333648814":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_downward (9) == -0.4523156594418098405903708757987855343087":
+float: 1
+ifloat: 1
+
+# tan_tonearest
+Test "tan_tonearest (6) == -0.2910061913847491570536995888681755428312":
+ildouble: 1
+ldouble: 1
+Test "tan_tonearest (8) == -6.7997114552203786999252627596086333648814":
+ildouble: 1
+ldouble: 1
+Test "tan_tonearest (9) == -0.4523156594418098405903708757987855343087":
+ildouble: 1
+ldouble: 1
+
+# tan_towardzero
+Test "tan_towardzero (10) == 0.6483608274590866712591249330098086768169":
+float: 1
+ifloat: 1
+Test "tan_towardzero (2) == -2.1850398632615189916433061023136825434320":
+ildouble: 1
+ldouble: 1
+Test "tan_towardzero (3) == -0.1425465430742778052956354105339134932261":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_towardzero (4) == 1.1578212823495775831373424182673239231198":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_towardzero (5) == -3.3805150062465856369827058794473439087096":
+float: 1
+ifloat: 1
+Test "tan_towardzero (6) == -0.2910061913847491570536995888681755428312":
+ildouble: 1
+ldouble: 1
+Test "tan_towardzero (8) == -6.7997114552203786999252627596086333648814":
+ildouble: 2
+ldouble: 2
+Test "tan_towardzero (9) == -0.4523156594418098405903708757987855343087":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+# tan_upward
+Test "tan_upward (1) == 1.5574077246549022305069748074583601730873":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_upward (10) == 0.6483608274590866712591249330098086768169":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_upward (2) == -2.1850398632615189916433061023136825434320":
+ildouble: 1
+ldouble: 1
+Test "tan_upward (3) == -0.1425465430742778052956354105339134932261":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+Test "tan_upward (5) == -3.3805150062465856369827058794473439087096":
+float: 1
+ifloat: 1
+Test "tan_upward (6) == -0.2910061913847491570536995888681755428312":
+ildouble: 1
+ldouble: 1
+Test "tan_upward (7) == 0.8714479827243187364564508896003135663222":
+ildouble: 1
+ldouble: 1
+Test "tan_upward (8) == -6.7997114552203786999252627596086333648814":
+ildouble: 2
+ldouble: 2
+Test "tan_upward (9) == -0.4523156594418098405903708757987855343087":
+ildouble: 1
+ldouble: 1
 
 # tgamma
 Test "tgamma (-0.5) == -2 sqrt (pi)":
@@ -1015,8 +1815,16 @@ ifloat: 1
 ildouble: 1
 ldouble: 1
 
+Function: Real part of "cacos":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+
 Function: Imaginary part of "cacos":
+double: 2
 float: 1
+idouble: 2
 ifloat: 1
 ildouble: 2
 ldouble: 2
@@ -1046,7 +1854,9 @@ ildouble: 2
 ldouble: 2
 
 Function: Imaginary part of "casin":
+double: 2
 float: 1
+idouble: 2
 ifloat: 1
 ildouble: 2
 ldouble: 2
@@ -1165,6 +1975,50 @@ ifloat: 1
 ildouble: 1
 ldouble: 1
 
+Function: "cos_downward":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "cos_tonearest":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "cos_towardzero":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "cos_upward":
+float: 2
+ifloat: 2
+ildouble: 1
+ldouble: 1
+
+Function: "cosh_downward":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "cosh_tonearest":
+ildouble: 1
+ldouble: 1
+
+Function: "cosh_towardzero":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "cosh_upward":
+ildouble: 1
+ldouble: 1
+
 Function: Real part of "cpow":
 double: 2
 float: 5
@@ -1208,14 +2062,24 @@ ildouble: 2
 ldouble: 2
 
 Function: Real part of "csqrt":
+double: 1
 float: 1
+idouble: 1
 ifloat: 1
+
+Function: Imaginary part of "csqrt":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
 
 Function: Real part of "ctan":
 double: 1
 idouble: 1
-ildouble: 439
-ldouble: 439
+ildouble: 1
+ldouble: 1
 
 Function: Imaginary part of "ctan":
 double: 1
@@ -1230,16 +2094,16 @@ double: 1
 float: 2
 idouble: 1
 ifloat: 2
-ildouble: 5
-ldouble: 5
+ildouble: 3
+ldouble: 3
 
 Function: Imaginary part of "ctanh":
 double: 1
 float: 1
 idouble: 1
 ifloat: 1
-ildouble: 25
-ldouble: 25
+ildouble: 1
+ldouble: 1
 
 Function: "erf":
 double: 1
@@ -1247,7 +2111,9 @@ idouble: 1
 
 Function: "erfc":
 double: 1
+float: 1
 idouble: 1
+ifloat: 1
 ildouble: 1
 ldouble: 1
 
@@ -1259,11 +2125,29 @@ ifloat: 2
 ildouble: 8
 ldouble: 8
 
+Function: "exp_downward":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "exp_towardzero":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "exp_upward":
+float: 1
+ifloat: 1
+
 Function: "expm1":
 double: 1
 float: 1
 idouble: 1
 ifloat: 1
+ildouble: 1
+ldouble: 1
 
 Function: "gamma":
 ildouble: 1
@@ -1317,6 +2201,48 @@ Function: "log1p":
 float: 1
 ifloat: 1
 
+Function: "pow_downward":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "pow_towardzero":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "pow_upward":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "sin_downward":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "sin_tonearest":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "sin_towardzero":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "sin_upward":
+float: 2
+ifloat: 2
+ildouble: 1
+ldouble: 1
+
 Function: "sincos":
 double: 1
 float: 1
@@ -1326,12 +2252,54 @@ ildouble: 1
 ldouble: 1
 
 Function: "sinh":
-ldouble: 1
 ildouble: 1
+ldouble: 1
+
+Function: "sinh_downward":
+float: 1
+ifloat: 1
+ildouble: 5
+ldouble: 5
+
+Function: "sinh_tonearest":
+ildouble: 6
+ldouble: 6
+
+Function: "sinh_towardzero":
+float: 1
+ifloat: 1
+ildouble: 5
+ldouble: 5
+
+Function: "sinh_upward":
+ildouble: 27
+ldouble: 27
 
 Function: "tan":
 double: 1
 idouble: 1
+
+Function: "tan_downward":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "tan_tonearest":
+ildouble: 1
+ldouble: 1
+
+Function: "tan_towardzero":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "tan_upward":
+float: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
 
 Function: "tgamma":
 double: 1
