@@ -349,7 +349,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -387,7 +387,7 @@ __pthread_cond_wait:
 93:
 	/* Set the rest of SYS_futex args for FUTEX_WAIT_REQUEUE_PI. */
 	xorq	%r10, %r10
-	movq	dep_mutex(%rdi), %r8
+	mov	dep_mutex(%rdi), %R8_LP
 	leaq	cond_futex(%rdi), %rdi
 	jmp	90b
 .LcleanupEND2:
@@ -496,7 +496,7 @@ __condvar_cleanup1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
