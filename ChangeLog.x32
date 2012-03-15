@@ -1,3 +1,8 @@
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sys/msg.h (msgbuf): Replace
+	__SNATIVE_LONG_TYPE with __SSYSCALL_LONG_TYPE.
+
 2012-03-14  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/bits/siginfo.h: New.
