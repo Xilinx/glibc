@@ -63,7 +63,7 @@ time_ifunc (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  return _dl_vdso_vsym ("time", &linux26) ?: (void *) time_syscall;
+  return _dl_vdso_vsym ("__vdso_time", &linux26) ?: (void *) time_syscall;
 }
 __asm (".type __GI_time, %gnu_indirect_function");
 #else

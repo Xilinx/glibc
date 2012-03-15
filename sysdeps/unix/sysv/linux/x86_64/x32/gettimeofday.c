@@ -26,7 +26,7 @@ gettimeofday_ifunc (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  return _dl_vdso_vsym ("gettimeofday", &linux26);
+  return _dl_vdso_vsym ("__vdso_gettimeofday", &linux26);
 }
 __asm (".type __gettimeofday, %gnu_indirect_function");
 #else
