@@ -48,13 +48,17 @@ typedef union sigval
 #  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
 # endif
 
-#if defined __x86_64__ && __WORDSIZE == 32
+# if defined __x86_64__ && __WORDSIZE == 32
 /* si_utime and si_stime must be 4 byte aligned for x32 to match the
-   kernel.  */
+   kernel.  We align siginfo_t to 8 bytes so that si_utime and si_stime
+   are actually aligned to 8 bytes since their offsets are multiple of
+   8 bytes.  */
 typedef __clock_t __attribute__ ((__aligned__ (4))) __sigchld_clock_t;
-#else
+#  define __SI_ALIGNMENT __attribute__ ((__aligned__ (8)))
+# else
 typedef __clock_t __sigchld_clock_t;
-#endif
+#  define __SI_ALIGNMENT
+# endif
 
 typedef struct siginfo
   {
@@ -113,7 +117,7 @@ typedef struct siginfo
 	    int si_fd;
 	  } _sigpoll;
       } _sifields;
-  } siginfo_t;
+  } siginfo_t __SI_ALIGNMENT;
 
 
 /* X/Open requires some more fields with fixed names.  */
