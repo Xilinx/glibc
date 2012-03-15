@@ -1,5 +1,21 @@
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/getcpu.c (getcpu_ifunc):
+	Replace getcpu with __vdso_getcpu.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/gettimeofday.c
+	(gettimeofday_ifunc): Replace gettimeofday with
+	__vdso_gettimeofday.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/init-first.c
+	(_libc_vdso_platform_setup): Replace clock_gettime with
+	__vdso_clock_gettime.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/time.c (time_ifunc): Replace
+	time with __vdso_time.
+
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sys/msg.h (msgbuf): Replace
 	__SNATIVE_LONG_TYPE with __SSYSCALL_LONG_TYPE.
 

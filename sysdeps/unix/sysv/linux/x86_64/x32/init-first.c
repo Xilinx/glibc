@@ -29,7 +29,7 @@ _libc_vdso_platform_setup (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  void *p = _dl_vdso_vsym ("clock_gettime", &linux26);
+  void *p = _dl_vdso_vsym ("__vdso_clock_gettime", &linux26);
   PTR_MANGLE (p);
   __GI___vdso_clock_gettime = p;
 }

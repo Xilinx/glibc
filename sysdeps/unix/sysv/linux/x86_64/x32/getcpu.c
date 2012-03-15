@@ -26,7 +26,7 @@ getcpu_ifunc (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  return _dl_vdso_vsym ("getcpu", &linux26);
+  return _dl_vdso_vsym ("__vdso_getcpu", &linux26);
 }
 __asm (".type __getcpu, %gnu_indirect_function");
 #endif
