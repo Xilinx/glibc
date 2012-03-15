@@ -1,5 +1,10 @@
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* time/mktime.c: Sync with gnulib mktime.c at commit
+	a7967a2cf0998b6c157c7cf8e1d8d9d11dab30b0.
+
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* Makefile (data-machine): Removed.
 	(check-data): Updated.
 
