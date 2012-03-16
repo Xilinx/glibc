@@ -1,5 +1,13 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/i386/readelflib.c (process_elf_file):
+	Move e_machine check before EI_CLASS check.  Check EM_IA_64 only
+	if SKIP_EM_IA_64 isn't defined.
+	* sysdeps/unix/sysv/linux/x86_64/readelflib.c: Just define
+	SKIP_EM_IA_64 and include <sysdeps/unix/sysv/linux/i386/readelflib.c>.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/makecontext.c (__makecontext):
 	Use greg_t instead of unsigned long long int and long long int.
 
