@@ -18,6 +18,8 @@
 #ifdef SHARED
 #include <dl-vdso.h>
 
+#define VSYSCALL_ADDR_vtime	0xffffffffff600400
+
 void *time_ifunc (void) __asm__ ("time");
 
 void *

@@ -1,5 +1,21 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h
+	(VSYSCALL_ADDR_vgettimeofday): Removed.
+	(VSYSCALL_ADDR_vtime): Likewise.
+	(VSYSCALL_ADDR_vgetcpu): Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/gettimeofday.c
+	(VSYSCALL_ADDR_vgettimeofday): Restored.
+	* sysdeps/unix/sysv/linux/x86_64/init-first.c
+	(VSYSCALL_ADDR_vgetcpu): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sched_getcpu.S
+	(VSYSCALL_ADDR_vgetcpu): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/time.c (VSYSCALL_ADDR_vtime):
+	Likewise.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/sigcontext.h: Include
 	<bits/wordsize.h>.
 	(sigcontext): Check __WORDSIZE instead of __LP64__.
