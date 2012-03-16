@@ -27,41 +27,41 @@ struct timex
   /* mode selector */
   unsigned int modes;
   /* time offset (usec) */
-  __SSYSCALL_LONG_TYPE offset;
+  __syscall_slong_t offset;
   /* frequency offset (scaled ppm) */
-  __SSYSCALL_LONG_TYPE freq;
+  __syscall_slong_t freq;
   /* maximum error (usec) */
-  __SSYSCALL_LONG_TYPE maxerror;
+  __syscall_slong_t maxerror;
   /* estimated error (usec) */
-  __SSYSCALL_LONG_TYPE esterror;
+  __syscall_slong_t esterror;
   /* clock command/status */
   int status;
   /* pll time constant */
-  __SSYSCALL_LONG_TYPE constant;
+  __syscall_slong_t constant;
   /* clock precision (usec) (read only) */
-  __SSYSCALL_LONG_TYPE precision;
+  __syscall_slong_t precision;
   /* clock frequency tolerance (ppm) (read only) */
-  __SSYSCALL_LONG_TYPE tolerance;
+  __syscall_slong_t tolerance;
   /* (read only) */
   struct timeval time;
   /* (modified) usecs between clock ticks */
-  __SSYSCALL_LONG_TYPE tick;
+  __syscall_slong_t tick;
   /* pps frequency (scaled ppm) (ro) */
-  __SSYSCALL_LONG_TYPE ppsfreq;
+  __syscall_slong_t ppsfreq;
   /* pps jitter (us) (ro) */
-  __SSYSCALL_LONG_TYPE jitter;
+  __syscall_slong_t jitter;
   /* interval duration (s) (shift) (ro) */
   int shift;
   /* pps stability (scaled ppm) (ro) */
-  __SSYSCALL_LONG_TYPE stabil;
+  __syscall_slong_t stabil;
   /* jitter limit exceeded (ro) */
-  __SSYSCALL_LONG_TYPE jitcnt;
+  __syscall_slong_t jitcnt;
   /* calibration intervals (ro) */
-  __SSYSCALL_LONG_TYPE calcnt;
+  __syscall_slong_t calcnt;
   /* calibration errors (ro) */
-  __SSYSCALL_LONG_TYPE errcnt;
+  __syscall_slong_t errcnt;
   /* stability limit exceeded (ro) */
-  __SSYSCALL_LONG_TYPE stbcnt;
+  __syscall_slong_t stbcnt;
 
   /* TAI offset (ro) */
   int tai;
