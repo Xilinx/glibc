@@ -1,5 +1,15 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/sigcontext.h: Include
+	<bits/wordsize.h>.
+	(sigcontext): Check __WORDSIZE instead of __LP64__.
+
+	* sysdeps/unix/sysv/linux/x86_64/sys/user.h: Include
+	<bits/wordsize.h>.
+	(user): Check __WORDSIZE instead of __LP64__.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/64/bits/wordsize.h (__GNUC_PREREQ): New macro
 	if not defined.
 	(__WORDSIZE): Defined to 64 for GCC older than GCC 3.3 if

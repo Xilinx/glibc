@@ -22,6 +22,8 @@
    too much into it.  Don't use it for anything other than GDB unless
    you know what you are doing.  */
 
+#include <bits/wordsize.h>
+
 #ifdef __x86_64__
 
 struct user_fpregs_struct
@@ -83,13 +85,13 @@ struct user
   long long int			signal;
   int				reserved;
   struct user_regs_struct*	u_ar0;
-#ifndef __LP64__
+# if __WORDSIZE == 32
   unsigned int			pad0;
-#endif
+# endif
   struct user_fpregs_struct*	u_fpstate;
-#ifndef __LP64__
+# if __WORDSIZE == 32
   unsigned int			pad1;
-#endif
+# endif
   unsigned long long int	magic;
   char				u_comm [32];
   unsigned long long int	u_debugreg [8];
