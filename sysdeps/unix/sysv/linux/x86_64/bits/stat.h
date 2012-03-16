@@ -95,11 +95,11 @@ struct stat
 # define st_ctime st_ctim.tv_sec
 #else
     __time_t st_atime;			/* Time of last access.  */
-    __USYSCALL_LONG_TYPE st_atimensec;	/* Nscecs of last access.  */
+    __syscall_ulong_t st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    __USYSCALL_LONG_TYPE st_mtimensec;	/* Nsecs of last modification.  */
+    __syscall_ulong_t st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    __USYSCALL_LONG_TYPE st_ctimensec;	/* Nsecs of last status change.  */
+    __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 #endif
 #ifdef __x86_64__ 
     long long int __unused[3];
@@ -156,11 +156,11 @@ struct stat64
 #  define st_ctime st_ctim.tv_sec
 # else
     __time_t st_atime;			/* Time of last access.  */
-    __USYSCALL_LONG_TYPE st_atimensec;	/* Nscecs of last access.  */
+    __syscall_ulong_t st_atimensec;	/* Nscecs of last access.  */
     __time_t st_mtime;			/* Time of last modification.  */
-    __USYSCALL_LONG_TYPE st_mtimensec;	/* Nsecs of last modification.  */
+    __syscall_ulong_t st_mtimensec;	/* Nsecs of last modification.  */
     __time_t st_ctime;			/* Time of last status change.  */
-    __USYSCALL_LONG_TYPE st_ctimensec;	/* Nsecs of last status change.  */
+    __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 # endif
 # ifdef __x86_64__ 
     long long int __unused[3];

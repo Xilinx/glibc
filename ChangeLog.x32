@@ -1,5 +1,40 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* bits/types.h (__syscall_slong_t): New type.
+	(__syscall_ulong_t): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipc.h: Replace
+	__USYSCALL_LONG_TYPE/__USYSCALL_LONG_TYPE with
+	__syscall_slong_t/__syscall_ulong_t.
+	* sysdeps/unix/sysv/linux/x86_64/bits/mqueue.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/mqueue.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/msq.: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/sem.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/shm.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/stat.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/statfs.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/timex.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sys/msg.h: Likewise.
+
+	* bits/typesizes.h (__SYSCALL_SLONG_TYPE): New macro.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/bsd/bsd4.4/freebsd/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h
+	(__SSYSCALL_LONG_TYPE): Renamed to ...
+	(__SYSCALL_SLONG_TYPE): This.
+	(__SSYSCALL_LONG_TYPE): Renamed to ...
+	(__SYSCALL_ULONG_TYPE): This.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/i386/readelflib.c (process_elf_file):
 	Move e_machine check before EI_CLASS check.  Check EM_IA_64 only
 	if SKIP_EM_IA_64 isn't defined.

@@ -29,8 +29,8 @@
 #endif
 
 /* Types used in the structure definition.  */
-typedef __USYSCALL_LONG_TYPE msgqnum_t;
-typedef __USYSCALL_LONG_TYPE msglen_t;
+typedef __syscall_ulong_t msgqnum_t;
+typedef __syscall_ulong_t msglen_t;
 
 /* Structure of record for one message inside the kernel.
    The type `struct msg' is opaque.  */
@@ -49,13 +49,13 @@ struct msqid_ds
 #ifndef __x86_64__
   unsigned long int __unused3;
 #endif
-  __USYSCALL_LONG_TYPE __msg_cbytes; /* current number of bytes on queue */
+  __syscall_ulong_t __msg_cbytes; /* current number of bytes on queue */
   msgqnum_t msg_qnum;		/* number of messages currently on queue */
   msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
   __pid_t msg_lspid;		/* pid of last msgsnd() */
   __pid_t msg_lrpid;		/* pid of last msgrcv() */
-  __USYSCALL_LONG_TYPE __unused4;
-  __USYSCALL_LONG_TYPE __unused5;
+  __syscall_ulong_t __unused4;
+  __syscall_ulong_t __unused5;
 };
 
 #ifdef __USE_MISC
