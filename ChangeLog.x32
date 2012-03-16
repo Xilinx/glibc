@@ -1,5 +1,13 @@
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* configure.in: Source preconfigure befor add-ons.
+	* configure: Regenerated.
+
+	* sysdeps/x86_64/preconfigure: Check $machine and set
+	base_machine if $base_machine isn't defined.
+
+2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* time/offtime.c (__offtime): Use time_t on days, rem, y and yg.
 
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>

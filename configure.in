@@ -317,6 +317,13 @@ AC_ARG_WITH([cpu],
   esac
 ])
 
+# Now run sysdeps preconfigure fragment.
+preconfigure=$srcdir/sysdeps/$machine/preconfigure
+if test -r $preconfigure; then
+  AC_MSG_RESULT(running preconfigure fragment for $machine)
+  . $preconfigure
+fi
+
 # An add-on can set this when it wants to disable the sanity check below.
 libc_config_ok=no
 
@@ -523,13 +530,6 @@ AC_SUBST(base_machine)
 
 if test "$base_machine" = "i386"; then
   AC_DEFINE(USE_REGPARMS)
-fi
-
-# Now run sysdeps preconfigure fragment.
-preconfigure=$srcdir/sysdeps/$base_machine/preconfigure
-if test -r $preconfigure; then
-  AC_MSG_RESULT(running preconfigure fragment for $base_machine)
-  . $preconfigure
 fi
 
 # For the multi-arch option we need support in the assembler.

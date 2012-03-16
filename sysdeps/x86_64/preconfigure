@@ -1,5 +1,6 @@
-case "$base_machine" in
+test -n "$base_machine" || case "$machine" in
 x86_64)
+  base_machine=x86_64
   stubs_biarch_h=sysdeps/x86_64/stubs-biarch.h
   lib_names_awk=sysdeps/x86_64/lib-names.awk
   if echo __LP64__ | ${CC-cc} $CFLAGS $CPPFLAGS -E - | grep __LP64__ > /dev/null; then

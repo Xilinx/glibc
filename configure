@@ -3821,6 +3821,14 @@ if test "${with_cpu+set}" = set; then :
 fi
 
 
+# Now run sysdeps preconfigure fragment.
+preconfigure=$srcdir/sysdeps/$machine/preconfigure
+if test -r $preconfigure; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: running preconfigure fragment for $machine" >&5
+$as_echo "running preconfigure fragment for $machine" >&6; }
+  . $preconfigure
+fi
+
 # An add-on can set this when it wants to disable the sanity check below.
 libc_config_ok=no
 
@@ -4024,14 +4032,6 @@ esac
 if test "$base_machine" = "i386"; then
   $as_echo "#define USE_REGPARMS 1" >>confdefs.h
 
-fi
-
-# Now run sysdeps preconfigure fragment.
-preconfigure=$srcdir/sysdeps/$base_machine/preconfigure
-if test -r $preconfigure; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: running preconfigure fragment for $base_machine" >&5
-$as_echo "running preconfigure fragment for $base_machine" >&6; }
-  . $preconfigure
 fi
 
 # For the multi-arch option we need support in the assembler.
