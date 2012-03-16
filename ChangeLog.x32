@@ -1,5 +1,14 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/64/bits/wordsize.h (__GNUC_PREREQ): New macro
+	if not defined.
+	(__WORDSIZE): Defined to 64 for GCC older than GCC 3.3 if
+	__x86_64__ is defined.
+	(__WORDSIZE_COMPAT32): Restored.
+	* sysdeps/x86_64/x32/bits/wordsize.h: Likewise.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* Makefile ($(inst_includedir)/gnu/stubs.h): Replace
 	include/stubs-biarch.h with stubs-biarch.h.
 
