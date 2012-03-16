@@ -1,3 +1,18 @@
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile ($(inst_includedir)/gnu/stubs.h): Replace
+	include/stubs-biarch.h with stubs-biarch.h.
+
+	* config.make.in (stubs-biarch_h): Removed.
+
+	* configure.in (stubs_biarch_h): Don't substitute.
+	* configure: Regenerated.
+
+	* include/stubs-biarch.h: Moved to ...
+	* sysdeps/generic/stubs-biarch.h: Here.
+
+	* sysdeps/x86_64/preconfigure: Don't set stubs_biarch_h.
+
 2012-03-15  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* configure.in: Source preconfigure befor add-ons.

@@ -78,7 +78,6 @@ oldest-abi = @oldest_abi@
 exceptions = @exceptions@
 multi-arch = @multi_arch@
 
-stubs-biarch_h = @stubs_biarch_h@
 lib-names_awk = @lib_names_awk@
 
 mach-interface-list = @mach_interface_list@

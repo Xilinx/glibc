@@ -176,7 +176,7 @@ installed-stubs = $(inst_includedir)/gnu/stubs.h
 else
 installed-stubs = $(inst_includedir)/gnu/stubs-$(biarch).h
 
-$(inst_includedir)/gnu/stubs.h: $(stubs-biarch_h) $(+force)
+$(inst_includedir)/gnu/stubs.h: stubs-biarch.h $(+force)
 	$(make-target-directory)
 	$(INSTALL_DATA) $< $@
 
