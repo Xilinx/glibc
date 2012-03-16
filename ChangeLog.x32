@@ -1,5 +1,10 @@
 2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/makecontext.c (__makecontext):
+	Use greg_t instead of unsigned long long int and long long int.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h
 	(VSYSCALL_ADDR_vgettimeofday): Removed.
 	(VSYSCALL_ADDR_vtime): Likewise.
