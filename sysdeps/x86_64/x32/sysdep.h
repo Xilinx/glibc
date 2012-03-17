@@ -17,8 +17,9 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#undef ASM_ADDR
 #undef LP_SIZE
+#undef LP_OP
+#undef ASM_ADDR
 
 #undef RAX_LP
 #undef RBP_LP
@@ -41,17 +42,7 @@
 
 # define LP_SIZE 4
 
-# undef MOVE_LP
-# define MOVE_LP movl
-
-# undef ADD_LP
-# define ADD_LP addl
-
-# undef SUB_LP
-# define SUB_LP subl
-
-# undef CMP_LP
-# define CMP_LP cmpl
+# define LP_OP(insn) insn##l
 
 # define ASM_ADDR .long
 
@@ -75,6 +66,8 @@
 #else	/* __ASSEMBLER__ */
 
 # define LP_SIZE "4"
+
+# define LP_OP(insn) #insn "l"
 
 # define ASM_ADDR ".long"
 

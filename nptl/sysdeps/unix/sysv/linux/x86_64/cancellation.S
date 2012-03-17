@@ -72,7 +72,7 @@ ENTRY(__pthread_enable_asynccancel)
 
 3:	subq	$8, %rsp
 	cfi_adjust_cfa_offset(8)
-	MOVE_LP	$TCB_PTHREAD_CANCELED, %fs:RESULT
+	LP_OP(mov) $TCB_PTHREAD_CANCELED, %fs:RESULT
 	lock
 	orl	$TCB_EXITING_BITMASK, %fs:CANCELHANDLING
 	mov	%fs:CLEANUP_JMP_BUF, %RDI_LP

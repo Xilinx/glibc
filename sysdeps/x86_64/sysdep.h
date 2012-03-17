@@ -98,17 +98,8 @@ lose:									      \
 /* Long and pointer size in bytes.  */
 #define LP_SIZE	8
 
-/* Instruction to move long and pointer.  */
-#define MOVE_LP movq
-
-/* Instruction to add long and pointer.  */
-#define ADD_LP addq
-
-/* Instruction to substract long and pointer.  */
-#define SUB_LP subq
-
-/* Instruction to compare against long and pointer.  */
-#define CMP_LP cmpq
+/* Instruction to operate on long and pointer.  */
+#define LP_OP(insn) insn##q
 
 /* Assembler address directive. */
 #define ASM_ADDR .quad
@@ -138,6 +129,9 @@ lose:									      \
 
 /* Assembler address directive. */
 #define ASM_ADDR ".quad"
+
+/* Instruction to operate on long and pointer.  */
+#define LP_OP(insn) #insn "q"
 
 /* Registers to hold long and pointer.  */
 #define RAX_LP	"rax"

@@ -65,7 +65,7 @@ __pthread_cond_wait:
 	            +--------------------------+
 	*/
 
-	CMP_LP	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 
 		/* Prepare structure passed to cancellation handler.  */
 	movq	%rdi, 8(%rsp)
@@ -120,7 +120,7 @@ __pthread_cond_wait:
 	movl	%eax, (%rsp)
 
 	xorq	%r10, %r10
-	CMP_LP	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 	leaq	cond_futex(%rdi), %rdi
 	movl	$FUTEX_WAIT, %esi
 	je	60f
@@ -206,7 +206,7 @@ __pthread_cond_wait:
 	jne	17f
 
 	addq	$cond_nwaiters, %rdi
-	CMP_LP	$-1, dep_mutex-cond_nwaiters(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_nwaiters(%rdi)
 	movl	$1, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
 	movl	$FUTEX_WAKE, %eax
@@ -255,7 +255,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -267,7 +267,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -283,7 +283,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -298,7 +298,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -319,7 +319,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -348,7 +348,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -374,7 +374,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -434,7 +434,7 @@ __condvar_cleanup1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -467,7 +467,7 @@ __condvar_cleanup1:
 	andl	$~((1 << nwaiters_shift) - 1), %eax
 	jne	4f
 
-	CMP_LP	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 	leaq	cond_nwaiters(%rdi), %rdi
 	movl	$1, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
@@ -495,7 +495,7 @@ __condvar_cleanup1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	CMP_LP	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -506,7 +506,7 @@ __condvar_cleanup1:
 2:	testl	%ecx, %ecx
 	jnz	5f
 	addq	$cond_futex, %rdi
-	CMP_LP	$-1, dep_mutex-cond_futex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_futex(%rdi)
 	movl	$0x7fffffff, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
 	movl	$FUTEX_WAKE, %eax
