@@ -1,5 +1,12 @@
 2012-03-17  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/bits/byteswap.h: Include <bits/wordsize.h>.
+	Don't check __corei7__.
+	(__bswap_64): Replace unsigned long long int with
+	__bswap_64_uint64.
+
+2012-03-17  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/64/bits/wordsize.h (__GNUC_PREREQ): Removed.
 	(__WORDSIZE): Check __GNUC__ directly.
 	* sysdeps/x86_64/x32/bits/wordsize.h: Likewise.

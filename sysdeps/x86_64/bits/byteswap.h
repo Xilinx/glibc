@@ -24,6 +24,8 @@
 #ifndef _BITS_BYTESWAP_H
 #define _BITS_BYTESWAP_H 1
 
+#include <bits/wordsize.h>
+
 /* Swap bytes in 16 bit value.  */
 #define __bswap_constant_16(x) \
      ((unsigned short int) ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8)))
@@ -58,8 +60,7 @@
 # if defined __x86_64__ || defined __i486__ || defined __pentium__	      \
      || defined __pentiumpro__ || defined __pentium4__  || defined __k8__     \
      || defined __athlon__ || defined __k6__ || defined __nocona__	      \
-     || defined __core2__ || defined __corei7__ || defined __geode__ 	      \
-     || defined __amdfam10__
+     || defined __core2__ || defined __geode__ || defined __amdfam10__
 /* To swap the bytes in a word the i486 processors and up provide the
    `bswap' opcode.  On i386 we have to use three instructions.  */
 #  define __bswap_32(x) \
@@ -105,9 +106,14 @@
 		     | (((x) & 0x00000000000000ffull) << 56)))
 
 # ifdef __x86_64__ 
+#  if __WORDSIZE == 64
+#   define __bswap_64_uint64	unsigned long int
+#  else
+#   define __bswap_64_uint64	unsigned long long int
+#  endif
 #  define __bswap_64(x) \
      (__extension__							      \
-      ({ register unsigned long long int __v, __x = (x);		      \
+      ({ register __bswap_64_uint64 __v, __x = (x);			      \
 	 if (__builtin_constant_p (__x))				      \
 	   __v = __bswap_constant_64 (__x);				      \
 	 else								      \
