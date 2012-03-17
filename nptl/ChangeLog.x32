@@ -1,3 +1,16 @@
+2012-03-17  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Replace ADD_LP,
+	CMP_LP, MOVE_LP, SUB_LP with LP_OP(add), LP_OP(cmp), LP_OP(mov),
+	LP_OP(sub).
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_broadcast.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_signal.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sem_post.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sem_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sem_wait.S: Likewise.
+
 2012-03-14  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Use CMP_LP
