@@ -1,6 +1,6 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2012
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Paul Mackerras <paulus@au.ibm.com>, 2003.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -9,12 +9,32 @@
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-/* No difference to lowlevellock.c, except we lose a couple of functions.  */
-#include <lowlevellock.c>
+#include <unistd.h>
+#include <sys/shm.h>
+#include <ldsodefs.h>
+
+int
+__getshmlba (void)
+{
+  uint64_t hwcap = GLRO(dl_hwcap);
+  int pgsz = GLRO(dl_pagesize);
+
+  if (hwcap & HWCAP_SPARC_V9)
+    {
+      if (pgsz < (16 * 1024))
+	return 16 * 1024;
+      else
+	return pgsz;
+    }
+  else if (!(hwcap & HWCAP_SPARC_FLUSH))
+    return 64 * 1024;
+  else
+    return 256 * 1024;
+}

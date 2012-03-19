@@ -1,3 +1,16 @@
+2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* unwind.c (unwind_stop): Cast _Unwind_GetCFA return to
+	_Unwind_Ptr first.
+
+2012-03-16  David S. Miller  <davem@davemloft.net>
+
+	[BZ #13844]
+	* sysdeps/unix/sysv/linux/libc-lowlevellock.c: Include using <..>
+	instead of "...".
+	* sysdeps/unix/sysv/linux/sparc/sparc32/libc-lowlevellock.c:
+	Delete, not needed.
+
 2012-03-15  David S. Miller  <davem@davemloft.net>
 
 	[BZ #13844]

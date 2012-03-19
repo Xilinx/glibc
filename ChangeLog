@@ -1,3 +1,241 @@
+2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/jmpbuf-unwind.h (_JMPBUF_CFA_UNWINDS_ADJ): Cast
+	_Unwind_GetCFA return to _Unwind_Ptr first.
+
+2012-03-19  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13629]
+	* math/s_clog.c: Include <float.h>.
+	(__clog): Scale large or subnormal inputs.
+	* math/s_clogf.c: Likewise.
+	* math/s_clogl.c: Likewise.
+	* math/s_clog10.c: Include <float.h>.
+	(M_LOG10_2): Define.
+	(__clog10): Scale large or subnormal inputs.
+	* math/s_clog10f.c: Likewise.
+	* math/s_clog10l.c: Likewise.
+	* math/libm-test.inc (clog_test): Add more tests.
+	(clog10_test): Likewise.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+	[BZ #11451]
+	* sysdeps/ieee754/dbl-64/e_atan2.c (__ieee754_atan2): Scale large
+	x and y.
+	* math/libm-test.inc (atan2_test): Add another test.
+
+	* Makerules (common-objdir-compile): Remove.
+	* sysdeps/unix/Makefile (config-generated): Do not add
+	$(unix-generated) to variable.
+	[generic bits/local_lim.h] (mk-local_lim-CFLAGS): Remove variable.
+	[generic bits/local_lim.h] ($(common-objpfx)bits/local_lim.h):
+	Remove rule.
+	[generic bits/local_lim.h] ($(common-objpfx)mk-local_lim):
+	Likewise.
+	[generic bits/local_lim.h] (before-compile): Do not append to
+	variable.
+	[generic bits/local_lim.h] (common-generated): Likewise.
+	[generic sys/param.h] (before-compile): Do not append to variable.
+	[generic sys/param.h] ($(common-objpfx)sys/param.h): Remove rule.
+	[generic sys/param.h] ($(common-objpfx)param.h.c): Likewise.
+	[generic sys/param.h] ($(common-objpfx)param.h.dep): Likewise.
+	[generic sys/param.h] ($(common-objpfx)param.h.dep): Do not
+	include.
+	[generic sys/param.h] (sys/param.h-includes): Remove variable.
+	[generic sys/param.h] (sys/param.h-includes): Remove rule.
+	[generic sys/param.h] ($(addprefix
+	$(common-objpfx),$(sys/param.h-includes))): Likewise.
+	[generic sys/param.h] (common-generated): Do not append to
+	variable.
+	[generic sys/param.h] (sysdep_headers): Likewise.
+	[generic bits/errno.h] (before-compile): Do not append to
+	variable.
+	[generic bits/errno.h] ($(common-objpfx)bits/errno.h): Remove
+	rule.
+	[generic bits/errno.h] ($(common-objpfx)make-errnos): Likewise.
+	[generic bits/errno.h] ($(common-objpfx)make-errnos.c): Likewise.
+	[generic bits/errno.h] ($(common-objpfx)errnos): Likewise.
+	[generic bits/errno.h] (common-generated): Do not append to
+	variable.
+	[generic bits/ioctls.h] (before-compile): Do not append to
+	variable.
+	[generic bits/ioctls.h] ($(common-objpfx)bits/ioctls.h): Remove
+	rule.
+	[generic bits/ioctls.h] (ioctl-includes): Remove variable.
+	[generic bits/ioctls.h] (make-ioctls-CFLAGS): Likewise.
+	[generic bits/ioctls.h] ($(common-objpfx)make-ioctls): Remove
+	rule.
+	[generic bits/ioctls.h] ($(common-objpfx)make-ioctls.c): Likewise.
+	[generic bits/ioctls.h] (bits_termios.h): Remove variable.
+	[generic bits/ioctls.h] ($(common-objpfx)ioctls): Remove rule.
+	[generic bits/ioctls.h] (common-generated): Do not append to
+	variable.
+	[generic sys/syscall.h] (syscall.h): Remove variable.
+	[generic sys/syscall.h] ($(common-objpfx)sys/syscall.h): Remove
+	rule.
+	[generic sys/syscall.h] (before-compile): Do not append to
+	variable.
+	[generic sys/syscall.h] (common-generated): Likewise.
+	* sysdeps/unix/errnos-tmpl.c: Remove file.
+	* sysdeps/unix/errnos.awk: Likewise.
+	* sysdeps/unix/ioctls-tmpl.c: Likewise.
+	* sysdeps/unix/ioctls.awk: Likewise.
+	* sysdeps/unix/mk-local_lim.c: Likewise.
+	* sysdeps/unix/snarf-ioctls: Likewise.
+
+2012-03-19  Richard Henderson  <rth@twiddle.net>
+
+	* sysdeps/i386/fpu/fenv_private.h: New file.
+	* sysdeps/i386/fpu/math_private.h: Use it.
+	(math_opt_barrier, math_force_eval): Remove.
+	(libc_feholdexcept_setround_53bit): Remove.
+	(libc_feupdateenv_53bit): Remove.
+	* sysdeps/x86_64/fpu/math_private.h: Likewise.
+	(math_opt_barrier, math_force_eval): Remove.
+	(libc_feholdexcept): Remove.
+	(libc_feholdexcept_setround): Remove.
+	(libc_fetestexcept, libc_fesetenv): Remove.
+	(libc_feupdateenv_test): Remove.
+	(libc_feupdateenv, libc_feholdsetround): Remove.
+	(libc_feresetround): Remove.
+
+	* sysdeps/i386/fpu/feholdexcpt.c (feholdexcept): Avoid the fldenv.
+	* sysdeps/x86_64/fpu/feholdexcpt.c (feholdexcept): Likewise.
+
+	* sysdeps/generic/math_private.h (default_libc_feupdateenv_test): New.
+	(libc_feupdateenv_test, libc_feupdateenv_testf): New.
+	(libc_feupdateenv_testl): New.
+	* sysdeps/x86_64/fpu/math_private.h (libc_feupdateenv_test): New.
+	(libc_feupdateenv_testf): New.
+	(libc_feupdateenv): Use libc_feupdateenv_test.
+	* sysdeps/ieee754/dbl-64/s_fma.c (__fma): Use libc_feupdateenv_test.
+	* sysdeps/ieee754/dbl-64/s_fmaf.c (__fmaf): Likewise.
+
+	* sysdeps/generic/math_private.h (libc_feholdsetround): New.
+	(libc_feholdsetroundf, libc_feholdsetroundl): New.
+	(libc_feresetround, libc_feresetroundf, libc_feresetroundl): New.
+	(libc_feresetround_noex): New.
+	(libc_feresetround_noexf): New.
+	(libc_feresetround_noexl): New.
+	(SET_RESTORE_ROUND, SET_RESTORE_ROUNDF, SET_RESTORE_ROUNDL): New.
+	(SET_RESTORE_ROUND_NOEX, SET_RESTORE_ROUND_NOEXF): New.
+	(SET_RESTORE_ROUND_NOEXL, SET_RESTORE_ROUND_53BIT): New.
+	* sysdeps/ieee754/dbl-64/e_exp.c (__ieee754_exp): Use
+	SET_RESTORE_ROUND.
+	* sysdeps/ieee754/dbl-64/e_pow.c (__ieee754_pow): Likewise.
+	* sysdeps/ieee754/dbl-64/s_sin.c (__sin): Use SET_RESTORE_ROUND_53BIT.
+	(__cos): Likewise.
+	* sysdeps/ieee754/dbl-64/s_tan.c (__tan): Likewise.
+	* sysdeps/ieee754/dbl-64/e_exp2.c (__ieee754_exp2): Use
+	SET_RESTORE_ROUND_NOEX.
+	* sysdeps/ieee754/dbl-64/e_exp2f.c (__ieee754_exp2f): Use
+	SET_RESTORE_ROUND_NOEXF.
+	* sysdeps/ieee754/flt-32/e_expf.c (__ieee754_expf): Likewise.
+	* sysdeps/x86_64/fpu/math_private.h (libc_feholdsetround): New.
+	(libc_feholdsetroundf): New.
+	(libc_feresetround, libc_feresetroundf): New.
+
+	* sysdeps/i386/fpu/math_private.h: Include <fenv.h>, <fpu_control.h>.
+	(libc_feholdexcept_setround_53bit): Convert from macro to function.
+	(libc_feupdateenv_53bit): Likewise.  Don't force _FPU_EXTENDED.
+
+	* sysdeps/generic/math_private.h: Include <fenv.h>.
+	(default_libc_feholdexcept): New.
+	(default_libc_feholdexcept_setround): New.
+	(default_libc_fesetenv, default_libc_feupdateenv): New.
+	(libc_feholdexcept): Only define if undefined.
+	(libc_feholdexceptf, libc_feholdexceptl): Likewise.
+	(libc_feholdexcept_setround, libc_feholdexcept_setroundf): Likewise.
+	(libc_feholdexcept_setroundl): Likewise.
+	(libc_feholdexcept_setround_53bit): Likewise.
+	(libc_fetestexcept, libc_fetestexceptf, libc_fetestexceptl): Likewise.
+	(libc_fesetenv, libc_fesetenvf, libc_fesetenvl): Likewise.
+	(libc_feupdateenv, libc_feupdateenvf, libc_feupdateenvl): Likewise.
+	(libc_feupdateenv_53bit): Likewise.
+	* sysdeps/x86_64/fpu/math_private.h: Include <fenv.h>.
+	(libc_feholdexcept): Convert from macro to inline function.
+	(libc_feholdexcept_setround, libc_fetestexcept): Likewise.
+	(libc_fesetenv, libc_feupdateenv): Likewise.
+
+	* sysdeps/generic/math_private.h (GET_HIGH_WORD): Define only if
+	not previously defined.
+	(GET_LOW_WORD, EXTRACT_WORDS64, INSERT_WORDS): Likewise.
+	(INSERT_WORDS64, SET_HIGH_WORD, SET_LOW_WORD): Likewise.
+	(GET_FLOAT_WORD, SET_FLOAT_WORD): Likewise.
+	* sysdeps/ieee754/dbl-64/wordsize-64/math_private.h: New file.
+	* sysdeps/ieee754/flt-32/math_private.h: New file.
+	* sysdeps/x86_64/fpu/math_private.h: Move the include_next of
+	math_private.h below SET_FLOAT_WORD.
+	(__isnan, __isinf_ns, __finite): Remove.
+	(__isnanf, __isinf_nsf, __finitef): Remove.
+
+2012-03-18  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+2012-03-17  David S. Miller  <davem@davemloft.net>
+
+	[BZ #6471]
+	* sysdeps/unix/sysv/linux/sparc/Versions: Add __getshmlba entry
+	for 2.16.
+
+2012-03-16  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/shmat.c (shmat): Use -1l to avoid
+	warnings.
+
+	[BZ #6471]
+	* sysdeps/unix/sysv/linux/shmat.c (shmat): Test for syscall errors
+	properly.
+	* sysdeps/unix/sysv/linux/sparc/getshmlba.c: New file.
+	* sysdeps/unix/sysv/linux/sparc/Makefile: Add getshmlba to
+	sysdep_routines when subdir is sysvipc.
+	* sysdeps/unix/sysv/linux/sparc/bits/shm.h (SHMLBA): Use new
+	__getshmlba helper.
+
+	* sysdeps/sparc/fpu/libm-test/ulps: Update.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/ffsll.c (ffsl): Define alias only under
+	[__LP64__].
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_lround.c: Moved to ...
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_llround.c: This.
+	(__lround): Renamed to ...
+	(__llround): This.  Replace long int with long long int.
+	Define lround functions as aliases of llround functions.
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_lround.c: Empty file.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/makecontext.c (__makecontext):
+	Use greg_t on sp.  Use unsigned int on idx_uc_link.  Cast
+	adresses to uintptr_t.  Replace "long int" and "unsigned long
+	int" with "greg_t" on va_arg.
+
+2012-03-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/generic/ldconfig.h (FLAG_X8664_LIBX32): New macro.
+	* elf/cache.c (print_entry): Handle FLAG_X8664_LIBX32.
+
+	* sysdeps/unix/sysv/linux/i386/readelflib.c (process_elf_file):
+	Move e_machine check before EI_CLASS check.  Handle x32
+	libraries.  Check EM_IA_64 only if SKIP_EM_IA_64 isn't defined.
+	* sysdeps/unix/sysv/linux/x86_64/readelflib.c: Just define
+	SKIP_EM_IA_64 and include
+	<sysdeps/unix/sysv/linux/i386/readelflib.c>.
+
+	* sysdeps/unix/sysv/linux/x86_64/dl-cache.h:
+	Don't include <sysdeps/unix/sysv/linux/sparc/dl-cache.h>.
+	(add_system_dir): New macro.
+
+	* sysdeps/unix/sysv/linux/x86_64/ldconfig.h
+	(SYSDEP_KNOWN_INTERPRETER_NAMES): Add /libx32/ld-linux-x32.so.2.
+
 2012-03-16  Joseph Myers  <joseph@codesourcery.com>
 
 	[BZ #2551]
@@ -106,9 +344,11 @@
 
 2012-03-15  David S. Miller  <davem@davemloft.net>
 
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fma-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fma-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fma.c: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaf.c: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_fma-vis3.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_fma.c: New file.
@@ -122,20 +362,26 @@
 	* sysdeps/sparc/sparc64/fpu/s_fma.c: New file.
 
 	* sysdeps/sparc/sparc-ifunc.h: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceil.S: Use sparc-ifunc.h
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceil.S: Use
+	sparc-ifunc.h
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceilf.S: Likewise.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign.S: Likewise.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign.S:
+	Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf.S:
+	Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabs.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabsf.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floor.S: Likewise.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf.S:
+	Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmax.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaxf.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmin.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fminf.S: Likewise.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint.S: Likewise.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf.S: Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint.S:
+	Likewise.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf.S:
+	Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rint.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rintf.S: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrt.S: Likewise.
@@ -253,13 +499,17 @@
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_fmin.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_fminf-vis3.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_fminf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmax-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmax-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmax.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaxf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaxf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmaxf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmin-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmin-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fmin.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fminf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fminf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fminf.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/Makefile: Add new vis3
 	fmin/fmax sysdep routines.
@@ -295,32 +545,49 @@
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_rint.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_rintf-vis3.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_rintf.S: New file.
-	* sysdeps/sparc/sparc64/fpu/multiarch/Makefile: Add new VIS3 routines.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceil-vis3.S: New file.
+	* sysdeps/sparc/sparc64/fpu/multiarch/Makefile: Add new VIS3
+	routines.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceil-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceil.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceilf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceilf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_ceilf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabs-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabs-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabs.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabsf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabsf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_fabsf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floor-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floor-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floor.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf-vis3.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint-vis3.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf-vis3.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rint-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf-vis3.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_floorf.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint-vis3.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrint.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf-vis3.S:
+	New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_llrintf.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rint-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rint.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rintf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rintf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_rintf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrt-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrt-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrt.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrtf-vis3.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrtf-vis3.S: New
+	file.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/w_sqrtf.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/Makefile: Add new VIS3 routines.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/Makefile: Add new
+	VIS3 routines.
 
 	* sysdeps/sparc/sparc32/sparcv9/fpu/unix/sysv/linux/multiarch/Implies:
 	New file.
@@ -337,18 +604,23 @@
 	available use -Av9d instead of -Av9a.
 	* sysdeps/sparc/sparc64/Makefile: Likewise.
 	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/Makefile: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign-vis3.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf-vis3.S: New file.
-	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf.S: New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign-vis3.S:
+	New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysign.S: New
+	file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf-vis3.S:
+	New file.
+	* sysdeps/sparc/sparc32/sparcv9/fpu/multiarch/s_copysignf.S: New
+	file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/Makefile: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_signbit-vis3.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_signbit.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_signbitf-vis3.S: New file.
 	* sysdeps/sparc/sparc64/fpu/multiarch/s_signbitf.S: New file.
 
-	* sysdeps/sparc/sparc64/fpu/s_copysign.S (__copysign): Use fzeros/fnegs
-	to load 0x80000000 into a float register instead of using the stack.
+	* sysdeps/sparc/sparc64/fpu/s_copysign.S (__copysign): Use
+	fzeros/fnegs to load 0x80000000 into a float register instead of
+	using the stack.
 	* sysdeps/sparc/sparc64/fpu/s_copysignf.S (__copysignf): Likewise.
 
 2012-03-14  Joseph Myers  <joseph@codesourcery.com>

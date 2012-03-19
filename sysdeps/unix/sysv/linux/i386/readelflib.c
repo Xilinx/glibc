@@ -32,7 +32,7 @@ process_elf_file (const char *file_name, const char *lib, int *flag,
 		  size_t file_length)
 {
   ElfW(Ehdr) *elf_header = (ElfW(Ehdr) *) file_contents;
-  int ret, file_flag = 0; 
+  int ret, file_flag = 0;
 
   switch (elf_header->e_machine)
     {
@@ -52,7 +52,7 @@ process_elf_file (const char *file_name, const char *lib, int *flag,
 	  file_flag = FLAG_IA64_LIB64|FLAG_ELF_LIBC6;
 	  break;
 	}
-      goto failed; 
+      goto failed;
 #endif
     case EM_386:
       if (elf_header->e_ident[EI_CLASS] == ELFCLASS32)
