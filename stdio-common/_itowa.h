@@ -20,18 +20,26 @@
 #define _ITOWA_H	1
 #include <features.h>
 #include <wchar.h>
+#include <limits.h>
 
 /* Convert VALUE into ASCII in base BASE (2..36).
    Write backwards starting the character just before BUFLIM.
    Return the address of the first (left-to-right) character in the number.
    Use upper case letters iff UPPER_CASE is nonzero.  */
 
+#ifndef _ITOWA_NEEDED
+# define _ITOWA_NEEDED		(LONG_MAX != LLONG_MAX)
+#endif
+#ifndef _ITOWA_WORD_TYPE
+# define _ITOWA_WORD_TYPE	unsigned long int
+#endif
+
 extern wchar_t *_itowa (unsigned long long int value, wchar_t *buflim,
 			unsigned int base, int upper_case);
 
 static inline wchar_t *
 __attribute__ ((unused, always_inline))
-_itowa_word (unsigned long value, wchar_t *buflim,
+_itowa_word (_ITOWA_WORD_TYPE value, wchar_t *buflim,
 	     unsigned int base, int upper_case)
 {
   extern const wchar_t _itowa_upper_digits[] attribute_hidden;
@@ -60,5 +68,11 @@ _itowa_word (unsigned long value, wchar_t *buflim,
   return bp;
 }
 #undef SPECIAL
+
+#if !_ITOWA_NEEDED
+/* No need for special long long versions.  */
+# define _itowa(value, buf, base, upper_case) \
+  _itowa_word (value, buf, base, upper_case)
+#endif
 
 #endif	/* itowa.h */

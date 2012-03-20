@@ -29,5 +29,3 @@ the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 #define BITS_PER_INT 32
 #define BITS_PER_SHORTINT 16
 #define BITS_PER_CHAR 8
-/* Prefer long long.  */
-#define PREFER_LONG_LONG
