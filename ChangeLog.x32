@@ -1,3 +1,8 @@
+2012-03-20  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/bits/setjmp.h: Include <bits/wordsize.h>.
+	(__jmp_buf): Use long long int for x32.
+
 2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/i386/bits/byteswap.h: Include <features.h>.
