@@ -43,10 +43,6 @@
 # endif
 #endif
 
-#ifndef __NR_futex
-# define __NR_futex		202
-#endif
-
 #define SYS_futex		__NR_futex
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1

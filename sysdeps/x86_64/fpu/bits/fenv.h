@@ -78,7 +78,7 @@ typedef struct
     unsigned int __data_offset;
     unsigned short int __data_selector;
     unsigned short int __unused5;
-#if __x86_64__
+#ifdef __x86_64__
     unsigned int __mxcsr;
 #endif
   }
