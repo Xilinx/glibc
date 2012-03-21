@@ -1,3 +1,10 @@
+2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/configure.in: Don't set
+	arch_minimum_kernel for x32.  Check x86_64* instead of x86_64/64
+	for libc_cv_slibdir and libc_cv_localedir.
+	* sysdeps/unix/sysv/linux/configure: Regenerated.
+
 2012-03-20  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* stdio-common/_itowa.h: Update comments.
