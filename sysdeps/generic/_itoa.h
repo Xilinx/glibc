@@ -23,7 +23,7 @@
 
 /* When long long is different from long, by default, _itoa_word is
    provided to convert long to ASCII and _itoa is provided to convert
-   long long.  A target can define _ITOA_NEEDED to 0 and define
+   long long.  A sysdeps _itoa.h can define _ITOA_NEEDED to 0 and define
    _ITOA_WORD_TYPE to unsigned long long int to override it so that
    _itoa_word is changed to convert long long to ASCII and _itoa is
    mapped to _itoa_word.  */

@@ -20,22 +20,7 @@
 #define _ITOWA_H	1
 #include <features.h>
 #include <wchar.h>
-#include <limits.h>
-
-/* When long long is different from long, by default, _itowa_word is
-   provided to convert long to ASCII and _itowa is provided to convert
-   long long.  A target can define _ITOWA_NEEDED to 0 and define
-   _ITOWA_WORD_TYPE to unsigned long long int to override it so that
-   _itowa_word is changed to convert long long to ASCII and _itowa is
-   mapped to _itowa_word.  */
-
-#ifndef _ITOWA_NEEDED
-# define _ITOWA_NEEDED		(LONG_MAX != LLONG_MAX)
-#endif
-#ifndef _ITOWA_WORD_TYPE
-# define _ITOWA_WORD_TYPE	unsigned long int
-#endif
-
+#include <_itoa.h>
 
 /* Convert VALUE into ASCII in base BASE (2..36).
    Write backwards starting the character just before BUFLIM.
@@ -47,7 +32,7 @@ extern wchar_t *_itowa (unsigned long long int value, wchar_t *buflim,
 
 static inline wchar_t *
 __attribute__ ((unused, always_inline))
-_itowa_word (_ITOWA_WORD_TYPE value, wchar_t *buflim,
+_itowa_word (_ITOA_WORD_TYPE value, wchar_t *buflim,
 	     unsigned int base, int upper_case)
 {
   extern const wchar_t _itowa_upper_digits[] attribute_hidden;
@@ -77,7 +62,7 @@ _itowa_word (_ITOWA_WORD_TYPE value, wchar_t *buflim,
 }
 #undef SPECIAL
 
-#if !_ITOWA_NEEDED
+#if !_ITOA_NEEDED
 /* No need for special long long versions.  */
 # define _itowa(value, buf, base, upper_case) \
   _itowa_word (value, buf, base, upper_case)
