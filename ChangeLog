@@ -1,3 +1,94 @@
+2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/configure.in: Check x86_64* instead
+	of x86_64 when setting libc_cv_slibdir, libdir and
+	libc_cv_localedir.
+	* sysdeps/unix/sysv/linux/configure: Regenerated.
+
+2012-03-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* manual/lang.texi (Old Varargs): Remove section.
+	(How Variadic): Update menu.
+	(va_start): Do not mention varargs.h.
+
+2012-03-21  Thomas Schwinge  <thomas@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in (libc_cv_ssp): Use LIBC_TRY_CC_OPTION instead of a
+	link test.
+	* configure: Regenerated.
+
+2012-03-21  Thomas Schwinge  <thomas@codesourcery.com>
+
+        * conform/conformtest.pl: Handle --tmpdir argument, defaulting to /tmp.
+        * conform/run-conformtest.sh: Pass --tmpdir argument when invoking
+        conformtest.pl
+
+2012-03-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* NOTES: Remove.
+	* Makefile (files-for-dist): Remove NOTES.
+	(NOTES): Remove rule.
+	* README: Don't refer to NOTES.
+	* manual/creature.texi: Don't include macros.texi.
+	* manual/intro.texi (creature.texi): Remove comment referring to
+	NOTES.
+
+	* aclocal.m4 (LIBC_TRY_CC_OPTION): New macro.
+	* configure.in (libc_cv_cc_submachine): Use LIBC_TRY_CC_OPTION.
+	* configure: Regenerated.
+	* sysdeps/i386/configure.in (libc_cv_cc_sse4): Use
+	LIBC_TRY_CC_OPTION.
+	(libc_cv_as_i686): Likewise.
+	(libc_cv_cc_avx): Likewise.
+	(libc_cv_cc_sse2avx): Likewise.
+	(libc_cv_cc_fma4): Likewise.
+	(libc_cv_cc_novzeroupper): Likewise.
+	* sysdeps/i386/configure: Regenerated.
+
+	[BZ #13883]
+	* sysdeps/i386/fpu/s_cexp.S: Remove.
+	* sysdeps/i386/fpu/s_cexpf.S: Likewise.
+	* sysdeps/i386/fpu/s_cexpl.S: Likewise.
+	* math/libm-test.inc (cexp_test): Add more tests.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-21  Allan McRae  <allan@archlinux.org>
+
+	* timezone/Makefile: Do not install iso3166.tab and zone.tab
+
+2012-03-21  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13871]
+	* math/w_exp2.c: Do not include <float.h>.
+	(o_threshold, u_threshold): Remove.
+	(__exp2): Calculate result before checking finiteness and calling
+	__kernel_standard.
+	* math/w_exp2f.c: Likewise.
+	* math/w_exp2l.c: Likewise.
+	* math/libm-test.inc (exp2_test): Require overflow exception for
+	1e6 input.
+
+	[BZ #3866]
+	* sysdeps/i386/fpu/e_pow.S (__ieee754_pow): Test for y outside the
+	range of signed 64-bit integers before using fistpll.  Remove
+	checks for whether integers fit in mantissa bits.
+	* sysdeps/i386/fpu/e_powf.S (__ieee754_powf): Test for y outside
+	the range of signed 32-bit integers before using fistpl.  Remove
+	checks for whether integers fit in mantissa bits.
+	* sysdeps/i386/fpu/e_powl.S (p64): New object.
+	(__ieee754_powl): Test for y outside the range of signed 64-bit
+	integers before using fistpll.  Reduce 64-bit values to 63-bit
+	ones as needed.
+	* sysdeps/ieee754/dbl-64/e_pow.c (__ieee754_pow): Ensure
+	divide-by-zero is raised for zero to large negative powers.
+	* sysdeps/x86_64/fpu/e_powl.S (p64): New object.
+	(__ieee754_powl): Test for y outside the range of signed 64-bit
+	integers before using fistpll.  Reduce 64-bit values to 63-bit
+	ones as needed.
+	* math/libm-test.inc (pow_test): Add more tests.
+
 2012-03-20  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* debug/backtracesymsfd.c: Include <_itoa.h> instead of
