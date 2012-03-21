@@ -22,10 +22,12 @@
 #include <wchar.h>
 #include <limits.h>
 
-/* Convert VALUE into ASCII in base BASE (2..36).
-   Write backwards starting the character just before BUFLIM.
-   Return the address of the first (left-to-right) character in the number.
-   Use upper case letters iff UPPER_CASE is nonzero.  */
+/* When long long is different from long, by default, _itowa_word is
+   provided to convert long to ASCII and _itowa is provided to convert
+   long long.  A target can define _ITOWA_NEEDED to 0 and define
+   _ITOWA_WORD_TYPE to unsigned long long int to override it so that
+   _itowa_word is changed to convert long long to ASCII and _itowa is
+   mapped to _itowa_word.  */
 
 #ifndef _ITOWA_NEEDED
 # define _ITOWA_NEEDED		(LONG_MAX != LLONG_MAX)
@@ -33,6 +35,12 @@
 #ifndef _ITOWA_WORD_TYPE
 # define _ITOWA_WORD_TYPE	unsigned long int
 #endif
+
+
+/* Convert VALUE into ASCII in base BASE (2..36).
+   Write backwards starting the character just before BUFLIM.
+   Return the address of the first (left-to-right) character in the number.
+   Use upper case letters iff UPPER_CASE is nonzero.  */
 
 extern wchar_t *_itowa (unsigned long long int value, wchar_t *buflim,
 			unsigned int base, int upper_case);

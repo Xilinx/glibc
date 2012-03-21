@@ -1,5 +1,10 @@
 2012-03-20  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* stdio-common/_itowa.h: Update comments.
+	* sysdeps/generic/_itoa.h: Likewise.
+
+2012-03-20  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* debug/backtracesymsfd.c: Include <_itoa.h> instead of
 	<stdio-common/_itoa.h>.
 	* debug/segfault.c: Likewise.

@@ -21,10 +21,12 @@
 
 #include <limits.h>
 
-/* Convert VALUE into ASCII in base BASE (2..36).
-   Write backwards starting the character just before BUFLIM.
-   Return the address of the first (left-to-right) character in the number.
-   Use upper case letters iff UPPER_CASE is nonzero.  */
+/* When long long is different from long, by default, _itoa_word is
+   provided to convert long to ASCII and _itoa is provided to convert
+   long long.  A target can define _ITOA_NEEDED to 0 and define
+   _ITOA_WORD_TYPE to unsigned long long int to override it so that
+   _itoa_word is changed to convert long long to ASCII and _itoa is
+   mapped to _itoa_word.  */
 
 #ifndef _ITOA_NEEDED
 # define _ITOA_NEEDED		(LONG_MAX != LLONG_MAX)
@@ -32,6 +34,12 @@
 #ifndef _ITOA_WORD_TYPE
 # define _ITOA_WORD_TYPE	unsigned long int
 #endif
+
+
+/* Convert VALUE into ASCII in base BASE (2..36).
+   Write backwards starting the character just before BUFLIM.
+   Return the address of the first (left-to-right) character in the number.
+   Use upper case letters iff UPPER_CASE is nonzero.  */
 
 extern char *_itoa (unsigned long long int value, char *buflim,
 		    unsigned int base, int upper_case);
