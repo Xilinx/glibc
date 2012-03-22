@@ -1,3 +1,98 @@
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/generic/ldsodefs.h (struct La_x32_regs): New forward
+	declaration.
+	(struct La_x32_retval): Likewise.
+
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/preconfigure.in: New file.
+	* sysdeps/x86_64/preconfigure: New generated file.
+
+2012-03-22  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13824]
+	* math/e_exp2l.c: Include <float.h>.
+	(__ieee754_exp2l): Handle overflow and underflow cases
+	separately.  Only pass fractional part of argument to
+	__ieee754_expl.
+	* math/libm-test.inc (exp2_test): Add more tests.
+
+	* sysdeps/ieee754/ldbl-128/k_cosl.c (__kernel_cosl): Negate y if
+	negating x to take absolute value.
+	* sysdeps/ieee754/ldbl-128/k_sincosl.c (__kernel_sincosl):
+	Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_cosl.c (__kernel_cosl): Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/k_sincosl.c (__kernel_sincosl):
+	Likewise.
+	* sysdeps/ieee754/ldbl-128/k_sinl.c (__kernel_sinl): Negate y when
+	computing low part if x was negated.
+	* sysdeps/ieee754/ldbl-128ibm/k_sinl.c (__kernel_sinl): Likewise.
+
+2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* elf/tst-auditmod1.c: Support la_x32_gnu_pltenter and
+	la_x32_gnu_pltexit.
+	(pltexit): Cast int_retval to ptrdiff_t.
+	* elf/tst-auditmod3b.c: Likewise.
+	* elf/tst-auditmod4b.c: Likewise.
+	* elf/tst-auditmod5b.c: Likewise.
+	* elf/tst-auditmod6b.c: Likewise.
+	* elf/tst-auditmod6c.c: Likewise.
+	* elf/tst-auditmod7b.c: Likewise.
+
+	* sysdeps/generic/ldsodefs.h (audit_ifaces): Add x32_gnu_pltenter
+	and x32_gnu_pltexit.
+
+	* sysdeps/x86_64/bits/link.h: Check __x86_64__ instead of
+	__ELF_NATIVE_CLASS.
+	(La_x32_regs): New macro.
+	(La_x32_retval): Likewise.
+	(la_x32_gnu_pltenter): New function prototype.
+	(la_x32_gnu_pltexit): Likewise.
+
+2012-03-21  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/ieee754/ldbl-128ibm/e_powl.c (huge, tiny): Correct
+	exponent.
+
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+	* configure.in (libc_cv_cc_nofma): Check for option to disable
+	generation of FMA instructions.
+	* configure: Regenerate.
+	* config.make.in (config-cflags-nofma): Set from libc_cv_cc_nofma.
+	* sysdeps/ieee754/dbl-64/Makefile: New file.
+	* sysdeps/x86_64/fpu/multiarch/Makefile (libm-sysdep_routines):
+	Remove brandred-fma4.
+	(CFLAGS-brandred-fma4.c): Remove.
+	* sysdeps/x86_64/fpu/multiarch/brandred-fma4.c: Remove.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-fma4.c (__branred): Don't
+	define.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-fma4.c (__branred): Don't
+	define.
+
+2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* stdio-common/_itoa.c: Check _ITOA_NEEDED instead of
+	LLONG_MAX != LONG_MAX.
+	(_itoa_word): Use _ITOA_WORD_TYPE on value.
+	(_fitoa_word): Likewise.
+	* stdio-common/_itowa.c: Check _ITOA_NEEDED instead of
+	LLONG_MAX != LONG_MAX.
+	* stdio-common/_itowa.h: Include <_itoa.h>.
+	(_itowa_word): Use _ITOA_WORD_TYPE on value.
+	(_itowa): New macro.  Defined only if _ITOA_NEEDED is false.
+	* sysdeps/generic/_itoa.h (_ITOA_NEEDED): New macro.  Defined
+	only if not defined.
+	(_ITOA_WORD_TYPE): Likewise.
+	(_itoa_word): Use _ITOA_WORD_TYPE on value.
+	Check !_ITOA_NEEDED instead of LONG_MAX == LLONG_MAX.
+
+2012-03-21  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update.
+
 2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/configure.in: Check x86_64* instead
