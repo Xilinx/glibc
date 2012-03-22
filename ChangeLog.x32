@@ -1,5 +1,10 @@
 2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/dl-tls.h (dl_tls_index): Replace unsigned long
+	long with uint64_t.
+
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/preconfigure.in: New file.
 	* sysdeps/unix/sysv/linux/x86_64/x32/configure.in: Likewise.
 
