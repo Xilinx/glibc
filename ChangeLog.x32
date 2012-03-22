@@ -1,3 +1,9 @@
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/generic/ldsodefs.h (struct La_x32_regs): New forward
+	declaration.
+	(struct La_x32_retval): Likewise.
+
 2012-03-21  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* elf/tst-auditmod1.c: Use La_x32_regs and La_x32_retval.
