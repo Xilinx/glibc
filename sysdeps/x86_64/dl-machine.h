@@ -262,7 +262,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 		  void *const reloc_addr_arg, int skip_ifunc)
 {
   ElfW(Addr) *const reloc_addr = reloc_addr_arg;
-  const unsigned long int r_type = ELF32_R_TYPE (reloc->r_info);
+  const unsigned long int r_type = ELFW(R_TYPE) (reloc->r_info);
 
 # if !defined RTLD_BOOTSTRAP || !defined HAVE_Z_COMBRELOC
   if (__builtin_expect (r_type == R_X86_64_RELATIVE, 0))
@@ -481,7 +481,7 @@ elf_machine_rela_relative (ElfW(Addr) l_addr, const ElfW(Rela) *reloc,
 			   void *const reloc_addr_arg)
 {
   ElfW(Addr) *const reloc_addr = reloc_addr_arg;
-  assert (ELF32_R_TYPE (reloc->r_info) == R_X86_64_RELATIVE);
+  assert (ELFW(R_TYPE) (reloc->r_info) == R_X86_64_RELATIVE);
   *reloc_addr = l_addr + reloc->r_addend;
 }
 
@@ -492,7 +492,7 @@ elf_machine_lazy_rel (struct link_map *map,
 		      int skip_ifunc)
 {
   ElfW(Addr) *const reloc_addr = (void *) (l_addr + reloc->r_offset);
-  const unsigned long int r_type = ELF32_R_TYPE (reloc->r_info);
+  const unsigned long int r_type = ELFW(R_TYPE) (reloc->r_info);
 
   /* Check for unexpected PLT reloc type.  */
   if (__builtin_expect (r_type == R_X86_64_JUMP_SLOT, 1))
