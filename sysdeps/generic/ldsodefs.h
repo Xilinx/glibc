@@ -226,7 +226,7 @@ struct audit_ifaces
 				       unsigned int *, const char *name,
 				       long int *framesizep);
     Elf32_Addr (*x32_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
-				    uintptr_t *, struct La_x86_64_regs *,
+				    uintptr_t *, struct La_x32_regs *,
 				    unsigned int *, const char *name,
 				    long int *framesizep);
     Elf32_Addr (*ppc32_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
@@ -275,7 +275,7 @@ struct audit_ifaces
 					const char *);
     unsigned int (*x32_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *,
 				     uintptr_t *,
-				     const struct La_x86_64_regs *,
+				     const struct La_x32_regs *,
 				     struct La_x86_64_retval *,
 				     const char *);
     unsigned int (*ppc32_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *,
