@@ -1,3 +1,50 @@
+2012-03-23  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/dl-tlsdesc.h (tlsdesc): Use anonymous union
+	to pad to uint64_t for each field.
+	(dl_tls_index): Replace unsigned long with uint64_t.
+
+2012-03-23  Daniel Jacobowitz  <dmj@google.com>
+	Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	[BZ #6528]
+	* grp/Makefile (otherlibs): Don't set it.
+	* inet/Makefile (otherlibs): Likewise.
+	* login/Makefile (otherlibs): Likewise.
+	* nscd/Makefile (otherlibs): Likewise.
+	* posix/Makefile (otherlibs): Likewise.
+	* pwd/Makefile (otherlibs): Likewise.
+	* rt/Makefile (otherlibs): Likewise.
+	* sunrpc/Makefile (otherlibs): Likewise.
+	* nss/Makefile (otherlibs): Likewise.
+	Add libnss_files to routines and static-only-routines.
+	($(objpfx)getent): Remove rule.
+	* resolv/Makefile: Add libnss_dns and libresolv to routines and
+	static-only-routines.
+
+2012-03-22  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13892]
+	* math/s_cexp.c: Include <float.h>.
+	(__cexp): Handle exp result overflowing not necessarily
+	overflowing both real and imaginary parts of result.
+	* math/s_cexpf.c: Likewise.
+	* math/s_cexpl.c: Likewise.
+	* math/libm-test.inc (cexp_test): Add more tests.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* include/link.h (ELFW): New macro.
+	* sysdeps/x86_64/dl-irel.h: Replace Elf64_XXX with ElfW(XXX).
+	Replace ELF64_R_TYPE with ELFW(R_TYPE).
+
+2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/dl-tls.h (dl_tls_index): Replace unsigned long
+	with uint64_t.
+
 2012-03-22  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/generic/ldsodefs.h (struct La_x32_regs): New forward
