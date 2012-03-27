@@ -31,8 +31,6 @@ ENTRY (__clone)
 	swi	r5,r6,0			; // Push fn onto child's stack
 	swi	r8,r6,4			; // Push arg for child
 	addk	r5,r0,r7		; // flags for clone() syscall
-	add	r9, r0, r0; // Clear because of new glibc with TLS
-	add	r10, r0, r0; // Clear because of new glibc with TLS
 	addik	r12,r0,SYS_ify(clone)
 	brki	r14,8
 	addk	r0,r0,r0
