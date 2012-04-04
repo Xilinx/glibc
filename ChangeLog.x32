@@ -1,3 +1,9 @@
+2012-04-03  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/bits/byteswap.h: Don't include <features.h>.
+	(__bswap_32): Don't use __builtin_bswap32.
+	(__bswap_64): Don't use __builtin_bswap64.
+
 2012-03-23  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/dl-tlsdesc.h (tlsdesc): Use anonymous union
