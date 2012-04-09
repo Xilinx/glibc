@@ -1,5 +1,5 @@
-/* Checking memset for i686.
-   Copyright (C) 2004, 2005, 2012 Free Software Foundation, Inc.
+/* Macros to swap the order of bytes in 16-bit integer values.
+   Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,19 +16,18 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
-#include "asm-syntax.h"
+#ifndef _BITS_BYTESWAP_H
+# error "Never use <bits/byteswap-16.h> directly; include <byteswap.h> instead."
+#endif
 
-#ifndef SHARED
-	/* For libc.so this is defined in memset.S.
-	   For libc.a, this is a separate source to avoid
-	   memset bringing in __chk_fail and all routines
-	   it calls.  */
-        .text
-ENTRY (__memset_chk)
-	movl	12(%esp), %eax
-	cmpl	%eax, 16(%esp)
-	jb	__chk_fail
-	jmp	memset
-END (__memset_chk)
+#ifdef __GNUC__
+# define __bswap_16(x) \
+    (__extension__							      \
+     ({ unsigned short int __bsx = (x); __bswap_constant_16 (__bsx); }))
+#else
+static __inline unsigned short int
+__bswap_16 (unsigned short int __bsx)
+{
+  return __bswap_constant_16 (__bsx);
+}
 #endif

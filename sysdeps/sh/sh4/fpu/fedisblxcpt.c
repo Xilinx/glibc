@@ -1,6 +1,7 @@
-/* Checking memset for i686.
-   Copyright (C) 2004, 2005, 2012 Free Software Foundation, Inc.
+/* Disable floating-point exceptions.
+   Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, 2012.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,19 +17,23 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
-#include "asm-syntax.h"
+#include <fenv.h>
+#include <fpu_control.h>
 
-#ifndef SHARED
-	/* For libc.so this is defined in memset.S.
-	   For libc.a, this is a separate source to avoid
-	   memset bringing in __chk_fail and all routines
-	   it calls.  */
-        .text
-ENTRY (__memset_chk)
-	movl	12(%esp), %eax
-	cmpl	%eax, 16(%esp)
-	jb	__chk_fail
-	jmp	memset
-END (__memset_chk)
-#endif
+int
+fedisableexcept (int excepts)
+{
+  unsigned int temp, old_exc;
+
+  /* Get the current control register contents.  */
+  _FPU_GETCW (temp);
+
+  old_exc = (temp >> 5) & FE_ALL_EXCEPT;
+
+  excepts &= FE_ALL_EXCEPT;
+
+  temp &= ~(excepts << 5);
+  _FPU_SETCW (temp);
+
+  return old_exc;
+}

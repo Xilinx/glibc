@@ -1,6 +1,191 @@
+2012-04-09  Carlos O'Donell  <carlos_odonell@mentor.com>
+
+	[BZ # 13963]
+	* manual/install.texi: Use sourceware.org.
+
+2012-04-09  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13873]
+	* sysdeps/ieee754/dbl-64/e_pow.c (huge, tiny): New variables.
+	(__ieee754_pow): Generate overflow and underflow using huge*huge
+	and tiny*tiny rather than just returning constant infinity or zero
+	for large exponents.
+	* math/libm-test.inc (pow_test): Require overflow exceptions for
+	applicable cases of large exponents.
+
+	[BZ #706]
+	* sysdeps/i386/fpu/e_pow.S (p10): New object.
+	(__ieee754_pow): Use iterative multiplication algorithm only for
+	integer exponents with absolute value below 1024.  Check for odd
+	integer exponents when using algorithm for real exponents.
+	* math/libm-test.inc (pow_test): Add more tests.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Update.
+
+2012-04-08  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13705]
+	* math/libm-test.inc (exp_test): Do not allow overflow exception
+	on underflow test.
+
+2012-04-08  Aurelien Jarno  <aurelien@aurel32.net>
+
+	[BZ #13705]
+	* sysdeps/ieee754/dbl-64/w_exp.c (__exp): Use __kernel_standard
+	instead of __kernel_standard_f.
+
+2012-04-08  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/i386/i686/memset_chk.S: Update copyright year.
+	* sysdeps/x86_64/memset_chk.S: Likewise.
+
+2012-04-08  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #10153]
+	* manual/startup.texi (Environment Access): Describe return value
+	for putenv and setenv.
+
+	[BZ #6895]
+	* manual/filesys.texi (Directory Entries): Add description for
+	DT_LNK.
+
+	[BZ #6890]
+	* manual/filesys.texi (Directory Entries): Clarify that it's file
+	system not operating system in the description of DT_UNKNOWN.
+
+	[BZ #6578]
+	* manual/syslog.texi (closelog): Fix reference, it's openlog.
+
+2012-04-08  Stephen Compall  <s11@member.fsf.org>
+
+	[BZ #6649]
+	* manual/llio.texi (Opening and Closing Files): Add cross
+	reference to explain mode argument.
+
+2012-04-07  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/i386/i686/memset_chk.S: Change PIC to SHARED.
+	* sysdeps/x86_64/memset_chk.S: Likewise.
+
+2012-04-07  David S. Miller  <davem@davemloft.net>
+
+	* elf/elf.h (R_SPARC_WDISP10): Define.
+	* sysdeps/sparc/sparc32/dl-machine.h (elf_machine_rela): Handle
+	R_SPARC_SIZE32.
+	* sysdeps/sparc/sparc64/dl-machine.h (elf_machine_rela): Handle
+	R_SPARC_SIZE64 and R_SPARC_H34.
+
+2012-04-07  Carlos O'Donell  <carlos_odonell@mentor.com>
+
+	* elf/dynamic-link.h (_ELF_DYNAMIC_DO_RELOC): Simplify
+	conditions and remove no longer applicable assertion.
+
+2012-04-06  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* bits/byteswap.h (__bswap_16): Removed.
+	Include <bits/byteswap-16.h> to get __bswap_16.
+	* sysdeps/i386/bits/byteswap.h: Likewise.
+	* sysdeps/s390/bits/byteswap.h: Likewise.
+	* sysdeps/x86_64/bits/byteswap.h: Likewise.
+	* bits/byteswap-16.h: New file.
+	* sysdeps/i386/bits/byteswap-16.h: Likewise.
+	* sysdeps/s390/bits/byteswap-16.h: Likewise.
+	* sysdeps/x86_64/bits/byteswap-16.h: Likewise.
+	* string/Makefile (headers): Add bits/byteswap-16.h.
+
+2012-04-06  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	[BZ #13895]
+	* nss/nsswitch.c (nss_load_library, __nss_lookup_function): Avoid
+	extra indirection.
+	* nss/Makefile (tests-static, tests): Add tst-nss-static.
+	* nss/tst-nss-static.c: New.
+
+2012-04-06  Robert Millan  <rmh@gnu.org>
+
+	[BZ #6486]
+	* manual/llio.texi (File Position Primitive): lseek
+	refers to WHENCE when it really means OFFSET.
+
+2012-04-06  Andreas Jaeger  <aj@suse.de>
+
+	* nss/nss_db/db-initgroups.c: Include <string.h> for strlen and
+	strncmp	declarations.
+
+	* abilist/libc.abilist: Add __poll and __ppoll.
+
+2012-04-05  David S. Miller  <davem@davemloft.net>
+
+	* scripts/check-local-headers.sh: Accept a host triplet in the
+	path matched by the exclude regexp.
+
+	* elf/dynamic-link.h (_ELF_DYNAMIC_DO_RELOC): Reduce down to one
+	definition.
+	* sysdeps/powerpc/powerpc32/dl-machine.h
+	(ELF_MACHINE_PLTREL_OVERLAP): Delete.
+	* sysdeps/s390/s390-32/dl-machine.h
+	(ELF_MACHINE_PLTREL_OVERLAP): Likewise.
+	* sysdeps/sparc/sparc32/dl-machine.h
+	(ELF_MACHINE_PLTREL_OVERLAP): Likewise.
+	* sysdeps/sparc/sparc64/dl-machine.h
+	(ELF_MACHINE_PLTREL_OVERLAP): Likewise.
+
+	* elf/rtld.c (dl_main): If DL_DEBUG_UNUSED is enabled, turn off
+	lazy binding.
+	* elf/dl-lookup.c (_dl_lookup_symbol_x): If DL_DEBUG_UNUSED, ignore
+	undefined symbol errors.
+
+	* elf/rtld.c (dl_main): Skip VDSO when checking for unused
+	DT_NEEDED entries.
+
+2012-04-05  Michael Matz  <matz@suse.de>
+
+	[BZ #13592]
+	* sysdeps/x86_64/memset.S: Fix size paramater comparisions.
+
+2012-04-05  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13908]
+	* stdlib/stdlib.h: Don't warn about unused result of mktemp, fix
+	comment.
+
+2012-04-05  Nobuhiro Iwamatsu  <iwamatsu@nigauri.org>
+
+	* sysdeps/sh/sh4/fpu/fesetround.c (fesetround): Fix return value
+	which ROUND is no valid rounding mode.
+
+2012-04-05  Nobuhiro Iwamatsu  <iwamatsu@nigauri.org>
+
+	* sysdeps/sh/sh4/fpu/fegetenv.c (fegetenv): Set fpscr register which
+	read again.
+	* sysdeps/sh/sh4/fpu/ftestexcept.c: Likewise.
+
+2012-04-05  Nobuhiro Iwamatsu  <iwamatsu@nigauri.org>
+
+	* sysdeps/sh/sh4/fpu/fraiseexcpt.c (feraiseexcept): Produce
+	an exception using FPU order intentionally.
+
+2012-04-05  Nobuhiro Iwamatsu  <iwamatsu@nigauri.org>
+
+	* sysdeps/sh/sh4/fpu/fedisblxcpt.c: New file.
+	* sysdeps/sh/sh4/fpu/feenablxcpt.c: New file.
+	* sysdeps/sh/sh4/fpu/fegetexcept.c: New file.
+	* sysdeps/sh/sh4/fpu/feupdateenv.c: New file.
+
+2012-04-05  Simon Josefsson  <simon@josefsson.org>
+
+	[BZ #12340]
+	* sysdeps/mach/hurd/ttyname_r.c (__ttyname_r): Return ERANGE instead of
+	EINVAL when BUFLEN is too smal.
+
+2012-04-05  Thomas Schwinge  <thomas@codesourcery.com>
+
+	[BZ #13553]
+	* sysdeps/mach/i386/machine-lock.h: Use volatile instead of __volatile.
+	* sysdeps/mach/powerpc/machine-lock.h: Likewise.
+
 2012-04-03  Andreas Jaeger  <aj@suse.de>
 
-	[BZ # 13938]
+	[BZ #13938]
 	* manual/setjmp.texi (System V contexts): Fix sentence.
 
 	[BZ #13926]
