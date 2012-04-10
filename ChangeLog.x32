@@ -1,3 +1,16 @@
+2012-04-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/64/Implies-after: New file.
+	* sysdeps/x86_64/x32/Implies-after: Likewise.
+
+	* sysdeps/x86_64/common/bits/wordsize.h: Moved to ...
+	* sysdeps/x86_64/bits/wordsize.h: Here.
+
+	* sysdeps/unix/sysv/linux/x86_64/64/Implies: Removed.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/Implies: Moved to ...
+	* sysdeps/unix/sysv/linux/x86_64/Implies: Here.
+
 2012-03-22  Roland McGrath  <roland@hack.frob.com>
 
 	* configure.in: Support Implies-after.
