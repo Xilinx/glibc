@@ -1,3 +1,34 @@
+2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipc.h: Update copyright
+	year.
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipctypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/mqueue.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/resource.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/statfs.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/statvfs.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/timex.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/utmp.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/utmpx.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sys/msg.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/dl-cache.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/fallocate.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/getcpu.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/getdents.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/gettimeofday.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/init-first.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fallocate.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/preadv.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/pselect.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/pwritev.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sysdep.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/time.c: Likewise.
+	* sysdeps/x86_64/x32/dl-machine.h: Likewise.
+	* sysdeps/x86_64/x32/sysdep.h: Likewise.
+
 2012-04-10  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/64/Implies-after: New file.
