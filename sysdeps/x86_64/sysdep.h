@@ -127,11 +127,11 @@ lose:									      \
 /* Long and pointer size in bytes.  */
 #define LP_SIZE "8"
 
-/* Assembler address directive. */
-#define ASM_ADDR ".quad"
-
 /* Instruction to operate on long and pointer.  */
 #define LP_OP(insn) #insn "q"
+
+/* Assembler address directive. */
+#define ASM_ADDR ".quad"
 
 /* Registers to hold long and pointer.  */
 #define RAX_LP	"rax"

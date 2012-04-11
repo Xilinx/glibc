@@ -1,5 +1,9 @@
 2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/sysdep.h (LP_OP): Moved before ASM_ADDR.
+
+2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/ipc.h: Update copyright
 	year.
 	* sysdeps/unix/sysv/linux/x86_64/bits/ipctypes.h: Likewise.
