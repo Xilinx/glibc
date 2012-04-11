@@ -1,3 +1,40 @@
+2012-04-11  Jim Meyering  <meyering@redhat.com>
+
+        [BZ #11959]
+        * libio/stdio.h (fwrite, fwrite_unlocked): Remove __wur.
+        It is not necessarily an error to ignore fwrite's return
+        value.  One can reliably use ferror to test for errors after
+        the fact.
+
+2012-04-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* bits/types.h (__snseconds_t): New type.
+	* time/time.h (struct timespec): Use __snseconds_t on tv_nsec.
+
+	* bits/typesizes.h (__SNSECONDS_T_TYPE): New macro.
+	* sysdeps/unix/bsd/bsd4.4/freebsd/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+
+2012-04-10  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #2636]
+	* manual/time.texi (Processor Time): Return type of times is
+	elapsed real time since an arbitrary point in the past.
+	(CPU Time): Move CLK_TCK from here...
+	(Processor Time): ...to here.  Correct description.
+	* manual/conf.texi (Constants for Sysconf): Correct description of
+	_SC_CLK_TCK.
+
+2012-04-10  David S. Miller  <davem@davemloft.net>
+
+	[BZ #13967]
+	* elf/dynamic-link.h (_ELF_DYNAMIC_DO_RELOC): Handle the case
+	where the is a gap between DT_REL(A) and DT_JMPREL.
+
 2012-04-10  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/bits/byteswap.h: Include <features.h>.
