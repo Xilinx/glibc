@@ -1,5 +1,12 @@
 2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/arch_prctl.c: New file.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/Makefile (sysdep_routines):
+	Add arch_prctl.
+
+2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/ptrace.c: New.
 
 2012-04-11  H.J. Lu  <hongjiu.lu@intel.com>
