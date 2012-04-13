@@ -65,11 +65,10 @@ typedef struct
   /* Reservation of some values for the TM ABI.  */
   void *__private_tm[5];
 # ifdef __x86_64__
-#  ifdef __LP64__
   long int __unused2;
-#  else
+#  ifdef __ILP32__
   /* Pad rtld_savespace_sse to 32byte aligned.  */
-  void *__padding1[5];
+  void *__padding1[4];
 #  endif
   /* Have space for the post-AVX register size.  */
   __m128 rtld_savespace_sse[8][4];
