@@ -1,3 +1,8 @@
+2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/bits/wordsize.h (__WORDSIZE): Check
+	__x86_64__ and __ILP32__.
+
 2012-04-12  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/bits/wordsize.h: Include <limits.h> and
