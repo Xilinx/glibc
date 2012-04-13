@@ -283,7 +283,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
     }
   else
 # endif
-# if !defined RTLD_BOOTSTRAP && !defined __LP64__
+# if !defined RTLD_BOOTSTRAP && defined __ILP32__
   if (__builtin_expect (r_type == R_X86_64_RELATIVE64, 0))
     *((Elf64_Addr *) (uintptr_t) reloc_addr)
       = (Elf64_Addr) map->l_addr + reloc->r_addend;
@@ -334,12 +334,12 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 	  /* During relocation all TLS symbols are defined and used.
 	     Therefore the offset is already correct.  */
 	  if (sym != NULL)
-#   ifdef __LP64__
-	    *reloc_addr = sym->st_value + reloc->r_addend;
-#   else
+#   ifdef __ILP32__
 	    *(Elf64_Sxword *) reloc_addr
 	      = (Elf64_Sxword)
 		  ((Elf32_Sword) (sym->st_value + reloc->r_addend));
+#   else
+	    *reloc_addr = sym->st_value + reloc->r_addend;
 #   endif
 #  endif
 	  break;
@@ -390,14 +390,14 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 	      /* We know the offset of the object the symbol is contained in.
 		 It is a negative value which will be added to the
 		 thread pointer.  */
-#  ifdef __LP64__
-	      *reloc_addr = (sym->st_value + reloc->r_addend
-			     - sym_map->l_tls_offset);
-#  else
+#  ifdef __ILP32__
 	    *(Elf64_Sxword *) reloc_addr
 	      = (Elf64_Sxword)
 		  ((Elf32_Sword) (sym->st_value + reloc->r_addend
 				  - sym_map->l_tls_offset));
+#  else
+	      *reloc_addr = (sym->st_value + reloc->r_addend
+			     - sym_map->l_tls_offset);
 #  endif
 	    }
 	  break;
@@ -405,11 +405,11 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 
 # ifndef RTLD_BOOTSTRAP
 	case R_X86_64_64:
-#  ifdef __LP64__
-	  *reloc_addr = value + reloc->r_addend;
-#  else
+#  ifdef __ILP32__
 	  *((Elf64_Addr *) (uintptr_t) reloc_addr)
 	    = (Elf64_Addr) value + reloc->r_addend;
+#  else
+	  *reloc_addr = value + reloc->r_addend;
 #  endif
 	  break;
 	case R_X86_64_32:
