@@ -1,5 +1,9 @@
 2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/start.S: Check __ILP32__ instead of __LP64__.
+
+2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/ffsll.c (ffsl): Check __ILP32__ instead of
 	__LP64__.
 
