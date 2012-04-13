@@ -122,10 +122,10 @@
 	  : : "rdi", "rsi", "r8", "r9", "r10", "r11"); 			      \
      __l; })
 
-# ifdef __LP64__
-#  define TLS_GD_PREFIX	".byte 0x66\n\t"
-# else
+# ifdef __ILP32__
 #  define TLS_GD_PREFIX
+# else
+#  define TLS_GD_PREFIX	".byte 0x66\n\t"
 # endif
 
 # define TLS_GD(x) \

@@ -4,12 +4,12 @@
 # define STACK_CHK_GUARD \
   ({ uintptr_t x; asm ("movl %%gs:0x14, %0" : "=r" (x)); x; })
 #elif defined __x86_64__
-# ifdef __LP64__
-#  define STACK_CHK_GUARD \
-  ({ uintptr_t x; asm ("movq %%fs:0x28, %0" : "=r" (x)); x; })
-# else
+# ifdef __ILP32__
 #  define STACK_CHK_GUARD \
   ({ uintptr_t x; asm ("movl %%fs:0x18, %0" : "=r" (x)); x; })
+# else
+#  define STACK_CHK_GUARD \
+  ({ uintptr_t x; asm ("movq %%fs:0x28, %0" : "=r" (x)); x; })
 # endif
 #elif defined __powerpc64__
 # define STACK_CHK_GUARD \
