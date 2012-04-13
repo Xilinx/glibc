@@ -1,7 +1,7 @@
 syscall-list-variants := 32bit 64bit
 syscall-list-32bit-options := -D__i386__ -U__x86_64__
 syscall-list-32bit-condition := !defined __x86_64__
-syscall-list-64bit-options := -U__i386__ -D__x86_64__ -D__LP64__
+syscall-list-64bit-options := -U__i386__ -U__ILP32__ -D__x86_64__ -D__LP64__
 syscall-list-64bit-condition := defined __x86_64__
 
 ifeq ($(subdir),misc)

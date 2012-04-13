@@ -1,5 +1,10 @@
 2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/Makefile
+	(syscall-list-64bit-options): Add -U__ILP32__.
+
+2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* elf/tst-auditmod1.c: Check __ILP32__ instead of __LP64__.
 	* elf/tst-auditmod3b.c: Likewise.
 	* elf/tst-auditmod4b.c: Likewise.
