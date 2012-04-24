@@ -3442,6 +3442,9 @@ floor_test (void)
   TEST_f_f (floor, 10141204801825835211973625643008.5L, 10141204801825835211973625643008.0L);
   TEST_f_f (floor, 10141204801825835211973625643008.75L, 10141204801825835211973625643008.0L);
   TEST_f_f (floor, 10141204801825835211973625643009.5L, 10141204801825835211973625643009.0L);
+
+  TEST_f_f (floor, 0xf.ffffffffffffff8p+47L, 0xf.fffffffffffep+47L);
+  TEST_f_f (floor, -0x8.000000000000004p+48L, -0x8.000000000001p+48L);
 #endif
 
   END (floor);
@@ -3802,13 +3805,22 @@ ilogb_test (void)
   TEST_f_i (ilogb, 1024, 10);
   TEST_f_i (ilogb, -2000, 10);
 
-  /* XXX We have a problem here: the standard does not tell us whether
-     exceptions are allowed/required.  ignore them for now.  */
-
-  TEST_f_i (ilogb, 0.0, FP_ILOGB0, EXCEPTIONS_OK);
-  TEST_f_i (ilogb, nan_value, FP_ILOGBNAN, EXCEPTIONS_OK);
-  TEST_f_i (ilogb, plus_infty, INT_MAX, EXCEPTIONS_OK);
-  TEST_f_i (ilogb, minus_infty, INT_MAX, EXCEPTIONS_OK);
+  /* ilogb (0.0) == FP_ILOGB0 plus invalid exception  */
+  errno = 0;
+  TEST_f_i (ilogb, 0.0, FP_ILOGB0, INVALID_EXCEPTION);
+  check_int ("errno for ilogb(0.0) unchanged", errno, EDOM, 0, 0, 0);
+  /* ilogb (NaN) == FP_ILOGBNAN plus invalid exception  */
+  errno = 0;
+  TEST_f_i (ilogb, nan_value, FP_ILOGBNAN, INVALID_EXCEPTION);
+  check_int ("errno for ilogb(NaN) unchanged", errno, EDOM, 0, 0, 0);
+  /* ilogb (inf) == INT_MAX plus invalid exception  */
+  errno = 0;
+  TEST_f_i (ilogb, plus_infty, INT_MAX, INVALID_EXCEPTION);
+  check_int ("errno for ilogb(Inf) unchanged", errno, EDOM, 0, 0, 0);
+  /* ilogb (-inf) == INT_MAX plus invalid exception  */
+  errno = 0;
+  TEST_f_i (ilogb, minus_infty, INT_MAX, INVALID_EXCEPTION);
+  check_int ("errno for ilogb(-Inf) unchanged", errno, EDOM, 0, 0, 0);
 
   END (ilogb);
 }

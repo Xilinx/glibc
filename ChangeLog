@@ -1,3 +1,274 @@
+2012-04-24  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	[BZ #13886]
+	* sysdeps/powerpc/powerpc64/fpu/s_floorl.S: Delete file. Use the
+	sysdeps/ieee754/ldbl-128ibm/s_floorl.c version instead.
+	* math/libm-test.inc (floor_test): Add more tests.
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update for pow tests.
+
+2012-04-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/getdents.c: Remove file.
+	* sysdeps/unix/sysv/getdents.c: Likewise.
+	* sysdeps/unix/sysv/syscalls.list (s_getdents): Remove.
+
+	* sysdeps/unix/syscalls.list (madvise): Add syscall from
+	sysdeps/unix/mman/syscalls.list.
+	(mmap): Likewise.
+	(mprotect): Likewise.
+	(msync): Likewise.
+	(munmap): Likewise.
+	* sysdeps/unix/bsd/bsd4.4/Implies: Remove.
+	* sysdeps/unix/mman/syscalls.list: Remove.
+	* sysdeps/unix/sysv/linux/Implies: Don't include unix/mman.
+
+	* configure.in (libc_cv_libgcc_s_suffix): Remove test.
+	(libc_cv_as_needed): Don't use $libc_cv_libgcc_s_suffix.
+	* configure: Regenerated.
+	* Makeconfig [$(have-as-needed) = yes] (libgcc_eh): Don't use
+	$(libgcc_s_suffix).
+	* config.make.in (libgcc_s_suffix): Remove variable.
+
+2012-04-23  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/gethostname.c: Move to ...
+	* sysdeps/posix/gethostname.c: ... here.
+
+	* sysdeps/unix/execve.S: Remove file.
+
+	* sysdeps/unix/_exit.S: Remove file.
+
+2012-04-23  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13739]
+	* manual/Makefile: Remove make dist support, there's no
+	need for a stand-alone documentation tar ball.
+	(TEXI2DVI): Define always, it's not in Makeconfig.
+	(dist): Removed.
+	(tar-it): Removed.
+	(edition): Removed.
+	(glibc-doc-$(edition).tar): Removed
+	(%.Z): Removed.
+	(%.gz): Removed.
+	(%.uu): Removed.
+	(ETAGS): Remove, it's in Makeconfig.
+	(move-if-change): Remove, it's in Makeconfig.
+
+2013-04-23  Paul Eggert  <eggert@cs.ucla.edu>
+
+	[BZ #13970]
+	* stdlib/stdlib.h: Remove warn_unused_result attribute from strtol etc.
+	(strtod, strtof, strtold, strtol, strtoul, strtoq)
+	(strtouq, strtoll, strtoull, strtol_l, strtoul_l, strtoll_l, strtoull_l)
+	(strtod_l, strtof_l, strtold_l): Remove __wur.
+	It is not necessarily an error to ignore strtol's return value.
+	One can reliably look at the stored endptr to decide whether
+	the number had valid syntax.
+
+2012-04-21  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13739]
+	* sysdeps/s390/s390-64/Makefile (distribute): Remove variable.
+
+2012-04-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/Versions (GLIBC_2.0): Add sysinfo.
+	* sysdeps/unix/sysv/Versions: Remove file.
+
+2012-04-21  Markus Trippelsdorf  <markus@trippelsdorf.de>
+
+	[BZ #13927]
+	* sysdeps/x86_64/fpu/libm-test-ulps: Update.
+
+2012-04-21  Nick Alcock  <nick.alcock@oracle.com>
+
+	[BZ #7064]
+	* sysdeps/unix/sysv/linux/i386/syscalls.list: Omit explicit
+	version	from __vm86.
+
+2012-04-20  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/common/lxstat.c: Remove file.
+	* sysdeps/unix/common/syscalls.list (sys_lstat): Remove.
+
+	* sysdeps/unix/sysv/Makefile: Remove file.
+
+	* sysdeps/unix/sysv/direct.h: Remove file.
+
+	* sysdeps/unix/sysv/bits/dirent.h: Remove file.
+	* sysdeps/unix/sysv/bits/fcntl.h: Likewise.
+	* sysdeps/unix/sysv/bits/local_lim.h: Likewise.
+	* sysdeps/unix/sysv/bits/signum.h: Likewise.
+	* sysdeps/unix/sysv/bits/stat.h: Likewise.
+	* sysdeps/unix/sysv/bits/utmp.h: Likewise.
+	* sysdeps/unix/sysv/bits/utsname.h: Likewise.
+
+	* sysdeps/unix/sysv/setrlimit.c: Remove file.
+
+	* sysdeps/unix/xmknod.c: Remove file.
+	* sysdeps/unix/syscalls.list (sys_mknod): Remove.
+
+	* sysdeps/unix/sysv/settimeofday.c: Remove file.
+
+	* sysdeps/unix/sysv/i386/time.S: Remove file.
+
+	* sysdeps/unix/fxstat.c: Remove file.
+	* sysdeps/unix/xstat.c: Likewise.
+	* sysdeps/unix/syscalls.list (sys_fstat, sys_stat): Remove.
+
+	* sysdeps/unix/sysv/sigaction.c: Remove file.
+
+	* sysdeps/unix/sysv/Makefile [termio.h not in sysdep_headers]
+	(sysdep_headers): Remove variable.
+	[termio.h not in sysdep_headers] (generated): Likewise.
+	[termio.h not in sysdep_headers] ($(objpfx)termio.h): Remove rule.
+	* sysdeps/unix/sysv/sysv_termio.h: Remove file.
+	* sysdeps/unix/sysv/tcdrain.c: Likewise.
+	* sysdeps/unix/sysv/tcflow.c: Likewise.
+	* sysdeps/unix/sysv/tcflush.c: Likewise.
+	* sysdeps/unix/sysv/tcgetattr.c: Likewise.
+	* sysdeps/unix/sysv/tcgetpgrp.c: Likewise.
+	* sysdeps/unix/sysv/tcsendbrk.c: Likewise.
+	* sysdeps/unix/sysv/tcsetattr.c: Likewise.
+	* sysdeps/unix/sysv/tcsetpgrp.c: Likewise.
+
+	* sysdeps/unix/siglist.c: Remove file.
+
+	* sysdeps/unix/getppid.S: Remove file.
+
+	* sysdeps/unix/mkdir.c: Remove file.
+	* sysdeps/unix/rmdir.c: Likewise.
+
+2012-04-19  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/gnu/errlist-compat.awk (END): Correct computation of
+	ERR_MAX value.
+	* sysdeps/unix/sysv/linux/Versions (GLIBC_2.12): Adjust
+	errlist-compat value.
+
+2012-04-18  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/generic/memcopy.h (reg_char): Delete.
+	* debug/strcat_chk.c: Use char, not reg_char.
+	* debug/strcpy_chk.c: Likewise.
+	* debug/strncat_chk.c: Likewise.
+	* debug/strncpy_chk.c: Likewise.
+	* string/memchr.c: Likewise.
+	* string/memrchr.c: Likewise.
+	* string/rawmemchr.c: Likewise.
+	* string/strcat.c: Likewise.
+	* string/strchr.c: Likewise.
+	* string/strchrnul.c: Likewise.
+	* string/strcmp.c: Likewise.
+	* string/strcpy.c: Likewise.
+	* string/strncat.c: Likewise.
+	* string/strncmp.c: Likewise.
+	* string/strncpy.c: Likewise.
+
+2012-04-18  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* sysdeps/powerpc/memmove.c: New file based on string/memmove.c where
+	__builtin_memcopy is called when src and dest ranges are known to not
+	overlap.
+
+2012-04-18  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* sysdeps/powerpc/powerpc64/power6/wordcopy.c
+	(_wordcopy_fwd_dest_aligned): Replace switch with a parameterized
+	fwd_align_merge macro call.
+	(_wordcopy_bwd_dest_aligned): Replace switch with a parameterized
+	bwd_align_merge macro call.
+	* sysdeps/powerpc/powerpc32/power6/wordcopy.c: Likewise.
+
+2012-04-18  Will Schmidt  <will_schmidt@vnet.ibm.com>
+
+	* sysdeps/powerpc/powerpc64/power6/wordcopy.c: Add fwd_align_merge and
+	bwd_align_merge macros.
+	(_wordcopy_fwd_dest_aligned): Use fwd_align_merge macro calls.
+	(_wordcopy_bwd_dest_aligned): Use bwd_align_merge macro calls.
+	* sysdeps/powerpc/powerpc32/power6/wordcopy.c: Likewise.
+
+2012-04-18  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc64/memcopy.h: Delete.
+
+2012-04-18  Andreas Jaeger  <aj@suse.de>
+
+	[BZ# 6794]
+	* sysdeps/ieee754/ldbl-96/s_ilogbl.c: Moved to ...
+	* sysdeps/ieee754/ldbl-96/e_ilogbl.c: ... here.
+	Rename __ilogbl to __ieee754_ilogbl and remove weak_alias.
+
+	* sysdeps/ieee754/ldbl-128/s_ilogbl.c: Moved to ...
+	* sysdeps/ieee754/ldbl-128/e_ilogbl.c: ... here.
+	Rename __ilogbl to __ieee754_ilogbl and remove weak_alias.
+
+	* sysdeps/ieee754/ldbl-64-128/s_ilogbl.c: Moved to ...
+	* sysdeps/ieee754/ldbl-64-128/e_ilogbl.c: ... here.
+	Adjust for changed ldbl-128 files.
+
+	* sysdeps/sparc/sparc64/soft-fp/s_ilogbl.c: Moved to ...
+	* sysdeps/sparc/sparc64/soft-fp/e_ilogbl.c: ... here.
+	Rename __ilogbl to __ieee754_ilogbl and remove weak_alias.
+
+2012-04-17  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc32/memcopy.h: Delete.
+
+2012-04-17  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/i386/fpu/e_ilogb.S: Remove __ilogb*_finite alias.
+	* sysdeps/i386/fpu/e_ilogbf.S: Likewise.
+	* sysdeps/i386/fpu/e_ilogbl.S: Likewise.
+	* sysdeps/x86_64/fpu/e_ilogbl.S: Likewise.
+	* sysdeps/ieee754/dbl-64/e_ilogb.c: Likewise.
+	* sysdeps/ieee754/flt-32/e_ilogbf.c: Likewise.
+
+2012-04-17  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	[BZ #6794]
+	* math/Makefile: Add e_ilogb and w_ilogb, remove s_logb.
+	* math/libm-test.inc: Add ilogb errno and exception tests.
+	* math/w_ilogb.c: New file: ilogb wrapper.
+	* math/w_ilogbf.c: New file: ilogbf wrapper.
+	* math/w_ilogbl.c: New file: ilogbl wrapper.
+	* sysdeps/generic/math_private.h: Add __ieee754_ilogb[l|f] prototypes.
+	* sysdeps/i386/fpu/s_ilogb.S: Moved to ...
+	* sysdeps/i386/fpu/e_ilogb.S: ... here. Also fixed a FE_DIVBYZERO
+	exception being thrown with 0.0 as argument.
+	* sysdeps/i386/fpu/s_ilogbf.S: Moved to ...
+	* sysdeps/i386/fpu/e_ilogbf.S: ... here. Also fixed a FE_DIVBYZERO
+	exception being thrown with 0.0 as argument.
+	* sysdeps/i386/fpu/s_ilogbl.S: Moved to ...
+	* sysdeps/i386/fpu/e_ilogbl.S: ... here. Also fixed a FE_DIVBYZERO
+	exception being thrown with 0.0 as argument.
+	* sysdeps/x86_64/fpu/s_ilogbl.S: Moved to ...
+	* sysdeps/x86_64/fpu/e_ilogbl.S: ... here. Also fixed a FE_DIVBYZERO
+	exception being thrown with 0.0 as argument.
+	* sysdeps/ieee754/dbl-64/s_ilogb.c: Moved to ...
+	* sysdeps/ieee754/dbl-64/e_ilogb.c: ... here.
+	* sysdeps/ieee754/flt-32/s_ilogbf.c: Moved to ...
+	* sysdeps/ieee754/flt-32/e_ilogbf.c: ... here.
+	* sysdeps/ieee754/ldbl-128ibm/s_ilogbl.c: Moved to ...
+	* sysdeps/ieee754/ldbl-128ibm/e_ilogbl.c: ... here.
+	* sysdeps/ieee754/ldbl-opt/s_ilogb.c: Moved to ...
+	* sysdeps/ieee754/ldbl-opt/w_ilogb.c: ... here.
+	* sysdeps/ieee754/ldbl-opt/w_ilogbl.c: New file: ilogbl wrapper.
+
+2012-04-17  Petr Baudis  <pasky@ucw.cz>
+
+	* include/sys/uio.h: Change __vector to __iovec to avoid clash
+	with altivec.
+
+2012-04-16  Marek Polacek  <polacek@redhat.com>
+
+	* elf/pldd-xx.c: Rename static_assert to pldd_assert.
+
+2012-04-16  Marek Polacek  <polacek@redhat.com>
+
+	* sysdeps/i386/fpu/bits/fenv.h (feraiseexcept): Reverse the
+	operands of fdivp instruction.
+
 2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* elf/tst-auditmod1.c: Check __ILP32__ instead of __LP64__.

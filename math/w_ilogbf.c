@@ -1,5 +1,6 @@
-/* Copyright (C) 1992, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Adhemerval Zanella <azanella@linux.vnet.ibm.com>, 2011.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -15,17 +16,23 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sys/types.h>
-#include <sysv_termio.h>
+#include <math.h>
 #include <errno.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
+#include <math_private.h>
 
-/* Set the foreground process group ID of FD set PGRP_ID.  */
+/* wrapper ilogbf */
 int
-tcsetpgrp (fd, pgrp_id)
-     int fd;
-     pid_t pgrp_id;
+__ilogbf (float x)
 {
-  return __ioctl (fd, _TIOCSPGRP, &pgrp_id);
+  int r = __ieee754_ilogbf (x);
+  if (__builtin_expect (r == FP_ILOGB0, 0)
+      || __builtin_expect (r == FP_ILOGBNAN, 0)
+      || __builtin_expect (r == INT_MAX, 0))
+    {
+      __set_errno (EDOM);
+      feraiseexcept (FE_INVALID);
+    }
+  return r;
 }
+
+weak_alias (__ilogbf, ilogbf)

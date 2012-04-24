@@ -7,7 +7,7 @@
 
 RCSID("$NetBSD: s_ilogb.S,v 1.5 1995/10/12 15:53:09 jtc Exp $")
 
-ENTRY(__ilogb)
+ENTRY(__ieee754_ilogb)
 	fldl	4(%esp)
 /* I added the following ugly construct because ilogb(+-Inf) is
    required to return INT_MAX in ISO C99.
@@ -18,6 +18,8 @@ ENTRY(__ilogb)
 	andb    %ah, %dh
 	cmpb    $0x05, %dh
 	je      1f		/* Is +-Inf, jump.  */
+	cmpb    $0x40, %dh
+	je      2f		/* Is +-0, jump.  */
 
 	fxtract
 	pushl	%eax
@@ -34,5 +36,7 @@ ENTRY(__ilogb)
 1:	fstp	%st
 	movl	$0x7fffffff, %eax
 	ret
-END (__ilogb)
-weak_alias (__ilogb, ilogb)
+2:	fstp	%st
+	movl	$0x80000000, %eax	/* FP_ILOGB0  */
+	ret
+END (__ieee754_ilogb)

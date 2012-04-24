@@ -1,6 +1,6 @@
-/* xstat using old-style Unix stat system call.
-   Copyright (C) 1991,1995,1996,1997,2000,2002 Free Software Foundation, Inc.
+/* Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Adhemerval Zanella <azanella@linux.vnet.ibm.com>, 2011.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,22 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include <math.h>
 #include <errno.h>
-#include <stddef.h>
-#include <sys/stat.h>
-#include <bp-checks.h>
+#include <math_private.h>
 
-extern int __syscall_stat (const char *__unbounded, struct stat *__unbounded);
-
+/* wrapper ilogbl */
 int
-__xstat (int vers, const char *file, struct stat *buf)
+__ilogbl (long double x)
 {
-  if (vers != _STAT_VER)
+  int r = __ieee754_ilogbl (x);
+  if (__builtin_expect (r == FP_ILOGB0, 0)
+      || __builtin_expect (r == FP_ILOGBNAN, 0)
+      || __builtin_expect (r == INT_MAX, 0))
     {
-      __set_errno (EINVAL);
-      return -1;
+      __set_errno (EDOM);
+      feraiseexcept (FE_INVALID);
     }
-
-  return __syscall_stat (CHECK_STRING (file), CHECK_1 (buf));
+  return r;
 }
-hidden_def (__xstat)
-weak_alias (__xstat, _xstat)
+weak_alias (__ilogbl, ilogbl)

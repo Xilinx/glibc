@@ -1,5 +1,6 @@
-/* Copyright (C) 1992, 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Adhemerval Zanella <azanella@linux.vnet.ibm.com>, 2011.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -15,18 +16,27 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include <math.h>
 #include <errno.h>
-#include <stddef.h>
-#include <termios.h>
-#include <unistd.h>
-#include <sysv_termio.h>
-#include <sys/ioctl.h>
+#include <math_private.h>
 
-/* Wait for pending output to be written on FD.  */
+/* wrapper ilogb */
 int
-__libc_tcdrain (int fd)
+__ilogb (double x)
 {
-  /* With an argument of 1, TCSBRK just waits for output to drain.  */
-  return __ioctl (fd, _TCSBRK, 1);
+  int r = __ieee754_ilogb (x);
+  if (__builtin_expect (r == FP_ILOGB0, 0)
+      || __builtin_expect (r == FP_ILOGBNAN, 0)
+      || __builtin_expect (r == INT_MAX, 0))
+    {
+      __set_errno (EDOM);
+      feraiseexcept (FE_INVALID);
+    }
+  return r;
 }
-weak_alias (__libc_tcdrain, tcdrain)
+
+weak_alias (__ilogb, ilogb)
+#ifdef NO_LONG_DOUBLE
+strong_alias (__ilogb, __ilogbl)
+weak_alias (__ilogb, ilogbl)
+#endif
