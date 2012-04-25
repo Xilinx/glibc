@@ -1,5 +1,10 @@
 2012-04-25  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipctypes.h: Don't
+	include <bits/types.h>.
+
+2012-04-25  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/ipctypes.h (__ipc_pid_t):
 	Properly define.
 

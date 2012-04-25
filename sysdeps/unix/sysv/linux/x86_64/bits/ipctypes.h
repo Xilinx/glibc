@@ -23,8 +23,6 @@
 #ifndef _BITS_IPCTYPES_H
 #define _BITS_IPCTYPES_H	1
 
-#include <bits/types.h>
-
 /* Used in `struct shmid_ds'.  */
 # ifdef __x86_64__
 typedef int __ipc_pid_t;
