@@ -1,3 +1,38 @@
+2012-04-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/fork.S: Remove file.
+	* sysdeps/unix/i386/fork.S: Likewise.
+	* sysdeps/unix/sparc/fork.S: Likewise.
+
+	* sysdeps/unix/system.c: Remove file.
+	* sysdeps/unix/bsd/bsd4.4/system.c: Likewise.
+
+	* sysdeps/unix/getegid.S: Remove file.
+	* sysdeps/unix/geteuid.S: Likewise.
+
+2012-04-24  Roland McGrath  <roland@hack.frob.com>
+
+	* scripts/check-localplt.awk: New file.
+	* elf/Makefile ($(objpfx)check-localplt.out): Use that script instead
+	of diff.
+	* scripts/data/localplt-generic.data: Add a comment.
+
+	* sysdeps/mach/hurd/symlink.c: Don't call __mach_port_deallocate on
+	NODE when __dir_mkfile failed.
+	* sysdeps/mach/hurd/symlinkat.c: Likewise.
+	Reported by Ludovic Courtès <ludo@gnu.org>.
+
+2012-04-24  Andreas Jaeger  <aj@suse.de>
+
+	* Makerules (common-clean): Also remove gen-as-const-headers
+	files.
+
+2012-04-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makerules (native-compile): Do not change working directory for
+	build.  Use $(OUTPUT_OPTION) in command.
+	(ALL_BUILD_CFLAGS): Use $(common-objpfx) to find config.h.
+
 2012-04-24  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
 
 	[BZ #13886]
