@@ -1,3 +1,9 @@
+2012-04-28  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* shlib-versions: Move x86_64-.*-linux.* to ...
+	* sysdeps/x86_64/64/shlib-versions: Here.  New file.
+	* sysdeps/x86_64/x32/shlib-versions: New file.
+
 2012-04-13  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/x86_64/tls.h (tcbhead_t): Check __ILP32__ instead of
