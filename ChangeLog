@@ -1,3 +1,35 @@
+2012-04-30  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #14034]
+	* sysdeps/i386/fpu/e_acos.S (__ieee754_acos): Take absolute value
+	of square root.
+	* sysdeps/i386/fpu/e_acosf.S (__ieee754_acosf): Likewise.
+	* sysdeps/i386/fpu/e_acosl.c (__ieee754_acosl): Likewise.
+	* math/libm-test.inc (acos_test_tonearest): New function.
+	(acos_test_towardzero): Likewise.
+	(acos_test_downward): Likewise.
+	(acos_test_upward): Likewise.
+	(asin_test_tonearest): Likewise.
+	(asin_test_towardzero): Likewise.
+	(asin_test_downward): Likewise.
+	(asin_test_upward): Likewise.
+	(main): Call the new functions.
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Update.
+
+	[BZ #13884]
+	[BZ #13924]
+	* math/e_exp10.c: Include <float.h>.
+	(__ieee754_exp10): Handle underflow here rather than multiplying
+	large negative argument by M_LN10.
+	* math/e_exp10f.c (__ieee754_exp10f): Call __ieee754_exp instead
+	of __ieee754_expf.
+	* math/e_exp10l.c: Include <float.h>.
+	(__ieee754_exp10l): Handle underflow here rather than multiplying
+	large negative argument by M_LN10l.
+	* math/libm-test.inc (exp10_test): Add another test.  Do not allow
+	spurious overflow exception on underflow.
+
 2012-04-29  Marek Polacek  <polacek@redhat.com>
 
 	* misc/sys/cdefs.h (__attribute_artificial__): New macro.
