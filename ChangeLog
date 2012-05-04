@@ -1,3 +1,140 @@
+2012-05-04  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/common/bits/dirent.h: Remove file.
+	* sysdeps/unix/common/bits/fcntl.h: Likewise.
+
+	* sysdeps/unix/bsd/bits/dirent.h: Remove file.
+	* sysdeps/unix/bsd/bits/fcntl.h: Likewise.
+	* sysdeps/unix/bsd/bsd4.4/isatty.c: Likewise.
+	* sysdeps/unix/bsd/isatty.c: Likewise.
+	* sysdeps/unix/bsd/tcdrain.c: Likewise.
+	* sysdeps/unix/bsd/tcgetattr.c: Likewise.
+	* sysdeps/unix/bsd/tcsetattr.c: Likewise.
+
+2012-05-02  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	* sysdeps/ieee754/ldbl-128ibm/e_acosl.c (__ieee754_acosl): Fix
+	long double comparison inaccuracies.
+	* sysdeps/ieee754/ldbl-128ibm/e_asinl.c (__ieee754_asinl): Likewise.
+	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
+
+2012-05-04  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/unix/make-syscalls.sh: Fix check for version aliases.
+	* sysdeps/unix/sysv/linux/i386/syscalls.list: Revert last change.
+
+2012-05-04  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #14049]
+	* stdlib/strtod_l.c (____STRTOF_INTERNAL): Check for trailing
+	nonzero digits before rounding a hex value.
+	* stdlib/tst-strtod.c (tests): Add another test.
+
+2012-05-03  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* sysdeps/s390/fpu/libm-test-ulps: Update.
+
+2012-05-03  Andreas Jaeger  <aj@suse.de>
+
+	* malloc/mcheck.c (mcheck): Add barrier so that malloc/free pair
+	does not get optimized out.
+	(malloc_opt_barrier): New.
+
+2012-05-03  Andreas Jaeger  <aj@suse.de>
+	    Roland McGrath  <roland@hack.frob.com>
+
+	* Makerules (.PRECIOUS): Add %.symlist pattern to prevent
+	intermediate file deletion.
+	(generated): Add .symlist files.
+
+2012-05-03  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13775]
+	* libio/bits/stdio-ldbl.h [__USE_XOPEN2K8] (__dprintf_chk):
+	Redirect under this condition.
+	[__USE_XOPEN2K8] (__vdprintf_chk): Likewise.
+	[__USE_GNU] (__dprintf_chk): Not under this condition.
+	[__USE_GNU] (__vdprintf_chk): Likewise.
+	* libio/bits/stdio2.h [__USE_XOPEN2K8] (__dprintf_chk): Declare
+	under this condition.
+	[__USE_XOPEN2K8] (__vdprintf_chk): Likewise.
+	[__USE_XOPEN2K8] (dprintf): Define under this condition.
+	[__USE_XOPEN2K8] (vdprintf): Likewise.
+	[__USE_GNU] (__dprintf_chk): Not under this condition.
+	[__USE_GNU] (__vdprintf_chk): Likewise.
+	[__USE_GNU] (dprintf): Likewise.
+	[__USE_GNU] (vdprintf): Likewise.
+
+2012-05-03  Roland McGrath  <roland@hack.frob.com>
+
+	* elf/Makefile (common-generated): Set this instead of generated for
+	.dyn, .phdr, .jmprel files.  Remove $(common-objpfx) from the
+	$(all-built-dso)-derived lists.
+
+2012-05-03  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/i386/fpu/libm-test-ulps: Update.
+
+	* FAQ: Removed.
+	* FAQ.in: Likewise.
+	* scripts/gen-FAQ.pl: Likewise.
+	* manual/install.texi (Installation): Point to online location of
+	FAQ.
+	* Makefile (files-for-dist): Remove FAQ.
+	(FAQ): Remove.
+
+2012-05-02  Allan McRae  <allan@archlinux.org>
+
+	* elf/Makefile: (LDFLAGS-nodel2mod3.so: Use $(no-as-needed).
+	(LDFLAGS-reldepmod5.so): Likewise.
+	(LDFLAGS-reldep6mod1.so): Likewise.
+	(LDFLAGS-reldep6mod4.so): Likewise.
+	(LDFLAGS-reldep8mod3.so): Likewise.
+	(LDFLAGS-unload4mod1.so): Likewise.
+	(LDFLAGS-unload4mod2.so): Likewise.
+	(LDFLAGS-tst-initorder): Likewise.
+	(LDFLAGS-tst-initordera2.so): Likewise.
+	(LDFLAGS-tst-initordera3.so): Likewise.
+	(LDFLAGS-tst-initordera4.so): Likewise.
+	(LDFLAGS-tst-initorderb2.so): Likewise.
+	(LDFLAGS-noload): Likewise.
+	(LDFLAGS-next): Likewise.
+	(LDFLAGS-order2mod1.so): Likewise.
+	(LDFLAGS-order2mod2.so): Likewise.
+	(LDFLAGS-tst-initorder2): Likewise.
+	(LDFLAGS-tst-initorder2a.so): Likewise.
+	(LDFLAGS-tst-initorder2b.so): Likewise.
+	(LDFLAGS-tst-initorder2c.so): Likewise.
+	* stdlib/Makefile: (LDFLAGS-tst-putenv): Likewise.
+
+2012-05-02  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update.
+
+2012-05-02  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	[BZ #14055]
+	* elf/dl-sysdep.c (_dl_show_auxv): Add bounds check.
+
+2012-05-02  Andreas Jaeger  <aj@suse.de>
+
+	* math/Makefile (CPPFLAGS-test-ildoubl.c): Add -frounding-math
+	since we manipulate rounding mode.
+	(CPPFLAGS-test-idouble.c): Likewise.
+	(CPPFLAGS-test-ifloat.c): Likewise.
+	(CFLAGS-test-ldouble.c): Likewise.
+	(CFLAGS-test-double.c): Likewise.
+	(CFLAGS-test-float.c): Likewise.
+	(CFLAGS-test-misc.c): Likewise.
+	(CFLAGS-test-test-fenv.c): Likewise.
+
+2012-05-02  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	[BZ #2550]
+	[BZ #2570]
+	* sysdeps/ieee754/ldbl-128ibm/s_nexttoward.c: Use floating-point
+	comparisons to determine direction to adjust input.
+
 2012-05-01  Roland McGrath  <roland@hack.frob.com>
 
 	* elf/Makefile ($(objpfx)check-localplt.out): Redirect the test's

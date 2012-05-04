@@ -1,5 +1,4 @@
-/* Directory entry structure `struct dirent'.  SVR4 version.
-   Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,17 +15,22 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef _DIRENT_H
-# error "Never use <bits/dirent.h> directly; include <dirent.h> instead."
-#endif
+#include <lowlevellock.h>
 
-struct dirent
-  {
-    unsigned int d_fileno;
-    int d_off;			/* Position in directory of following entry. */
-    unsigned short int d_reclen;
-    char d_name[1];		/* Variable length.  */
-  };
+	.globl	pthread_spin_lock
+	.type	pthread_spin_lock,@function
+	.align	16
+pthread_spin_lock:
+1:	LOCK
+	decl	0(%rdi)
+	jne	2f
+	xor	%eax, %eax
+	ret
 
-#define _DIRENT_HAVE_D_RECLEN 1
-#define _DIRENT_HAVE_D_OFF 1
+	.align	16
+2:	rep
+	nop
+	cmpl	$0, 0(%rdi)
+	jg	1b
+	jmp	2b
+	.size	pthread_spin_lock,.-pthread_spin_lock
