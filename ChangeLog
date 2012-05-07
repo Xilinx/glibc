@@ -1,3 +1,96 @@
+2012-05-06  David S. Miller  <davem@davemloft.net>
+
+	* scripts/data/localplt-sparc-linux-gnu.data: Add '?' markers to
+	quad soft-float symbols whose references which are compiler
+	generated.
+	* scripts/data/localplt-sparc64-linux-gnu.data: Likewise.
+
+2012-05-06  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13884]
+	[BZ #13914]
+	* sysdeps/i386/fpu/e_expl.S (IEEE754_EXPL): Define conditional on
+	USE_AS_EXP10L.
+	(EXPL_FINITE): Likewise.
+	(FLDLOG): Likewise.
+	(c0): Likewise.
+	(c1): Likewise.
+	(__ieee754_expl): Change to IEEE754_EXPL.  Use FLDLOG macro.
+	Adjust comments for base varying.
+	(__expl_finite): Change alias to EXPL_FINITE.
+	* sysdeps/i386/fpu/e_exp10l.S: Define USE_AS_EXP10L and include
+	e_expl.S.
+	* sysdeps/ieee754/dbl-64/e_exp10.c: New file.
+	* sysdeps/ieee754/ldbl-128/e_exp10l.c: Likewise.
+	* sysdeps/ieee754/ldbl-128ibm/e_exp10l.c: Likewise.
+	* sysdeps/x86_64/fpu/e_exp10l.S: Likewise.
+	* sysdeps/x86_64/fpu/e_expl.S (IEEE754_EXPL): Define conditional on
+	USE_AS_EXP10L.
+	(EXPL_FINITE): Likewise.
+	(FLDLOG): Likewise.
+	(c0): Likewise.
+	(c1): Likewise.
+	(__ieee754_expl): Change to IEEE754_EXPL.  Use FLDLOG macro.
+	Adjust comments for base varying.
+	(__expl_finite): Change alias to EXPL_FINITE.
+	* math/libm-test.inc (exp10_test): Add more tests.  Do not disable
+	tests for bugs.
+	* sysdeps/x86_64/fpu/libm-test-ulps: Update.
+
+	[BZ #14064]
+	* math/libm-test.inc (check_float_internal): Correct ulp
+	calculation for subnormal expected results.
+
+2012-05-06  Andreas Jaeger  <aj@suse.de>
+
+	* Makeconfig (+math-flags): New, set to -frounding-math.
+	(+cflags): Add +math-flags so that all of glibc gets compiled with
+	it.
+
+	* sysdeps/x86_64/fpu/libm-test-ulps: Updated.
+
+2012-05-05  Joseph Myers  <joseph@codesourcery.com>
+
+	* math/libm-test.inc (hypot_test) [TEST_DOUBLE && TEST_INLINE]:
+	Disable one test.
+
+	[BZ #13787]
+	[BZ #13922]
+	[BZ #14036]
+	* sysdeps/i386/fpu/e_expl.S (csat): New constant.
+	(__ieee754_expl): Allow for and saturate large arguments.
+	* sysdeps/ieee754/dbl-64/w_exp.c (o_threshold): Remove variable.
+	(u_threshold): Likewise.
+	(__exp): Call __ieee754_exp before checking for overflow and
+	underflow.
+	* sysdeps/ieee754/flt-32/w_expf.c (o_threshold): Remove variable.
+	(u_threshold): Likewise.
+	(__expf): Call __ieee754_expf before checking for overflow and
+	underflow.
+	* sysdeps/ieee754/ldbl-96/w_expl.c (o_threshold): Remove variable.
+	(u_threshold): Likewise.
+	(__expl): Call __ieee754_expl before checking for overflow and
+	underflow.
+	* sysdeps/x86_64/fpu/e_expl.S (csat): New constant.
+	(__ieee754_expl): Allow for and saturate large arguments.
+	* math/libm-test.inc (exp_test): Add another test.  Do not allow
+	missing overflow exception on overflow.
+	(expm1_test): Do not allow missing overflow exception on overflow.
+
+	* sysdeps/i386/fpu/e_expl.c: Move to ...
+	* sysdeps/i386/fpu/e_expl.S: ... here.  Write directly in assembly
+	rather than using inline asm.
+	* sysdeps/x86_64/fpu/e_expl.c: Remove file.
+	* sysdeps/x86_64/fpu/e_expl.S: Copy from
+	sysdeps/i386/fpu/e_expl.S, adjusted for x86_64.
+
+	* sysdeps/unix/sysv/syscalls.list (ftime): Remove.
+	(nice): Likewise.
+	(poll): Likewise.
+	(signal): Likewise.
+	(time): Likewise.
+	(times): Likewise.
+
 2012-05-04  Joseph Myers  <joseph@codesourcery.com>
 
 	* sysdeps/unix/syscalls.list (adjtime): Add entry from
@@ -75,8 +168,9 @@
 	* sysdeps/unix/bsd/tcgetattr.c: Likewise.
 	* sysdeps/unix/bsd/tcsetattr.c: Likewise.
 
-2012-05-02  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+2012-05-04  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
 
+	[BZ #13563]
 	* sysdeps/ieee754/ldbl-128ibm/e_acosl.c (__ieee754_acosl): Fix
 	long double comparison inaccuracies.
 	* sysdeps/ieee754/ldbl-128ibm/e_asinl.c (__ieee754_asinl): Likewise.

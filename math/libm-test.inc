@@ -503,8 +503,9 @@ check_float_internal (const char *test_name, FLOAT computed, FLOAT expected,
 	  ulp = diff / FUNC(ldexp) (1.0, FUNC(ilogb) (expected) - MANT_DIG);
 	  break;
 	case FP_SUBNORMAL:
-	  ulp = (FUNC(ldexp) (diff, MANT_DIG)
-		 / FUNC(ldexp) (1.0, FUNC(ilogb) (expected)));
+	  /* 1ulp for a subnormal value, shifted by MANT_DIG, is the
+	     least normal value.  */
+	  ulp = (FUNC(ldexp) (diff, MANT_DIG) / min_value);
 	  break;
 	default:
 	  /* It should never happen. */
@@ -3325,8 +3326,11 @@ exp_test (void)
   TEST_f_f (exp, 1000.0L, 0.197007111401704699388887935224332313e435L);
 #endif
 
-  /* Bug 13922: OVERFLOW exception may be missing.  */
-  TEST_f_f (exp, max_value, plus_infty, OVERFLOW_EXCEPTION_OK);
+#if !(defined TEST_LDOUBLE && LDBL_MAX_EXP > 1024)
+  TEST_f_f (exp, 710, plus_infty, OVERFLOW_EXCEPTION);
+#endif
+  TEST_f_f (exp, 1e5, plus_infty, OVERFLOW_EXCEPTION);
+  TEST_f_f (exp, max_value, plus_infty, OVERFLOW_EXCEPTION);
   TEST_f_f (exp, -max_value, 0);
 
   END (exp);
@@ -3460,15 +3464,20 @@ exp10_test (void)
   TEST_f_f (exp10, nan_value, nan_value);
   TEST_f_f (exp10, 3, 1000);
   TEST_f_f (exp10, -1, 0.1L);
-#ifdef TEST_FLOAT /* Bug 13884: inaccurate results except for float.  */
   TEST_f_f (exp10, 36, 1.0e36L);
+  TEST_f_f (exp10, -36, 1.0e-36L);
+#ifndef TEST_FLOAT
+  TEST_f_f (exp10, 305, 1.0e305L);
+  TEST_f_f (exp10, -305, 1.0e-305L);
+#endif
+#if defined TEST_LDOUBLE && LDBL_MAX_10_EXP >= 4932
+  TEST_f_f (exp10, 4932, 1.0e4932L);
+  TEST_f_f (exp10, -4932, 1.0e-4932L);
 #endif
   TEST_f_f (exp10, 1e6, plus_infty, OVERFLOW_EXCEPTION);
   TEST_f_f (exp10, -1e6, 0);
-#ifndef TEST_LDOUBLE /* Bug 13914: spurious exceptions.  */
   TEST_f_f (exp10, max_value, plus_infty, OVERFLOW_EXCEPTION);
   TEST_f_f (exp10, -max_value, 0);
-#endif
   TEST_f_f (exp10, 0.75L, 5.62341325190349080394951039776481231L);
 
   END (exp10);
@@ -3547,11 +3556,9 @@ expm1_test (void)
 #endif
 
   errno = 0;
-  /* Bug 13787: OVERFLOW exception may be missing.  */
-  TEST_f_f (expm1, 100000.0, plus_infty, OVERFLOW_EXCEPTION_OK);
+  TEST_f_f (expm1, 100000.0, plus_infty, OVERFLOW_EXCEPTION);
   check_int ("errno for expm1(large) == ERANGE", errno, ERANGE, 0, 0, 0);
-  /* Bug 13787: OVERFLOW exception may be missing.  */
-  TEST_f_f (expm1, max_value, plus_infty, OVERFLOW_EXCEPTION_OK);
+  TEST_f_f (expm1, max_value, plus_infty, OVERFLOW_EXCEPTION);
 #ifndef TEST_LDOUBLE /* Bug 13923.  */
   TEST_f_f (expm1, -max_value, -1);
 #endif
@@ -4049,7 +4056,7 @@ hypot_test (void)
   TEST_ff_f (hypot, 0x1.234566p-126L, 0x1.234566p-126L, 1.891441686191081936598531534017449451173e-38L);
 #endif
 
-#ifndef TEST_FLOAT
+#if !defined TEST_FLOAT && !(defined TEST_DOUBLE && defined TEST_INLINE)
   TEST_ff_f (hypot, 0x3p1021L, 0x4p1021L, 0x5p1021L);
 #endif
 
