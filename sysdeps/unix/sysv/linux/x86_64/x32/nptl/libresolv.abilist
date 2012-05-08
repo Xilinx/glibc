@@ -1,5 +1,5 @@
-GLIBC_2.11
- GLIBC_2.11 A
+GLIBC_2.16
+ GLIBC_2.16 A
  __b64_ntop F
  __b64_pton F
  __dn_comp F

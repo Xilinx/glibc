@@ -1,5 +1,5 @@
-GLIBC_2.11
- GLIBC_2.11 A
+GLIBC_2.16
+ GLIBC_2.16 A
  gai_cancel F
  gai_error F
  gai_suspend F

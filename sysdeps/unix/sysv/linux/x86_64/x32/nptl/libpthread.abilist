@@ -1,5 +1,5 @@
-GLIBC_2.11
- GLIBC_2.11 A
+GLIBC_2.16
+ GLIBC_2.16 A
  _IO_flockfile F
  _IO_ftrylockfile F
  _IO_funlockfile F
@@ -124,6 +124,7 @@ GLIBC_2.11
  pthread_getattr_np F
  pthread_getconcurrency F
  pthread_getcpuclockid F
+ pthread_getname_np F
  pthread_getschedparam F
  pthread_getspecific F
  pthread_join F
@@ -131,6 +132,7 @@ GLIBC_2.11
  pthread_key_delete F
  pthread_kill F
  pthread_kill_other_threads_np F
+ pthread_mutex_consistent F
  pthread_mutex_consistent_np F
  pthread_mutex_destroy F
  pthread_mutex_getprioceiling F
@@ -145,6 +147,7 @@ GLIBC_2.11
  pthread_mutexattr_getprioceiling F
  pthread_mutexattr_getprotocol F
  pthread_mutexattr_getpshared F
+ pthread_mutexattr_getrobust F
  pthread_mutexattr_getrobust_np F
  pthread_mutexattr_gettype F
  pthread_mutexattr_init F
@@ -152,6 +155,7 @@ GLIBC_2.11
  pthread_mutexattr_setprioceiling F
  pthread_mutexattr_setprotocol F
  pthread_mutexattr_setpshared F
+ pthread_mutexattr_setrobust F
  pthread_mutexattr_setrobust_np F
  pthread_mutexattr_settype F
  pthread_once F
@@ -175,6 +179,7 @@ GLIBC_2.11
  pthread_setcancelstate F
  pthread_setcanceltype F
  pthread_setconcurrency F
+ pthread_setname_np F
  pthread_setschedparam F
  pthread_setschedprio F
  pthread_setspecific F
@@ -218,10 +223,3 @@ GLIBC_2.11
  wait F
  waitpid F
  write F
-GLIBC_2.12
- GLIBC_2.12 A
- pthread_getname_np F
- pthread_mutex_consistent F
- pthread_mutexattr_getrobust F
- pthread_mutexattr_setrobust F
- pthread_setname_np F

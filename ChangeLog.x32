@@ -1,3 +1,34 @@
+2012-05-08  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/x32/shlib-versions: Replace GLIBC_2.11 with
+	GLIBC_2.16.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/ld.abilist: Updated.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libBrokenLocale.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libanl.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libc.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libcrypt.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libdl.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libm.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libnsl.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libpthread.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libresolv.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/librt.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libthread_db.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libutil.abilist:
+	Likewise.
+
 2012-04-28  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/ld.abilist: New file.

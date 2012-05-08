@@ -1,5 +1,5 @@
-GLIBC_2.11
- GLIBC_2.11 A
+GLIBC_2.16
+ GLIBC_2.16 A
  _Exit F
  _IO_2_1_stderr_ D 0xa0
  _IO_2_1_stdin_ D 0xa0
@@ -176,6 +176,9 @@ GLIBC_2.11
  __errno_location F
  __fbufsize F
  __fcntl F
+ __fdelt_chk F
+ __fdelt_warn F
+ __fentry__ F
  __ffs F
  __fgets_chk F
  __fgets_unlocked_chk F
@@ -326,7 +329,9 @@ GLIBC_2.11
  __overflow F
  __pipe F
  __poll F
+ __poll_chk F
  __posix_getopt F
+ __ppoll_chk F
  __pread64 F
  __pread64_chk F
  __pread_chk F
@@ -542,7 +547,7 @@ GLIBC_2.11
  _rpc_dtablesize F
  _seterr_reply F
  _setjmp F
- _sys_errlist D 0x210
+ _sys_errlist D 0x21c
  _sys_nerr D 0x4
  _sys_siglist D 0x104
  _tolower F
@@ -560,6 +565,7 @@ GLIBC_2.11
  adjtimex F
  advance F
  alarm F
+ aligned_alloc F
  alphasort F
  alphasort64 F
  arch_prctl F
@@ -614,6 +620,8 @@ GLIBC_2.11
  bsearch F
  btowc F
  bzero F
+ c16rtomb F
+ c32rtomb F
  calloc F
  callrpc F
  canonicalize_file_name F
@@ -652,6 +660,7 @@ GLIBC_2.11
  clntudp_create F
  clntunix_create F
  clock F
+ clock_adjtime F
  clone F
  close F
  closedir F
@@ -753,6 +762,8 @@ GLIBC_2.11
  faccessat F
  fallocate F
  fallocate64 F
+ fanotify_init F
+ fanotify_mark F
  fattach F
  fchdir F
  fchflags F
@@ -1241,6 +1252,8 @@ GLIBC_2.11
  mallwatch D 0x4
  mblen F
  mbrlen F
+ mbrtoc16 F
+ mbrtoc32 F
  mbrtowc F
  mbsinit F
  mbsnrtowcs F
@@ -1304,6 +1317,7 @@ GLIBC_2.11
  munlockall F
  munmap F
  muntrace F
+ name_to_handle_at F
  nanosleep F
  netname2host F
  netname2user F
@@ -1321,6 +1335,7 @@ GLIBC_2.11
  ntohs F
  ntp_adjtime F
  ntp_gettime F
+ ntp_gettimex F
  obstack_alloc_failed_handler D 0x4
  obstack_exit_failure D 0x4
  obstack_free F
@@ -1329,6 +1344,7 @@ GLIBC_2.11
  on_exit F
  open F
  open64 F
+ open_by_handle_at F
  open_memstream F
  open_wmemstream F
  openat F
@@ -1393,6 +1409,10 @@ GLIBC_2.11
  printf F
  printf_size F
  printf_size_info F
+ prlimit F
+ prlimit64 F
+ process_vm_readv F
+ process_vm_writev F
  profil F
  program_invocation_name D 0x4
  program_invocation_short_name D 0x4
@@ -1500,6 +1520,7 @@ GLIBC_2.11
  reboot F
  recv F
  recvfrom F
+ recvmmsg F
  recvmsg F
  regcomp F
  regerror F
@@ -1538,6 +1559,8 @@ GLIBC_2.11
  scalbnl F
  scandir F
  scandir64 F
+ scandirat F
+ scandirat64 F
  scanf F
  sched_get_priority_max F
  sched_get_priority_min F
@@ -1561,6 +1584,7 @@ GLIBC_2.11
  send F
  sendfile F
  sendfile64 F
+ sendmmsg F
  sendmsg F
  sendto F
  setaliasent F
@@ -1590,6 +1614,7 @@ GLIBC_2.11
  setmntent F
  setnetent F
  setnetgrent F
+ setns F
  setpgid F
  setpgrp F
  setpriority F
@@ -1784,7 +1809,8 @@ GLIBC_2.11
  symlinkat F
  sync F
  sync_file_range F
- sys_errlist D 0x210
+ syncfs F
+ sys_errlist D 0x21c
  sys_nerr D 0x4
  sys_sigabbrev D 0x104
  sys_siglist D 0x104
@@ -1817,6 +1843,7 @@ GLIBC_2.11
  timerfd_gettime F
  timerfd_settime F
  times F
+ timespec_get F
  timezone D 0x4
  tmpfile F
  tmpfile64 F
@@ -2049,47 +2076,3 @@ GLIBC_2.11
  xencrypt F
  xprt_register F
  xprt_unregister F
-GLIBC_2.12
- GLIBC_2.12 A
- _sys_errlist D 0x21c
- _sys_nerr D 0x4
- ntp_gettimex F
- recvmmsg F
- sys_errlist D 0x21c
- sys_nerr D 0x4
-GLIBC_2.13
- GLIBC_2.13 A
- __fentry__ F
- fanotify_init F
- fanotify_mark F
- prlimit F
- prlimit64 F
-GLIBC_2.14
- GLIBC_2.14 A
- clock_adjtime F
- memcpy F
- name_to_handle_at F
- open_by_handle_at F
- sendmmsg F
- setns F
- syncfs F
-GLIBC_2.15
- GLIBC_2.15 A
- __fdelt_chk F
- __fdelt_warn F
- posix_spawn F
- posix_spawnp F
- process_vm_readv F
- process_vm_writev F
- scandirat F
- scandirat64 F
-GLIBC_2.16
- GLIBC_2.16 A
- __poll_chk F
- __ppoll_chk F
- aligned_alloc F
- c16rtomb F
- c32rtomb F
- mbrtoc16 F
- mbrtoc32 F
- timespec_get F
