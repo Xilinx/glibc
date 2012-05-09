@@ -335,9 +335,15 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 	     Therefore the offset is already correct.  */
 	  if (sym != NULL)
 #   ifdef __ILP32__
-	    *(Elf64_Sxword *) reloc_addr
-	      = (Elf64_Sxword)
-		  ((Elf32_Sword) (sym->st_value + reloc->r_addend));
+	    {
+	      /* This relocation type computes a signed offset that is
+		 usually negative.  The symbol and addend values are 32
+		 bits but the GOT entry is 64 bits wide and the whole
+		 64-bit entry is used as a signed quantity, so we need
+		 to sign-extend the computed value to 64 bits.  */
+	      Elf32_Sword svalue = sym->st_value + reloc->r_addend;
+	      *(Elf64_Sxword *) reloc_addr = (Elf64_Sxword) svalue;
+	    }
 #   else
 	    *reloc_addr = sym->st_value + reloc->r_addend;
 #   endif
@@ -391,10 +397,15 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 		 It is a negative value which will be added to the
 		 thread pointer.  */
 #  ifdef __ILP32__
-	    *(Elf64_Sxword *) reloc_addr
-	      = (Elf64_Sxword)
-		  ((Elf32_Sword) (sym->st_value + reloc->r_addend
-				  - sym_map->l_tls_offset));
+	    {
+	      /* The symbol and addend values are 32 bits but the GOT
+		 entry is 64 bits wide and the whole 64-bit entry is used
+		 as a signed quantity, so we need to sign-extend the
+		 computed value to 64 bits.  */
+	      Elf32_Sword svalue = (sym->st_value + reloc->r_addend 
+				    - sym_map->l_tls_offset);
+	      *(Elf64_Sxword *) reloc_addr = (Elf64_Sxword) svalue;
+	    }
 #  else
 	      *reloc_addr = (sym->st_value + reloc->r_addend
 			     - sym_map->l_tls_offset);
