@@ -1,5 +1,41 @@
 2012-05-10  Joseph Myers  <joseph@codesourcery.com>
 
+	* include/stdc-predef.h (__STDC_NO_THREADS__): Define.
+
+2012-05-10  Maxim Kuvyrkov  <maxim@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+	    Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	[BZ #14012]
+	* sunrpc/Makefile [cross-compiling] (headers): Enable additions
+	requiring rpcgen.
+	[cross-compiling] (extra-libs): Likewise.
+	[cross-compiling] (extra-libs-others): Likewise.
+	[cross-compiling] (librpcsvc-routines): Likewise.
+	[cross-compiling] (librpcsvc-inhibit-o): Likewise.
+	[cross-compiling] (omit-deps): Likewise.
+	(sunrpc-CPPFLAGS): New variable.
+	(CPPFLAGS): Define using $(sunrpc-CPPFLAGS).
+	(BUILD_CPPFLAGS): Append $(sunrpc-CPPFLAGS).
+	(cross-rpcgen-objs): New variable.
+	(extra-objs): Append $(cross-rpcgen-objs).
+	($(cross-rpcgen-objs)): New rule.
+	($(objpfx)cross-rpcgen): Likewise.
+	(rpcgen-cmd): Define to use $(built-program-file).  Expand
+	comment.
+	($(objpfx)rpcsvc/%.stmp): Depend on cross-rpcgen.
+	($(objpfx)x%.stmp): Likewise.
+	* sunrpc/proto.h [IS_IN_build] (_): Define.
+	[IS_IN_build] (_libc_intl_domainname): Likewise.
+
+2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/dl-machine.h (elf_machine_rela) [__ILP32__]:
+	Sign extend relocation result to 64 bits for R_X86_64_DTPOFF64
+	and R_X86_64_TPOFF64.
+
+2012-05-10  Joseph Myers  <joseph@codesourcery.com>
+
 	* sysdeps/unix/sysv/linux/syscalls.list (alarm): Add entry from
 	sysdeps/unix/sysv/syscalls.list.
 	(stime): Likewise.
