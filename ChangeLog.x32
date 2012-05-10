@@ -1,5 +1,16 @@
 2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/Makefile (tests): Add tst-quad1 tst-quad2.
+	(modules-names): Add tst-quadmod1 tst-quadmod2.
+	($(objpfx)tst-quad1): New dependency.
+	($(objpfx)tst-quad2): Likewise.
+	* sysdeps/x86_64/tst-quad1.c: New file.
+	* sysdeps/x86_64/tst-quad2.c: Likewise.
+	* sysdeps/x86_64/tst-quadmod1.S: Likewise.
+	* sysdeps/x86_64/tst-quadmod2.S: Likewise.
+
+2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): Simplify
 	x32 relocations.
 
