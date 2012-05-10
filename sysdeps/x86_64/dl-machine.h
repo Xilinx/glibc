@@ -342,8 +342,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 		 bits but the GOT entry is 64 bits wide and the whole
 		 64-bit entry is used as a signed quantity, so we need
 		 to sign-extend the computed value to 64 bits.  */
-	      *(Elf64_Sxword *) reloc_addr
-		= (Elf64_Sxword) (Elf32_Sxword) value;
+	      *(Elf64_Sxword *) reloc_addr = (Elf64_Sxword) (Elf32_Sxword) value;
 #   else
 	      *reloc_addr = value;
 #   endif
@@ -404,8 +403,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 		 entry is 64 bits wide and the whole 64-bit entry is used
 		 as a signed quantity, so we need to sign-extend the
 		 computed value to 64 bits.  */
-	      *(Elf64_Sxword *) reloc_addr
-		= (Elf64_Sxword) (Elf32_Sword) value;
+	      *(Elf64_Sxword *) reloc_addr = (Elf64_Sxword) (Elf32_Sword) value;
 #  else
 	      *reloc_addr = value;
 #  endif
