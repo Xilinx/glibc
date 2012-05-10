@@ -414,11 +414,12 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 
 # ifndef RTLD_BOOTSTRAP
 	case R_X86_64_64:
-	  value += reloc->r_addend;
 #  ifdef __ILP32__
-	  *(Elf64_Addr *) reloc_addr = (Elf64_Addr) value;
+	  /* value + r_addend may be > 0xffffffff and R_X86_64_64
+	     relocation updates the whole 64-bit entry.  */
+	  *(Elf64_Addr *) reloc_addr = (Elf64_Addr) value + reloc->r_addend;
 #  else
-	  *reloc_addr = value;
+	  *reloc_addr = value + reloc->r_addend;
 #  endif
 	  break;
 	case R_X86_64_32:
