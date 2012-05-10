@@ -283,7 +283,7 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
     }
   else
 # endif
-# if !defined RTLD_BOOTSTRAP && defined __ILP32__
+# if !defined RTLD_BOOTSTRAP
   /* l_addr + r_addend may be > 0xffffffff and R_X86_64_RELATIVE64
      relocation updates the whole 64-bit entry.  */
   if (__builtin_expect (r_type == R_X86_64_RELATIVE64, 0))
@@ -414,13 +414,9 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 
 # ifndef RTLD_BOOTSTRAP
 	case R_X86_64_64:
-#  ifdef __ILP32__
 	  /* value + r_addend may be > 0xffffffff and R_X86_64_64
 	     relocation updates the whole 64-bit entry.  */
 	  *(Elf64_Addr *) reloc_addr = (Elf64_Addr) value + reloc->r_addend;
-#  else
-	  *reloc_addr = value + reloc->r_addend;
-#  endif
 	  break;
 	case R_X86_64_32:
 	  value += reloc->r_addend;
@@ -491,17 +487,15 @@ elf_machine_rela_relative (ElfW(Addr) l_addr, const ElfW(Rela) *reloc,
 			   void *const reloc_addr_arg)
 {
   ElfW(Addr) *const reloc_addr = reloc_addr_arg;
-#ifdef __ILP32__
   /* l_addr + r_addend may be > 0xffffffff and R_X86_64_RELATIVE64
      relocation updates the whole 64-bit entry.  */
   if (__builtin_expect (ELFW(R_TYPE) (reloc->r_info) == R_X86_64_RELATIVE64, 0))
+    *(Elf64_Addr *) reloc_addr = (Elf64_Addr) l_addr + reloc->r_addend;
+  else
     {
-      *(Elf64_Addr *) reloc_addr = (Elf64_Addr) l_addr + reloc->r_addend;
-      return;
+      assert (ELFW(R_TYPE) (reloc->r_info) == R_X86_64_RELATIVE);
+      *reloc_addr = l_addr + reloc->r_addend;
     }
-#endif
-  assert (ELFW(R_TYPE) (reloc->r_info) == R_X86_64_RELATIVE);
-  *reloc_addr = l_addr + reloc->r_addend;
 }
 
 auto inline void

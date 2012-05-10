@@ -1,5 +1,13 @@
 2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): Remove
+	__ILP32__ check on R_X86_64_RELATIVE64.  Use Elf64_Addr for
+	R_X86_64_64.
+	(elf_machine_rela_relative): Remove __ILP32__ check on
+	R_X86_64_RELATIVE64.
+
+2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* elf/elf.h (R_X86_64_RELATIVE64): Update comment.
 
 2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
