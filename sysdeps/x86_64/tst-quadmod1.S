@@ -15,7 +15,9 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#define BIAS	0x7fffffff
+#ifndef BIAS
+# define BIAS	0x7fffffff
+#endif
 
 	.section	.data.rel,"aw",@progbits
 	.align 8

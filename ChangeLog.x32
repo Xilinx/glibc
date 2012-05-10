@@ -1,5 +1,20 @@
 2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/Makefile (quad-pie-test): New.
+	(tests): Add $(quad-pie-test).
+	(tests-pie): Likewise.
+
+	* sysdeps/x86_64/tst-quadmod1.S (BIAS): Defined only if not
+	defined.
+	* sysdeps/x86_64/tst-quadmod2.S (BIAS): Likewise.
+
+	* sysdeps/x86_64/tst-quad1pie.c: New file.
+	* sysdeps/x86_64/tst-quad2pie.c: Likewise.
+	* sysdeps/x86_64/tst-quadmod1pie.S: Likewise.
+	* sysdeps/x86_64/tst-quadmod2pie.S: Likewise.
+
+2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): Properly handle
 	R_X86_64_64 for x32.
 
