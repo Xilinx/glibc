@@ -2703,7 +2703,7 @@ typedef Elf32_Addr Elf32_Conflict;
 					   descriptor.  */
 #define R_X86_64_TLSDESC        36	/* TLS descriptor.  */
 #define R_X86_64_IRELATIVE	37	/* Adjust indirectly by program base */
-#define R_X86_64_RELATIVE64	38	/* 64bit adjust by program base */
+#define R_X86_64_RELATIVE64	38	/* 64-bit adjust by program base */
 
 #define R_X86_64_NUM		39
 
