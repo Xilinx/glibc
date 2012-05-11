@@ -1,5 +1,10 @@
 2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/dl-machine.h (elf_machine_rela_relative): Handle
+	R_X86_64_RELATIVE64 only if RTLD_BOOTSTRAP isn't defined.
+
+2012-05-10  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/dl-machine.h (elf_machine_rela): Remove
 	__ILP32__ check on R_X86_64_RELATIVE64.  Use Elf64_Addr for
 	R_X86_64_64.
