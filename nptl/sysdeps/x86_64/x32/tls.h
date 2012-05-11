@@ -23,13 +23,6 @@
 
 #ifndef __ASSEMBLER__
 
-# undef THREAD_SELF
-# define THREAD_SELF \
-  ({ struct pthread *__self;						      \
-     asm ("movl %%fs:%c1,%k0" : "=r" (__self)				      \
-	  : "i" (offsetof (struct pthread, header.self)));	 	      \
-     __self;})
-
 # undef CALL_THREAD_FCT
 # define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
