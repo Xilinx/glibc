@@ -23,6 +23,11 @@
 
 #ifndef __ASSEMBLER__
 
+/* X32 doesn't support 32-bit indirect call via memory.  Instead, we
+   load 32-bit address from memory into the lower 32bits of return
+   register, which will automatically zero-extend the uppper 32-bits
+   of return register.  We then do the indirect call via 64-bit return
+   register.  */
 # undef CALL_THREAD_FCT
 # define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
