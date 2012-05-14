@@ -1,3 +1,9 @@
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/x32/dl-machine.h: Replace x32_dl_machine_h
+	with _X32_DL_MACHINE_H.
+	(RTLD_START): Optimize and reformat.
+
 2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* elf/stackguard-macros.h (STACK_CHK_GUARD) [__x86_64__]: Use

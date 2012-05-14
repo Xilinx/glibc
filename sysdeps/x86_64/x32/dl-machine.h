@@ -16,10 +16,12 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+/* Must allow <sysdeps/x86_64/dl-machine.h> to be included more than once.
+   See #ifdef RESOLVE_MAP in sysdeps/x86_64/dl-machine.h.  */
 #include <sysdeps/x86_64/dl-machine.h>
 
-#ifndef x32_dl_machine_h
-#define x32_dl_machine_h
+#ifndef _X32_DL_MACHINE_H
+#define _X32_DL_MACHINE_H
 
 #undef ARCH_LA_PLTENTER
 #undef ARCH_LA_PLTEXIT
@@ -34,7 +36,7 @@
    its return value is the user program's entry point.  */
 #define RTLD_START asm ("\n\
 .text\n\
-	.align 16\n\
+	.p2align 4\n\
 .globl _start\n\
 .globl _dl_start_user\n\
 _start:\n\
@@ -48,20 +50,19 @@ _dl_start_user:\n\
 	movl _dl_skip_args(%rip), %eax\n\
 	# Pop the original argument count.\n\
 	movl (%rsp), %edx\n\
-	addl $4,%esp\n\
 	# Adjust the stack pointer to skip _dl_skip_args words.\n\
-	lea (%rsp,%rax,4), %esp\n\
+	lea 4(%rsp,%rax,4), %esp\n\
 	# Subtract _dl_skip_args from argc.\n\
 	subl %eax, %edx\n\
 	# Push argc back on the stack.\n\
-	subl $4,%esp\n\
+	subl $4, %esp\n\
 	movl %edx, (%rsp)\n\
 	# Call _dl_init (struct link_map *main_map, int argc, char **argv, char **env)\n\
 	# argc -> rsi\n\
 	movl %edx, %esi\n\
 	# Save %rsp value in %r13.\n\
 	movl %esp, %r13d\n\
-	# And align stack for the _dl_init_internal call. \n\
+	# And align stack for the _dl_init_internal call.\n\
 	and $-16, %esp\n\
 	# _dl_loaded -> rdi\n\
 	movl _rtld_local(%rip), %edi\n\
@@ -72,7 +73,7 @@ _dl_start_user:\n\
 	# Clear %rbp to mark outermost frame obviously even for constructors.\n\
 	xorl %ebp, %ebp\n\
 	# Call the function to run the initializers.\n\
-	call _dl_init_internal@PLT\n\
+	call _dl_init_internal\n\
 	# Pass our finalizer function to the user in %rdx, as per ELF ABI.\n\
 	lea _dl_fini(%rip), %edx\n\
 	# And make sure %rsp points to argc stored on the stack.\n\
@@ -82,4 +83,4 @@ _dl_start_user:\n\
 .previous\n\
 ");
 
-#endif /* !x32_dl_machine_h */
+#endif /* !_X32_DL_MACHINE_H */
