@@ -1,5 +1,9 @@
 2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/start.S: Reformat.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/x32/dl-machine.h: Replace x32_dl_machine_h
 	with _X32_DL_MACHINE_H.
 	(RTLD_START): Optimize and reformat.

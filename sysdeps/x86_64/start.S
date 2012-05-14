@@ -84,16 +84,18 @@ _start:
 	mov %RDX_LP, %R9_LP	/* Address of the shared library termination
 				   function.  */
 #ifdef __ILP32__
-	mov (%rsp),%esi		/* Simulate popping 4byte argument count.  */
-	add $4,%esp
+	mov (%rsp), %esi	/* Simulate popping 4byte argument count.  */
+	add $4, %esp
 #else
 	popq %rsi		/* Pop the argument count.  */
 #endif
-	mov %RSP_LP, %RDX_LP	/* argv starts just at the current stack top.  */
+	/* argv starts just at the current stack top.  */
+	mov %RSP_LP, %RDX_LP
 	/* Align the stack to a 16 byte boundary to follow the ABI.  */
 	and  $~15, %RSP_LP
 
-	pushq %rax		/* Push garbage because we push 8 more bytes.  */
+	/* Push garbage because we push 8 more bytes.  */
+	pushq %rax
 
 	/* Provide the highest stack address to the user code (for stacks
 	   which grow downwards).  */
