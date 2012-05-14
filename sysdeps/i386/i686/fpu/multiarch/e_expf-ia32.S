@@ -1,5 +1,5 @@
-/* Poll system call.
-   Copyright (C) 1997-2012 Free Software Foundation, Inc.
+/*
+   Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,32 +16,7 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <errno.h>
-#include <sys/poll.h>
+#define __ieee754_expf __ieee754_expf_ia32
+#define __expf_finite __expf_finite_ia32
 
-#include <sysdep-cancel.h>
-#include <sys/syscall.h>
-#include <bp-checks.h>
-
-#include <kernel-features.h>
-
-int
-__poll (fds, nfds, timeout)
-     struct pollfd *fds;
-     nfds_t nfds;
-     int timeout;
-{
-  if (SINGLE_THREAD_P)
-    return INLINE_SYSCALL (poll, 3, CHECK_N (fds, nfds), nfds, timeout);
-
-  int oldtype = LIBC_CANCEL_ASYNC ();
-
-  int result = INLINE_SYSCALL (poll, 3, CHECK_N (fds, nfds), nfds, timeout);
-
-   LIBC_CANCEL_RESET (oldtype);
-
-  return result;
-}
-libc_hidden_def (__poll)
-weak_alias (__poll, poll)
-strong_alias (__poll, __libc_poll)
+#include <sysdeps/i386/fpu/e_expf.S>

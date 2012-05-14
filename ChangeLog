@@ -1,3 +1,171 @@
+2012-05-14  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/unix/sysv/linux/getcwd.c (__getcwd): Remove unused
+	variable.
+
+2012-05-14  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13717]
+	* sysdeps/unix/sysv/linux/configure.in (arch_minimum_kernel): Set
+	to 2.2.0 where earlier.
+	* sysdeps/unix/sysv/linux/configure: Regenerated.
+	* sysdeps/unix/sysv/linux/getcwd.c [!__ASSUME_GETCWD_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_GETCWD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/i386/chown.c [!__ASSUME_LCHOWN_SYSCALL]:
+	Remove conditional code.
+	[!__NR_lchown]: Likewise.
+	[__ASSUME_LCHOWN_SYSCALL]: Make code unconditional.
+	[__NR_lchown]: Likewise.
+	* sysdeps/unix/sysv/linux/i386/fchownat.c (fchownat): Remove
+	comment referencing __ASSUME_LCHOWN_SYSCALL.
+	* sysdeps/unix/sysv/linux/i386/sigaction.c
+	[!__ASSUME_REALTIME_SIGNALS]: Remove conditional code.
+	[__ASSUME_REALTIME_SIGNALS]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/if_index.c [!__ASSUME_SIOCGIFNAME]:
+	Remove conditional code.
+	[__ASSUME_SIOCGIFNAME ]: Make code unconditional.
+	(__protocol_available): Remove #if 0 code.
+	* sysdeps/unix/sysv/linux/ifreq.c [!__ASSUME_SIOCGIFNAME]: Remove
+	conditional code.
+	[__ASSUME_SIOCGIFNAME]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/kernel-features.h
+	(__ASSUME_GETCWD_SYSCALL): Don't define.
+	(__ASSUME_REALTIME_SIGNALS): Likewise.
+	(__ASSUME_PREAD_SYSCALL): Likewise.
+	(__ASSUME_PWRITE_SYSCALL): Likewise.
+	(__ASSUME_POLL_SYSCALL): Likewise.
+	(__ASSUME_LCHOWN_SYSCALL): Likewise.
+	(__ASSUME_SETRESUID_SYSCALL): Define for all kernel versions for
+	non-SPARC.
+	(__ASSUME_SIOCGIFNAME): Don't define.
+	(__ASSUME_MSG_NOSIGNAL): Likewise.
+	(__ASSUME_SENDFILE): Define unconditionally.
+	(__ASSUME_PROC_SELF_FD_SYMLINK): Don't define.
+	* sysdeps/unix/sysv/linux/poll.c [!__ASSUME_POLL_SYSCALL]: Remove
+	conditional code.
+	[__ASSUME_POLL_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/chown.c (__chown)
+	[!__ASSUME_LCHOWN_SYSCALL]: Remove conditional code.
+	(__chown) [__ASSUME_LCHOWN_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/fchownat.c (fchownat)
+	[!__ASSUME_LCHOWN_SYSCALL]: Remove conditional code.
+	(fchownat) [__ASSUME_LCHOWN_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/pread.c
+	[!__ASSUME_PREAD_SYSCALL]: Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/pread64.c
+	[!__ASSUME_PREAD_SYSCALL]: Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/pwrite.c
+	[!__ASSUME_PWRITE_SYSCALL]: Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/pwrite64.c
+	[!__ASSUME_PWRITE_SYSCALL]: Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/pread.c
+	[!__ASSUME_PREAD_SYSCALL]: Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/pread64.c
+	[!__ASSUME_PREAD_SYSCALL]: Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/pwrite.c
+	[!__ASSUME_PWRITE_SYSCALL]: Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/pwrite64.c
+	[!__ASSUME_PWRITE_SYSCALL]: Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/pread.c [!__ASSUME_PREAD_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/pread64.c [!__ASSUME_PREAD_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/ptsname.c (__ptsname_internal)
+	[__LINUX_KERNEL_VERSION < 131443]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/pwrite.c [!__ASSUME_PWRITE_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/pwrite64.c [!__ASSUME_PWRITE_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sh/pread.c [!__ASSUME_PREAD_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sh/pread64.c [!__ASSUME_PREAD_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PREAD_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sh/pwrite.c [!__ASSUME_PWRITE_SYSCALL]:
+	Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sh/pwrite64.c
+	[!__ASSUME_PWRITE_SYSCALL]: Remove conditional code.
+	[__ASSUME_PWRITE_SYSCALL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sigaction.c
+	[!__ASSUME_REALTIME_SIGNALS]: Remove conditional code.
+	[__ASSUME_REALTIME_SIGNALS]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sigpending.c
+	[!__ASSUME_REALTIME_SIGNALS]: Remove conditional code.
+	[__ASSUME_REALTIME_SIGNALS]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sigprocmask.c
+	[!__ASSUME_REALTIME_SIGNALS]: Remove conditional code.
+	[__ASSUME_REALTIME_SIGNALS]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sigsuspend.c
+	[!__ASSUME_REALTIME_SIGNALS]: Remove conditional code.
+	[__ASSUME_REALTIME_SIGNALS]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sigaction.c
+	(__libc_missing_rt_sigs): Remove.
+	(__libc_sigaction) [__NR_rt_sigaction]: Make code unconditional.
+	(__libc_sigaction): Do not handle ENOSYS from rt_sigaction.
+	* sysdeps/unix/sysv/linux/syslog.c [!__ASSUME_MSG_NOSIGNAL]:
+	Remove conditional code.
+	[__ASSUME_MSG_NOSIGNAL]: Make code unconditional.
+	* sysdeps/unix/sysv/linux/testrtsig.h (kernel_has_rtsig): Always
+	return 1.
+	* sysdeps/unix/sysv/linux/ttyname.c (ttyname)
+	[!__ASSUME_PROC_SELF_FD_SYMLINK]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/ttyname_r.c (__ttyname_r)
+	[!__ASSUME_PROC_SELF_FD_SYMLINK]: Likewise.
+
+2012-05-14  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/i386/fpu/bits/mathinline.h (__pow2): Remove,
+	it's not used in glibc.
+	(__coshm1): Likewise.
+	(__acosh1p): Likewise.
+	(__sgn): Likewise.
+
+	* manual/string.texi (Copying and Concatenation): Add missing
+	variable in concat example.
+	Reported by David C. Rankin <drankinatty@suddenlinkmail.com>.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/ieee754/dbl-64/wordsize-64/s_logb.c (__logb): Replace
+	__builtin_clzl with __builtin_clzll.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14104]
+	* sysdeps/unix/sysv/linux/check_pf.c (cache): Use
+	libc_freeres_ptr.
+
+2012-05-14  Liubov Dmitrieva  <liubov.dmitrieva@gmail.com>
+
+	* sysdeps/i386/i686/fpu/multiarch/Makefile: New file.
+	* sysdeps/i386/i686fpu/multiarch/e_expf.c: New file.
+	* sysdeps/i386/i686fpu/multiarch/e_expf-ia32.S: New file.
+	* sysdeps/i386/i686/fpu/multiarch/e_expf-sse2.S: New file.
+
+2012-05-14  Mike Frysinger  <vapier@gentoo.org>
+
+	* NEWS: Update ia64 info.
+
+2012-05-12  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/memmove.c (MEMMOVE): Don't return a value if
+	used as bcopy.
+
 2012-05-12  Thomas Schwinge  <thomas@codesourcery.com>
 
 	* io/dup3.c (dup3): Rename to __dup3, add weak alias for dup3.
