@@ -85,7 +85,7 @@ _start:
 				   function.  */
 #ifdef __ILP32__
 	mov (%rsp),%esi		/* Simulate popping 4byte argument count.  */
-	addl $4,%esp
+	add $4,%esp
 #else
 	popq %rsi		/* Pop the argument count.  */
 #endif
