@@ -84,7 +84,7 @@ _start:
 	mov %RDX_LP, %R9_LP	/* Address of the shared library termination
 				   function.  */
 #ifdef __ILP32__
-	mov (%rsp), %esi	/* Simulate popping 4byte argument count.  */
+	mov (%rsp), %esi	/* Simulate popping 4-byte argument count.  */
 	add $4, %esp
 #else
 	popq %rsi		/* Pop the argument count.  */
