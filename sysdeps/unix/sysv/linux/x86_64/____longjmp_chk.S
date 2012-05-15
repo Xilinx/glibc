@@ -31,15 +31,15 @@ longjmp_msg:
 //#define __longjmp ____longjmp_chk
 
 #ifdef PIC
-# define CALL_FAIL	subq	$8, %rsp;				      \
+# define CALL_FAIL	sub	$8, %RSP_LP;				      \
 			cfi_remember_state;				      \
 			cfi_def_cfa_offset(16);				      \
-			leaq	longjmp_msg(%rip), %rdi;		      \
+			lea	longjmp_msg(%rip), %RDI_LP;		      \
 			call	HIDDEN_JUMPTARGET(__fortify_fail);	      \
 			nop;						      \
 			cfi_restore_state
 #else
-# define CALL_FAIL	subq	$8, %rsp;				      \
+# define CALL_FAIL	sub	$8, %RSP_LP;				      \
 			cfi_remember_state;				      \
 			cfi_def_cfa_offset(16);				      \
 			mov	$longjmp_msg, %RDI_LP;			      \
@@ -54,16 +54,16 @@ longjmp_msg:
 	.text
 ENTRY(____longjmp_chk)
 	/* Restore registers.  */
-	movq	(JB_RSP*8)(%rdi), %r8
+	mov	(JB_RSP*8)(%rdi), %R8_LP
 	movq	(JB_RBP*8)(%rdi), %r9
-	movq	(JB_PC*8)(%rdi), %rdx
+	mov	(JB_PC*8)(%rdi), %RDX_LP
 #ifdef PTR_DEMANGLE
 	PTR_DEMANGLE (%R8_LP)
-	PTR_DEMANGLE (%R9_LP)
+	PTR_DEMANGLE (%r9)
 	PTR_DEMANGLE (%RDX_LP)
 #endif
 
-	cmpq	%r8, %rsp
+	cmp	%R8_LP, %RSP_LP
 	jbe	.Lok
 
 	/* Save function parameters.  */
@@ -84,7 +84,7 @@ ENTRY(____longjmp_chk)
 
 	mov	(-sizeSS + oSS_SP)(%rsp), %RAX_LP
 	add	(-sizeSS + oSS_SIZE)(%rsp), %RAX_LP
-	subq	%r8, %rax
+	sub	%R8_LP, %RAX_LP
 	cmp	(-sizeSS + oSS_SIZE)(%rsp), %RAX_LP
 	jae	.Lok2
 
@@ -112,7 +112,7 @@ ENTRY(____longjmp_chk)
 	movq	(JB_R15*8)(%rdi), %r15
 	/* Set return value for setjmp.  */
 	movl	%esi, %eax
-	movq	%r8,%rsp
+	mov	%R8_LP, %RSP_LP
 	movq	%r9,%rbp
 	jmpq	*%rdx
 END (____longjmp_chk)
