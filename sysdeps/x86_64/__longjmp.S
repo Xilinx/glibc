@@ -50,7 +50,7 @@ ENTRY(__longjmp)
 	movq (JB_R15*8)(%rdi),%r15
 	/* Set return value for setjmp.  */
 	mov %esi, %eax
-	movq %r8,%rsp
+	mov %R8_LP,%RSP_LP
 	movq %r9,%rbp
 	jmpq *%rdx
 END (__longjmp)
