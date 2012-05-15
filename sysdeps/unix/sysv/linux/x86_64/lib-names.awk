@@ -33,7 +33,15 @@ $1 != "DEFAULT" { multi = 1 }
       x32_macros[$1 FS lib "_SO"] = "\"ld-linux-x32.so.2\"";
       x32_macros[$1 FS "LD_LINUX_X32_SO"] = "\"ld-linux-x32.so.2\"";
     }
-    else {
+    else if (extra == "LD_LINUX") {
+      x86_64_macros[$1 FS lib "_SO"] = "\"ld-linux-x86-64.so.2\"";
+      x86_64_macros[$1 FS "LD_LINUX_X86_64_SO"] = "\"ld-linux-x86-64.so.2\"";
+      x32_macros[$1 FS lib "_SO"] = "\"ld-linux-x32.so.2\"";
+      x32_macros[$1 FS "LD_LINUX_X32_SO"] = "\"ld-linux-x32.so.2\"";
+      macros[$1 FS lib "_SO"] = soname;
+      macros[$1 FS extra "_SO"] = soname;
+    }
+    else if (extra != "LD") {
       macros[$1 FS lib "_SO"] = soname;
       macros[$1 FS extra "_SO"] = soname;
     }

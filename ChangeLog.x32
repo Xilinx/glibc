@@ -1,5 +1,20 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/lib-names.awk: Moved to ...
+	* sysdeps/unix/sysv/linux/x86_64/lib-names.awk: Here.  Add ia32
+	support.
+
+	* sysdeps/x86_64/preconfigure.in: Don't set lib_names_awk here.
+
+	* sysdeps/unix/sysv/linux/i386/configure.in: New file.
+	* sysdeps/unix/sysv/linux/x86_64/configure.in: Likewise.
+
+	* sysdeps/x86_64/preconfigure: Regenerated.
+	* sysdeps/unix/sysv/linux/i386/configure: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/configure: Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S: Use R*_LP
 	to operate on stack.  Use %r9 with PTR_DEMANGLE.  Use RAX_LP
 	on pointers.

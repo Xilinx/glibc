@@ -124,7 +124,6 @@ fi
 test -n "$base_machine" || case "$machine" in
 x86_64)
   base_machine=x86_64
-  lib_names_awk=sysdeps/x86_64/lib-names.awk
   # Check if we are building for x32.
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CC compiles in -mx32 mode by default" >&5
