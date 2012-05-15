@@ -1,3 +1,66 @@
+2012-05-15  Roland McGrath  <roland@hack.frob.com>
+
+	* configure.in (sysnames): Look for Implies-before and Implies-after
+	files.
+	* configure: Regenerated.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sigaction.c (RESTORE2): Replace
+	8-byte data alignment with LP_SIZE alignment.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/clone.S: Load pointer to TID
+	into R10_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/dl-cache.h: New.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/Makefile: New file.
+	* sysdeps/unix/sysv/linux/x86_64/x32/getcpu.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu-static.c:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu.S: Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/stackinfo.h (stackinfo_get_sp): Use RSP_LP.
+	(stackinfo_sub_sp): Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/strcmp-sse42.S: Load pointers into
+	RAX_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/memcpy-ssse3.S: Load cache sizes
+	into R*_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/memcpy-ssse3-back.S: Load cache
+	sizes into R*_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/strcmp.S: Load pointers into R*_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/memcpy.S: Load __x86_64_data_cache_size_half
+	into R11_LP and load __x86_64_shared_cache_size_half into
+	R8_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/multiarch/memcmp-sse4.S: Load cache size into
+	R8_LP.
+
 2012-05-15  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
 
 	* sysdeps/powerpc/powerpc32/power7/fpu/s_logb.c: New file. Optimized

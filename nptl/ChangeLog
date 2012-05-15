@@ -1,3 +1,49 @@
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sem_post.S: Use LP_OP(cmp) on
+	NWAITERS, which is unsigned long int.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_once.S
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Use
+	LP_OP(cmp), RSI_LP and R8_LP on dep_mutex pointer.  Load
+	__vdso_clock_gettime pointer into RAX_LP.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S: Use
+	LP_OP(cmp), RSI_LP and R8_LP on dep_mutex pointer.  Load
+	__vdso_clock_gettime pointer into RAX_LP.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_broadcast.S: Use
+	LP_OP(cmp) and R8_LP on dep_mutex pointer.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Use LP_OP(mov)
+	to update pointer in memory.  Load pointer into RDI_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h
+	(LLL_STUB_UNWIND_INFO_START): Align label to LP_SIZE instead
+	of 8.
+	(LLL_STUB_UNWIND_INFO_END): Likewise.
+	(lll_timedlock): Load timeout pointer into RDX_LP.
+	(lll_robust_timedlock): Likewise.
+
 2012-05-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 	    Jakub Jelinek  <jakub@redhat.com>
 
