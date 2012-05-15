@@ -1,5 +1,10 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/dl-trampoline.h: Use R*_LP to pass arguments
+	and access return value for _dl_profile_fixup.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/sysdep.h: Allowed to be include more than once.
 	* sysdeps/x86_64/x32/sysdep.h: Include <sysdeps/x86_64/sysdep.h>.
 

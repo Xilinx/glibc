@@ -40,14 +40,14 @@
 	vmovdqa %xmm7, (LR_SIZE + XMM_SIZE*7)(%rsp)
 #endif
 
-	movq %rsp, %rcx		# La_x86_64_regs pointer to %rcx.
-	movq 48(%rbx), %rdx	# Load return address if needed.
-	movq 40(%rbx), %rsi	# Copy args pushed by PLT in register.
-	movq 32(%rbx), %rdi	# %rdi: link_map, %rsi: reloc_index
-	leaq 16(%rbx), %r8	# Address of framesize
+	mov %RSP_LP, %RCX_LP	# La_x86_64_regs pointer to %rcx.
+	mov 48(%rbx), %RDX_LP	# Load return address if needed.
+	mov 40(%rbx), %RSI_LP	# Copy args pushed by PLT in register.
+	mov 32(%rbx), %RDI_LP	# %rdi: link_map, %rsi: reloc_index
+	lea 16(%rbx), %R8_LP	# Address of framesize
 	call _dl_profile_fixup	# Call resolver.
 
-	movq %rax, %r11		# Save return value.
+	mov %RAX_LP, %R11_LP	# Save return value.
 
 	movq 8(%rbx), %rax	# Get back register content.
 	movq LR_RDX_OFFSET(%rsp), %rdx
