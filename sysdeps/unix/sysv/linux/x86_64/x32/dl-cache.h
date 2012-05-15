@@ -18,5 +18,6 @@
 
 #include <sysdeps/unix/sysv/linux/x86_64/dl-cache.h>
 
+/* Defined as (FLAG_ELF_LIBC6 | FLAG_X8664_LIBX32).  */
 #undef _DL_CACHE_DEFAULT_ID
 #define _DL_CACHE_DEFAULT_ID	0x803
