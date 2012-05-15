@@ -21,7 +21,8 @@
 
 long int (*__vdso_clock_gettime) (clockid_t, struct timespec *)
   __attribute__ ((nocommon));
-strong_alias (__vdso_clock_gettime, __GI___vdso_clock_gettime attribute_hidden)
+libc_hidden_proto (__vdso_clock_gettime)
+libc_hidden_data_def (__vdso_clock_gettime)
 
 static inline void
 _libc_vdso_platform_setup (void)
@@ -30,7 +31,7 @@ _libc_vdso_platform_setup (void)
 
   void *p = _dl_vdso_vsym ("__vdso_clock_gettime", &linux26);
   PTR_MANGLE (p);
-  __GI___vdso_clock_gettime = p;
+  __vdso_clock_gettime = p;
 }
 
 # define VDSO_SETUP _libc_vdso_platform_setup

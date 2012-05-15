@@ -1,5 +1,12 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/init-first.c: Replace
+	strong_alias with libc_hidden_proto/libc_hidden_data_def.
+	(_libc_vdso_platform_setup): Replace __GI___vdso_clock_gettime
+	with __vdso_clock_gettime.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/__longjmp.S: Use RSP_LP to set SP.
 
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
