@@ -31,7 +31,7 @@ ENTRY (sched_getcpu)
 	mov	$VGETCPU_CACHE_OFFSET, %edx
 	add	%fs:0, %edx
 
-	call	__getcpu@PLT
+	call	__getcpu
 
 	cmp	$-4095, %eax
 	jae	SYSCALL_ERROR_LABEL
