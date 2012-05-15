@@ -1,5 +1,10 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/sysdep.h: Allowed to be include more than once.
+	* sysdeps/x86_64/x32/sysdep.h: Include <sysdeps/x86_64/sysdep.h>.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/init-first.c: Replace
 	strong_alias with libc_hidden_proto/libc_hidden_data_def.
 	(_libc_vdso_platform_setup): Replace __GI___vdso_clock_gettime

@@ -16,6 +16,8 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include <sysdeps/x86_64/sysdep.h>
+
 #undef LP_SIZE
 #undef LP_OP
 #undef ASM_ADDR
