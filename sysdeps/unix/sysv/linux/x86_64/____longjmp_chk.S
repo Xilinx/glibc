@@ -19,7 +19,7 @@
 #include <jmpbuf-offsets.h>
 #include <asm-syntax.h>
 
-#include "sigaltstack.h"
+#include "sigaltstack-offsets.h"
 
 	.section .rodata.str1.1,"aMS",@progbits,1
 	.type	longjmp_msg,@object

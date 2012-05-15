@@ -18,7 +18,7 @@ gen-as-const-headers += ucontext_i.sym
 endif
 
 ifeq ($(subdir),misc)
-gen-as-const-headers += sigaltstack.sym
+gen-as-const-headers += sigaltstack-offsets.sym
 endif
 
 ifeq ($(subdir),elf)

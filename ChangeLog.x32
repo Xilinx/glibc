@@ -1,5 +1,13 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sigaltstack.sym: Renamed to ...
+	* sysdeps/unix/sysv/linux/x86_64/sigaltstack-offsets.sym: This.
+
+	* sysdeps/unix/sysv/linux/x86_64/Makefile: Updated.
+	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S: Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/lib-names.awk: Moved to ...
 	* sysdeps/unix/sysv/linux/x86_64/lib-names.awk: Here.  Add ia32
 	support.
