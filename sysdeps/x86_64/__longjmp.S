@@ -25,12 +25,12 @@
 	.text
 ENTRY(__longjmp)
 	/* Restore registers.  */
-	movq (JB_RSP*8)(%rdi),%r8
+	mov (JB_RSP*8)(%rdi),%R8_LP
 	movq (JB_RBP*8)(%rdi),%r9
-	movq (JB_PC*8)(%rdi),%rdx
+	mov (JB_PC*8)(%rdi),%RDX_LP
 #ifdef PTR_DEMANGLE
 	PTR_DEMANGLE (%R8_LP)
-	PTR_DEMANGLE (%R9_LP)
+	PTR_DEMANGLE (%r9)
 	PTR_DEMANGLE (%RDX_LP)
 #endif
 	/* We add unwind information for the target here.  */

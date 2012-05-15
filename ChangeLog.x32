@@ -1,5 +1,10 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/__longjmp.S: Only use R*_LP on SP and PC.
+	* sysdeps/x86_64/setjmp.S: Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu.S: Remove
 	@PLT on __getcpu call.
 
