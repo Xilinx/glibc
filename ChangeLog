@@ -1,4 +1,47 @@
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* bits/types.h (__syscall_slong_t): New type.
+	(__syscall_ulong_t): Likewise.
+
+	* bits/typesizes.h (__SYSCALL_SLONG_TYPE): New macro.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/bsd/bsd4.4/freebsd/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/typesizes.h
+	(__SYSCALL_SLONG_TYPE): Likewise.
+	(__SYSCALL_ULONG_TYPE): Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/Makefile (gen-as-const-headers):
+	Add sigaltstack-offsets.sym.
+	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S: Include
+	<sigaltstack-offsets.h>.
+	(CALL_FAIL): Use RSP_LP to operate on stack.  Use RDI_LP on
+	longjmp_msg pointer.
+	(____longjmp_chk): Use R8_LP and RDX_LP on SP and PC.  Use
+	R*_LP, sizeSS, oSS_FLAGS, oSS_SP and oSS_SIZE for alternate
+	signal stack.
+	* sysdeps/unix/sysv/linux/x86_64/sigaltstack-offsets.sym: New.
+
 2012-05-15  Joseph Myers  <joseph@codesourcery.com>
+
+	* elf/stackguard-macros.h: Remove file.
+	* sysdeps/generic/stackguard-macros.h: New file.
+	* sysdeps/i386/stackguard-macros.h: Likewise.
+	* sysdeps/powerpc/powerpc32/stackguard-macros.h: Likewise.
+	* sysdeps/powerpc/powerpc64/stackguard-macros.h: Likewise.
+	* sysdeps/s390/s390-32/stackguard-macros.h: Likewise.
+	* sysdeps/s390/s390-64/stackguard-macros.h: Likewise.
+	* sysdeps/sparc/sparc32/stackguard-macros.h: Likewise.
+	* sysdeps/sparc/sparc64/stackguard-macros.h: Likewise.
+	* sysdeps/x86_64/stackguard-macros.h: Likewise.
+	* nptl/tst-stackguard1.c: Include <stackguard-macros.h> not
+	<elf/stackguard-macros.h>.
 
 	[BZ #14109]
 	* sysdeps/unix/sysv/linux/powerpc/sys/procfs.h (elf_vrreg_t): Use
