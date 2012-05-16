@@ -1,4 +1,5 @@
-/* Copyright (C) 1997,1998,2000,2002,2003,2010 Free Software Foundation, Inc.
+/* Copyright (C) 1997,1998,2000,2002,2003,2010,2012
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,8 +24,8 @@
 
 struct statfs
   {
-    __SWORD_TYPE f_type;
-    __SWORD_TYPE f_bsize;
+    __syscall_slong_t f_type;
+    __syscall_slong_t f_bsize;
 #ifndef __USE_FILE_OFFSET64
     __fsblkcnt_t f_blocks;
     __fsblkcnt_t f_bfree;
@@ -39,27 +40,27 @@ struct statfs
     __fsfilcnt64_t f_ffree;
 #endif
     __fsid_t f_fsid;
-    __SWORD_TYPE f_namelen;
-    __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_flags;
-    __SWORD_TYPE f_spare[4];
+    __syscall_slong_t f_namelen;
+    __syscall_slong_t f_frsize;
+    __syscall_slong_t f_flags;
+    __syscall_slong_t f_spare[4];
   };
 
 #ifdef __USE_LARGEFILE64
 struct statfs64
   {
-    __SWORD_TYPE f_type;
-    __SWORD_TYPE f_bsize;
+    __syscall_slong_t f_type;
+    __syscall_slong_t f_bsize;
     __fsblkcnt64_t f_blocks;
     __fsblkcnt64_t f_bfree;
     __fsblkcnt64_t f_bavail;
     __fsfilcnt64_t f_files;
     __fsfilcnt64_t f_ffree;
     __fsid_t f_fsid;
-    __SWORD_TYPE f_namelen;
-    __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_flags;
-    __SWORD_TYPE f_spare[4];
+    __syscall_slong_t f_namelen;
+    __syscall_slong_t f_frsize;
+    __syscall_slong_t f_flags;
+    __syscall_slong_t f_spare[4];
   };
 #endif
 
