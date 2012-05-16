@@ -1,5 +1,5 @@
 /* bits/typesizes.h -- underlying types for *_t.  Generic version.
-   Copyright (C) 2002, 2003, 2011
+   Copyright (C) 2002, 2003, 2012
    Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
