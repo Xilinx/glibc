@@ -123,37 +123,37 @@ struct _fpstate
 
 struct sigcontext
 {
-  unsigned long long r8;
-  unsigned long long r9;
-  unsigned long long r10;
-  unsigned long long r11;
-  unsigned long long r12;
-  unsigned long long r13;
-  unsigned long long r14;
-  unsigned long long r15;
-  unsigned long long rdi;
-  unsigned long long rsi;
-  unsigned long long rbp;
-  unsigned long long rbx;
-  unsigned long long rdx;
-  unsigned long long rax;
-  unsigned long long rcx;
-  unsigned long long rsp;
-  unsigned long long rip;
-  unsigned long long eflags;
+  __extension__ unsigned long long r8;
+  __extension__ unsigned long long r9;
+  __extension__ unsigned long long r10;
+  __extension__ unsigned long long r11;
+  __extension__ unsigned long long r12;
+  __extension__ unsigned long long r13;
+  __extension__ unsigned long long r14;
+  __extension__ unsigned long long r15;
+  __extension__ unsigned long long rdi;
+  __extension__ unsigned long long rsi;
+  __extension__ unsigned long long rbp;
+  __extension__ unsigned long long rbx;
+  __extension__ unsigned long long rdx;
+  __extension__ unsigned long long rax;
+  __extension__ unsigned long long rcx;
+  __extension__ unsigned long long rsp;
+  __extension__ unsigned long long rip;
+  __extension__ unsigned long long eflags;
   unsigned short cs;
   unsigned short gs;
   unsigned short fs;
   unsigned short __pad0;
-  unsigned long long err;
-  unsigned long long trapno;
-  unsigned long long oldmask;
-  unsigned long long cr2;
+  __extension__ unsigned long long err;
+  __extension__ unsigned long long trapno;
+  __extension__ unsigned long long oldmask;
+  __extension__ unsigned long long cr2;
   struct _fpstate * fpstate;
 # if __WORDSIZE == 32
   unsigned int pad0;
 # endif
-  unsigned long long __reserved1 [8];
+  __extension__ unsigned long long __reserved1 [8];
 };
 
 #endif /* __x86_64__ */
