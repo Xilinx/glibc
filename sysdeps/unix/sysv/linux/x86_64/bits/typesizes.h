@@ -26,15 +26,15 @@
 /* See <bits/types.h> for the meaning of these macros.  This file exists so
    that <bits/types.h> need not vary across different GNU platforms.  */
 
-/* X32 kernel interface is 64bit.  */
-#if defined __x86_64__ && __WORDSIZE == 32
+/* X32 kernel interface is 64-bit.  */
+#if defined __x86_64__ && defined __ILP32__
 #define __INO_T_TYPE		__UQUAD_TYPE
 #define __NLINK_T_TYPE		__UQUAD_TYPE
 #define __OFF_T_TYPE		__SQUAD_TYPE
 #define __RLIM_T_TYPE		__UQUAD_TYPE
-#define	__BLKCNT_T_TYPE		__SQUAD_TYPE
-#define	__FSFILCNT_T_TYPE	__UQUAD_TYPE
-#define	__FSBLKCNT_T_TYPE	__UQUAD_TYPE
+#define __BLKCNT_T_TYPE		__SQUAD_TYPE
+#define __FSFILCNT_T_TYPE	__UQUAD_TYPE
+#define __FSBLKCNT_T_TYPE	__UQUAD_TYPE
 #define __CLOCK_T_TYPE		__SQUAD_TYPE
 #define __TIME_T_TYPE		__SQUAD_TYPE
 #define __SUSECONDS_T_TYPE	__SQUAD_TYPE
@@ -46,9 +46,9 @@
 #define __NLINK_T_TYPE		__UWORD_TYPE
 #define __OFF_T_TYPE		__SLONGWORD_TYPE
 #define __RLIM_T_TYPE		__ULONGWORD_TYPE
-#define	__BLKCNT_T_TYPE		__SLONGWORD_TYPE
-#define	__FSFILCNT_T_TYPE	__ULONGWORD_TYPE
-#define	__FSBLKCNT_T_TYPE	__ULONGWORD_TYPE
+#define __BLKCNT_T_TYPE		__SLONGWORD_TYPE
+#define __FSFILCNT_T_TYPE	__ULONGWORD_TYPE
+#define __FSBLKCNT_T_TYPE	__ULONGWORD_TYPE
 #define __CLOCK_T_TYPE		__SLONGWORD_TYPE
 #define __TIME_T_TYPE		__SLONGWORD_TYPE
 #define __SUSECONDS_T_TYPE	__SLONGWORD_TYPE

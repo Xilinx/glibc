@@ -1,3 +1,8 @@
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h: Check
+	__ILP32__ instead of __WORDSIZE.
+
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* bits/types.h (__snseconds_t): Removed.
