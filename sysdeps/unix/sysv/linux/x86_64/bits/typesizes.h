@@ -1,4 +1,4 @@
-/* bits/typesizes.h -- underlying types for *_t.  X86_64 version.
+/* bits/typesizes.h -- underlying types for *_t.  Linux/x86-64 version.
    Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -28,11 +28,11 @@
 
 /* X32 kernel interface is 64-bit.  */
 #if defined __x86_64__ && defined __ILP32__
-#define __SYSCALL_SLONG_TYPE	__SQUAD_TYPE
-#define __SYSCALL_ULONG_TYPE	__UQUAD_TYPE
+# define __SYSCALL_SLONG_TYPE	__SQUAD_TYPE
+# define __SYSCALL_ULONG_TYPE	__UQUAD_TYPE
 #else
-#define __SYSCALL_SLONG_TYPE	__SLONGWORD_TYPE
-#define __SYSCALL_ULONG_TYPE	__ULONGWORD_TYPE
+# define __SYSCALL_SLONG_TYPE	__SLONGWORD_TYPE
+# define __SYSCALL_ULONG_TYPE	__ULONGWORD_TYPE
 #endif
 
 #define __DEV_T_TYPE		__UQUAD_TYPE
