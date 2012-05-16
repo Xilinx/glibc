@@ -1,5 +1,9 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/x32/gmp-mparam.h (IEEE_DOUBLE_BIG_ENDIAN): New.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/x32/ffs.c: Include <sysdeps/x86_64/ffs.c>.
 	Add alias for ffsl
 
