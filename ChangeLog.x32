@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/x32/ffs.c: Include <sysdeps/x86_64/ffs.c>.
+	Add alias for ffsl
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/timex.h: Moved to ...
 	* sysdeps/unix/sysv/linux/bits/timex.h: Here.
 
