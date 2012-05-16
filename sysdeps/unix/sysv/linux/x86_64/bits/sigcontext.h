@@ -147,10 +147,11 @@ struct sigcontext
   __uint64_t trapno;
   __uint64_t oldmask;
   __uint64_t cr2;
-  struct _fpstate * fpstate;
-# ifdef __ILP32__
-  unsigned int pad0;
-# endif
+  __extension__ union
+    {
+      struct _fpstate * fpstate;
+      __uint64_t __fpstate_word;
+    };
   __uint64_t __reserved1 [8];
 };
 
