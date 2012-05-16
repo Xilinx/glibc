@@ -1,5 +1,12 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/bits/resource.h (RLIM_INFINITY): Use
+	__rlim_t cast.
+	(rusage): Use anonymous union.
+	* sysdeps/unix/sysv/linux/x86_64/bits/resource.h: Removed.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/bits/mqueue.h: Include <bits/types.h>
 	instead of <sys/types.h>.
 
