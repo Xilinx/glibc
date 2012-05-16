@@ -188,78 +188,78 @@ struct rusage
     struct timeval ru_stime;
     /* Maximum resident set size (in kilobytes).  */
     long int ru_maxrss;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused1;
 #endif
     /* Amount of sharing of text segment memory
        with other processes (kilobyte-seconds).  */
     long int ru_ixrss;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused2;
 #endif
     /* Amount of data segment memory used (kilobyte-seconds).  */
     long int ru_idrss;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused3;
 #endif
     /* Amount of stack memory used (kilobyte-seconds).  */
     long int ru_isrss;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused4;
 #endif
     /* Number of soft page faults (i.e. those serviced by reclaiming
        a page from the list of pages awaiting reallocation.  */
     long int ru_minflt;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused5;
 #endif
     /* Number of hard page faults (i.e. those that required I/O).  */
     long int ru_majflt;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused6;
 #endif
     /* Number of times a process was swapped out of physical memory.  */
     long int ru_nswap;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused7;
 #endif
     /* Number of input operations via the file system.  Note: This
        and `ru_oublock' do not include operations with the cache.  */
     long int ru_inblock;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused8;
 #endif
     /* Number of output operations via the file system.  */
     long int ru_oublock;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused9;
 #endif
     /* Number of IPC messages sent.  */
     long int ru_msgsnd;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused10;
 #endif
     /* Number of IPC messages received.  */
     long int ru_msgrcv;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused11;
 #endif
     /* Number of signals delivered.  */
     long int ru_nsignals;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused12;
 #endif
     /* Number of voluntary context switches, i.e. because the process
        gave up the process before it had to (usually to wait for some
        resource to be available).  */
     long int ru_nvcsw;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused13;
 #endif
     /* Number of involuntary context switches, i.e. a higher priority process
        became runnable or the current process used up its time slice.  */
     long int ru_nivcsw;
-#if defined __x86_64__ && __WORDSIZE == 32
+#if defined __x86_64__ && defined __ILP32__
     long int __unused14;
 #endif
   };

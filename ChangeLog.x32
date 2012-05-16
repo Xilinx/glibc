@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/resource.h: Check
+	__ILP32__ instead of __WORDSIZE.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/mqueue.h: Moved to ...
 	* sysdeps/unix/sysv/linux/bits/mqueue.h: Here.
 
