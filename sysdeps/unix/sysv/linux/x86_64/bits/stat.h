@@ -25,7 +25,7 @@
 /* Versions of the `struct stat' data structure.  */
 #define _STAT_VER_KERNEL	0
 
-#ifndef __x86_64__ 
+#ifndef __x86_64__
 # define _STAT_VER_SVR4		2
 # define _STAT_VER_LINUX	3
 
@@ -45,7 +45,7 @@
 struct stat
   {
     __dev_t st_dev;		/* Device.  */
-#ifndef __x86_64__ 
+#ifndef __x86_64__
     unsigned short int __pad1;
 #endif
 #if defined __x86_64__ || !defined __USE_FILE_OFFSET64
@@ -53,7 +53,7 @@ struct stat
 #else
     __ino_t __st_ino;			/* 32bit file serial number.	*/
 #endif
-#ifndef __x86_64__ 
+#ifndef __x86_64__
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */
 #else
@@ -62,11 +62,11 @@ struct stat
 #endif
     __uid_t st_uid;		/* User ID of the file's owner.	*/
     __gid_t st_gid;		/* Group ID of the file's group.*/
-#ifdef __x86_64__ 
+#ifdef __x86_64__
     int __pad0;
 #endif
     __dev_t st_rdev;		/* Device number, if device.  */
-#ifndef __x86_64__ 
+#ifndef __x86_64__
     unsigned short int __pad2;
 #endif
 #if defined __x86_64__ || !defined __USE_FILE_OFFSET64
@@ -101,7 +101,7 @@ struct stat
     __time_t st_ctime;			/* Time of last status change.  */
     __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 #endif
-#ifdef __x86_64__ 
+#ifdef __x86_64__
     __syscall_slong_t __unused[3];
 #else
 # ifndef __USE_FILE_OFFSET64
@@ -162,7 +162,7 @@ struct stat64
     __time_t st_ctime;			/* Time of last status change.  */
     __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 # endif
-# ifdef __x86_64__ 
+# ifdef __x86_64__
     __syscall_slong_t __unused[3];
 # else
     __ino64_t st_ino;			/* File serial number.		*/
