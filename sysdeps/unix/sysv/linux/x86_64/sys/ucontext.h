@@ -28,7 +28,7 @@
 #ifdef __x86_64__
 
 /* Type for general register.  */
-typedef long long int greg_t;
+__extension__ typedef long long int greg_t;
 
 /* Number of general registers.  */
 #define NGREG	23
@@ -126,7 +126,7 @@ typedef struct
     gregset_t gregs;
     /* Note that fpregs is a pointer.  */
     fpregset_t fpregs;
-    unsigned long long __reserved1 [8];
+    __extension__ unsigned long long __reserved1 [8];
 } mcontext_t;
 
 /* Userlevel context.  */

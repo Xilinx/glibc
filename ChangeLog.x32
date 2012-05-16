@@ -1,5 +1,11 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sys/ucontext.h: Add
+	__extension__ to long long int.
+	* sysdeps/unix/sysv/linux/x86_64/sys/user.h: Likewise.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/x32/gmp-mparam.h (IEEE_DOUBLE_BIG_ENDIAN): New.
 
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
