@@ -51,11 +51,11 @@ struct stat
 #if defined __x86_64__ || !defined __USE_FILE_OFFSET64
     __ino_t st_ino;		/* File serial number.	*/
 #else
-    __ino_t __st_ino;		/* 32bit file serial number.	*/
+    __ino_t __st_ino;			/* 32bit file serial number.	*/
 #endif
 #ifndef __x86_64__ 
-    __mode_t st_mode;		/* File mode.  */
-    __nlink_t st_nlink;		/* Link count.  */
+    __mode_t st_mode;			/* File mode.  */
+    __nlink_t st_nlink;			/* Link count.  */
 #else
     __nlink_t st_nlink;		/* Link count.  */
     __mode_t st_mode;		/* File mode.  */
@@ -102,7 +102,7 @@ struct stat
     __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 #endif
 #ifdef __x86_64__ 
-    long long int __unused[3];
+    __syscall_slong_t __unused[3];
 #else
 # ifndef __USE_FILE_OFFSET64
     unsigned long int __unused4;
@@ -163,7 +163,7 @@ struct stat64
     __syscall_ulong_t st_ctimensec;	/* Nsecs of last status change.  */
 # endif
 # ifdef __x86_64__ 
-    long long int __unused[3];
+    __syscall_slong_t __unused[3];
 # else
     __ino64_t st_ino;			/* File serial number.		*/
 # endif
