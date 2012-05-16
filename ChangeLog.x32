@@ -1,5 +1,11 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/resource.h (prlimit):
+	Replace __const with const.
+	(prlimit64): Likewise.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/sigcontext.h: Replace
 	__extension__ unsigned long long int with __uint64_t.
 
