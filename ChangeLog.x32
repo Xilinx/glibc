@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Don't use
+	<syscall-template.S>.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h
 	(SYSCALL_SET_ERROR_RETURN):  New.
 	(SYSCALL_ERROR_HANDLER): Use R*LP on long and pointer

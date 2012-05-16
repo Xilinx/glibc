@@ -15,16 +15,17 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
+#include <sysdep-cancel.h>
 
+/* Set error return to 64-bit -1 since the lseek system call returns a
+   64-bit integer.  */
 #undef SYSCALL_SET_ERROR_RETURN
 #define SYSCALL_SET_ERROR_RETURN or $-1, %rax
 
-#define SYSCALL_NAME lseek
-#define SYSCALL_NARGS 3
-#define SYSCALL_SYMBOL __libc_lseek64
-#define SYSCALL_CANCELLABLE 1
-#include <syscall-template.S>
+PSEUDO (__libc_lseek64, lseek, 3)
+	ret
+PSEUDO_END (__libc_lseek64)
+
 weak_alias (__libc_lseek64, __lseek64)
 libc_hidden_weak (__lseek64)
 weak_alias (__libc_lseek64, lseek64)
