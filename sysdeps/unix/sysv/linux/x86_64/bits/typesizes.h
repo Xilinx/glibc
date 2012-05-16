@@ -65,10 +65,10 @@
 #define __OFF64_T_TYPE		__SQUAD_TYPE
 #define __PID_T_TYPE		__S32_TYPE
 #define __RLIM64_T_TYPE		__UQUAD_TYPE
-#define	__BLKCNT64_T_TYPE	__SQUAD_TYPE
-#define	__FSBLKCNT64_T_TYPE	__UQUAD_TYPE
-#define	__FSFILCNT64_T_TYPE	__UQUAD_TYPE
-#define	__ID_T_TYPE		__U32_TYPE
+#define __BLKCNT64_T_TYPE	__SQUAD_TYPE
+#define __FSBLKCNT64_T_TYPE	__UQUAD_TYPE
+#define __FSFILCNT64_T_TYPE	__UQUAD_TYPE
+#define __ID_T_TYPE		__U32_TYPE
 #define __USECONDS_T_TYPE	__U32_TYPE
 #define __DADDR_T_TYPE		__S32_TYPE
 #define __SWBLK_T_TYPE		__SLONGWORD_TYPE
@@ -79,7 +79,7 @@
 #define __SSIZE_T_TYPE		__SWORD_TYPE
 
 /* Number of descriptors that can fit in an `fd_set'.  */
-#define	__FD_SETSIZE		1024
+#define __FD_SETSIZE		1024
 
 
 #endif /* bits/typesizes.h */
