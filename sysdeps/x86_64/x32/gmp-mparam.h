@@ -25,7 +25,7 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, see
 #define _LONG_LONG_LIMB
 #define BITS_PER_MP_LIMB 64
 #define BYTES_PER_MP_LIMB 8
-#define BITS_PER_LONGINT __WORDSIZE
+#define BITS_PER_LONGINT 32
 #define BITS_PER_INT 32
 #define BITS_PER_SHORTINT 16
 #define BITS_PER_CHAR 8
