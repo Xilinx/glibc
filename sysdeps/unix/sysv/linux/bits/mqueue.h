@@ -19,7 +19,7 @@
 # error "Never use <bits/mqueue.h> directly; include <mqueue.h> instead."
 #endif
 
-#include <sys/types.h>
+#include <bits/types.h>
 
 typedef int mqd_t;
 
