@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h: Define
+	types with __SYSCALL_SLONG_TYPE and __SYSCALL_ULONG_TYPE.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sys/ucontext.h: Add
 	__extension__ to long long int.
 	* sysdeps/unix/sysv/linux/x86_64/sys/user.h: Likewise.
