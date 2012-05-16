@@ -22,8 +22,6 @@
 # error "Never use <bits/sigcontext.h> directly; include <signal.h> instead."
 #endif
 
-#include <bits/wordsize.h>
-
 struct _fpreg
 {
   unsigned short significand[4];
@@ -150,7 +148,7 @@ struct sigcontext
   __extension__ unsigned long long oldmask;
   __extension__ unsigned long long cr2;
   struct _fpstate * fpstate;
-# if __WORDSIZE == 32
+# ifdef __ILP32__
   unsigned int pad0;
 # endif
   __extension__ unsigned long long __reserved1 [8];
