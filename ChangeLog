@@ -1,3 +1,45 @@
+2012-05-16  Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in (makeinfo): Require version 4.5 or later.  Allow
+	versions 5 to 9.
+	* configure: Regenerated.
+	* manual/install.texi (texinfo): Increase version requirement to
+	4.5 or later.
+	* INSTALL: Regenerated.
+
+	* include/stdc-predef.h (__STDC_ISO_10646__): Increase to 201103L.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/x32/gmp-mparam.h: New file.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/x32/ffs.c: New file.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/shm.h (shmatt_t): Use
+	__syscall_ulong_t.
+	(shmid_ds): Add __unused1 and __unused2 only if __x86_64__ isn't
+	defined.  Use __syscall_ulong_t.
+	(shminfo): Use __syscall_ulong_t.
+	(shm_info): Likewise.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/sem.h (semid_ds): Use
+	__syscall_ulong_t.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/msq.h: Don't include
+	<bits/wordsize.h>.
+	(msgqnum_t): Use __syscall_ulong_t.
+	(msglen_t): Likewise.
+	(msqid_ds): Check __x86_64__ instead of __WORDSIZE.  Use
+	__syscall_ulong_t.
+
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/bits/a.out.h: Don't include
