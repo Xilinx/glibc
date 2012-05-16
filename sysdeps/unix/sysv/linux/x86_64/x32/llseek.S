@@ -15,8 +15,10 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#define SYSCALL_RETURN_INT64
 #include <sysdep.h>
+
+#undef SYSCALL_SET_ERROR_RETURN
+#define SYSCALL_SET_ERROR_RETURN or $-1, %rax
 
 #define SYSCALL_NAME lseek
 #define SYSCALL_NARGS 3

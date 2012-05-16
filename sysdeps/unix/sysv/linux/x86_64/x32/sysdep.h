@@ -22,38 +22,4 @@
 #include <sysdeps/unix/sysv/linux/x86_64/sysdep.h>
 #include <sysdeps/x86_64/x32/sysdep.h>
 
-#ifdef __ASSEMBLER__
-
-# ifdef SYSCALL_RETURN_INT64
-#  define SYSCALL_SET_ERROR_RETURN orq $-1, %rax
-# else
-#  define SYSCALL_SET_ERROR_RETURN orl $-1, %eax
-# endif
-
-# ifndef PIC
-/* Nothing here.  */
-# elif RTLD_PRIVATE_ERRNO
-#  undef SYSCALL_ERROR_HANDLER
-#  define SYSCALL_ERROR_HANDLER			\
-0:						\
-  lea rtld_errno(%rip), %ecx;			\
-  xorl %edx, %edx;				\
-  subl %eax, %edx;				\
-  movl %edx, (%rcx);				\
-  SYSCALL_SET_ERROR_RETURN;			\
-  jmp L(pseudo_end);
-# else
-#  undef SYSCALL_ERROR_HANDLER
-#  define SYSCALL_ERROR_HANDLER			\
-0:						\
-  movq SYSCALL_ERROR_ERRNO@GOTTPOFF(%rip), %rcx;\
-  xorl %edx, %edx;				\
-  subl %eax, %edx;				\
-  movl %edx, %fs:(%rcx);			\
-  SYSCALL_SET_ERROR_RETURN;			\
-  jmp L(pseudo_end);
-# endif	/* PIC */
-
-#endif	/* __ASSEMBLER__ */
-
 #endif /* linux/x86_64/x32/sysdep.h */

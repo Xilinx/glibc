@@ -112,16 +112,19 @@
 
 # define ret_ERRVAL ret
 
+/* Set error return value.  */
+# define SYSCALL_SET_ERROR_RETURN or $-1, %RAX_LP
+
 # ifndef PIC
 #  define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 # elif RTLD_PRIVATE_ERRNO
 #  define SYSCALL_ERROR_HANDLER			\
 0:						\
-  leaq rtld_errno(%rip), %rcx;			\
+  lea rtld_errno(%rip), %RCX_LP;		\
   xorl %edx, %edx;				\
-  subq %rax, %rdx;				\
+  sub %RAX_LP, %RDX_LP;				\
   movl %edx, (%rcx);				\
-  orq $-1, %rax;				\
+  SYSCALL_SET_ERROR_RETURN;			\
   jmp L(pseudo_end);
 # else
 #  ifndef NOT_IN_libc
@@ -133,9 +136,9 @@
 0:						\
   movq SYSCALL_ERROR_ERRNO@GOTTPOFF(%rip), %rcx;\
   xorl %edx, %edx;				\
-  subq %rax, %rdx;				\
+  sub %RAX_LP, %RDX_LP;				\
   movl %edx, %fs:(%rcx);			\
-  orq $-1, %rax;				\
+  SYSCALL_SET_ERROR_RETURN;			\
   jmp L(pseudo_end);
 # endif	/* PIC */
 
