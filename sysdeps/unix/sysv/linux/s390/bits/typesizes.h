@@ -63,7 +63,6 @@
 /* size_t is unsigned long int on s390 -m31.  */
 #define __SSIZE_T_TYPE		__SLONGWORD_TYPE
 #endif
-#define __SNSECONDS_T_TYPE	__SLONGWORD_TYPE
 #define __SYSCALL_SLONG_TYPE	__SLONGWORD_TYPE
 #define __SYSCALL_ULONG_TYPE	__ULONGWORD_TYPE
 

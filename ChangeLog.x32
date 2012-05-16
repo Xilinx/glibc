@@ -1,5 +1,22 @@
 2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* bits/types.h (__snseconds_t): Removed.
+	* time/time.h (struct timespec): Replace __snseconds_t with
+	__syscall_slong_t.
+	* sysdeps/mach/hurd/bits/typesizes.h (__SNSECONDS_T_TYPE):
+	Removed.
+	* bits/typesizes.h (__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/bsd/bsd4.4/freebsd/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/typesizes.h
+	(__SNSECONDS_T_TYPE): Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sigaltstack.sym: Renamed to ...
 	* sysdeps/unix/sysv/linux/x86_64/sigaltstack-offsets.sym: This.
 
