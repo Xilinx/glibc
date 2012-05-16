@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/ipc.h: Moved to ...
+	* sysdeps/unix/sysv/linux/bits/ipc.h: Here.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sys/msg.h: Moved to ...
 	* sysvipc/sys/msg.h: Here.
 
