@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/arch_prctl.c (__arch_prctl):
+	Cast to unsigned long * to silence GCC.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h
 	(SYSCALL_SET_ERROR_RETURN): Removed.
 	(SYSCALL_SET_ERRNO): New macro.

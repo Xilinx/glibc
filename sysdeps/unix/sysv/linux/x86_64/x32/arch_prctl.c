@@ -38,7 +38,7 @@ __arch_prctl (int code, unsigned long *addr)
     case ARCH_GET_FS:
     case ARCH_GET_GS:
       addr_saved = addr;
-      addr = &base_addr;
+      addr = (unsigned long *) &base_addr;
       break;
 
     default:
