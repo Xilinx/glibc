@@ -1,5 +1,12 @@
 2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/tst-mallocalign1.c (main): Renamed to ...
+	(do_test): This.
+	(TEST_FUNCTION): New.
+	Include "../test-skeleton.c".
+
+2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/Makefile (tests): Add tst-mallocalign1.
 	* sysdeps/x86_64/tst-mallocalign1.c: New file.
 

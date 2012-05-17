@@ -31,8 +31,8 @@ test (size_t s)
   return p;
 }
 
-int
-main (void)
+static int
+do_test (void)
 {
   void *p;
   int ret = 0;
@@ -67,3 +67,6 @@ main (void)
 
   return ret;
 }
+
+#define TEST_FUNCTION do_test ()
+#include "../test-skeleton.c"
