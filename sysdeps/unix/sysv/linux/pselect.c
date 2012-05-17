@@ -1,4 +1,4 @@
-/* Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2006.
 
@@ -53,7 +53,7 @@ __pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
   struct
   {
     const sigset_t *ss;
-    size_t ss_len;
+    __syscall_ulong_t ss_len;
   } data;
 
   data.ss = sigmask;

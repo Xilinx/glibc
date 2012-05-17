@@ -1,5 +1,12 @@
 2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/pselect.c (data): Replace size_t
+	with __syscall_ulong_t.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/pselect.c: Removed.
+
+2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/time.c (time_syscall):
 	Removed.
 	(time_ifunc): Always return __vdso_time.
