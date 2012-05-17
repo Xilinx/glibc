@@ -52,11 +52,11 @@ __pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
      be created.  */
   struct
   {
-    const sigset_t *ss;
+    __syscall_ulong_t ss;
     __syscall_ulong_t ss_len;
   } data;
 
-  data.ss = sigmask;
+  data.ss = (__syscall_ulong_t) (uintptr_t) sigmask;
   data.ss_len = _NSIG / 8;
 
   int result;

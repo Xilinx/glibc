@@ -1,5 +1,10 @@
 2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/pselect.c (data): Replace pointer
+	with __syscall_ulong_t.
+
+2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/x86_64/tst-mallocalign1.c (main): Renamed to ...
 	(do_test): This.
 	(TEST_FUNCTION): New.
