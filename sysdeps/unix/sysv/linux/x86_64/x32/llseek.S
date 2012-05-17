@@ -1,4 +1,5 @@
-/* Copyright (C) 2012 Free Software Foundation, Inc.
+/* The lseek system call with 64-bit offset.  Linux/x32 version.
+   Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,12 +18,18 @@
 
 #include <sysdep-cancel.h>
 
-/* Set error return to 64-bit -1 since the lseek system call returns a
-   64-bit integer.  */
-#undef SYSCALL_SET_ERROR_RETURN
-#define SYSCALL_SET_ERROR_RETURN or $-1, %rax
+/* Nothing here, We have our own error handling.  */
+#undef SYSCALL_ERROR_HANDLER
+#define SYSCALL_ERROR_HANDLER
+
+#undef SYSCALL_ERROR_LABEL
+#define SYSCALL_ERROR_LABEL 0f
 
 PSEUDO (__libc_lseek64, lseek, 3)
+	ret
+0:
+	SYSCALL_SET_ERRNO
+	orq $-1, %rax   /* Return -1LL in a full 64 bits.  */
 	ret
 PSEUDO_END (__libc_lseek64)
 

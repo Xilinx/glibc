@@ -1,5 +1,19 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h
+	(SYSCALL_SET_ERROR_RETURN): Removed.
+	(SYSCALL_SET_ERRNO): New macro.
+	(SYSCALL_ERROR_HANDLER): Use SYSCALL_SET_ERRNO.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S
+	(SYSCALL_SET_ERROR_RETURN): Removed.
+	(SYSCALL_ERROR_HANDLER): Redefined.
+	(SYSCALL_ERROR_LABEL): Likewise.
+	(__libc_lseek64): Use SYSCALL_SET_ERRNO and return -1LL in
+	a full 64 bits.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.S: Use RAX_LP to
 	negate return value.
 
