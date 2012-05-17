@@ -99,7 +99,13 @@ __GETDENTS (int fd, char *buf, size_t nbytes)
   ssize_t retval;
 
 #ifdef __ASSUME_GETDENTS32_D_TYPE
-  if (sizeof (DIRENT_TYPE) == sizeof (struct dirent))
+  /* Sizes of d_ino and d_off in kernel_dirent and dirent must be the
+     same.  */
+  if (sizeof (DIRENT_TYPE) == sizeof (struct dirent)
+      && (sizeof (((struct kernel_dirent *) 0)->d_ino)
+	  == sizeof (((struct dirent *) 0)->d_ino))
+      && (sizeof (((struct kernel_dirent *) 0)->d_off)
+	  == sizeof (((struct dirent *) 0)->d_off)))
     {
       retval = INLINE_SYSCALL (getdents, 3, fd, CHECK_N(buf, nbytes), nbytes);
 

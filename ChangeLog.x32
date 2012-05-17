@@ -1,3 +1,11 @@
+2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/getdents.c (__GETDENTS): Use
+	getdents system call only if kernel and user dirents have the
+	same d_ino and d_off sizes.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/getdents.c: Removed.
+
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/x86_64/sysdep.S: Use or to set -1.
