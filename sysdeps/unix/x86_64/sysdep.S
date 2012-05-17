@@ -45,7 +45,7 @@ notb:
 #else
 	movl %eax, %fs:C_SYMBOL_NAME(errno@TPOFF)
 #endif
-	mov $-1, %RAX_LP
+	or $-1, %RAX_LP
 	ret
 
 #undef	__syscall_error
