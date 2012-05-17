@@ -51,18 +51,12 @@
 
 void *time_ifunc (void) __asm__ ("__GI_time");
 
-static time_t
-time_syscall (time_t *t)
-{
-  return INLINE_SYSCALL (time, 1, t);
-}
-
 void *
 time_ifunc (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  return _dl_vdso_vsym ("__vdso_time", &linux26) ?: (void *) time_syscall;
+  return _dl_vdso_vsym ("__vdso_time", &linux26);
 }
 __asm (".type __GI_time, %gnu_indirect_function");
 #else
