@@ -1,5 +1,9 @@
 2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/sendfile64.c: Removed.
+
+2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/pselect.c (data): Replace size_t
 	with __syscall_ulong_t.
 
