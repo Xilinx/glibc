@@ -32,7 +32,7 @@
 
 	.text
 ENTRY (__syscall_error)
-	negq %rax
+	neg %RAX_LP
 
 #define __syscall_error __syscall_error_1
 #include <sysdeps/unix/x86_64/sysdep.S>
