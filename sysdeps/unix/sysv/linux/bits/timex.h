@@ -18,6 +18,8 @@
 #ifndef	_BITS_TIMEX_H
 #define	_BITS_TIMEX_H	1
 
+#include <bits/types.h>
+
 /* These definitions from linux/timex.h as of 2.6.30.  */
 
 struct timex
