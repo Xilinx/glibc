@@ -1,5 +1,10 @@
 2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/x86_64/sysdep.S: Use RAX_LP to access return
+	value.
+
+2012-05-16  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Don't use
 	<syscall-template.S>.
 
