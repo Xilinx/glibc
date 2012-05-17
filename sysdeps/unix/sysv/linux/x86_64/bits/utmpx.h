@@ -1,6 +1,6 @@
-/* Structures and definitions for the user accounting database.  GNU version.
-   Copyright (C) 1997, 1998, 2000, 2001, 2002, 2012
-   Free Software Foundation, Inc.
+/* Structures and definitions for the user accounting database.
+   Linux/x86-64 version.
+   Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
