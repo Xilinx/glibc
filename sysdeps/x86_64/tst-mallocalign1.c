@@ -36,7 +36,7 @@ do_test (void)
 {
   void *p;
   int ret = 0;
-  
+
   p = test (2);
   ret |= (unsigned long) p & ALIGN_MASK;
   free (p);
