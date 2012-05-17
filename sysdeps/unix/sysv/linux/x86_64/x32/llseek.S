@@ -18,18 +18,19 @@
 
 #include <sysdep-cancel.h>
 
-/* Nothing here, We have our own error handling.  */
+/* Return -1LL in a full 64 bits.  */
 #undef SYSCALL_ERROR_HANDLER
-#define SYSCALL_ERROR_HANDLER
+#define SYSCALL_ERROR_HANDLER	\
+0:				\
+	SYSCALL_SET_ERRNO	\
+	orq $-1, %rax;		\
+	ret;
 
+/* Always use our own error handler.  */
 #undef SYSCALL_ERROR_LABEL
 #define SYSCALL_ERROR_LABEL 0f
 
 PSEUDO (__libc_lseek64, lseek, 3)
-	ret
-0:
-	SYSCALL_SET_ERRNO
-	orq $-1, %rax   /* Return -1LL in a full 64 bits.  */
 	ret
 PSEUDO_END (__libc_lseek64)
 
