@@ -1,5 +1,10 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/wordsize-64/preadv.c: New file.
+	* sysdeps/unix/sysv/linux/wordsize-64/pwritev.c: Likewise.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (LOAD_ARG1_TYPE): New
 	macro.
 	(LOAD_ARG2_TYPE): Likewise.
