@@ -1,5 +1,24 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/gnu/bits/utmp.h (lastlog): Check __WORDSIZE_TIME64_COMPAT32
+	instead of __WORDSIZE and __WORDSIZE_COMPAT32.
+	(utmp): Likewise.
+	* sysdeps/gnu/bits/utmpx.h (utmpx): Likewise.
+	* sysdeps/powerpc/powerpc32/bits/wordsize.h (__WORDSIZE_COMPAT32):
+	Renamed to ...
+	(__WORDSIZE_TIME64_COMPAT32): This.
+	* sysdeps/powerpc/powerpc64/bits/wordsize.h: Likewise.
+	* sysdeps/sparc/sparc32/bits/wordsize.h: Likewise.
+	* sysdeps/sparc/sparc64/bits/wordsize.h: Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/bits/wordsize.h: Likewise.
+	* sysdeps/x86_64/bits/wordsize.h (__WORDSIZE_COMPAT32): Removed.
+	(__WORDSIZE_TIME64_COMPAT32): New macro.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/utmp.h: Removed.
+	* sysdeps/unix/sysv/linux/x86_64/bits/utmpx.h: Likewise.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/getdents.c (__GETDENTS): Also check
 	alignments of d_ino and d_off.
 
