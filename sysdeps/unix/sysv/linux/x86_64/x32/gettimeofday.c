@@ -17,17 +17,7 @@
 
 #ifdef SHARED
 # include <dl-vdso.h>
-
-void *gettimeofday_ifunc (void) __asm__ ("__gettimeofday");
-
-void *
-gettimeofday_ifunc (void)
-{
-  PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
-
-  return _dl_vdso_vsym ("__vdso_gettimeofday", &linux26);
-}
-__asm (".type __gettimeofday, %gnu_indirect_function");
+libc_ifunc_vdso (__gettimeofday, __vdso_gettimeofday)
 #else
 # include <errno.h>
 # include <sysdep.h>

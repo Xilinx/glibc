@@ -772,6 +772,23 @@ for linking")
   }									\
   __asm__ (".type " #name ", %gnu_indirect_function");
 
+#define libc_ifunc_vdso1(name, vdsoname)				\
+  extern void *name##_ifunc (void) __asm__ (#name);			\
+  void *name##_ifunc (void)						\
+  {									\
+    PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);			\
+    return _dl_vdso_vsym (#vdsoname, &linux26);				\
+  }									\
+  __asm__ (".type " #name ", %gnu_indirect_function");
+
+/* Macro used for indirection function symbols with vDSO.  */
+#define libc_ifunc_vdso(name, vdsoname)					\
+  libc_ifunc_vdso1 (name, vdsoname)
+
+/* Macro used for hidden indirection function symbols with vDSO.  */
+#define libc_ifunc_vdso_hidden(name, vdsoname)				\
+  libc_ifunc_vdso1 (__GI_##name, vdsoname)
+
 /* The body of the function is supposed to use __get_cpu_features
    which will, if necessary, initialize the data first.  */
 #define libm_ifunc(name, expr)						\

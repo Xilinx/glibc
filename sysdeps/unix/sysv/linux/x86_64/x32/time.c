@@ -48,17 +48,7 @@
 
 #ifdef SHARED
 # include <dl-vdso.h>
-
-void *time_ifunc (void) __asm__ ("__GI_time");
-
-void *
-time_ifunc (void)
-{
-  PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
-
-  return _dl_vdso_vsym ("__vdso_time", &linux26);
-}
-__asm (".type __GI_time, %gnu_indirect_function");
+libc_ifunc_vdso_hidden (time, __vdso_time)
 #else
 time_t
 time (time_t *t)
