@@ -1,3 +1,45 @@
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* stdio-common/_itoa.c: Check _ITOA_NEEDED instead of
+	LLONG_MAX != LONG_MAX.
+	(_itoa_word): Use _ITOA_WORD_TYPE on value.
+	(_fitoa_word): Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/sigcontextinfo.h: Fold copyright
+	years.
+	* sysdeps/unix/sysv/linux/x86_64/sys/debugreg.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sys/procfs.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sys/reg.h: Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/sigcontext.h: Don't
+	include <bits/wordsize.h>.  Check __x86_64__ instead of
+	__WORDSIZE.
+	(sigcontext): Use "__uint64_t" instead of "unsigned long int"
+	if __x86_64__ is defined.  Use anonymous union on fpstate.
+
+	* sysdeps/unix/sysv/linux/x86_64/sys/user.h (user): Use
+	anonymous union.
+
+2012-05-18  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/powerpc/powerpc32/dl-start.S (_dl_start_user): Use
+	INTUSE on _dl_argv, and _rtld_local instead of _rtld_global.
+	* sysdeps/powerpc/powerpc32/fpu/__longjmp-common.S [IS_IN_rtld]:
+	Refer to _rtld_local_ro instead of _rtld_global_ro.
+	* sysdeps/powerpc/powerpc32/fpu/setjmp-common.S [IS_IN_rtld]:
+	Likewise.
+	* sysdeps/powerpc/powerpc64/__longjmp-common.S [IS_IN_rtld]:
+	Likewise.
+	* sysdeps/powerpc/powerpc64/setjmp-common.S [IS_IN_rtld]:
+	Likewise.
+	* sysdeps/powerpc/powerpc64/dl-trampoline.S [SHARED]: Likewise.
+	* sysdeps/powerpc/powerpc64/dl-machine.h: Use _rtld_local instead
+	of _rtld_global, and rtld_progname instead of _dl_argv[0].
+
+	* sysdeps/powerpc/powerpc32/dl-machine.c
+	(__elf_machine_runtime_setup) [PROF]: Don't reference
+	_dl_prof_resolve.
+
 2012-05-18  Andreas Jaeger  <aj@suse.de>
 
 	* sysdeps/x86_64/fpu/bits/mathinline.h (lrintf): Make inline
