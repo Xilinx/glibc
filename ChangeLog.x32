@@ -1,3 +1,8 @@
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/getdents.c (__GETDENTS): Also check
+	alignments of d_ino and d_off.
+
 2012-05-17  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/pselect.c (data): Replace pointer
