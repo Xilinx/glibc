@@ -1,5 +1,10 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/bits/timex.h (timex): Move comments
+	to the end of line.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/gnu/bits/utmp.h (lastlog): Check __WORDSIZE_TIME64_COMPAT32
 	instead of __WORDSIZE and __WORDSIZE_COMPAT32.
 	(utmp): Likewise.
