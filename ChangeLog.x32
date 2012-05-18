@@ -1,5 +1,20 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/fallocate.c
+	(LOAD_ARG3_TYPE): Redefined to long long int.
+	(LOAD_ARG4_TYPE): Likewise.
+	Include sysdeps/unix/sysv/linux/wordsize-64/fallocate.c.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c 
+	(LOAD_ARG2_TYPE): Redefined to long long int.
+	(LOAD_ARG3_TYPE): Likewise.
+	Include sysdeps/unix/sysv/linux/wordsize-64/posix_fadvise.c.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fallocate.c
+	(LOAD_ARG2_TYPE): Redefined to long long int.
+	(LOAD_ARG3_TYPE): Likewise.
+	Include sysdeps/unix/sysv/linux/wordsize-64/posix_fallocate.c.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/preadv.c (LOAD_ARG4_TYPE):
 	Redefined to long long int.
 	Include sysdeps/unix/sysv/linux/wordsize-64/preadv.c.
