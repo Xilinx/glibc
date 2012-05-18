@@ -1,5 +1,14 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/bits/statvfs.h (_STATVFSBUF_F_UNUSED):
+	Don't define if __WORDSIZE_NO_STATVFSBUF_F_UNUSED is defined.
+	* sysdeps/x86_64/bits/wordsize.h (__WORDSIZE_NO_STATVFSBUF_F_UNUSED):
+	New macro.
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/statvfs.h: Removed.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* include/libc-symbols.h (libc_ifunc_vdso1): New macro.
 	(libc_ifunc_vdso): Likewise.
 	(libc_ifunc_vdso_hidden): Likewise.
