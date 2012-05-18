@@ -1,5 +1,27 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (LOAD_ARG1_TYPE): New
+	macro.
+	(LOAD_ARG2_TYPE): Likewise.
+	(LOAD_ARG3_TYPE): Likewise.
+	(LOAD_ARG4_TYPE): Likewise.
+	(LOAD_ARG5_TYPE): Likewise.
+	(LOAD_ARG6_TYPE): Likewise.
+	(LOAD_ARGS_1): Use LOAD_ARG1_TYPE.
+	(LOAD_REGS_1): Likewise.
+	(LOAD_ARGS_2): Use LOAD_ARG2_TYPE.
+	(LOAD_REGS_2): Likewise.
+	(LOAD_ARGS_3): Use LOAD_ARG3_TYPE.
+	(LOAD_REGS_3): Likewise.
+	(LOAD_ARGS_4): Use LOAD_ARG4_TYPE.
+	(LOAD_REGS_4): Likewise.
+	(LOAD_ARGS_5): Use LOAD_ARG5_TYPE.
+	(LOAD_REGS_5): Likewise.
+	(LOAD_ARGS_6): Use LOAD_ARG6_TYPE.
+	(LOAD_REGS_6): Likewise.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/bits/statvfs.h (_STATVFSBUF_F_UNUSED):
 	Don't define if __WORDSIZE_NO_STATVFSBUF_F_UNUSED is defined.
 	* sysdeps/x86_64/bits/wordsize.h (__WORDSIZE_NO_STATVFSBUF_F_UNUSED):
