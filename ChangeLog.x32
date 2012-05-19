@@ -1,5 +1,10 @@
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/bits/resource.h (struct rusage): Add
+	some comments.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/fallocate.c
 	(LOAD_ARG3_TYPE): Redefined to long long int.
 	(LOAD_ARG4_TYPE): Likewise.

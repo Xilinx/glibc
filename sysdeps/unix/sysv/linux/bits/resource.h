@@ -179,6 +179,11 @@ enum __rusage_who
 #include <bits/time.h>		/* For `struct timeval'.  */
 
 /* Structure which says how much of each resource has been used.  */
+
+/* The purpose of all the unions is to have the kernel-compatible layout
+   while keeping the API type as 'long int', and among machines where
+   __syscall_slong_t is not 'long int', this only does the right thing
+   for little-endian ones, like x32.  */
 struct rusage
   {
     /* Total amount of user time used.  */
