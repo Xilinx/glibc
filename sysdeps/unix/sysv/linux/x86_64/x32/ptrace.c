@@ -24,16 +24,25 @@
 #include <sys/syscall.h>
 #include <sysdep.h>
 
+/* PTRACE_ARCH_PRCTL is specific to x86 kernel and is only used by GDB.  */
 #ifndef PTRACE_ARCH_PRCTL
-#define PTRACE_ARCH_PRCTL      30
+# define PTRACE_ARCH_PRCTL	30
 #endif
 
-/* Since x32 ptrace stores 32bit base address of segment register %fs
-   and %gs as unsigned 64bit value via ARCH_GET_FS and ARCH_GET_GS with
-   PTRACE_ARCH_PRCTL, we use a local unsigned 64bit variable to hold
-   the base address and copy it to ADDR after ptrace return.  */
+/* Since x32 ptrace stores 32-bit base address of segment register %fs
+   and %gs as unsigned 64-bit value via ARCH_GET_FS and ARCH_GET_GS with
+   PTRACE_ARCH_PRCTL, we use a local unsigned 64-bit variable to hold
+   the base address and copy it to ADDR after ptrace return.  
 
-long
+   We don't use
+
+   long int ptrace (enum __ptrace_request __request, ...);
+
+   since x32 passes all 4 parameters in registers, which is the same
+   as the non-stdarg call.  The generated code is much simpler.
+   */
+
+long int
 ptrace (enum __ptrace_request request, pid_t pid, void *addr, void *data)
 {
   long res, ret;

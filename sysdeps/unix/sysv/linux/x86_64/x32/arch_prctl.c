@@ -21,27 +21,24 @@
 #include <sys/syscall.h>
 #include <sysdep.h>
 
-/* Since x32 arch_prctl stores 32bit base address of segment register %fs
-   and %gs as unsigned 64bit value via ARCH_GET_FS and ARCH_GET_GS, we
-   use a local unsigned 64bit variable to hold the base address and copy
+/* Since x32 arch_prctl stores 32-bit base address of segment register %fs
+   and %gs as unsigned 64-bit value via ARCH_GET_FS and ARCH_GET_GS, we
+   use a local unsigned 64-bit variable to hold the base address and copy
    it to ADDR after arch_prctl return.  */
 
 int
-__arch_prctl (int code, unsigned long *addr)
+__arch_prctl (int code, uintptr_t *addr)
 {
   int res;
-  unsigned long long base_addr;
-  unsigned long *addr_saved;
+  uint64_t addr64;
+  uintptr_t *addr_saved;
 
   switch (code)
     {
     case ARCH_GET_FS:
     case ARCH_GET_GS:
       addr_saved = addr;
-      addr = (unsigned long *) &base_addr;
-      break;
-
-    default:
+      addr = (uintptr_t *) &addr64;
       break;
     }
 
@@ -51,14 +48,17 @@ __arch_prctl (int code, unsigned long *addr)
       {
       case ARCH_GET_FS:
       case ARCH_GET_GS:
-	*addr_saved = (unsigned long) base_addr;
-	break;
-
-      default:
+	 /* Check for a large value that overflows.  */
+	if ((uintptr_t) addr64 != addr64)
+	  {
+	    __set_errno (EOVERFLOW);
+	    return -1;
+	  }
+	*addr_saved = (uintptr_t) addr64;
 	break;
       }
 
   return res;
 }
 
-weak_alias (__arch_prctl, arch_prctl);
+weak_alias (__arch_prctl, arch_prctl)
