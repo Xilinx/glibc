@@ -1,5 +1,14 @@
 2012-05-19  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/fallocate.c: Removed.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/preadv.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/pwritev.c: Likewise.
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/syscalls.list: New file.
+
+2012-05-19  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/arch_prctl.c: Update
 	comments.
 	(__arch_prctl): Use uintptr_t and uint64_t.  Check overflow.
