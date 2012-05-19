@@ -1,3 +1,11 @@
+2012-05-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/bits/statvfs.h (_STATVFSBUF_F_UNUSED):
+	Check __SYSCALL_WORDSIZE instead of __WORDSIZE_NO_STATVFSBUF_F_UNUSED.
+	* sysdeps/x86_64/bits/wordsize.h (__WORDSIZE_NO_STATVFSBUF_F_UNUSED):
+	Removed.
+	(__SYSCALL_WORDSIZE): New macro.
+
 2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/bits/resource.h (struct rusage): Add

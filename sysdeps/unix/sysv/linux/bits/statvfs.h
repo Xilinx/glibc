@@ -21,7 +21,8 @@
 
 #include <bits/types.h>  /* For __fsblkcnt_t and __fsfilcnt_t.  */
 
-#if __WORDSIZE == 32 && !defined __WORDSIZE_NO_STATVFSBUF_F_UNUSED
+#if (__WORDSIZE == 32 \
+     && (!defined __SYSCALL_WORDSIZE || __SYSCALL_WORDSIZE == 32))
 #define _STATVFSBUF_F_UNUSED
 #endif
 

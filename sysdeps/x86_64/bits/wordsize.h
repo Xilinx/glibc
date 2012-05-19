@@ -7,6 +7,7 @@
 #endif
 
 #ifdef __x86_64__
-# define __WORDSIZE_TIME64_COMPAT32		1
-# define __WORDSIZE_NO_STATVFSBUF_F_UNUSED	1
+# define __WORDSIZE_TIME64_COMPAT32	1
+/* Both x86-64 and x32 use the 64-bit system call interface.  */
+# define __SYSCALL_WORDSIZE		64
 #endif
