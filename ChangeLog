@@ -1,3 +1,67 @@
+2012-05-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/wordsize-64/preadv.c: New file.
+	* sysdeps/unix/sysv/linux/wordsize-64/pwritev.c: Likewise.
+
+	* sysdeps/x86_64/x32/_itoa.h: Add comment.
+
+2012-05-19  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/powerpc/soft-fp/Makefile: Remove file.
+	* sysdeps/powerpc/soft-fp/Subdirs: Likewise.
+	* sysdeps/powerpc/soft-fp/Versions: Likewise.
+	* sysdeps/powerpc/soft-fp/q_add.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_cmp.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_cmpe.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_div.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_dtoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_feq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_fge.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_fgt.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_fle.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_flt.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_fne.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_itoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_lltoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_mul.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_neg.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtod.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtoi.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtoll.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtos.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtou.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_qtoull.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_sqrt.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_stoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_sub.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_ulltoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_util.c: Likewise.
+	* sysdeps/powerpc/soft-fp/q_utoq.c: Likewise.
+	* sysdeps/powerpc/soft-fp/sfp-machine.h: Likewise.
+
+2012-05-18  Andreas Jaeger  <aj@suse.de>
+
+	* csu/.gitignore: Delete.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/bits/timex.h: Include <bits/types.h>.
+	(timex): Use __syscall_slong_t.
+
+2012-05-18  Andreas Jaeger  <aj@suse.de>
+	    Carlos O'Donell  <carlos_odonell@mentor.com>
+
+	* manual/install.texi (Configuring and compiling): Update
+	description about files modified in the source directory.
+        * INSTALL: Regenerated.
+
+2012-05-18  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/x86_64/sysdep.S: Use RAX_LP to access return
+	value.  Use "or" to set return value to -1.
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.S: Use RAX_LP to
+	negate return value.
+
 2012-05-18  Tulio Magno Quites Machado Filho  <tuliom@linux.vnet.ibm.com>
 
 	* sysdeps/powerpc/powerpc32/power4/Makefile (CFLAGS-wordcopy.c,
