@@ -1,5 +1,11 @@
 2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (SYSCALL_SET_ERRNO): Use
+	"neg %eax".
+	(SYSCALL_ERROR_HANDLER): Replace "jmp L(pseudo_end)" with "ret".
+
+2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (SYSCALL_SET_ERRNO): Remove
 	trailing `;'.
 	(SYSCALL_ERROR_HANDLER): Add `;' after SYSCALL_SET_ERRNO.
