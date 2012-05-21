@@ -32,7 +32,7 @@
 /* Since x32 ptrace stores 32-bit base address of segment register %fs
    and %gs as unsigned 64-bit value via ARCH_GET_FS and ARCH_GET_GS with
    PTRACE_ARCH_PRCTL, we use a local unsigned 64-bit variable to hold
-   the base address and copy it to ADDR after ptrace return.  
+   the base address and copy it to ADDR after ptrace return.
 
    We don't use
 

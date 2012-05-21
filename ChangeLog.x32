@@ -43,7 +43,7 @@
 	(LOAD_ARG3_TYPE): Redefined to long long int.
 	(LOAD_ARG4_TYPE): Likewise.
 	Include sysdeps/unix/sysv/linux/wordsize-64/fallocate.c.
-	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c 
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c
 	(LOAD_ARG2_TYPE): Redefined to long long int.
 	(LOAD_ARG3_TYPE): Likewise.
 	Include sysdeps/unix/sysv/linux/wordsize-64/posix_fadvise.c.
@@ -1578,7 +1578,7 @@
 2011-11-21  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/Implies: Moved to ...
-	* sysdeps/unix/sysv/linux/x86_64/64/Implies: Here. 
+	* sysdeps/unix/sysv/linux/x86_64/64/Implies: Here.
 
 	* sysdeps/x86_64/Implies: Moved to ...
 	* sysdeps/x86_64/64/Implies: Here.  Prepend x86_64/fpu.
