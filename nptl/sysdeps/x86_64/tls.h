@@ -52,30 +52,17 @@ typedef struct
   int gscope_flag;
   uintptr_t sysinfo;
   uintptr_t stack_guard;
-# ifdef __ILP32__
-  int rtld_must_xmm_save;
-  union
-    {
-      /* Needed for 64-bit PTR_MANGLE/PTR_DEMANGLE.  */
-      uintptr_t pointer_guard;
-      uint64_t __pointer_guard_word;
-    };
-  unsigned long int vgetcpu_cache[2];
-  /* Reservation of some values for the TM ABI.  */
-  void *__private_tm[5];
-# else
   uintptr_t pointer_guard;
   unsigned long int vgetcpu_cache[2];
-#  ifndef __ASSUME_PRIVATE_FUTEX
+# ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
-#  else
+# else
   int __unused1;
-#  endif
+# endif
   int rtld_must_xmm_save;
   /* Reservation of some values for the TM ABI.  */
   void *__private_tm[5];
   long int __unused2;
-# endif
   /* Have space for the post-AVX register size.  */
   __m128 rtld_savespace_sse[8][4] __attribute__ ((aligned (32)));
 
