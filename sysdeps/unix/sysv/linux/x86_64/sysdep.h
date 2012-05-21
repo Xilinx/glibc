@@ -117,7 +117,7 @@
   lea rtld_errno(%rip), %RCX_LP;		\
   xorl %edx, %edx;				\
   sub %RAX_LP, %RDX_LP;				\
-  movl %edx, (%rcx);
+  movl %edx, (%rcx)
 # else
 #  ifndef NOT_IN_libc
 #   define SYSCALL_ERROR_ERRNO __libc_errno
@@ -128,7 +128,7 @@
   movq SYSCALL_ERROR_ERRNO@GOTTPOFF(%rip), %rcx;\
   xorl %edx, %edx;				\
   sub %RAX_LP, %RDX_LP;				\
-  movl %edx, %fs:(%rcx);
+  movl %edx, %fs:(%rcx)
 # endif
 
 # ifndef PIC
@@ -136,7 +136,7 @@
 # else
 #  define SYSCALL_ERROR_HANDLER			\
 0:						\
-  SYSCALL_SET_ERRNO				\
+  SYSCALL_SET_ERRNO;				\
   or $-1, %RAX_LP;				\
   jmp L(pseudo_end);
 # endif	/* PIC */

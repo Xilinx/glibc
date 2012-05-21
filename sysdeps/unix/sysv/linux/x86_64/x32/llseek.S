@@ -22,7 +22,7 @@
 #undef SYSCALL_ERROR_HANDLER
 #define SYSCALL_ERROR_HANDLER	\
 0:				\
-	SYSCALL_SET_ERRNO	\
+	SYSCALL_SET_ERRNO;	\
 	orq $-1, %rax;		\
 	ret;
 
