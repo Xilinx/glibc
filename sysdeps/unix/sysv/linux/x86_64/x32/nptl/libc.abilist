@@ -207,6 +207,7 @@ GLIBC_2.16
  __fxstat64 F
  __fxstatat F
  __fxstatat64 F
+ __getauxval F
  __getcwd_chk F
  __getdelim F
  __getdomainname_chk F
@@ -896,6 +897,7 @@ GLIBC_2.16
  getaliasbyname_r F
  getaliasent F
  getaliasent_r F
+ getauxval F
  getc F
  getc_unlocked F
  getchar F
