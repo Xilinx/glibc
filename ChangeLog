@@ -1,3 +1,49 @@
+2012-05-21  Andreas Jaeger  <aj@suse.de>
+
+	* malloc/malloc.c: Include shlib-compat.h for SHLIB_COMPAT.
+
+2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/bits/statvfs.h (_STATVFSBUF_F_UNUSED):
+	Don't define if [__SYSCALL_WORDSIZE != 32].
+	* sysdeps/x86_64/bits/wordsize.h (__SYSCALL_WORDSIZE):
+	New macro.
+
+2012-05-21  Bruno Haible  <bruno@clisp.org>
+	    Andreas Jaeger  <aj@suse.de>
+
+	[BZ #13691], Revert breakage of iconv() converter for TCVN-5712.
+	* iconvdata/tcvn5712-1.c (BODY for FROM_LOOP): Don't consider
+	inptr and inend for must_buffer_ch.
+	* wcsmbs/tst-mbsnrtowcs.c: Remove file.
+	* wcsmbs/Makefile (tests): Remove tst-mbsnrtowcs.
+	* stdio-common/Makefile (tests): Remove bug15.
+	(bug15-ENV): Remove macro.
+	* stdio-common/bug15.c: Remove, we do not support vi_VN.TCVN5712-1
+	anymore.
+
+2012-05-19  Andreas Jaeger  <aj@suse.de>
+	    Roland McGrath  <roland@hack.frob.com>
+
+	* manual/contrib.texi: Completely rewritten. It contains now an
+	alphabetical list of contributors and their contributions.
+
+2012-05-21  Richard Henderson  <rth@twiddle.net>
+
+	* misc/getauxval.c (__getauxval): Use unsigned long int.
+	* misc/sys/auxv.h: Include <sys/cdefs.h>.
+	(getauxval): Use unsigned long int.
+
+2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/syscalls.list: New file.
+
+2012-05-21  Roland McGrath  <roland@hack.frob.com>
+
+	* malloc/malloc.c [!SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_16)]
+	(MALLOC_ALIGNMENT): Set it to the greater of 2 * SIZE_SZ and
+	__alignof__ (long double).
+
 2012-05-21  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
 
 	* sysdeps/powerpc/fpu/libm-test-ulps: Update.
@@ -22,7 +68,8 @@
 	* sysdeps/sparc/sysdep.h: ... here.  Include it.
 	* sysdeps/unix/sysv/linux/s390/bits/hwcap.h: New file.
 	* sysdeps/unix/sysv/linux/i386/nptl/libc.abilist: Update.
-	* sysdeps/unix/sysv/linux/powerpc/powerpc32/fpu/nptl/libc.abilist: Update.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/fpu/nptl/libc.abilist:
+	Update.
 	* sysdeps/unix/sysv/linux/powerpc/powerpc64/nptl/libc.abilist: Update.
 	* sysdeps/unix/sysv/linux/s390/s390-32/nptl/libc.abilist: Update.
 	* sysdeps/unix/sysv/linux/s390/s390-64/nptl/libc.abilist: Update.
