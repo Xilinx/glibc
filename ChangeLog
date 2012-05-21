@@ -1,5 +1,22 @@
 2012-05-21  Andreas Jaeger  <aj@suse.de>
 
+	* sysdeps/i386/i686/multiarch/wcschr-c.c: Redefine libc_hidden_def
+	only if [SHARED]. Add prototype for __wcschr_ia32.
+
+2012-05-21  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/x86_64/setjmp.S [PTR_MANGLE] [__ILP32__]: Preserve high bits
+	of %rbp unmolested in the jmp_buf while mangling the low bits.
+	* sysdeps/x86_64/__longjmp.S [PTR_DEMANGLE] [__ILP32__]: Restore the
+	unmolested high bits of %rbp while demangling the low bits.
+	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S: Likewise.
+
+2012-05-21  Andreas Jaeger  <aj@suse.de>
+
+	* include/shlib-compat.h (libc_sunrpc_symbol): New macro.
+	* sunrpc/svc_simple.c: Use it for registerrpc.
+	* sunrpc/xcrypt.c: Use it for passwd2des.
+
 	* malloc/malloc.c: Include shlib-compat.h for SHLIB_COMPAT.
 
 2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
