@@ -1,5 +1,10 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/arch_prctl.c (__arch_prctl):
+	Updated.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (INLINE_SYSCALL_TYPES):
 	New macro.
 	(INTERNAL_SYSCALL_NCS_TYPES): Likewise.

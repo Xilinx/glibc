@@ -21,28 +21,27 @@
 #include <sys/syscall.h>
 #include <sysdep.h>
 
-/* Since x32 arch_prctl stores 32-bit base address of segment register %fs
-   and %gs as unsigned 64-bit value via ARCH_GET_FS and ARCH_GET_GS, we
-   use a local unsigned 64-bit variable to hold the base address and copy
-   it to ADDR after arch_prctl return.  */
+/* Since x32 arch_prctl stores 32-bit base address of segment registers
+   %fs and %gs as unsigned 64-bit value via ARCH_GET_FS and ARCH_GET_GS,
+   we use an unsigned 64-bit variable to hold the base address and copy
+   it to ADDR after the system call returns.  */
 
 int
 __arch_prctl (int code, uintptr_t *addr)
 {
   int res;
   uint64_t addr64;
-  uintptr_t *addr_saved;
+  void *prctl_arg = addr;
 
   switch (code)
     {
     case ARCH_GET_FS:
     case ARCH_GET_GS:
-      addr_saved = addr;
-      addr = (uintptr_t *) &addr64;
+      prctl_arg = &addr64;
       break;
     }
 
-  res = INLINE_SYSCALL (arch_prctl, 2, code, addr);
+  res = INLINE_SYSCALL (arch_prctl, 2, code, prctl_arg);
   if (res == 0)
     switch (code)
       {
@@ -54,11 +53,10 @@ __arch_prctl (int code, uintptr_t *addr)
 	    __set_errno (EOVERFLOW);
 	    return -1;
 	  }
-	*addr_saved = (uintptr_t) addr64;
+	*addr = (uintptr_t) addr64;
 	break;
       }
 
   return res;
 }
-
 weak_alias (__arch_prctl, arch_prctl)
