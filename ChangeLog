@@ -1,5 +1,60 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/Makefile: Include
+	$(firstword $(wildcard $(sysdirs:=/sysctl.mk))).
+	(sysdep_routines): Replace sysctl with $(sysctl).
+	* sysdeps/unix/sysv/linux/bits/sysctl.h: New file.
+	* sysdeps/unix/sysv/linux/sysctl.mk: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/sysctl.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sysctl.mk: Likewise.
+	* sysdeps/unix/sysv/linux/sys/sysctl.h: Include <bits/sysctl.h>.
+
+2012-05-22  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/unix/sysv/linux/x86_64/sched_getcpu.S: Rearrange code so
+	that pseudo_end is just ret and the stack pointer is correct also
+	for static library in error case.
+
+2012-05-22  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	[BZ #14122]
+	* nss/nsswitch.c (defconfig_entries): New variable.
+	(__nss_database_lookup): Don't leak defconfig entries.
+	(nss_parse_service_list): Don't leak on error paths.
+	(free_database_entries): New function.
+	(free_defconfig): New function.
+	(free_mem): Move common code to free_database_entries.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/x32/Makefile (sysdep_routines):
+	Add arch_prctl.
+	* sysdeps/unix/sysv/linux/x86_64/x32/arch_prctl.c: New file.
+
+	* sysdeps/unix/sysv/linux/wordsize-64/posix_fallocate.c
+	(posix_fallocate): Use INTERNAL_SYSCALL_TYPES if it is defined.
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (INLINE_SYSCALL_TYPES):
+	New macro.
+	(INTERNAL_SYSCALL_NCS_TYPES): Likewise.
+	(INTERNAL_SYSCALL_TYPES): Likewise.
+	(LOAD_ARGS_TYPES_[1-6]): Likewise.
+	(LOAD_REGS_TYPES_[1-6]): Likewise.
+	(LOAD_ARGS_[1-6]): Use LOAD_ARGS_TYPES_[1-6].
+	(LOAD_REGS_[1-6]): Use LOAD_REGS_TYPES_[1-6].
+
+2012-05-22  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	* sysdeps/powerpc/powerpc32/power6/fpu/s_copysign.S: Add compat symbol
+	copysignl for GLIBC_2_0.
+	* sysdeps/powerpc/powerpc32/power7/fpu/s_finite.S: Add compat symbol
+	finitel for GLIBC_2.0 and __finitel for GLIBC_2_1.
+	* sysdeps/powerpc/powerpc32/power7/fpu/s_logb.c: Add compat symbol
+	logbl for GLIBC_2_0.
+	* sysdeps/powerpc/powerpc64/power6/fpu/s_copysign.S: Likewise.
+	* sysdeps/powerpc/powerpc64/power7/fpu/s_finite.S: Likewise.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h: Don't include
 	<bits/wordsize.h>.  Check __x86_64__ instead of __WORDSIZE.
 
