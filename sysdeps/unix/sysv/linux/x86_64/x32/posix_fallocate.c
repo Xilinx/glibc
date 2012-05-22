@@ -13,7 +13,7 @@
 		    long long int, a3, long long int, a4)
 #undef LOAD_REGS_4
 #define LOAD_REGS_4					\
-  LOAD_REGS_TYPES_4 (long int, long int, long long int,	\
-		    long long int)
+  LOAD_REGS_TYPES_4 (long int, a1, long int, a2,		\
+		    long long int, a3, long long int, a4)
 
 #include <sysdeps/unix/sysv/linux/wordsize-64/posix_fallocate.c>

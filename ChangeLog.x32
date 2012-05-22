@@ -1,6 +1,11 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h 
+	(LOAD_REGS_TYPES_[1-6]): Add types.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h 
 	(LOAD_ARGS_TYPE_[1-6]): Renamed to ...
 	(LOAD_ARGS_TYPES_[1-6]): This.
 	(LOAD_REGS_TYPE_[1-6]): Renamed to ...
