@@ -1,5 +1,9 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/ptrace.c: Removed.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/i386/sysdep.h (SYSCALL_ERROR_HANDLER):
 	Use "neg %eax".
 
