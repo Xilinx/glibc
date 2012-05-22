@@ -9,11 +9,11 @@
 
 #undef LOAD_ARGS_4
 #define LOAD_ARGS_4(a1, a2, a3, a4)			\
-  LOAD_ARGS_TYPE_4 (long int, a1, long int, a2,		\
+  LOAD_ARGS_TYPES_4 (long int, a1, long int, a2,		\
 		    long long int, a3, long long int, a4)
 #undef LOAD_REGS_4
 #define LOAD_REGS_4					\
-  LOAD_REGS_TYPE_4 (long int, long int, long long int,	\
+  LOAD_REGS_TYPES_4 (long int, long int, long long int,	\
 		    long long int)
 
 #include <sysdeps/unix/sysv/linux/wordsize-64/posix_fallocate.c>

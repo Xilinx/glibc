@@ -1,5 +1,18 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h 
+	(LOAD_ARGS_TYPE_[1-6]): Renamed to ...
+	(LOAD_ARGS_TYPES_[1-6]): This.
+	(LOAD_REGS_TYPE_[1-6]): Renamed to ...
+	(LOAD_REGS_TYPES_[1-6]): This.
+	(LOAD_ARGS_[1-6]): Updated.
+	(LOAD_REGS_[1-6]): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fallocate.c
+	(LOAD_ARGS_4): Updated.
+	(LOAD_REGS_4): Likewise.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/ptrace.c: Removed.
 
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
