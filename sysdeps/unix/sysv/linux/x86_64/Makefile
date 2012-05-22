@@ -1,8 +1,10 @@
-syscall-list-variants := 32bit 64bit
+syscall-list-variants := 32bit 64bit x32
 syscall-list-32bit-options := -D__i386__ -U__x86_64__
 syscall-list-32bit-condition := !defined __x86_64__
-syscall-list-64bit-options := -U__i386__ -U__ILP32__ -D__x86_64__ -D__LP64__
-syscall-list-64bit-condition := defined __x86_64__
+syscall-list-64bit-options := -U__i386__ -D__x86_64__ -U__ILP32__ -D__LP64__
+syscall-list-64bit-condition := defined __x86_64__ && defined __LP64__
+syscall-list-x32-options := -U__i386__ -D__x86_64__ -D__ILP32__ -U__LP64__
+syscall-list-x32-condition := defined __x86_64__ && defined __ILP32__
 
 ifeq ($(subdir),misc)
 sysdep_routines += ioperm iopl

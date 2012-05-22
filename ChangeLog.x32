@@ -1,5 +1,16 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/Makefile
+	(syscall-list-variants): Add x32.
+	(syscall-list-32bit-condition): Set to !defined __x86_64__.
+	(syscall-list-64bit-options): Add -U__ILP32__ -D__LP64__.
+	(syscall-list-64bit-condition): Set to
+	defined __x86_64__ && defined __LP64__.
+	(syscall-list-x32-options): New variable.
+	(syscall-list-x32-condition): Likewis.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/sysctl.mk: Remove conditionals and
 	add some comments.
 	* sysdeps/unix/sysv/linux/x86_64/x32/sysctl.mk: Remove
