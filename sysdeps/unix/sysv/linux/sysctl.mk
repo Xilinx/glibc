@@ -1,3 +1,3 @@
 ifeq ($(subdir),misc)
-sysctl = sysctl 
+sysctl = sysctl
 endif
