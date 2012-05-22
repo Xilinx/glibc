@@ -1,5 +1,16 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (INLINE_SYSCALL_TYPES):
+	New macro.
+	(INTERNAL_SYSCALL_NCS_TYPES): Likewise.
+	(INTERNAL_SYSCALL_TYPES): Likewise.
+
+	* sysdeps/unix/sysv/linux/wordsize-64/posix_fallocate.c
+	(posix_fallocate): Use INTERNAL_SYSCALL_TYPES if it is defined.
+	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fallocate.c: Removed.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h 
 	(LOAD_REGS_TYPES_[1-6]): Add types.
 
