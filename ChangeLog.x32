@@ -1,5 +1,12 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/sysctl.mk: Remove conditionals and
+	add some comments.
+	* sysdeps/unix/sysv/linux/x86_64/x32/sysctl.mk: Remove
+	conditionals.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/sys/sysctl.h: Include <bits/sysctl.h>.
 	* sysdeps/unix/sysv/linux/bits/sysctl.h: New file.
 	* sysdeps/unix/sysv/linux/x86_64/bits/sysctl.h: Likewise.
