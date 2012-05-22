@@ -1,5 +1,43 @@
 2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/bits/fcntl.h: Don't include
+	<bits/wordsize.h>.  Check __x86_64__ instead of __WORDSIZE.
+
+	* sysdeps/unix/sysv/linux/i386/sysdep.h (SYSCALL_ERROR_HANDLER):
+	Use "neg %eax".
+
+	* time/mktime.c: Update copyright years.
+
+2012-05-22  Paul Eggert  <eggert@cs.ucla.edu>
+
+	mktime: merge comment-quoting-style change from gnulib
+	* time/mktime.c: Quote 'like this' in comments.
+	The GNU coding standards suggest that we no longer quote `like this',
+	as "`" and "'" are typically rendered asymmetrically nowadays.
+	The typical gnulib style is to quote 'like this' when quoting
+	code, and "like this" when quoting English.
+
+	* time/mktime.c (compile-command): Add "-I.".
+
+	mktime: merge mktime-internal.h change from gnulib
+	* time/mktime.c [!_LIBC]: Include "mktime-internal.h".
+
+	mktime: merge time_r change from gnulib
+	* time/mktime.c [!_LIBC]: Do not include "time_r.h".
+
+	mktime: merge DEBUG change from gnulib
+	* time/mktime.c (mktime) [DEBUG]: #undef before #define-ing, in
+	case system <time.h> has a #define.
+
+	mktime: merge <sys/types.h> change from gnulib
+	* time/mktime.c: Do not include <sys/types.h>; no longer needed,
+	since <time.t> is now guaranteed to define time_t.
+
+	mktime: merge HAVE_CONFIG_H change from gnulib
+	* time/mktime.c: Include <config.h> if !_LIBC, not if HAVE_CONFIG_H.
+
+2012-05-22  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (SYSCALL_SET_ERRNO):
 	Use "neg %eax".
 
