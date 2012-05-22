@@ -1,9 +1,23 @@
+2012-05-21  David S. Miller  <davem@davemloft.net>
+
+	* Makefules (o-iterator): Remove .s cases.
+	(compile-command.s): Delete.
+	(COMPILE.s): Delete.
+	* sysdeps/unix/make-syscalls.sh: Remove .s file tests.
+
+2012-05-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* configure.in (libc_cv_predef_stack_protector): Only consider
+	"foobar" and "__stack_chk_fail" lines in libc_undefs.
+	* configure: Regenerated.
+
 2012-05-21  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (SYSCALL_SET_ERRNO):
 	New macro.  Use R*LP on int and pointer.
 	(SYSCALL_ERROR_HANDLER): Use SYSCALL_SET_ERRNO.
-	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: New file.
+	* sysdeps/unix/sysv/linux/x86_64/x32/lseek.S: New file.
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Likewise.
 	* sysdeps/unix/sysv/linux/x86_64/x32/sysdep.h: Likewise.
 
 	* sysdeps/gnu/bits/utmp.h (struct lastlog): Check
