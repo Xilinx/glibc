@@ -1,5 +1,14 @@
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/i386/configure.in: Removed.
+	* sysdeps/unix/sysv/linux/i386/configure: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/configure.in: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/configure: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/lib-names.awk: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/stubs-biarch.h: Likewise.
+
+2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu.S: Rearrange
 	code so that pseudo_end is just ret and the stack pointer is
 	correct also for static library in error case.
