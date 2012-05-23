@@ -1,5 +1,11 @@
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/sched_getcpu.S: Rearrange
+	code so that pseudo_end is just ret and the stack pointer is
+	correct also for static library in error case.
+
+2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/i386/sysdep.h (SYSCALL_ERROR_HANDLER):
 	Replace "jmp L(pseudo_end)" with "ret".
 	* sysdeps/unix/sysv/linux/x86_64/sysdep.h (SYSCALL_ERROR_HANDLER):
