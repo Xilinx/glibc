@@ -53,12 +53,14 @@
 
    Define WRAPV to 1 if the assumption is valid and if
      #pragma GCC optimize ("wrapv")
-   does not trigger GCC bug <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51793>.
+   does not trigger GCC bug 51793
+   <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51793>.
    Otherwise, define it to 0; this forces the use of slower code that,
    while not guaranteed by the C Standard, works on all production
    platforms that we know about.  */
 #ifndef WRAPV
-# if ((__GNUC__ == 4 && 4 <= __GNUC_MINOR__) || 4 < __GNUC__) && defined __GLIBC__
+# if (((__GNUC__ == 4 && 4 <= __GNUC_MINOR__) || 4 < __GNUC__) \
+      && defined __GLIBC__)
 #  pragma GCC optimize ("wrapv")
 #  define WRAPV 1
 # else
@@ -114,12 +116,12 @@ verify (long_int_is_wide_enough, INT_MAX == INT_MAX * (long_int) 2 / 2);
    your host.  */
 #define TYPE_MINIMUM(t) \
   ((t) (! TYPE_SIGNED (t) \
-        ? (t) 0 \
-        : ~ TYPE_MAXIMUM (t)))
+	? (t) 0 \
+	: ~ TYPE_MAXIMUM (t)))
 #define TYPE_MAXIMUM(t) \
   ((t) (! TYPE_SIGNED (t) \
-        ? (t) -1 \
-        : ((((t) 1 << (sizeof (t) * CHAR_BIT - 2)) - 1) * 2 + 1)))
+	? (t) -1 \
+	: ((((t) 1 << (sizeof (t) * CHAR_BIT - 2)) - 1) * 2 + 1)))
 
 #ifndef TIME_T_MIN
 # define TIME_T_MIN TYPE_MINIMUM (time_t)
@@ -131,9 +133,9 @@ verify (long_int_is_wide_enough, INT_MAX == INT_MAX * (long_int) 2 / 2);
 
 verify (time_t_is_integer, TYPE_IS_INTEGER (time_t));
 verify (twos_complement_arithmetic,
-        (TYPE_TWOS_COMPLEMENT (int)
-         && TYPE_TWOS_COMPLEMENT (long_int)
-         && TYPE_TWOS_COMPLEMENT (time_t)));
+	(TYPE_TWOS_COMPLEMENT (int)
+	 && TYPE_TWOS_COMPLEMENT (long_int)
+	 && TYPE_TWOS_COMPLEMENT (time_t)));
 
 #define EPOCH_YEAR 1970
 #define TM_YEAR_BASE 1900
@@ -180,7 +182,7 @@ const unsigned short int __mon_yday[2][13] =
 static int
 isdst_differ (int a, int b)
 {
-  return (!a != !b) & (0 <= a) & (0 <= b);
+  return (!a != !b) && (0 <= a) && (0 <= b);
 }
 
 /* Return an integer value measuring (YEAR1-YDAY1 HOUR1:MIN1:SEC1) -
@@ -196,7 +198,7 @@ isdst_differ (int a, int b)
 
 static inline time_t
 ydhms_diff (long_int year1, long_int yday1, int hour1, int min1, int sec1,
-            int year0, int yday0, int hour0, int min0, int sec0)
+	    int year0, int yday0, int hour0, int min0, int sec0)
 {
   verify (C99_integer_division, -1 / 2 == 0);
 
@@ -277,15 +279,15 @@ time_t_int_add_ok (time_t a, int b)
    yield a value equal to *T.  */
 static time_t
 guess_time_tm (long_int year, long_int yday, int hour, int min, int sec,
-               const time_t *t, const struct tm *tp)
+	       const time_t *t, const struct tm *tp)
 {
   if (tp)
     {
       time_t d = ydhms_diff (year, yday, hour, min, sec,
-                             tp->tm_year, tp->tm_yday,
-                             tp->tm_hour, tp->tm_min, tp->tm_sec);
+			     tp->tm_year, tp->tm_yday,
+			     tp->tm_hour, tp->tm_min, tp->tm_sec);
       if (time_t_add_ok (*t, d))
-        return *t + d;
+	return *t + d;
     }
 
   /* Overflow occurred one way or another.  Return the nearest result
@@ -316,14 +318,14 @@ ranged_convert (struct tm *(*convert) (const time_t *, struct tm *),
          Use binary search to narrow the range between BAD and OK until
          they differ by 1.  */
       while (bad != ok + (bad < 0 ? -1 : 1))
-        {
-          time_t mid = *t = time_t_avg (ok, bad);
-          r = convert (t, tp);
-          if (r)
-            ok = mid;
-          else
-            bad = mid;
-        }
+	{
+	  time_t mid = *t = time_t_avg (ok, bad);
+	  r = convert (t, tp);
+	  if (r)
+	    ok = mid;
+	  else
+	    bad = mid;
+	}
 
       if (!r && ok)
         {
@@ -386,8 +388,8 @@ __mktime_internal (struct tm *tp,
   /* Calculate day of year from year, month, and day of month.
      The result need not be in range.  */
   int mon_yday = ((__mon_yday[leapyear (year)]
-                   [mon_remainder + 12 * negative_mon_remainder])
-                  - 1);
+		   [mon_remainder + 12 * negative_mon_remainder])
+		  - 1);
   long_int lmday = mday;
   long_int yday = mon_yday + lmday;
 
@@ -443,7 +445,7 @@ __mktime_internal (struct tm *tp,
 
       int approx_biennia = SHR (t0, ALOG2_SECONDS_PER_BIENNIUM);
       int diff = approx_biennia - approx_requested_biennia;
-      int abs_diff = diff < 0 ? -1 - diff : diff;
+      int approx_abs_diff = diff < 0 ? -1 - diff : diff;
 
       /* IRIX 4.0.5 cc miscalculates TIME_T_MIN / 3: it erroneously
          gives a positive value of 715827882.  Setting a variable
@@ -454,19 +456,19 @@ __mktime_internal (struct tm *tp,
       time_t overflow_threshold =
         (time_t_max / 3 - time_t_min / 3) >> ALOG2_SECONDS_PER_BIENNIUM;
 
-      if (overflow_threshold < abs_diff)
-        {
-          /* Overflow occurred.  Try repairing it; this might work if
-             the time zone offset is enough to undo the overflow.  */
-          time_t repaired_t0 = -1 - t0;
-          approx_biennia = SHR (repaired_t0, ALOG2_SECONDS_PER_BIENNIUM);
-          diff = approx_biennia - approx_requested_biennia;
-          abs_diff = diff < 0 ? -1 - diff : diff;
-          if (overflow_threshold < abs_diff)
-            return -1;
-          guessed_offset += repaired_t0 - t0;
-          t0 = repaired_t0;
-        }
+      if (overflow_threshold < approx_abs_diff)
+	{
+	  /* Overflow occurred.  Try repairing it; this might work if
+	     the time zone offset is enough to undo the overflow.  */
+	  time_t repaired_t0 = -1 - t0;
+	  approx_biennia = SHR (repaired_t0, ALOG2_SECONDS_PER_BIENNIUM);
+	  diff = approx_biennia - approx_requested_biennia;
+	  approx_abs_diff = diff < 0 ? -1 - diff : diff;
+	  if (overflow_threshold < approx_abs_diff)
+	    return -1;
+	  guessed_offset += repaired_t0 - t0;
+	  t0 = repaired_t0;
+	}
     }
 
   /* Repeatedly use the error to improve the guess.  */
@@ -528,21 +530,21 @@ __mktime_internal (struct tm *tp,
       int delta, direction;
 
       for (delta = stride; delta < delta_bound; delta += stride)
-        for (direction = -1; direction <= 1; direction += 2)
-          if (time_t_int_add_ok (t, delta * direction))
-            {
-              time_t ot = t + delta * direction;
-              struct tm otm;
-              ranged_convert (convert, &ot, &otm);
-              if (! isdst_differ (isdst, otm.tm_isdst))
-                {
-                  /* We found the desired tm_isdst.
-                     Extrapolate back to the desired time.  */
-                  t = guess_time_tm (year, yday, hour, min, sec, &ot, &otm);
-                  ranged_convert (convert, &t, &tm);
-                  goto offset_found;
-                }
-            }
+	for (direction = -1; direction <= 1; direction += 2)
+	  if (time_t_int_add_ok (t, delta * direction))
+	    {
+	      time_t ot = t + delta * direction;
+	      struct tm otm;
+	      ranged_convert (convert, &ot, &otm);
+	      if (! isdst_differ (isdst, otm.tm_isdst))
+		{
+		  /* We found the desired tm_isdst.
+		     Extrapolate back to the desired time.  */
+		  t = guess_time_tm (year, yday, hour, min, sec, &ot, &otm);
+		  ranged_convert (convert, &t, &tm);
+		  goto offset_found;
+		}
+	    }
     }
 
  offset_found:
@@ -554,13 +556,13 @@ __mktime_internal (struct tm *tp,
          Also, repair any damage from a false match due to a leap second.  */
       int sec_adjustment = (sec == 0 && tm.tm_sec == 60) - sec;
       if (! time_t_int_add_ok (t, sec_requested))
-        return -1;
+	return -1;
       t1 = t + sec_requested;
       if (! time_t_int_add_ok (t1, sec_adjustment))
-        return -1;
+	return -1;
       t2 = t1 + sec_adjustment;
       if (! convert (&t2, &tm))
-        return -1;
+	return -1;
       t = t2;
     }
 
@@ -604,13 +606,13 @@ static int
 not_equal_tm (const struct tm *a, const struct tm *b)
 {
   return ((a->tm_sec ^ b->tm_sec)
-          | (a->tm_min ^ b->tm_min)
-          | (a->tm_hour ^ b->tm_hour)
-          | (a->tm_mday ^ b->tm_mday)
-          | (a->tm_mon ^ b->tm_mon)
-          | (a->tm_year ^ b->tm_year)
-          | (a->tm_yday ^ b->tm_yday)
-          | isdst_differ (a->tm_isdst, b->tm_isdst));
+	  | (a->tm_min ^ b->tm_min)
+	  | (a->tm_hour ^ b->tm_hour)
+	  | (a->tm_mday ^ b->tm_mday)
+	  | (a->tm_mon ^ b->tm_mon)
+	  | (a->tm_year ^ b->tm_year)
+	  | (a->tm_yday ^ b->tm_yday)
+	  | isdst_differ (a->tm_isdst, b->tm_isdst));
 }
 
 static void
