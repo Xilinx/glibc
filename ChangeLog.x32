@@ -1,5 +1,18 @@
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* Makeconfig ($(common-objpfx)gnu/lib-names.stmp): Depend on
+	scripts/lib-names.awk.
+
+	* Makefile ($(inst_includedir)/gnu/stubs.h): Depend on
+	include/stubs-biarch.h.
+
+	* config.make.in (stubs-biarch_h): Removed.
+	(lib-names_awk): Likewise.
+
+	* configure.in: Don't subst stubs_biarch_h nor lib_names_awk.
+
+2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/i386/configure.in: Removed.
 	* sysdeps/unix/sysv/linux/i386/configure: Likewise.
 	* sysdeps/unix/sysv/linux/x86_64/configure.in: Likewise.
