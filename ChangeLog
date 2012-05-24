@@ -1,3 +1,50 @@
+2012-05-23  Paul Eggert  <eggert@cs.ucla.edu>
+
+	mktime: avoid signed integer overflow
+	* time/mktime.c (__mktime_internal): Do not mishandle the case
+	where diff == INT_MIN.
+
+	mktime: simplify computation of average
+	* time/mktime.c (ranged_convert): Use new time_t_avg function
+	instead of rolling our own (probably-slower) code.
+
+	mktime: do not assume signed right shift propagates sign bit
+	* time/mktime.c (isdst_differ): New static function.
+	(__mktime_internal): No need to normalize tm_isdst now.
+	(__mktime_internal, not_equal_tm): Use isdst_differ to compare
+	tm_isdst values.
+
+	mktime: merge another wrapv change from gnulib
+	* time/mktime.c (TYPE_MAXIMUM): Rework slightly to avoid diagnostics
+	from some compilers.
+
+	mktime: remove incorrect attempt at unusual arithmetics
+	* time/mktime.c (TYPE_ONES_COMPLEMENT, TYPE_SIGNED_MAGNITUDE): Remove.
+	The code didn't really work on such machines anyway.
+	(TYPE_MINIMUM): Assume two's complement.
+	(twos_complement_arithmetic): Verify that long_int and time_t
+	are two's complement (or unsigned, in the latter case).
+
+	mktime: check signed shifts on long_int and time_t, too
+	* time/mktime.c (SHR): Check that shifts work as desired
+	on the types long_int and time_t too, as SHR is used on
+	such types.
+
+	mktime: do not assume 'long' is wide enough
+	* time/mktime.c (verify): Move decl up.
+	(long_int): New type.
+	(leapyear, ydhms_diff, guess_time_tm, __mktime_internal): Use it,
+	to remove assumption in the code that 'long' is wide enough to
+	store year values.  This assumption is not true on x32 and on
+	some non-glibc platforms.
+
+	mktime: merge wrapv change from gnulib
+	* time/mktime.c (WRAPV): New macro.
+	(time_t_avg, time_t_add_ok, time_t_int_add_ok): New static functions.
+	(guess_time_tm, __mktime_internal): Do not assume that signed
+	integer overflow wraps around; modern compilers generate code
+	where this assumption is no longer valid.
+
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/unix/sysv/linux/i386/sysdep.h (SYSCALL_ERROR_HANDLER):
