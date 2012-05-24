@@ -2,7 +2,7 @@
 
 	* Makeconfig (abi-list-default-options): New macro.
 	(abi-list-default-condition): Likewise.
-	($(common-objpfx)soversions.mk): Remove WORDSIZE check. 
+	($(common-objpfx)soversions.mk): Remove WORDSIZE check.
 	($(common-objpfx)gnu/lib-names.stmp): Generate from
 	abi-list-variants.
 	* Makefile (installed-stubs): Generate from abi-list-variants.
@@ -27,7 +27,7 @@
 	(abi-list-64-condition): Likewise.
 	(abi-list-x32-options): Likewise.
 	(abi-list-x32-condition): Likewise.
-	* sysdeps/unix/sysv/linux/x86_64/64/Makefile: New file.	
+	* sysdeps/unix/sysv/linux/x86_64/64/Makefile: New file.
 	* sysdeps/unix/sysv/linux/x86_64/Makefile (syscall-list-variants):
 	Removed.
 	(syscall-list-32-options): Likewise.
