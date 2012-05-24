@@ -1,5 +1,8 @@
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/gettimeofday.c: Removed.
+	* sysdeps/unix/sysv/linux/x86_64/x32/time.c: Likewise.
+
 	* include/libc-symbols.h (libc_ifunc_vdso1): Removed.
 	(libc_ifunc_vdso): Likewise.
 	(libc_ifunc_vdso_hidden): Likewise.
