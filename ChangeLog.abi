@@ -44,3 +44,12 @@
 	(abi-list-x32-condition): Likewise.
 	* sysdeps/unix/sysv/linux/x86_64/x32/Makefile (default-abi): New
 	macro.
+	* sysdeps/unix/sysv/linux/powerpc/Makefile (syscall-list-variants):
+	Renamed to ...
+	(abi-list-variants): This.
+	(syscall-list-32bit-*): Renamed to ...
+	(abi-list-32-*): This.
+	(syscall-list-64bit-*): Renamed to ...
+	(abi-list-64-*): This.
+	* sysdeps/unix/sysv/linux/s390/Makefile: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/Makefile: Likewise.
