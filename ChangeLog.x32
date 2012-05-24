@@ -1,5 +1,11 @@
 2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/x86_64/x32/configure: Here.
+	(arch_minimum_kernel): Set to 3.4.0.
+
+2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* Makeconfig ($(common-objpfx)gnu/lib-names.stmp): Depend on
 	scripts/lib-names.awk.
 

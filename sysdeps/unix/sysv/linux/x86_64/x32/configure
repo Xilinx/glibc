@@ -1,9 +1,8 @@
-# This file is generated from configure.in by Autoconf.  DO NOT EDIT!
- # Local configure fragment for sysdeps/unix/sysv/linux/86_64/x32.
+# Local configure fragment for sysdeps/unix/sysv/linux/86_64/x32.
 
 case "$machine" in
 x86_64/x32)
-  test -n "$arch_minimum_kernel" || arch_minimum_kernel=2.6.39
+  test -n "$arch_minimum_kernel" || arch_minimum_kernel=3.4.0
   test -n "$libc_cv_slibdir" ||
   case "$prefix" in
   /usr | /usr/)
