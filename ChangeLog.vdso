@@ -1,0 +1,5 @@
+2012-05-23  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* include/libc-symbols.h (libc_ifunc_vdso1): Removed.
+	(libc_ifunc_vdso): Likewise.
+	(libc_ifunc_vdso_hidden): Likewise.
