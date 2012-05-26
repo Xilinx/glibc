@@ -482,8 +482,15 @@ elf_machine_rela_relative (ElfW(Addr) l_addr, const ElfW(Rela) *reloc,
 			   void *const reloc_addr_arg)
 {
   ElfW(Addr) *const reloc_addr = reloc_addr_arg;
-  assert (ELF32_R_TYPE (reloc->r_info) == R_X86_64_RELATIVE);
-  *reloc_addr = l_addr + reloc->r_addend;
+#if !defined RTLD_BOOTSTRAP
+  if (__builtin_expect (ELF32_R_TYPE (reloc->r_info) == R_X86_64_RELATIVE64, 0))
+    *(Elf64_Addr *) reloc_addr = (Elf64_Addr) l_addr + reloc->r_addend;
+  else
+#endif
+    {
+      assert (ELF32_R_TYPE (reloc->r_info) == R_X86_64_RELATIVE);
+      *reloc_addr = l_addr + reloc->r_addend;
+    }
 }
 
 auto inline void

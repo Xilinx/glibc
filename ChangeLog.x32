@@ -1,5 +1,10 @@
 2012-05-26  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/x86_64/dl-machine.h (elf_machine_rela_relative): Handle
+	R_X86_64_RELATIVE64 if RTLD_BOOTSTRAP isn't defined.
+
+2012-05-26  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Renamed to ...
 	* sysdeps/unix/sysv/linux/x86_64/x32/lseek.S: This.
 	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: New dummy file.
