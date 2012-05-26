@@ -31,7 +31,6 @@ ENTRY(__longjmp)
 	movq (JB_PC*8)(%rdi),%rdx
 #ifdef PTR_DEMANGLE
 	PTR_DEMANGLE (%R8_LP)
-	PTR_DEMANGLE (%R9_LP)
 	PTR_DEMANGLE (%RDX_LP)
 #endif
 	/* We add unwind information for the target here.  */
@@ -51,7 +50,7 @@ ENTRY(__longjmp)
 	movq (JB_R15*8)(%rdi),%r15
 	/* Set return value for setjmp.  */
 	mov %esi, %eax
-	movq %r8,%rsp
+	mov %R8_LP,%RSP_LP
 	movq %r9,%rbp
 	jmpq *%rdx
 END (__longjmp)

@@ -26,7 +26,6 @@ ENTRY (__sigsetjmp)
 	movq %rbx, (JB_RBX*8)(%rdi)
 #ifdef PTR_MANGLE
 	movq %rbp, %rax
-	PTR_MANGLE (%RAX_LP)
 	movq %rax, (JB_RBP*8)(%rdi)
 #else
 	movq %rbp, (JB_RBP*8)(%rdi)
@@ -35,12 +34,12 @@ ENTRY (__sigsetjmp)
 	movq %r13, (JB_R13*8)(%rdi)
 	movq %r14, (JB_R14*8)(%rdi)
 	movq %r15, (JB_R15*8)(%rdi)
-	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return.  */
+	lea 8(%rsp), %RDX_LP	/* Save SP as it will be after we return.  */
 #ifdef PTR_MANGLE
 	PTR_MANGLE (%RDX_LP)
 #endif
 	movq %rdx, (JB_RSP*8)(%rdi)
-	movq (%rsp), %rax	/* Save PC we are returning to now.  */
+	mov (%rsp), %RAX_LP	/* Save PC we are returning to now.  */
 #ifdef PTR_MANGLE
 	PTR_MANGLE (%RAX_LP)
 #endif
