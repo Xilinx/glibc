@@ -1,5 +1,11 @@
 2012-05-26  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: Renamed to ...
+	* sysdeps/unix/sysv/linux/x86_64/x32/lseek.S: This.
+	* sysdeps/unix/sysv/linux/x86_64/x32/llseek.S: New dummy file.
+
+2012-05-26  H.J. Lu  <hongjiu.lu@intel.com>
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/fallocate.c: Removed.
 	* sysdeps/unix/sysv/linux/x86_64/x32/posix_fadvise.c: Likewise.
 	* sysdeps/unix/sysv/linux/x86_64/x32/preadv.c: Likewise.
