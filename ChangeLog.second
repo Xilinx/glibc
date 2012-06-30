@@ -1,0 +1,7 @@
+2012-06-30  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* elf/dl-addr.c (determine_info): Also check STB_SECONDARY.
+	* elf/dl-lookup.c (do_lookup_x): Handle STB_SECONDARY.
+	(_dl_lookup_symbol_x): Likewise.
+	* elf/sprof.c (read_symbols): Likewise.
+	* elf/elf.h (STB_SECONDARY): New.
