@@ -1,5 +1,24 @@
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* elf/Makefile (tests): Add tst-secondary1 tst-secondary2
+	tst-secondary3 if STB_SECONDARY is supported by as/ld.
+	(modules-names): Add tst-secondarymod tst-secondary1mod
+	tst-secondary2mod tst-secondary3mod if STB_SECONDARY is supported
+	by as/ld.
+	(LDFLAGS-tst-secondarymod.so): New macro.
+	($(objpfx)tst-secondary1): New rule.
+	($(objpfx)tst-secondary2): Likewise.
+	($(objpfx)tst-secondary3): Likewise.
+
+	* elf/tst-secondary.h: New file.
+	* elf/tst-secondary1.c: Likewise.
+	* elf/tst-secondary1mod.c: Likewise.
+	* elf/tst-secondary2.c: Likewise.
+	* elf/tst-secondary2mod.c: Likewise.
+	* elf/tst-secondary3.c: Likewise.
+	* elf/tst-secondary3mod.c: Likewise.
+	* elf/tst-secondarymod.c: Likewise.
+
 	* config.h.in: Add HAVE_ASM_SECONDARY_DIRECTIVE.
 	* config.make.in (have-secondary): New macro.
 	* configure.in: Check if STB_SECONDARY is supported by as/ld.

@@ -261,6 +261,11 @@ modules-names += ifuncmod1 ifuncmod3 ifuncmod5 ifuncmod6
 endif
 endif
 
+ifeq (yes,$(have-secondary))
+tests += tst-secondary1 tst-secondary2 tst-secondary3
+modules-names += tst-secondarymod tst-secondary1mod tst-secondary2mod \
+		 tst-secondary3mod
+endif
 
 include ../Rules
 
@@ -1102,6 +1107,17 @@ $(objpfx)ifuncmain5pic: $(addprefix $(objpfx),ifuncmod5.so)
 $(objpfx)ifuncmain5static: $(addprefix $(objpfx),ifuncdep5.o)
 $(objpfx)ifuncmain5staticpic: $(addprefix $(objpfx),ifuncdep5pic.o)
 $(objpfx)ifuncmain5picstatic: $(addprefix $(objpfx),ifuncdep5pic.o)
+
+LDFLAGS-tst-secondarymod.so = -Wl,-z,secondary
+
+$(objpfx)tst-secondary1: $(objpfx)tst-secondarymod.so \
+			 $(objpfx)tst-secondary1mod.so
+
+$(objpfx)tst-secondary2: $(objpfx)tst-secondarymod.so \
+			 $(objpfx)tst-secondary2mod.so
+
+$(objpfx)tst-secondary3: $(objpfx)tst-secondarymod.so \
+			 $(objpfx)tst-secondary3mod.so
 
 $(objpfx)tst-unique1: $(libdl)
 $(objpfx)tst-unique1.out: $(objpfx)tst-unique1mod1.so \
