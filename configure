@@ -739,6 +739,7 @@ enable_versioning
 enable_oldest_abi
 enable_stackguard_randomization
 enable_add_ons
+enable_prepend_sysdeps
 enable_hidden_plt
 enable_bind_now
 enable_static_nss
@@ -1393,6 +1394,8 @@ Optional Features:
   --enable-add-ons[=DIRS...]
                           configure and build add-ons in DIR1,DIR2,... search
                           for add-ons if no parameter given
+  --enable-prepend-sysdeps=@DIRS...@
+                          Prepend DIR1,DIR2,... to sysdep search list
   --disable-hidden-plt    do not hide internal function calls to avoid PLT
   --enable-bind-now       disable lazy relocations in DSOs
   --enable-static-nss     build static NSS modules [default=no]
@@ -3553,6 +3556,20 @@ else
 fi
 
 
+# Check whether --enable-prepend-sysdeps was given.
+if test "${enable_prepend_sysdeps+set}" = set; then :
+  enableval=$enable_prepend_sysdeps;
+else
+  enable_prepend_sysdeps=yes
+fi
+
+
+case "$enable_prepend_sysdeps" in
+''|no) prepend_sysdeps= ;;
+yes|'*') as_fn_error $? "invalid --enable-prepend-sysdeps option" "$LINENO" 5;;
+*) prepend_sysdeps=`echo "$enable_prepend_sysdeps" | sed 's/,/ /g'`;;
+esac
+
 # Check whether --enable-hidden-plt was given.
 if test "${enable_hidden_plt+set}" = set; then :
   enableval=$enable_hidden_plt; hidden=$enableval
@@ -4338,6 +4355,43 @@ done
 # Add the default directories.
 default_sysnames="sysdeps/generic"
 sysnames="$names $default_sysnames"
+
+# Prepend directories.
+if test -n "$prepend_sysdeps"; then
+  set $prepend_sysdeps
+  names=
+  while test $# -gt 0; do
+    name=$1
+    shift
+
+    case " $names " in *" sysdeps/$name "*)
+      # Already in the list.
+      continue
+    esac
+
+    found=no
+    if test -d $srcdir/sysdeps/$name; then
+      names="$names sysdeps/$name"
+      found=yes
+    fi
+    for d in $add_ons_pfx ''; do
+      try="${d}sysdeps/$name"
+      case $d in
+      /*) try_srcdir= ;;
+      *) try_srcdir=$srcdir/ ;;
+      esac
+      if test -d $try_srcdir$try; then
+	names="$names $try"
+	found=yes
+      fi
+    done
+    if test $found = no; then
+      as_fn_error $? "--enable-prepend-sysdeps specifies nonexistent $name" "$LINENO" 5
+    fi
+  done
+  sysnames="$names $sysnames"
+fi
+
 
 # The other names were emitted during the scan.
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $default_sysnames" >&5

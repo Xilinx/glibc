@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2012 Free Software Foundation, Inc.
+/* Copyright (C) 2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -93,8 +93,8 @@
 #endif /* __WORDSIZE == 32 */
 
 #define __ILP32_OFF32_CFLAGS	"-m32"
-#define __ILP32_OFFBIG_CFLAGS	"-m32 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
 #define __ILP32_OFF32_LDFLAGS	"-m32"
-#define __ILP32_OFFBIG_LDFLAGS	"-m32"
+#define __ILP32_OFFBIG_CFLAGS	"-mx32"
+#define __ILP32_OFFBIG_LDFLAGS	"-mx32"
 #define __LP64_OFF64_CFLAGS	"-m64"
 #define __LP64_OFF64_LDFLAGS	"-m64"

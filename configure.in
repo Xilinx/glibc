@@ -153,6 +153,18 @@ AC_ARG_ENABLE([add-ons],
 			      search for add-ons if no parameter given]),
 			     , [enable_add_ons=yes])
 
+dnl Generic infrastructure to prepend sysdeps list.
+AC_ARG_ENABLE([prepend-sysdeps],
+	      AC_HELP_STRING([--enable-prepend-sysdeps=@DIRS...@],
+			     [Prepend DIR1,DIR2,... to sysdep search list]),
+			     , [enable_prepend_sysdeps=yes])
+
+case "$enable_prepend_sysdeps" in
+''|no) prepend_sysdeps= ;;
+yes|'*') AC_MSG_ERROR([invalid --enable-prepend-sysdeps option]);;
+*) prepend_sysdeps=`echo "$enable_prepend_sysdeps" | sed 's/,/ /g'`;;
+esac
+
 AC_ARG_ENABLE([hidden-plt],
 	      AC_HELP_STRING([--disable-hidden-plt],
 			     [do not hide internal function calls to avoid PLT]),
@@ -832,6 +844,43 @@ done
 # Add the default directories.
 default_sysnames="sysdeps/generic"
 sysnames="$names $default_sysnames"
+
+# Prepend directories.
+if test -n "$prepend_sysdeps"; then
+  set $prepend_sysdeps
+  names=
+  while test $# -gt 0; do
+    name=$1
+    shift
+
+    case " $names " in *" sysdeps/$name "*)
+      # Already in the list.
+      continue
+    esac
+
+    found=no
+    if test -d $srcdir/sysdeps/$name; then
+      names="$names sysdeps/$name"
+      found=yes
+    fi
+    for d in $add_ons_pfx ''; do
+      try="${d}sysdeps/$name"
+      case $d in
+      /*) try_srcdir= ;;
+      *) try_srcdir=$srcdir/ ;;
+      esac
+      if test -d $try_srcdir$try; then
+	names="$names $try"
+	found=yes
+      fi
+    done
+    if test $found = no; then
+      AC_MSG_ERROR(--enable-prepend-sysdeps specifies nonexistent $name)
+    fi
+  done
+  sysnames="$names $sysnames"
+fi
+
 AC_SUBST(sysnames)
 # The other names were emitted during the scan.
 AC_MSG_RESULT($default_sysnames)
