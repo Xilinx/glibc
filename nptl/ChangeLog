@@ -6,10 +6,6 @@
 	* sysdeps/unix/sysv/linux/x86_64/sysdep-cancel.h (PSEUDO):
 	Likewise.
 
-2012-07-25  Siddhesh Poyarekar  <siddhesh@redhat.com>
-
-	* tst-pthread-getattr.c: Revert last change.
-
 2012-07-20  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* tst-pthread-getattr.c (MAX_STACK_SIZE): New max cap for stack
