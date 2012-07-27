@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <alloca.h>
 #include <assert.h>
+#include <unistd.h>
 
 /* There is an obscure bug in the kernel due to which RLIMIT_STACK is sometimes
    returned as unlimited when it is not, which may cause this test to fail.
@@ -37,6 +38,8 @@
 #define MAX_STACK_SIZE (8192 * 1024 - 1)
 
 #define _MIN(l,o) ((l) < (o) ? (l) : (o))
+
+static long pagesize;
 
 /* Check if the page in which TARGET lies is accessible.  This will segfault
    if it fails.  */
@@ -83,6 +86,7 @@ check_stack_top (void)
   void *stackaddr, *mem;
   size_t stacksize = 0;
   int ret;
+  uintptr_t pagemask = ~(pagesize - 1);
 
   puts ("Verifying that stack top is accessible");
 
@@ -106,7 +110,7 @@ check_stack_top (void)
      stack is limited by the vma below it and not by the rlimit because the
      stacksize returned in that case is computed from the end of that vma and is
      hence safe.  */
-  stack_limit.rlim_cur = _MIN(stacksize - 4095, MAX_STACK_SIZE);
+  stack_limit.rlim_cur = _MIN(stacksize - pagesize + 1, MAX_STACK_SIZE);
   printf ("Adjusting RLIMIT_STACK to %zu\n", stack_limit.rlim_cur);
   if ((ret = setrlimit (RLIMIT_STACK, &stack_limit)))
     {
@@ -125,14 +129,14 @@ check_stack_top (void)
      stack and test access there.  It is however sufficient to simply check if
      the top page is accessible, so we target our access halfway up the top
      page.  Thanks Chris Metcalf for this idea.  */
-  mem = allocate_and_test (stackaddr + 2048);
+  mem = allocate_and_test (stackaddr + pagesize / 2);
 
   /* Before we celebrate, make sure we actually did test the same page.  */
-  if (((uintptr_t) stackaddr & ~0xfff ) != ((uintptr_t) mem & ~0xfff))
+  if (((uintptr_t) stackaddr & pagemask ) != ((uintptr_t) mem & pagemask))
     {
       printf ("We successfully wrote into the wrong page. ");
-      printf ("Expected %lx, but got %lx\n", (uintptr_t) stackaddr & ~0xfff,
-	      (uintptr_t) mem & ~0xfff);
+      printf ("Expected %lx, but got %lx\n", (uintptr_t) stackaddr & pagemask,
+	      (uintptr_t) mem & pagemask);
 
       return 1;
     }
@@ -147,6 +151,13 @@ check_stack_top (void)
 static int
 do_test (void)
 {
+  pagesize = sysconf (_SC_PAGESIZE);
+
+  if (pagesize < 0)
+    {
+      perror ("could not get page size");
+      return 1;
+    }
   return check_stack_top ();
 }
 
