@@ -25,6 +25,7 @@
 #include <alloca.h>
 #include <assert.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 /* There is an obscure bug in the kernel due to which RLIMIT_STACK is sometimes
    returned as unlimited when it is not, which may cause this test to fail.
@@ -39,18 +40,18 @@
 
 #define _MIN(l,o) ((l) < (o) ? (l) : (o))
 
-static long pagesize;
+static size_t pagesize;
 
 /* Check if the page in which TARGET lies is accessible.  This will segfault
    if it fails.  */
-static void *
+static volatile void *
 allocate_and_test (void *target)
 {
-  void *mem = &mem;
+  volatile void *mem = &mem;
   /* FIXME:  mem >= target for _STACK_GROWSUP.  */
   mem = alloca ((size_t) (mem - target));
 
-  *(int *)mem = 42;
+  *(int *) mem = 42;
   return mem;
 }
 
@@ -83,7 +84,8 @@ static int
 check_stack_top (void)
 {
   struct rlimit stack_limit;
-  void *stackaddr, *mem;
+  void *stackaddr;
+  volatile void *mem;
   size_t stacksize = 0;
   int ret;
   uintptr_t pagemask = ~(pagesize - 1);
@@ -110,7 +112,7 @@ check_stack_top (void)
      stack is limited by the vma below it and not by the rlimit because the
      stacksize returned in that case is computed from the end of that vma and is
      hence safe.  */
-  stack_limit.rlim_cur = _MIN(stacksize - pagesize + 1, MAX_STACK_SIZE);
+  stack_limit.rlim_cur = _MIN (stacksize - pagesize + 1, MAX_STACK_SIZE);
   printf ("Adjusting RLIMIT_STACK to %zu\n", stack_limit.rlim_cur);
   if ((ret = setrlimit (RLIMIT_STACK, &stack_limit)))
     {
@@ -132,11 +134,11 @@ check_stack_top (void)
   mem = allocate_and_test (stackaddr + pagesize / 2);
 
   /* Before we celebrate, make sure we actually did test the same page.  */
-  if (((uintptr_t) stackaddr & pagemask ) != ((uintptr_t) mem & pagemask))
+  if (((uintptr_t) stackaddr & pagemask) != ((uintptr_t) mem & pagemask))
     {
-      printf ("We successfully wrote into the wrong page. ");
-      printf ("Expected %lx, but got %lx\n", (uintptr_t) stackaddr & pagemask,
-	      (uintptr_t) mem & pagemask);
+      printf ("We successfully wrote into the wrong page.\n"
+	      "Expected %#" PRIxPTR ", but got %#" PRIxPTR "\n",
+	      (uintptr_t) stackaddr & pagemask, (uintptr_t) mem & pagemask);
 
       return 1;
     }
@@ -153,9 +155,9 @@ do_test (void)
 {
   pagesize = sysconf (_SC_PAGESIZE);
 
-  if (pagesize < 0)
+  if ((ssize_t) pagesize < 0)
     {
-      perror ("could not get page size");
+      printf ("sysconf (_SC_PAGESIZE): %m\n");
       return 1;
     }
   return check_stack_top ();
