@@ -38,23 +38,17 @@
 
 #define _MIN(l,o) ((l) < (o) ? (l) : (o))
 
-/* Move the stack pointer so that stackaddr is accessible and then check if it
-   really is accessible.  This will segfault if it fails.  */
+/* Check if the page in which TARGET lies is accessible.  This will segfault
+   if it fails.  */
 static void *
-allocate_and_test (void *stackaddr)
+allocate_and_test (void *target)
 {
   void *mem = &mem;
-  /* FIXME:  mem >= stackaddr for _STACK_GROWSUP.  */
-  mem = alloca ((size_t) (mem - stackaddr));
-  assert (mem <= stackaddr);
+  /* FIXME:  mem >= target for _STACK_GROWSUP.  */
+  mem = alloca ((size_t) (mem - target));
 
-  /* We don't access mem here because the compiler may move the stack pointer
-     beyond what we expect, thus making our alloca send the stack pointer
-     beyond stackaddr.  Using only stackaddr without the assert may make the
-     compiler think that this instruction is independent of the above alloca
-     and hence reshuffle to do this dereference before the alloca.  */
-  *(int *)stackaddr = 42;
-  return stackaddr;
+  *(int *)mem = 42;
+  return mem;
 }
 
 static int
@@ -86,7 +80,7 @@ static int
 check_stack_top (void)
 {
   struct rlimit stack_limit;
-  void *stackaddr;
+  void *stackaddr, *mem;
   size_t stacksize = 0;
   int ret;
 
@@ -126,9 +120,22 @@ check_stack_top (void)
   printf ("Adjusted rlimit: stacksize=%zu, stackaddr=%p\n", stacksize,
           stackaddr);
 
-  /* So that the compiler does not optimize out this call.  */
-  stackaddr = allocate_and_test (stackaddr);
-  assert (*(int *)stackaddr == 42);
+  /* A lot of targets tend to write stuff on top of the user stack during
+     context switches, so we cannot possibly safely go up to the very top of
+     stack and test access there.  It is however sufficient to simply check if
+     the top page is accessible, so we target our access halfway up the top
+     page.  Thanks Chris Metcalf for this idea.  */
+  mem = allocate_and_test (stackaddr + 2048);
+
+  /* Before we celebrate, make sure we actually did test the same page.  */
+  if (((uintptr_t) stackaddr & ~0xfff ) != ((uintptr_t) mem & ~0xfff))
+    {
+      printf ("We successfully wrote into the wrong page. ");
+      printf ("Expected %lx, but got %lx\n", (uintptr_t) stackaddr & ~0xfff,
+	      (uintptr_t) mem & ~0xfff);
+
+      return 1;
+    }
 
   puts ("Stack top tests done");
 
