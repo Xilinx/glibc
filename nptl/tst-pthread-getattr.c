@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <sys/param.h>
 #include <pthread.h>
 #include <alloca.h>
 #include <assert.h>
@@ -38,20 +39,18 @@
    <http://sourceware.org/ml/libc-alpha/2012-06/msg00713.html>.  */
 #define MAX_STACK_SIZE (8192 * 1024 - 1)
 
-#define _MIN(l,o) ((l) < (o) ? (l) : (o))
-
 static size_t pagesize;
 
 /* Check if the page in which TARGET lies is accessible.  This will segfault
    if it fails.  */
-static volatile void *
-allocate_and_test (void *target)
+static volatile char *
+allocate_and_test (char *target)
 {
-  volatile void *mem = &mem;
+  volatile char *mem = (char *) &mem;
   /* FIXME:  mem >= target for _STACK_GROWSUP.  */
   mem = alloca ((size_t) (mem - target));
 
-  *(int *) mem = 42;
+  *mem = 42;
   return mem;
 }
 
@@ -99,7 +98,7 @@ check_stack_top (void)
       return 1;
     }
 
-  printf ("current rlimit_stack is %zu\n", stack_limit.rlim_cur);
+  printf ("current rlimit_stack is %zu\n", (size_t) stack_limit.rlim_cur);
 
   if (get_self_pthread_attr ("check_stack_top", &stackaddr, &stacksize))
     return 1;
@@ -112,7 +111,7 @@ check_stack_top (void)
      stack is limited by the vma below it and not by the rlimit because the
      stacksize returned in that case is computed from the end of that vma and is
      hence safe.  */
-  stack_limit.rlim_cur = _MIN (stacksize - pagesize + 1, MAX_STACK_SIZE);
+  stack_limit.rlim_cur = MIN (stacksize - pagesize + 1, MAX_STACK_SIZE);
   printf ("Adjusting RLIMIT_STACK to %zu\n", stack_limit.rlim_cur);
   if ((ret = setrlimit (RLIMIT_STACK, &stack_limit)))
     {
@@ -154,12 +153,6 @@ static int
 do_test (void)
 {
   pagesize = sysconf (_SC_PAGESIZE);
-
-  if ((ssize_t) pagesize < 0)
-    {
-      printf ("sysconf (_SC_PAGESIZE): %m\n");
-      return 1;
-    }
   return check_stack_top ();
 }
 
