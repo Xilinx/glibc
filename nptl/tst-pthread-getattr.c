@@ -112,7 +112,7 @@ check_stack_top (void)
      stacksize returned in that case is computed from the end of that vma and is
      hence safe.  */
   stack_limit.rlim_cur = MIN (stacksize - pagesize + 1, MAX_STACK_SIZE);
-  printf ("Adjusting RLIMIT_STACK to %zu\n", stack_limit.rlim_cur);
+  printf ("Adjusting RLIMIT_STACK to %zu\n", (size_t) stack_limit.rlim_cur);
   if ((ret = setrlimit (RLIMIT_STACK, &stack_limit)))
     {
       perror ("setrlimit failed");
