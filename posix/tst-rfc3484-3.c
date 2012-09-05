@@ -10,6 +10,13 @@
 #define __gethostbyaddr_r gethostbyaddr_r
 #define __gethostbyname2_r gethostbyname2_r
 
+#define __check_pf		__check_pf_redirect
+#define __free_in6ai		__free_in6ai_redirect
+#define __check_native		__check_native_redirect
+#define __idna_to_ascii_lz	__idna_to_ascii_lz_redirect
+#define __idna_to_unicode_lzlz	__idna_to_unicode_lzlz_redirect
+#define _res_hconf_init		_res_hconf_init_redirect
+
 void
 attribute_hidden
 __check_pf (bool *p1, bool *p2, struct in6addrinfo **in6ai, size_t *in6ailen)
@@ -55,6 +62,13 @@ _res_hconf_init (void)
 
 #undef	USE_NSCD
 #include "../sysdeps/posix/getaddrinfo.c"
+
+#undef __check_pf
+#undef __free_in6ai
+#undef __check_native
+#undef __idna_to_ascii_lz
+#undef __idna_to_unicode_lzlz
+#undef _res_hconf_init
 
 service_user *__nss_hosts_database attribute_hidden;
 

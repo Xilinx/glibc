@@ -86,6 +86,28 @@
 	(LDFLAGS-tst-lfschk6): Renamed to ...
 	(LDLIBS-tst-lfschk6): This.
 
+	* posix/tst-rfc3484.c (__check_pf): Redefined to avoid
+	conflict.
+	(__free_in6ai): Likewise.
+	(__check_native): Likewise.
+	(__idna_to_ascii_lz): Likewise.
+	(__idna_to_unicode_lzlz): Likewise.
+	(_res_hconf_init): Likewise.
+	* posix/tst-rfc3484-2.c (__check_pf): Likewise.
+	conflict.
+	(__free_in6ai): Likewise.
+	(__check_native): Likewise.
+	(__idna_to_ascii_lz): Likewise.
+	(__idna_to_unicode_lzlz): Likewise.
+	(_res_hconf_init): Likewise.
+	* posix/tst-rfc3484-3.c (__check_pf): Likewise.
+	conflict.
+	(__free_in6ai): Likewise.
+	(__check_native): Likewise.
+	(__idna_to_ascii_lz): Likewise.
+	(__idna_to_unicode_lzlz): Likewise.
+	(_res_hconf_init): Likewise.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
