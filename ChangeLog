@@ -64,6 +64,9 @@
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #13679]
+	* Makefile ($(inst_includedir)/gnu/stubs.h): Remove dependency
+	on $(common-objpfx)soversions.mk.
+
 	* Makeconfig (+link): Defined as $(+link-static) if
 	$(build-shared) isn't yes.
 	(link-tests): Defined as $(+link-static-tests) if $(build-shared)
