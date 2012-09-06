@@ -73,6 +73,9 @@
 	isn't yes.
 	(static-gnulib): Add -lgcc_eh if $(build-shared) isn't yes.
 
+	* dlfcn/dlerror.c (check_free): Free errstring if _dl_addr
+	returns 0.
+
 	* debug/Makefile (LDFLAGS-tst-chk4): Renamed to ...
 	(LDLIBS-tst-chk4): This.
 	(LDFLAGS-tst-chk5): Renamed to ...
