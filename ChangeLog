@@ -159,6 +159,11 @@
 	* resolv/Makefile (tests): Add tst-leaks and depend on
 	$(objpfx)mtrace-tst-leaks only if $(build-shared) is yes.
 
+	* nss/Makefile (tests): Add tst-nss-test1 only if
+	$(build-shared) is yes.
+	($(objpfx)/libnss_test1.so$(libnss_test1.so-version)): Define
+	if libnss_test1.so-version is defined.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]

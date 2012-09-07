@@ -38,7 +38,10 @@ install-bin             := getent makedb
 makedb-modules = xmalloc hash-string
 extra-objs		+= $(makedb-modules:=.o)
 
-tests			= test-netdb tst-nss-test1
+tests			= test-netdb
+ifeq (yes,$(build-shared))
+tests			+= tst-nss-test1
+endif
 xtests			= bug-erange
 
 include ../Makeconfig
@@ -111,6 +114,8 @@ CFLAGS-nss_test1.c = -DNOT_IN_libc=1
 $(objpfx)/libnss_test1.so: $(objpfx)nss_test1.os $(common-objpfx)libc.so \
 			   $(common-objpfx)libc_nonshared.a
 	$(build-module)
+ifdef libnss_test1.so-version
 $(objpfx)/libnss_test1.so$(libnss_test1.so-version): $(objpfx)/libnss_test1.so
 	$(make-link)
+endif
 $(objpfx)tst-nss-test1.out: $(objpfx)/libnss_test1.so$(libnss_test1.so-version)
