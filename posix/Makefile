@@ -68,14 +68,14 @@ tests		:= tstgetopt testfnm runtests runptests	     \
 		   tst-getlogin tst-mmap tst-getaddrinfo tst-truncate \
 		   tst-truncate64 tst-fork tst-fnmatch tst-regexloc tst-dir \
 		   tst-chmod bug-regex1 bug-regex2 bug-regex3 bug-regex4 \
-		   tst-gnuglob tst-regex bug-regex5 bug-regex6 bug-regex7 \
+		   tst-gnuglob bug-regex6 bug-regex7 \
 		   bug-regex8 bug-regex9 bug-regex10 bug-regex11 bug-regex12 \
 		   bug-regex13 bug-regex14 bug-regex15 bug-regex16 \
 		   bug-regex17 bug-regex18 bug-regex19 bug-regex20 \
 		   bug-regex21 bug-regex22 bug-regex23 bug-regex24 \
 		   bug-regex25 bug-regex26 bug-regex27 bug-regex28 \
 		   bug-regex29 bug-regex30 bug-regex31 bug-regex32 \
-		   bug-regex33 tst-nice tst-nanosleep tst-regex2 \
+		   tst-nice tst-nanosleep tst-regex2 \
 		   transbug tst-rxspencer tst-pcre tst-boost \
 		   bug-ga1 tst-vfork1 tst-vfork2 tst-vfork3 tst-waitid \
 		   tst-getaddrinfo2 bug-glob1 bug-glob2 bug-glob3 tst-sysconf \
@@ -90,7 +90,8 @@ tests		:= tstgetopt testfnm runtests runptests	     \
 xtests		:= bug-ga2
 ifeq (yes,$(build-shared))
 test-srcs	:= globtest
-tests           += wordexp-test tst-exec tst-spawn
+tests           += wordexp-test tst-exec tst-spawn tst-regex bug-regex5 \
+		   bug-regex33
 endif
 others		:= getconf
 install-bin	:= getconf

@@ -151,6 +151,9 @@
 	(tests): Add tst-strptime only if $(build-shared) is yes.  Add
 	$(tests-static).
 
+	* posix/Makefile (tests): Add tst-regex bug-regex5 bug-regex33
+	only if $(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
