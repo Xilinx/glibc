@@ -238,7 +238,7 @@ tests = tst-typesizes \
 	tst-cancel21 tst-cancel22 tst-cancel23 tst-cancel24 tst-cancel25 \
 	tst-cancel-self tst-cancel-self-cancelstate \
 	tst-cancel-self-canceltype tst-cancel-self-testcancel \
-	tst-cleanup0 tst-cleanup1 tst-cleanup2 tst-cleanup3 tst-cleanup4 \
+	tst-cleanup0 tst-cleanup1 tst-cleanup2 tst-cleanup3 \
 	tst-flock1 tst-flock2 \
 	tst-signal1 tst-signal2 tst-signal3 tst-signal4 tst-signal5 \
 	tst-signal6 tst-signal7 \
@@ -246,8 +246,6 @@ tests = tst-typesizes \
 	tst-exit1 tst-exit2 tst-exit3 \
 	tst-stdio1 tst-stdio2 \
 	tst-stack1 tst-stack2 tst-stack3 tst-pthread-getattr \
-	tst-unload \
-	tst-dlsym1 \
 	tst-sysconf \
 	tst-locale1 tst-locale2 \
 	tst-umask1 \
@@ -261,6 +259,9 @@ tests = tst-typesizes \
 	tst-vfork1 tst-vfork2 tst-vfork1x tst-vfork2x \
 	tst-getpid1 tst-getpid2 tst-getpid3 \
 	tst-initializers1 $(patsubst %,tst-initializers1-%,c89 gnu89 c99 gnu99)
+ifeq (yes,$(build-shared))
+tests += tst-cleanup4 tst-dlsym1 tst-unload
+endif
 xtests = tst-setuid1 tst-setuid1-static tst-mutexpp1 tst-mutexpp6 tst-mutexpp10
 
 # Files which must not be linked with libpthread.
@@ -282,12 +283,12 @@ tests += tst-cancelx2 tst-cancelx3 tst-cancelx4 tst-cancelx5 \
 	 tst-cancelx6 tst-cancelx7 tst-cancelx8 tst-cancelx9 tst-cancelx10 \
 	 tst-cancelx11 tst-cancelx12 tst-cancelx13 tst-cancelx14 tst-cancelx15 \
 	 tst-cancelx16 tst-cancelx17 tst-cancelx18 tst-cancelx20 tst-cancelx21 \
-	 tst-cleanupx0 tst-cleanupx1 tst-cleanupx2 tst-cleanupx3 tst-cleanupx4 \
+	 tst-cleanupx0 tst-cleanupx1 tst-cleanupx2 tst-cleanupx3 \
 	 tst-oncex3 tst-oncex4
 endif
 ifeq ($(build-shared),yes)
 tests += tst-atfork2 tst-tls3 tst-tls4 tst-tls5 tst-_res1 tst-fini1 \
-	 tst-stackguard1
+	 tst-stackguard1 tst-cleanupx4
 tests-nolibpthread += tst-fini1
 ifeq ($(have-z-execstack),yes)
 tests += tst-execstack

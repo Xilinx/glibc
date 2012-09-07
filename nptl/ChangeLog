@@ -1,6 +1,9 @@
 2012-09-07  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #13679]
+	* Makefile (tests): Add tst-cleanup4, tst-dlsym1, tst-unload
+	and tst-cleanupx4 only if $(build-shared) is yes.
+
 	* debug/Makefile (LDFLAGS-tst-cancel24): Renamed to ...
 	(LDLIBS-tst-cancel24): This.
 
