@@ -114,6 +114,11 @@
 	* scripts/check-local-headers.sh: Replace */*.{o,os,oS}.d with
 	*/*.o*.d.
 
+	* elf/Makefile (tests): Add tst-tls9, $(objpfx)noload-mem
+	and $(objpfx)tst-unused-dep.out only if $(build-shared) is yes.
+	* sysdeps/x86_64/Makefile (tests): Add tst-quad1, tst-quad2,
+	$(objpfx)tst-xmmymm.out only if $(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]

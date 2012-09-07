@@ -112,7 +112,10 @@ $(inst_auditdir)/sotruss-lib.so: $(objpfx)sotruss-lib.so $(+force)
 	$(do-install-program)
 endif
 
-tests = tst-tls1 tst-tls2 tst-tls9 tst-leaks1
+tests = tst-tls1 tst-tls2 tst-leaks1
+ifeq (yes,$(build-shared))
+tests += tst-tls9
+endif
 ifeq (yes,$(have-initfini-array))
 tests += tst-array1 tst-array2 tst-array3 tst-array4 tst-array5
 endif
@@ -158,7 +161,10 @@ endif
 endif
 endif
 ifeq ($(cross-compiling),no)
-tests: $(objpfx)tst-leaks1-mem $(objpfx)noload-mem
+tests: $(objpfx)tst-leaks1-mem
+ifeq (yes,$(build-shared))
+tests: $(objpfx)noload-mem
+endif
 endif
 tlsmod17a-suffixes = 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
 tlsmod18a-suffixes = 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
@@ -1161,7 +1167,7 @@ $(objpfx)tst-relsort1mod2.so: $(libm)
 $(objpfx)tst-relsort1.out: $(objpfx)tst-relsort1mod1.so \
 			   $(objpfx)tst-relsort1mod2.so
 
-ifeq ($(cross-compiling),no)
+ifeq ($(cross-compiling)$(build-shared),noyes)
 tests: $(objpfx)tst-unused-dep.out
 endif
 
