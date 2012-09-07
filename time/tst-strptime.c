@@ -45,8 +45,10 @@ static const struct
     6, 0, 0, 1 },
   { "en_US.ISO-8859-1", "2000-01-01 08:12:21 PM", "%Y-%m-%d %I:%M:%S %p",
     6, 0, 0, 1 },
+#ifndef STATIC_TEST
   { "ja_JP.EUC-JP", "2001 20 \xb7\xee", "%Y %U %a", 1, 140, 4, 21 },
   { "ja_JP.EUC-JP", "2001 21 \xb7\xee", "%Y %W %a", 1, 140, 4, 21 },
+#endif
 };
 
 

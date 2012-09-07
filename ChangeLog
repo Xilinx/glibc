@@ -147,6 +147,10 @@
 	* wcsmbs/Makefile (tests): Add tst-btowc tst-mbrtowc2 only if
 	$(build-shared) is yes.
 
+	* time/Makefile (tests-static): New.  Test tst-strptime-static.
+	(tests): Add tst-strptime only if $(build-shared) is yes.  Add
+	$(tests-static).
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
