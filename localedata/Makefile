@@ -64,22 +64,25 @@ ifeq (no,$(cross-compiling))
 locale_test_suite := tst_iswalnum tst_iswalpha tst_iswcntrl            \
 		     tst_iswctype tst_iswdigit tst_iswgraph            \
 		     tst_iswlower tst_iswprint tst_iswpunct            \
-		     tst_iswspace tst_iswupper tst_iswxdigit tst_mblen \
-		     tst_mbrlen tst_mbrtowc tst_mbsrtowcs tst_mbstowcs \
-		     tst_mbtowc tst_strcoll tst_strfmon tst_strxfrm    \
-		     tst_swscanf tst_towctrans tst_towlower            \
-		     tst_towupper tst_wcrtomb tst_wcscat tst_wcschr    \
-		     tst_wcscmp tst_wcscoll tst_wcscpy tst_wcscspn     \
+		     tst_iswspace tst_iswupper tst_iswxdigit	       \
+		     tst_strfmon tst_strxfrm			       \
+		     tst_towctrans tst_towlower		               \
+		     tst_towupper tst_wcscat tst_wcschr		       \
+		     tst_wcscmp tst_wcscpy tst_wcscspn		       \
 		     tst_wcslen tst_wcsncat tst_wcsncmp tst_wcsncpy    \
-		     tst_wcspbrk tst_wcsrtombs tst_wcsspn tst_wcsstr   \
-		     tst_wcstod tst_wcstok tst_wcstombs tst_wcswidth   \
-		     tst_wcsxfrm tst_wctob tst_wctomb tst_wctrans      \
+		     tst_wcspbrk tst_wcsspn tst_wcsstr		       \
+		     tst_wcstod tst_wcstok tst_wcswidth		       \
+		     tst_wcsxfrm tst_wctrans			       \
 		     tst_wctype tst_wcwidth
 
-tests = $(locale_test_suite) tst-digits tst-setlocale bug-iconv-trans \
+tests = $(locale_test_suite) tst-digits tst-setlocale \
 	tst-leaks tst-mbswcs6 tst-xlocale1 tst-xlocale2 bug-usesetlocale \
-	tst-strfmon1 tst-sscanf bug-setlocale1 tst-setlocale2
+	tst-strfmon1 tst-sscanf tst-setlocale2
 ifeq (yes,$(build-shared))
+tests += tst_mblen tst_mbrlen tst_mbrtowc tst_mbsrtowcs tst_mbstowcs \
+	 tst_mbtowc tst_strcoll tst_swscanf tst_wcrtomb tst_wcscoll \
+	 tst_wcsrtombs tst_wcstombs tst_wctob tst_wctomb bug-iconv-trans \
+	 bug-setlocale1
 ifneq (no,$(PERL))
 tests: $(objpfx)mtrace-tst-leaks
 endif
@@ -139,10 +142,12 @@ $(addprefix $(objpfx),$(CTYPE_FILES)): %: \
 $(addsuffix .out,$(addprefix $(objpfx),$(tests))): %: \
   $(addprefix $(objpfx),$(CTYPE_FILES))
 
+ifeq (yes,$(build-shared))
 tests: $(objpfx)sort-test.out $(objpfx)tst-fmon.out $(objpfx)tst-locale.out \
        $(objpfx)tst-rpmatch.out $(objpfx)tst-trans.out \
        $(objpfx)tst-mbswcs.out $(objpfx)tst-ctype.out $(objpfx)tst-wctype.out \
        $(objpfx)tst-langinfo.out $(objpfx)tst-numeric.out
+endif
 
 $(objpfx)sort-test.out: sort-test.sh $(objpfx)collate-test $(objpfx)xfrm-test \
 		       $(test-input-data) $(addprefix $(objpfx),$(CTYPE_FILES))

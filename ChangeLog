@@ -123,6 +123,15 @@
 	is yes,  otherwise set to idn-stub-static.
 	* libidn/idn-stub-static.c: New file.
 
+	* localedata/Makefile (locale_test_suite): Remove tst_mblen
+	tst_mbrlen tst_mbrtowc tst_mbsrtowcs tst_mbstowcs tst_mbtowc
+	tst_strcoll tst_swscanf tst_wcrtomb tst_wcscoll tst_wcsrtombs
+	tst_wcstombs tst_wctob tst_wctomb bug-iconv-trans.
+	(tests): Add tst_mblen tst_mbrlen tst_mbrtowc tst_mbsrtowcs
+	tst_mbstowcs tst_mbtowc tst_strcoll tst_swscanf tst_wcrtomb
+	tst_wcscoll tst_wcsrtombs tst_wcstombs tst_wctob tst_wctomb
+	bug-iconv-trans only if $(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
