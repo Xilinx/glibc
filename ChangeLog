@@ -119,6 +119,10 @@
 	* sysdeps/x86_64/Makefile (tests): Add tst-quad1, tst-quad2,
 	$(objpfx)tst-xmmymm.out only if $(build-shared) is yes.
 
+	* libidn/Makefile (routines): Set to idn-stub if $(build-shared)
+	is yes,  otherwise set to idn-stub-static.
+	* libidn/idn-stub-static.c: New file.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]

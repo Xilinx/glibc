@@ -19,7 +19,11 @@
 
 subdir	:= libidn
 
+ifeq (yes,$(build-shared))
 routines = idn-stub
+else
+routines = idn-stub-static
+endif
 
 extra-libs		= libcidn
 extra-libs-others	= $(extra-libs)
