@@ -156,6 +156,9 @@
 
 	* sunrpc/Makefile (tests): Run only if $(build-shared) is yes.
 
+	* resolv/Makefile (tests): Add tst-leaks and depend on
+	$(objpfx)mtrace-tst-leaks only if $(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]

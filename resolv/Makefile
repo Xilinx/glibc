@@ -29,7 +29,10 @@ headers	:= resolv.h \
 routines := herror inet_addr inet_ntop inet_pton nsap_addr res_init \
 	    res_hconf res_libc res-state
 
-tests = tst-aton tst-leaks tst-inet_ntop
+tests = tst-aton tst-inet_ntop
+ifeq (yes,$(build-shared))
+tests += tst-leaks
+endif
 xtests = tst-leaks2
 
 generate := mtrace-tst-leaks tst-leaks.mtrace tst-leaks2.mtrace
@@ -108,7 +111,7 @@ $(objpfx)tst-leaks: $(objpfx)libresolv.so
 tst-leaks-ENV = MALLOC_TRACE=$(objpfx)tst-leaks.mtrace
 $(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
 	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
-ifeq (no,$(cross-compiling))
+ifeq (yesno,$(build-shared)$(cross-compiling))
 ifneq (no,$(PERL))
 tests: $(objpfx)mtrace-tst-leaks
 endif
