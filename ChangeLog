@@ -111,6 +111,9 @@
 	(__idna_to_unicode_lzlz): Likewise.
 	(_res_hconf_init): Likewise.
 
+	* scripts/check-local-headers.sh: Replace */*.{o,os,oS}.d with
+	*/*.o*.d.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
