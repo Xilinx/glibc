@@ -26,7 +26,9 @@ others		= gencat
 install-bin	= gencat
 extra-objs	= $(gencat-modules:=.o)
 
+ifeq ($(build-shared),yes)
 tests = tst-catgets
+endif
 test-srcs = test-gencat
 
 gencat-modules	= xmalloc
@@ -50,7 +52,7 @@ generated-dirs = de
 
 tst-catgets-ENV = NLSPATH="$(objpfx)%l/%N.cat" LANG=de
 
-ifneq ($(cross-compiling),yes)
+ifeq ($(build-shared)$(cross-compiling),yesno)
 tests: $(objpfx)de/libc.cat $(objpfx)test1.cat $(objpfx)test2.cat \
        $(objpfx)test-gencat.out
 # This test just checks whether the program produces any error or not.

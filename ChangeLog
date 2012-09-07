@@ -132,6 +132,9 @@
 	tst_wcscoll tst_wcsrtombs tst_wcstombs tst_wctob tst_wctomb
 	bug-iconv-trans only if $(build-shared) is yes.
 
+	* catgets/Makefile (tests): Enabled only if $(build-shared) is
+	yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
