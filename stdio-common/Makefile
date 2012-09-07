@@ -50,7 +50,7 @@ tests := tstscanf test_rdwr test-popen tstgetln test-fseek \
 	 tfformat tiformat tllformat tstdiomisc tst-printfsz tst-wc-printf \
 	 scanf1 scanf2 scanf3 scanf4 scanf5 scanf7 scanf8 scanf9 scanf10 \
 	 scanf11 scanf12 tst-tmpnam tst-cookie tst-obprintf tst-sscanf \
-	 tst-swprintf tst-fseek tst-fmemopen test-vfprintf tst-gets \
+	 tst-fseek tst-fmemopen test-vfprintf tst-gets \
 	 tst-perror tst-sprintf tst-rndseek tst-fdopen tst-fphex bug14 \
 	 tst-popen tst-unlockedio tst-fmemopen2 tst-put-error tst-fgets \
 	 tst-fwrite bug16 bug17 tst-swscanf tst-sprintf2 bug18 bug18a \
@@ -58,6 +58,9 @@ tests := tstscanf test_rdwr test-popen tstgetln test-fseek \
 	 scanf16 scanf17 tst-setvbuf1 tst-grouping bug23 bug24 \
 	 bug-vfprintf-nargs tst-long-dbl-fphex tst-fphex-wide tst-sprintf3 \
 	 bug25
+ifeq (yes,$(build-shared))
+tests += tst-swprintf
+endif
 
 test-srcs = tst-unbputc tst-printf
 
