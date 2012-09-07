@@ -57,7 +57,9 @@ include ../Rules
 $(objpfx)libthread_db.so: $(common-objpfx)libc.so \
 			  $(common-objpfx)libc_nonshared.a
 
+ifeq (yes,$(build-shared))
 tests: $(objpfx)db-symbols.out
+endif
 $(objpfx)db-symbols.out: $(objpfx)db-symbols.v.i \
 			 $(common-objpfx)nptl/libpthread.so
 	readelf -W -s $(filter %.so,$^) | $(AWK) -f $< > $@

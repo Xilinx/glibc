@@ -1,3 +1,9 @@
+2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #13679]
+	* Makefile (tests): Depend on $(objpfx)db-symbols.out only if
+	$(build-shared) is yes.
+
 2012-03-07  Ulrich Drepper  <drepper@gmail.com>
 
 	* Makefile (distribute): Remove variable.
