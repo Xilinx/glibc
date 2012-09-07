@@ -1,3 +1,9 @@
+2012-09-07  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #13679]
+	* debug/Makefile (LDFLAGS-tst-cancel24): Renamed to ...
+	(LDLIBS-tst-cancel24): This.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14545]

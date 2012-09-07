@@ -73,6 +73,19 @@
 	isn't yes.
 	(static-gnulib): Add -lgcc_eh if $(build-shared) isn't yes.
 
+	* debug/Makefile (LDFLAGS-tst-chk4): Renamed to ...
+	(LDLIBS-tst-chk4): This.
+	(LDFLAGS-tst-chk5): Renamed to ...
+	(LDLIBS-tst-chk5): This.
+	(LDFLAGS-tst-chk6): Renamed to ...
+	(LDLIBS-tst-chk6): This.
+	(LDFLAGS-tst-lfschk4): Renamed to ...
+	(LDLIBS-tst-lfschk4): This.
+	(LDFLAGS-tst-lfschk5): Renamed to ...
+	(LDLIBS-tst-lfschk5): This.
+	(LDFLAGS-tst-lfschk6): Renamed to ...
+	(LDLIBS-tst-lfschk6): This.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
