@@ -144,6 +144,9 @@
 	* libio/Makefile (tests): Add tst-fopenloc and
 	$(objpfx)tst-fopenloc.check only if $(build-shared) is yes.
 
+	* wcsmbs/Makefile (tests): Add tst-btowc tst-mbrtowc2 only if
+	$(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]

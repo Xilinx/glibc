@@ -42,9 +42,12 @@ routines := wcscat wcschr wcscmp wcscpy wcscspn wcsdup wcslen wcsncat \
 	    mbrtoc16 c16rtomb
 
 strop-tests :=  wcscmp wmemcmp wcslen wcschr wcsrchr wcscpy
-tests := tst-wcstof wcsmbs-tst1 tst-wcsnlen tst-btowc tst-mbrtowc \
-	 tst-wcrtomb tst-wcpncpy tst-mbsrtowcs tst-wchar-h tst-mbrtowc2 \
+tests := tst-wcstof wcsmbs-tst1 tst-wcsnlen tst-mbrtowc \
+	 tst-wcrtomb tst-wcpncpy tst-mbsrtowcs tst-wchar-h \
 	 tst-c16c32-1 wcsatcliff $(addprefix test-,$(strop-tests))
+ifeq (yes,$(build-shared))
+tests += tst-btowc tst-mbrtowc2
+endif
 
 include ../Rules
 
