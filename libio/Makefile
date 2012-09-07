@@ -47,7 +47,7 @@ routines	:=							      \
 	libc_fatal fmemopen
 
 tests = tst_swprintf tst_wprintf tst_swscanf tst_wscanf tst_getwc tst_putwc   \
-	tst_wprintf2 tst-widetext test-fmemopen tst-ext tst-ext2 tst-fopenloc \
+	tst_wprintf2 tst-widetext test-fmemopen tst-ext tst-ext2 \
 	tst-fgetws tst-ungetwc1 tst-ungetwc2 tst-swscanf tst-sscanf	      \
 	tst-mmap-setvbuf bug-ungetwc1 bug-ungetwc2 tst-atime tst-eof          \
 	tst-freopen bug-rewind bug-rewind2 bug-ungetc bug-fseek \
@@ -58,6 +58,9 @@ tests = tst_swprintf tst_wprintf tst_swscanf tst_wscanf tst_getwc tst_putwc   \
 	tst-wmemstream1 tst-wmemstream2 \
 	bug-memstream1 bug-wmemstream1 \
 	tst-setvbuf1 tst-popen1 tst-fgetwc bug-wsetpos bug-fclose1
+ifeq (yes,$(build-shared))
+tests += tst-fopenloc
+endif
 test-srcs = test-freopen
 
 all: # Make this the default target; it will be defined in Rules.
@@ -170,7 +173,10 @@ shared-only-routines = oldiofopen oldiofdopen oldiofclose oldfileops	\
 include ../Rules
 
 ifeq (no,$(cross-compiling))
-tests: $(objpfx)test-freopen.out $(objpfx)tst-fopenloc.check
+tests: $(objpfx)test-freopen.out
+ifeq (yes,$(build-shared))
+tests:$(objpfx)tst-fopenloc.check
+endif
 endif
 
 $(objpfx)test-freopen.out: test-freopen.sh $(objpfx)test-freopen

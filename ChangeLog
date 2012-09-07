@@ -141,6 +141,9 @@
 	* iconv/gconv_db.c (free_derivation): Check if deriv->steps
 	is NULL.
 
+	* libio/Makefile (tests): Add tst-fopenloc and
+	$(objpfx)tst-fopenloc.check only if $(build-shared) is yes.
+
 2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14544]
