@@ -541,7 +541,7 @@ $(addprefix $(objpfx),$(tests-static) $(xtests-static)): $(objpfx)libpthread.a
 
 $(objpfx)tst-atfork2.out: $(objpfx)tst-atfork2mod.so
 else
-$(addprefix $(objpfx),$(tests) $(test-srcs)): $(objpfx)libpthread.a
+$(addprefix $(objpfx),$(tests) $(test-srcs) $(xtests)): $(objpfx)libpthread.a
 endif
 
 ifeq ($(build-shared),yes)

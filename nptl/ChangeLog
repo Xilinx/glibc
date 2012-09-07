@@ -3,6 +3,8 @@
 	[BZ #13679]
 	* Makefile (tests): Add tst-cleanup4, tst-dlsym1, tst-unload
 	and tst-cleanupx4 only if $(build-shared) is yes.
+	($(xtests)): Depend on libpthread.a if $(build-shared) isn't
+	yes.
 
 	* debug/Makefile (LDFLAGS-tst-cancel24): Renamed to ...
 	(LDLIBS-tst-cancel24): This.
