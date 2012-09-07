@@ -96,7 +96,9 @@ others += rpcgen
 
 all: # Make this the default target; it will be defined in Rules.
 
+ifeq (yes,$(build-shared))
 tests = tst-xdrmem tst-xdrmem2
+endif
 xtests := tst-getmyaddr
 
 ifeq ($(have-thread-library),yes)
