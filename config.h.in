@@ -24,6 +24,10 @@
 /* Define if weak symbols are available via the `.weakext' directive.  */
 #undef	HAVE_ASM_WEAKEXT_DIRECTIVE
 
+/* Define if secondary symbols are available via the `.secondary'
+   directive.  */
+#undef	HAVE_ASM_SECONDARY_DIRECTIVE
+
 /* Define if CFI directives are available.  */
 #undef	HAVE_ASM_CFI_DIRECTIVES
 

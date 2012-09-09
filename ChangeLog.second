@@ -1,3 +1,12 @@
+2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config.h.in: Add HAVE_ASM_SECONDARY_DIRECTIVE.
+	* config.make.in (have-secondary): New macro.
+	* configure.in: Check if STB_SECONDARY is supported by as/ld.
+	Define HAVE_ASM_SECONDARY_DIRECTIVE and set have-secondary to yes
+	if the .secondary assembly directive works.
+	* configure: Regenerated.
+
 2012-06-30  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* elf/dl-addr.c (determine_info): Also check STB_SECONDARY.
