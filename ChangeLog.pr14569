@@ -1,0 +1,6 @@
+2012-09-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14569]
+	* Makeconfig (+link-static-before-libc): Also filter out
+	$(common-objpfx)nptl/libpthread%.  Remove $(link-libc-static).
+	(link-libc-static-tests): Place libpthread.a before libc.a.
