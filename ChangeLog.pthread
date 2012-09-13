@@ -1,0 +1,14 @@
+2012-09-12  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* csu/libc-tls.c (__pthread_initialize_minimal): Mark it
+	secondary if HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	* scripts/abilist.awk: Support secondary symbols.
+	* sysdeps/generic/localplt.data: Allow pthread functions.
+	* sysdeps/unix/sysv/linux/i386/nptl/localplt.data: Likewise.
+	* sysdeps/unix/sysv/linux/fatal-prepare.h (FATAL_PREPARE): Always
+	call pthread_setcancelstate if HAVE_ASM_SECONDARY_DIRECTIVE is
+	defined.
+	* sysdeps/unix/sysv/linux/i386/nptl/libc.abilist: Add secondary
+	pthread function symbols.
+	* sysdeps/unix/sysv/linux/x86_64/64/nptl/libc.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/nptl/libc.abilist: Likewise.

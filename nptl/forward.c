@@ -31,6 +31,7 @@ struct pthread_functions __libc_pthread_functions attribute_hidden;
 int __libc_pthread_functions_init attribute_hidden;
 
 
+#ifndef HAVE_ASM_SECONDARY_DIRECTIVE
 #define FORWARD2(name, rettype, decl, params, defaction) \
 rettype									      \
 name decl								      \
@@ -210,3 +211,4 @@ FORWARD_NORETURN(__pthread_unwind,
 		       INTERNAL_SYSCALL_DECL (err);
 		       INTERNAL_SYSCALL (kill, err, 1, SIGKILL);
 		     })
+#endif

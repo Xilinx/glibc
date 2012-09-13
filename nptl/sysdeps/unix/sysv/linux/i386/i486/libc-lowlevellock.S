@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -15,5 +15,11 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
+
+#if !defined NOT_IN_libc && !defined SHARED
+/* Allow libpthread.a to override the ones in libc.a.  */
+	weak_extern (__lll_lock_wait_private)
+	weak_extern (__lll_unlock_wake_private)
+#endif
 
 #include "lowlevellock.S"

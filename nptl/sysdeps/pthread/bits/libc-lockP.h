@@ -98,33 +98,45 @@ typedef pthread_key_t __libc_key_t;
 #define __rtld_lock_initialize(NAME) \
   (void) ((NAME) = (__rtld_lock_recursive_t) _RTLD_LOCK_RECURSIVE_INITIALIZER)
 
+#ifdef HAVE_ASM_SECONDARY_DIRECTIVE
+/* All pthread functions are available.  */
+# define PTFAVAIL(NAME) (true)
+
+/* When secondary symbols are used, FUNC is implemented to return ELSE so
+   that we can always call FUNC.  */
+# define __libc_maybe_call(FUNC, ARGS, ELSE) FUNC ARGS
+# define __libc_ptf_call(FUNC, ARGS, ELSE) FUNC ARGS
+# define __libc_ptf_call_always(FUNC, ARGS) FUNC ARGS
+#else
 /* If we check for a weakly referenced symbol and then perform a
    normal jump to it te code generated for some platforms in case of
    PIC is unnecessarily slow.  What would happen is that the function
    is first referenced as data and then it is called indirectly
    through the PLT.  We can make this a direct jump.  */
-#ifdef __PIC__
-# define __libc_maybe_call(FUNC, ARGS, ELSE) \
-  (__extension__ ({ __typeof (FUNC) *_fn = (FUNC); \
-		    _fn != NULL ? (*_fn) ARGS : ELSE; }))
-#else
-# define __libc_maybe_call(FUNC, ARGS, ELSE) \
-  (FUNC != NULL ? FUNC ARGS : ELSE)
-#endif
+# ifdef __PIC__
+#  define __libc_maybe_call(FUNC, ARGS, ELSE) \
+   (__extension__ ({ __typeof (FUNC) *_fn = (FUNC); \
+		     _fn != NULL ? (*_fn) ARGS : ELSE; }))
+# else
+#  define __libc_maybe_call(FUNC, ARGS, ELSE) \
+   (FUNC != NULL ? FUNC ARGS : ELSE)
+# endif
 
 /* Call thread functions through the function pointer table.  */
-#if defined SHARED && !defined NOT_IN_libc
-# define PTFAVAIL(NAME) __libc_pthread_functions_init
-# define __libc_ptf_call(FUNC, ARGS, ELSE) \
-  (__libc_pthread_functions_init ? PTHFCT_CALL (ptr_##FUNC, ARGS) : ELSE)
-# define __libc_ptf_call_always(FUNC, ARGS) \
-  PTHFCT_CALL (ptr_##FUNC, ARGS)
-#else
-# define PTFAVAIL(NAME) (NAME != NULL)
-# define __libc_ptf_call(FUNC, ARGS, ELSE) \
-  __libc_maybe_call (FUNC, ARGS, ELSE)
-# define __libc_ptf_call_always(FUNC, ARGS) \
+# if defined SHARED && !defined NOT_IN_libc \
+     && !defined HAVE_ASM_SECONDARY_DIRECTIVE
+#  define PTFAVAIL(NAME) __libc_pthread_functions_init
+#  define __libc_ptf_call(FUNC, ARGS, ELSE) \
+   (__libc_pthread_functions_init ? PTHFCT_CALL (ptr_##FUNC, ARGS) : ELSE)
+#  define __libc_ptf_call_always(FUNC, ARGS) \
+   PTHFCT_CALL (ptr_##FUNC, ARGS)
+# else
+#  define PTFAVAIL(NAME) (NAME != NULL)
+#  define __libc_ptf_call(FUNC, ARGS, ELSE) \
+   __libc_maybe_call (FUNC, ARGS, ELSE)
+#  define __libc_ptf_call_always(FUNC, ARGS) \
   FUNC ARGS
+# endif
 #endif
 
 
@@ -384,8 +396,9 @@ extern int __pthread_atfork (void (*__prepare) (void),
 
 
 /* Make the pthread functions weak so that we can elide them from
-   single-threaded processes.  */
-#ifndef __NO_WEAK_PTHREAD_ALIASES
+   single-threaded processes unless secondary symbols are used.  */
+#if !defined __NO_WEAK_PTHREAD_ALIASES \
+    && !defined HAVE_ASM_SECONDARY_DIRECTIVE
 # ifdef weak_extern
 #  include <bp-sym.h>
 weak_extern (BP_SYM (__pthread_mutex_init))

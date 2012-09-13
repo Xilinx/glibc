@@ -1,0 +1,149 @@
+2012-09-12  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* libc-cleanup_defer_compat.c: New file.
+	* libc-pthread_attr_destroy.c: Likewise.
+	* libc-pthread_attr_getdetachstate.c: Likewise.
+	* libc-pthread_attr_getinheritsched.c: Likewise.
+	* libc-pthread_attr_getschedparam.c: Likewise.
+	* libc-pthread_attr_getschedpolicy.c: Likewise.
+	* libc-pthread_attr_getscope.c: Likewise.
+	* libc-pthread_attr_init.c: Likewise.
+	* libc-pthread_attr_setdetachstate.c: Likewise.
+	* libc-pthread_attr_setinheritsched.c: Likewise.
+	* libc-pthread_attr_setschedparam.c: Likewise.
+	* libc-pthread_attr_setschedpolicy.c: Likewise.
+	* libc-pthread_attr_setscope.c: Likewise.
+	* libc-pthread_cond_broadcast.c: Likewise.
+	* libc-pthread_cond_destroy.c: Likewise.
+	* libc-pthread_cond_init.c: Likewise.
+	* libc-pthread_cond_signal.c: Likewise.
+	* libc-pthread_cond_timedwait.c: Likewise.
+	* libc-pthread_cond_wait.c: Likewise.
+	* libc-pthread_condattr_destroy.c: Likewise.
+	* libc-pthread_condattr_init.c: Likewise.
+	* libc-pthread_equal.c: Likewise.
+	* libc-pthread_exit.c: Likewise.
+	* libc-pthread_getschedparam.c: Likewise.
+	* libc-pthread_getspecific.c: Likewise.
+	* libc-pthread_key_create.c: Likewise.
+	* libc-pthread_mutex_destroy.c: Likewise.
+	* libc-pthread_mutex_init.c: Likewise.
+	* libc-pthread_mutex_lock.c: Likewise.
+	* libc-pthread_mutex_unlock.c: Likewise.
+	* libc-pthread_once.c: Likewise.
+	* libc-pthread_rwlock_destroy.c: Likewise.
+	* libc-pthread_rwlock_init.c: Likewise.
+	* libc-pthread_rwlock_rdlock.c: Likewise.
+	* libc-pthread_rwlock_unlock.c: Likewise.
+	* libc-pthread_rwlock_wrlock.c: Likewise.
+	* libc-pthread_self.c: Likewise.
+	* libc-pthread_setcancelstate.c: Likewise.
+	* libc-pthread_setcanceltype.c: Likewise.
+	* libc-pthread_setschedparam.c: Likewise.
+	* libc-pthread_setspecific.c: Likewise.
+	* libc-unwind.c: Likewise.
+	* Makefile: Include ../Makeconfig.
+	(libc-libpthread-routines): New macro.
+	(libc-libpthread-static-only-routines): Likewise.
+	(static-only-routines): Add $(libc-libpthread-static-only-routines)
+	if $(have-secondary) is yes.
+	(routines): Add $(libc-libpthread-routines) if $(have-secondary)
+	is yes.
+	* Versions (GLIBC_2.0): Add _pthread_cleanup_pop_restore,
+	_pthread_cleanup_push_defer, __pthread_getspecific,
+	__pthread_setspecific, __pthread_key_create, __pthread_once,
+	__pthread_mutex_lock and __pthread_mutex_unlock.
+	(GLIBC_2.2): Add __pthread_rwlock_init, __pthread_rwlock_destroy,
+	__pthread_rwlock_rdlock, __pthread_rwlock_wrlock and
+	__pthread_rwlock_unlock.
+	(GLIBC_PRIVATE): Add __pthread_unwind.
+	* forward.c (pthread_attr_destroy): Don't define if
+	HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	(__pthread_attr_init_2_0): Likewise.
+	(__pthread_attr_init_2_1): Likewise.
+	(pthread_attr_getdetachstate): Likewise.
+	(pthread_attr_setdetachstate): Likewise.
+	(pthread_attr_getinheritsched): Likewise.
+	(pthread_attr_setinheritsched): Likewise.
+	(pthread_attr_getschedparam): Likewise.
+	(pthread_attr_setschedparam): Likewise.
+	(pthread_attr_getschedpolicy): Likewise.
+	(pthread_attr_setschedpolicy): Likewise.
+	(pthread_attr_getscope): Likewise.
+	(pthread_attr_setscope): Likewise.
+	(pthread_condattr_destroy): Likewise.
+	(pthread_condattr_init): Likewise.
+	(__pthread_cond_broadcast_2_0): Likewise.
+	(__pthread_cond_broadcast): Likewise.
+	(__pthread_cond_destroy_2_0): Likewise.
+	(__pthread_cond_destroy): Likewise.
+	(__pthread_cond_init_2_0): Likewise.
+	(__pthread_cond_init): Likewise.
+	(__pthread_cond_signal_2_0): Likewise.
+	(__pthread_cond_signal): Likewise.
+	(__pthread_cond_wait_2_0): Likewise.
+	(__pthread_cond_wait): Likewise.
+	(__pthread_cond_timedwait_2_0): Likewise.
+	(__pthread_cond_timedwait): Likewise.
+	(pthread_equal): Likewise.
+	(__pthread_exit): Likewise.
+	(pthread_getschedparam): Likewise.
+	(pthread_setschedparam): Likewise.
+	(pthread_mutex_destroy): Likewise.
+	(pthread_mutex_init): Likewise.
+	(pthread_mutex_lock): Likewise.
+	(pthread_mutex_unlock): Likewise.
+	(pthread_self): Likewise.
+	(pthread_setcancelstate): Likewise.
+	(pthread_setcanceltype): Likewise.
+	(__pthread_unwind): Likewise.
+	* pthreadP.h (__pthread_unwind): Don't mark it weak if
+	HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	(__pthread_cond_broadcast_2_0): Declare only if NOT_IN_libc
+	is defined.
+	(__pthread_cond_destroy_2_0): Likewise.
+	(__pthread_cond_init_2_0): Likewise.
+	(__pthread_cond_signal_2_0): Likewise.
+	(__pthread_cond_timedwait_2_0): Likewise.
+	(__pthread_cond_wait_2_0): Likewise.
+	* sysdeps/pthread/bits/libc-lockP.h (PTFAVAIL): Defined as true
+	if HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	(__libc_maybe_call): Always call FUNC if HAVE_ASM_SECONDARY_DIRECTIVE
+	is defined.
+	(__libc_ptf_call): Likewise.
+	(__libc_ptf_call_always): Likewise.
+	(__pthread_mutex_init): Don't mark it weak if
+	HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	(__pthread_mutex_destroy): Likewise.
+	(__pthread_mutex_lock): Likewise.
+	(__pthread_mutex_trylock): Likewise.
+	(__pthread_mutex_unlock): Likewise.
+	(__pthread_mutexattr_init): Likewise.
+	(__pthread_mutexattr_destroy): Likewise.
+	(__pthread_mutexattr_settype): Likewise.
+	(__pthread_rwlock_destroy): Likewise.
+	(__pthread_rwlock_rdlock): Likewise.
+	(__pthread_rwlock_tryrdlock): Likewise.
+	(__pthread_rwlock_wrlock): Likewise.
+	(__pthread_rwlock_trywrlock): Likewise.
+	(__pthread_rwlock_unlock): Likewise.
+	(__pthread_key_create): Likewise.
+	(__pthread_setspecific): Likewise.
+	(__pthread_getspecific): Likewise.
+	(__pthread_once): Likewise.
+	(__pthread_initialize): Likewise.
+	(__pthread_atfork): Likewise.
+	(_pthread_cleanup_push_defer): Likewise.
+	(_pthread_cleanup_pop_restore): Likewise.
+	(pthread_setcancelstate): Likewise.
+	* sysdeps/pthread/pthread-functions.h (pthread_functions): Don't
+	include secondary pthread functions in libc if
+	HAVE_ASM_SECONDARY_DIRECTIVE is defined.
+	* nptl-init.c (pthread_functions): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S (__pthread_unwind):
+	Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/libc-lowlevellock.S: Make
+	__lll_lock_wait_private and __lll_unlock_wake_private weak in
+	libc.a.
+	* sysdeps/unix/sysv/linux/sh/libc-lowlevellock.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/libc-lowlevellock.S: Likewise.

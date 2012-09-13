@@ -225,7 +225,8 @@ extern int __pthread_debug attribute_hidden;
 
 extern void __pthread_unwind (__pthread_unwind_buf_t *__buf)
      __cleanup_fct_attribute __attribute ((__noreturn__))
-#if !defined SHARED && !defined IS_IN_libpthread
+#if !defined SHARED && !defined IS_IN_libpthread \
+     && !defined HAVE_ASM_SECONDARY_DIRECTIVE
      weak_function
 #endif
      ;
@@ -503,6 +504,7 @@ hidden_proto (__pthread_setspecific)
 hidden_proto (__pthread_once)
 #endif
 
+#ifdef NOT_IN_libc
 extern int __pthread_cond_broadcast_2_0 (pthread_cond_2_0_t *cond);
 extern int __pthread_cond_destroy_2_0 (pthread_cond_2_0_t *cond);
 extern int __pthread_cond_init_2_0 (pthread_cond_2_0_t *cond,
@@ -513,6 +515,7 @@ extern int __pthread_cond_timedwait_2_0 (pthread_cond_2_0_t *cond,
 					 const struct timespec *abstime);
 extern int __pthread_cond_wait_2_0 (pthread_cond_2_0_t *cond,
 				    pthread_mutex_t *mutex);
+#endif
 
 extern int __pthread_getaffinity_np (pthread_t th, size_t cpusetsize,
 				     cpu_set_t *cpuset);

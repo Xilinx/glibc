@@ -26,8 +26,57 @@ extra-libs := libpthread
 extra-libs-others := $(extra-libs)
 install-lib-ldscripts := libpthread.so
 
+include ../Makeconfig
+
 routines = alloca_cutoff forward libc-lowlevellock libc-cancellation \
 	   libc-cleanup
+ifeq (yes,$(have-secondary))
+libc-libpthread-routines = libc-cleanup_defer_compat \
+			   libc-pthread_attr_destroy \
+			   libc-pthread_attr_getdetachstate \
+			   libc-pthread_attr_getinheritsched \
+			   libc-pthread_attr_getschedparam \
+			   libc-pthread_attr_getschedpolicy \
+			   libc-pthread_attr_getscope \
+			   libc-pthread_attr_init \
+			   libc-pthread_attr_setdetachstate \
+			   libc-pthread_attr_setinheritsched \
+			   libc-pthread_attr_setschedparam \
+			   libc-pthread_attr_setschedpolicy \
+			   libc-pthread_attr_setscope \
+			   libc-pthread_cond_broadcast \
+			   libc-pthread_cond_destroy \
+			   libc-pthread_cond_init \
+			   libc-pthread_cond_signal \
+			   libc-pthread_cond_timedwait \
+			   libc-pthread_cond_wait \
+			   libc-pthread_condattr_destroy \
+			   libc-pthread_condattr_init \
+			   libc-pthread_equal \
+			   libc-pthread_exit \
+			   libc-pthread_getschedparam \
+			   libc-pthread_getspecific \
+			   libc-pthread_key_create \
+			   libc-pthread_once \
+			   libc-pthread_mutex_destroy \
+			   libc-pthread_mutex_init \
+			   libc-pthread_mutex_lock \
+			   libc-pthread_mutex_unlock \
+			   libc-pthread_rwlock_rdlock \
+			   libc-pthread_rwlock_unlock \
+			   libc-pthread_rwlock_wrlock \
+			   libc-pthread_self \
+			   libc-pthread_setcancelstate \
+			   libc-pthread_setcanceltype \
+			   libc-pthread_setschedparam \
+			   libc-pthread_setspecific \
+			   libc-unwind
+libc-libpthread-static-only-routines = libc-pthread_rwlock_destroy \
+				       libc-pthread_rwlock_init
+static-only-routines += $(libc-libpthread-static-only-routines)
+libc-libpthread-routines += $(libc-libpthread-static-only-routines)
+routines += $(libc-libpthread-routines)
+endif
 shared-only-routines = forward
 
 libpthread-routines = nptl-init vars events version \
