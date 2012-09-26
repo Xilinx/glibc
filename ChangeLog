@@ -12,6 +12,16 @@
 
 2012-10-11  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* wcsmbs/Makefile (ifunc-tests): New macro.
+	(tests-ifunc): Likewise.
+	(tests): Add $(tests-ifunc).
+	* wcsmbs/test-wcschr-ifunc.c: New file.
+	* wcsmbs/test-wcscmp-ifunc.c: Likewise.
+	* wcsmbs/test-wcscpy-ifunc.c: Likewise.
+	* wcsmbs/test-wcslen-ifunc.c: Likewise.
+	* wcsmbs/test-wcsrchr-ifunc.c: Likewise.
+	* wcsmbs/test-wmemcmp-ifunc.c: Likewise.
+
 	* string/Makefile (ifunc-tests): New macro.
 	(tests-ifunc): Likewise.
 	(tests): Add $(tests-ifunc).
