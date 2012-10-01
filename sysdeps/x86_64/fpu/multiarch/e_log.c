@@ -4,6 +4,7 @@
 
 extern double __ieee754_log_sse2 (double);
 extern double __ieee754_log_avx (double);
+extern double __ieee754_log_fma (double);
 # ifdef HAVE_FMA4_SUPPORT
 extern double __ieee754_log_fma4 (double);
 # else
@@ -13,8 +14,9 @@ extern double __ieee754_log_fma4 (double);
 # endif
 
 libm_ifunc (__ieee754_log,
-	    HAS_FMA4 ? __ieee754_log_fma4
-	    : (HAS_AVX ? __ieee754_log_avx : __ieee754_log_sse2));
+	    HAS_FMA ? __ieee754_log_fma
+	    : (HAS_FMA4 ? __ieee754_log_fma4
+	       : (HAS_AVX ? __ieee754_log_avx : __ieee754_log_sse2)));
 strong_alias (__ieee754_log, __log_finite)
 
 # define __ieee754_log __ieee754_log_sse2

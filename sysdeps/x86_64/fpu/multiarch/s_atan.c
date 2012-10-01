@@ -4,6 +4,7 @@
 
 extern double __atan_sse2 (double);
 extern double __atan_avx (double);
+extern double __atan_fma (double);
 # ifdef HAVE_FMA4_SUPPORT
 extern double __atan_fma4 (double);
 # else
@@ -12,8 +13,9 @@ extern double __atan_fma4 (double);
 #  define __atan_fma4 ((void *) 0)
 # endif
 
-libm_ifunc (atan, (HAS_FMA4 ? __atan_fma4 :
-		   HAS_AVX ? __atan_avx : __atan_sse2));
+libm_ifunc (atan, (HAS_FMA ? __atan_fma :
+		   (HAS_FMA4 ? __atan_fma4 :
+		    HAS_AVX ? __atan_avx : __atan_sse2)));
 
 # define atan __atan_sse2
 #endif

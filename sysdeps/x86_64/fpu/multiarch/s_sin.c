@@ -7,6 +7,8 @@ extern double __cos_sse2 (double);
 extern double __sin_sse2 (double);
 extern double __cos_avx (double);
 extern double __sin_avx (double);
+extern double __cos_fma (double);
+extern double __sin_fma (double);
 # ifdef HAVE_FMA4_SUPPORT
 extern double __cos_fma4 (double);
 extern double __sin_fma4 (double);
@@ -17,12 +19,14 @@ extern double __sin_fma4 (double);
 #  define __sin_fma4 ((void *) 0)
 # endif
 
-libm_ifunc (__cos, (HAS_FMA4 ? __cos_fma4 :
-		    HAS_AVX ? __cos_avx : __cos_sse2));
+libm_ifunc (__cos, (HAS_FMA ? __cos_fma :
+		    (HAS_FMA4 ? __cos_fma4 :
+		     HAS_AVX ? __cos_avx : __cos_sse2)));
 weak_alias (__cos, cos)
 
-libm_ifunc (__sin, (HAS_FMA4 ? __sin_fma4 :
-		    HAS_AVX ? __sin_avx : __sin_sse2));
+libm_ifunc (__sin, (HAS_FMA ? __sin_fma :
+		    (HAS_FMA4 ? __sin_fma4 :
+		     HAS_AVX ? __sin_avx : __sin_sse2)));
 weak_alias (__sin, sin)
 
 # define __cos __cos_sse2

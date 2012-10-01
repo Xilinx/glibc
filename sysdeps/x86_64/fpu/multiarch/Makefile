@@ -2,6 +2,37 @@ ifeq ($(subdir),math)
 libm-sysdep_routines += s_floor-c s_ceil-c s_floorf-c s_ceilf-c \
 			s_rint-c s_rintf-c s_nearbyint-c s_nearbyintf-c
 
+ifeq (yes,$(config-cflags-avx))
+libm-sysdep_routines += e_exp-fma e_log-fma e_pow-fma s_atan-fma \
+			e_asin-fma e_atan2-fma s_sin-fma s_tan-fma \
+			mplog-fma mpa-fma slowexp-fma slowpow-fma \
+			sincos32-fma doasin-fma dosincos-fma \
+			halfulp-fma mpexp-fma \
+			mpatan2-fma mpatan-fma mpsqrt-fma mptan-fma
+
+CFLAGS-doasin-fma.c = -mfma
+CFLAGS-dosincos-fma.c = -mfma
+CFLAGS-e_asin-fma.c = -mfma
+CFLAGS-e_atan2-fma.c = -mfma
+CFLAGS-e_exp-fma.c = -mfma
+CFLAGS-e_log-fma.c = -mfma
+CFLAGS-e_pow-fma.c = -mfma
+CFLAGS-halfulp-fma.c = -mfma
+CFLAGS-mpa-fma.c = -mfma
+CFLAGS-mpatan-fma.c = -mfma
+CFLAGS-mpatan2-fma.c = -mfma
+CFLAGS-mpexp-fma.c = -mfma
+CFLAGS-mplog-fma.c = -mfma
+CFLAGS-mpsqrt-fma.c = -mfma
+CFLAGS-mptan-fma.c = -mfma
+CFLAGS-s_atan-fma.c = -mfma
+CFLAGS-sincos32-fma.c = -mfma
+CFLAGS-slowexp-fma.c = -mfma
+CFLAGS-slowpow-fma.c = -mfma
+CFLAGS-s_sin-fma.c = -mfma
+CFLAGS-s_tan-fma.c = -mfma
+endif
+
 ifeq ($(have-mfma4),yes)
 libm-sysdep_routines += e_exp-fma4 e_log-fma4 e_pow-fma4 s_atan-fma4 \
 			e_asin-fma4 e_atan2-fma4 s_sin-fma4 s_tan-fma4 \

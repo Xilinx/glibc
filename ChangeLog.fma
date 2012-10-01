@@ -1,5 +1,61 @@
 2012-10-01  H.J. Lu  <hongjiu.lu@intel.com>
 
+	[BZ #14649]
+	* sysdeps/x86_64/fpu/multiarch/doasin-fma.c: New file.
+	* sysdeps/x86_64/fpu/multiarch/dosincos-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_asin-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_exp-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_log-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_pow-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/halfulp-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpa-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpatan-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpatan2-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpexp-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mplog-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mpsqrt-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/mptan-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_atan-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_sin-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_tan-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/sincos32-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/slowexp-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/slowpow-fma.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/Makefile (libm-sysdep_routines):
+	Add FMA optimized functions.
+	(CFLAGS-doasin-fma.c): New.
+	(CFLAGS-dosincos-fma.c): Likewise.
+	(CFLAGS-e_asin-fma.c): Likewise.
+	(CFLAGS-e_atan2-fma.c): Likewise.
+	(CFLAGS-e_exp-fma.c): Likewise.
+	(CFLAGS-e_log-fma.c): Likewise.
+	(CFLAGS-e_pow-fma.c): Likewise.
+	(CFLAGS-halfulp-fma.c): Likewise.
+	(CFLAGS-mpa-fma.c): Likewise.
+	(CFLAGS-mpatan-fma.c): Likewise.
+	(CFLAGS-mpatan2-fma.c): Likewise.
+	(CFLAGS-mpexp-fma.c): Likewise.
+	(CFLAGS-mplog-fma.c): Likewise.
+	(CFLAGS-mpsqrt-fma.c): Likewise.
+	(CFLAGS-mptan-fma.c): Likewise.
+	(CFLAGS-s_atan-fma.c): Likewise.
+	(CFLAGS-sincos32-fma.c): Likewise.
+	(CFLAGS-slowexp-fma.c): Likewise.
+	(CFLAGS-slowpow-fma.c): Likewise.
+	(CFLAGS-s_sin-fma.c): Likewise.
+	(CFLAGS-s_tan-fma.c): Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_asin.c: Support FMA.
+	* sysdeps/x86_64/fpu/multiarch/e_atan2.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_exp.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_log.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/e_pow.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_atan.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_sin.c: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/s_tan.c: Likewise.
+
+2012-10-01  H.J. Lu  <hongjiu.lu@intel.com>
+
 	[BZ #14648]
 	* sysdeps/x86_64/multiarch/init-arch.c (__init_cpu_features):
 	Set bit_FMA_Usable if FMA is supported.

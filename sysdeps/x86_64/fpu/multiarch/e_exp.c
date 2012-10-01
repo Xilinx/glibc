@@ -4,6 +4,7 @@
 
 extern double __ieee754_exp_sse2 (double);
 extern double __ieee754_exp_avx (double);
+extern double __ieee754_exp_fma (double);
 # ifdef HAVE_FMA4_SUPPORT
 extern double __ieee754_exp_fma4 (double);
 # else
@@ -13,8 +14,9 @@ extern double __ieee754_exp_fma4 (double);
 # endif
 
 libm_ifunc (__ieee754_exp,
-	    HAS_FMA4 ? __ieee754_exp_fma4
-	    : (HAS_AVX ? __ieee754_exp_avx : __ieee754_exp_sse2));
+	    HAS_FMA ? __ieee754_exp_fma
+	    : (HAS_FMA4 ? __ieee754_exp_fma4
+	       : (HAS_AVX ? __ieee754_exp_avx : __ieee754_exp_sse2)));
 strong_alias (__ieee754_exp, __exp_finite)
 
 # define __ieee754_exp __ieee754_exp_sse2
