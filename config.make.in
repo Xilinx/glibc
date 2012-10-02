@@ -38,6 +38,7 @@ asflags-cpu = @libc_cv_cc_submachine@
 config-extra-cflags = @libc_extra_cflags@
 config-cflags-sse4 = @libc_cv_cc_sse4@
 config-cflags-avx = @libc_cv_cc_avx@
+config-cflags-avx128 = @libc_cv_cc_avx128@
 config-cflags-sse2avx = @libc_cv_cc_sse2avx@
 config-cflags-novzeroupper = @libc_cv_cc_novzeroupper@
 config-cflags-nofma = @libc_cv_cc_nofma@

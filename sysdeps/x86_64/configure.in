@@ -21,6 +21,13 @@ if test $libc_cv_cc_avx = yes; then
   AC_DEFINE(HAVE_AVX_SUPPORT)
 fi
 
+dnl Check if -mavx -mprefer-avx128 works.
+AC_CACHE_CHECK(-mavx -mprefer-avx128 support, libc_cv_cc_avx128, [dnl
+LIBC_TRY_CC_OPTION([-mavx -mprefer-avx128],
+		   [libc_cv_cc_avx128=yes],
+		   [libc_cv_cc_avx128=no])
+])
+
 dnl Check if -msse2avx works.
 AC_CACHE_CHECK(for AVX encoding of SSE instructions, libc_cv_cc_sse2avx, [dnl
 LIBC_TRY_CC_OPTION([-msse2avx],

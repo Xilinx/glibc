@@ -33,21 +33,26 @@ CFLAGS-s_sin-fma4.c = -mfma4
 CFLAGS-s_tan-fma4.c = -mfma4
 endif
 
-ifeq ($(config-cflags-sse2avx),yes)
+ifneq ($(config-cflags-sse2avx)$(config-cflags-avx128),nono)
 libm-sysdep_routines += e_exp-avx e_log-avx s_atan-avx \
 			e_atan2-avx s_sin-avx s_tan-avx \
 			mplog-avx mpa-avx slowexp-avx \
 			mpexp-avx
 
-CFLAGS-e_atan2-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-e_exp-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-e_log-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-mpa-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-mpexp-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-mplog-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-s_atan-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-s_sin-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-slowexp-avx.c = -msse2avx -DSSE2AVX
-CFLAGS-s_tan-avx.c = -msse2avx -DSSE2AVX
+ifeq ($(config-cflags-avx128),yes)
+CFLAGS-avx = -mavx -mprefer-avx128
+else
+CFLAGS-avx = -msse2avx -DSSE2AVX
+endif
+CFLAGS-e_atan2-avx.c = $(CFLAGS-avx)
+CFLAGS-e_exp-avx.c = $(CFLAGS-avx)
+CFLAGS-e_log-avx.c = $(CFLAGS-avx)
+CFLAGS-mpa-avx.c = $(CFLAGS-avx)
+CFLAGS-mpexp-avx.c = $(CFLAGS-avx)
+CFLAGS-mplog-avx.c = $(CFLAGS-avx)
+CFLAGS-s_atan-avx.c = $(CFLAGS-avx)
+CFLAGS-s_sin-avx.c = $(CFLAGS-avx)
+CFLAGS-slowexp-avx.c = $(CFLAGS-avx)
+CFLAGS-s_tan-avx.c = $(CFLAGS-avx)
 endif
 endif

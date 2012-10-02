@@ -1,0 +1,20 @@
+2012-10-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* config.make.in (config-cflags-avx128): New.
+	* configure.in (libc_cv_cc_avx128): AC_SUBST.
+	* sysdeps/i386/configure.in: Add -mavx -mprefer-avx128 check.
+	* sysdeps/x86_64/configure.in: Likewise.
+	* configure: Regenerated.
+	* sysdeps/i386/configure: Likewise.
+	* sysdeps/x86_64/configure: Likewise.
+	* sysdeps/x86_64/fpu/multiarch/Makefile (CFLAGS-avx): New macro.
+	(CFLAGS-e_atan2-avx.c): Set to $(CFLAGS-avx).
+	(CFLAGS-e_exp-avx.c): Likewise.
+	(CFLAGS-e_log-avx.c): Likewise.
+	(CFLAGS-mpa-avx.c): Likewise.
+	(CFLAGS-mpexp-avx.c): Likewise.
+	(CFLAGS-mplog-avx.c): Likewise.
+	(CFLAGS-s_atan-avx.c): Likewise.
+	(CFLAGS-s_sin-avx.c): Likewise.
+	(CFLAGS-slowexp-avx.c): Likewise.
+	(CFLAGS-s_tan-avx.c): Likewise.

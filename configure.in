@@ -2148,6 +2148,7 @@ AC_SUBST(libc_cv_forced_unwind)
 dnl sysdeps/CPU/configure.in checks set this via arch-specific asm tests
 AC_SUBST(libc_cv_cc_sse4)
 AC_SUBST(libc_cv_cc_avx)
+AC_SUBST(libc_cv_cc_avx128)
 AC_SUBST(libc_cv_cc_sse2avx)
 AC_SUBST(libc_cv_cc_novzeroupper)
 AC_SUBST(libc_cv_cc_fma4)

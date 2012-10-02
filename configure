@@ -587,6 +587,7 @@ libc_cv_cc_nofma
 libc_cv_cc_fma4
 libc_cv_cc_novzeroupper
 libc_cv_cc_sse2avx
+libc_cv_cc_avx128
 libc_cv_cc_avx
 libc_cv_cc_sse4
 libc_cv_forced_unwind
@@ -7496,6 +7497,7 @@ if test x$use_ldconfig = xyes; then
   $as_echo "#define USE_LDCONFIG 1" >>confdefs.h
 
 fi
+
 
 
 
