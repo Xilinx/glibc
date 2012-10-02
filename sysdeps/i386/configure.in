@@ -38,6 +38,14 @@ if test $libc_cv_cc_sse2avx = yes; then
   AC_DEFINE(HAVE_SSE2AVX_SUPPORT)
 fi
 
+dnl Check if -mfma works.
+AC_CACHE_CHECK(for FMA support, libc_cv_cc_fma, [dnl
+LIBC_TRY_CC_OPTION([-mfma], [libc_cv_cc_fma=yes], [libc_cv_cc_fma=no])
+])
+if test $libc_cv_cc_fma = yes; then
+  AC_DEFINE(HAVE_FMA_SUPPORT)
+fi
+
 dnl Check if -mfma4 works.
 AC_CACHE_CHECK(for FMA4 support, libc_cv_cc_fma4, [dnl
 LIBC_TRY_CC_OPTION([-mfma4], [libc_cv_cc_fma4=yes], [libc_cv_cc_fma4=no])

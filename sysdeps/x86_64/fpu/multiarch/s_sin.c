@@ -1,4 +1,4 @@
-#if defined HAVE_FMA4_SUPPORT || defined HAVE_AVX_SUPPORT
+#ifdef HAVE_FMA_SUPPORT
 # include <init-arch.h>
 # include <math.h>
 # undef NAN

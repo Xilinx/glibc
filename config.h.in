@@ -98,6 +98,9 @@
 /* Define if gcc supports VEX encoding.  */
 #undef	HAVE_SSE2AVX_SUPPORT
 
+/* Define if gcc supports FMA.  */
+#undef	HAVE_FMA_SUPPORT
+
 /* Define if gcc supports FMA4.  */
 #undef	HAVE_FMA4_SUPPORT
 

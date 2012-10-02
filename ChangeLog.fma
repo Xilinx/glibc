@@ -1,6 +1,14 @@
 2012-10-01  H.J. Lu  <hongjiu.lu@intel.com>
 
 	[BZ #14649]
+	* config.h.in (HAVE_FMA_SUPPORT): New.
+	* config.make.in (have-mfma): Likewise.
+	* configure.in: Substitute libc_cv_cc_fma.
+	* sysdeps/i386/configure.in: Check if -mfma is supported.
+	* sysdeps/x86_64/configure.in: Likewise.
+	* configure: Regenerated.
+	* sysdeps/i386/configure: Likewise.
+	* sysdeps/x86_64/configure: LIkewise.
 	* sysdeps/x86_64/fpu/multiarch/doasin-fma.c: New file.
 	* sysdeps/x86_64/fpu/multiarch/dosincos-fma.c: Likewise.
 	* sysdeps/x86_64/fpu/multiarch/e_asin-fma.c: Likewise.
@@ -23,7 +31,7 @@
 	* sysdeps/x86_64/fpu/multiarch/slowexp-fma.c: Likewise.
 	* sysdeps/x86_64/fpu/multiarch/slowpow-fma.c: Likewise.
 	* sysdeps/x86_64/fpu/multiarch/Makefile (libm-sysdep_routines):
-	Add FMA optimized functions.
+	Add FMA optimized functions if -mfma is supported.
 	(CFLAGS-doasin-fma.c): New.
 	(CFLAGS-dosincos-fma.c): Likewise.
 	(CFLAGS-e_asin-fma.c): Likewise.

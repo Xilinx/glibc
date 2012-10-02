@@ -72,10 +72,6 @@ $as_echo X/"$0" |
   chmod +x "$as_me.lineno" ||
     { $as_echo "$as_me: error: cannot create $as_me.lineno; rerun with a POSIX shell" >&2; as_fn_exit 1; }
 
-  # If we had to re-execute with $CONFIG_SHELL, we're ensured to have
-  # already done that, so ensure we don't try to do so again and fall
-  # in an infinite loop.  This has already happened in practice.
-  _as_can_reexec=no; export _as_can_reexec
   # Don't try to exec as it changes $[0], causing all sort of problems
   # (the dirname of $[0] is not the place where we might find the
   # original and so on.  Autoconf is especially sensitive to this).
@@ -236,6 +232,30 @@ fi
 $as_echo "$libc_cv_cc_sse2avx" >&6; }
 if test $libc_cv_cc_sse2avx = yes; then
   $as_echo "#define HAVE_SSE2AVX_SUPPORT 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for FMA support" >&5
+$as_echo_n "checking for FMA support... " >&6; }
+if ${libc_cv_cc_fma+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if { ac_try='${CC-cc} -mfma -xc /dev/null -S -o /dev/null'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }; then :
+  libc_cv_cc_fma=yes
+else
+  libc_cv_cc_fma=no
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $libc_cv_cc_fma" >&5
+$as_echo "$libc_cv_cc_fma" >&6; }
+if test $libc_cv_cc_fma = yes; then
+  $as_echo "#define HAVE_FMA_SUPPORT 1" >>confdefs.h
 
 fi
 
