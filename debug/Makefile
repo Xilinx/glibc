@@ -126,6 +126,10 @@ tests = backtrace-tst tst-longjmp_chk tst-chk1 tst-chk2 tst-chk3 \
 	tst-chk4 tst-chk5 tst-chk6 tst-lfschk4 tst-lfschk5 tst-lfschk6 \
 	tst-longjmp_chk2
 
+ifunc-tests = test-stpcpy_chk test-strcpy_chk
+tests-ifunc = $(addsuffix -ifunc,$(ifunc-tests))
+tests += $(tests-ifunc)
+
 extra-libs = libSegFault libpcprofile
 extra-libs-others = $(extra-libs)
 

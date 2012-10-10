@@ -12,6 +12,13 @@
 
 2012-10-11  H.J. Lu  <hongjiu.lu@intel.com>
 
+	* debug/Makefile (ifunc-tests): New variable.
+	(tests-ifunc): Likewise.
+	* debug/test-stpcpy_chk.c (TEST_NAME): New macro.
+	* debug/test-strcpy_chk.c (TEST_NAME): Likewise.
+	* debug/test-stpcpy_chk-ifunc.c: New file.
+	* debug/test-strcpy_chk-ifunc.c: Likewise.
+
 	* sysdeps/x86_64/multiarch/ifunc-impl-list.c: New file.
 	* sysdeps/x86_64/multiarch/memcmp.S (__memcmp_sse2): Make it
 	global and hidden.
