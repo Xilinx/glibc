@@ -109,8 +109,8 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 
   while (1)
     {
-#if (!defined(__ASSUME_FUTEX_CLOCK_REALTIME) \
-     || !defined(lll_futex_timed_wait_bitset))
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
       struct timespec rt;
       {
 # ifdef __NR_clock_gettime
@@ -156,8 +156,8 @@ __pthread_cond_timedwait (cond, mutex, abstime)
       /* Enable asynchronous cancellation.  Required by the standard.  */
       cbuffer.oldtype = __pthread_enable_asynccancel ();
 
-#if (!defined(__ASSUME_FUTEX_CLOCK_REALTIME) \
-     || !defined(lll_futex_timed_wait_bitset))
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
       /* Wait until woken by signal or broadcast.  */
       err = lll_futex_timed_wait (&cond->__data.__futex,
 				  futex_val, &rt, pshared);

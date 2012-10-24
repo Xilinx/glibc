@@ -1,13 +1,13 @@
 2012-10-22  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
-	* pthread_cond_timedwait.c (__pthread_cond_timedwait): Timeout
+	* pthread_cond_timedwait.c (__pthread_cond_timedwait): Time out
 	if absolute timeout is negative.
 	[__ASSUME_FUTEX_CLOCK_REALTIME &&
 	lll_futex_timed_wait_bitset]: Use lll_futex_timed_wait_bitset.
 	* sysdeps/unix/sysv/linux/powerpc/lowlevellock.h
-	(lll_futex_timed_wait_bitset); Define.
+	(lll_futex_timed_wait_bitset): New macro.
 	* sysdeps/unix/sysv/linux/s390/lowlevellock.h
-	(lll_futex_timed_wait_bitset); Likewise.
+	(lll_futex_timed_wait_bitset): Likewise.
 
 2012-10-21  Jim Blandy  <jimb@codesourcery.com>
 	    Joseph Myers  <joseph@codesourcery.com>
