@@ -1,6 +1,15 @@
-2012-10-22  Siddhesh Poyarekar  <siddhesh@redhat.com>
+2012-10-26  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
-2012-10-22  Siddhesh Poyarekar  <siddhesh@redhat.com>
+	* pthread_rwlock_timedrdlock.c (pthread_rwlock_timedrdlock):
+	Time out if absolute timeout is negative.
+	[__ASSUME_FUTEX_CLOCK_REALTIME &&
+	lll_futex_timed_wait_bitset]: Use lll_futex_timed_wait_bitset.
+	* pthread_rwlock_timedwrlock.c (pthread_rwlock_timedwrlock):
+	Likewise.
+	* sysdeps/unix/sysv/linux/lowlevelrobustlock.c
+	(__lll_robust_timedlock_wait): Likewise.
+
+2012-10-26  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* pthread_cond_timedwait.c (__pthread_cond_timedwait): Time out
 	if absolute timeout is negative.
