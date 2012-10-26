@@ -163,7 +163,7 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 				  futex_val, &rt, pshared);
 #else
       unsigned int clockbit = (cond->__data.__nwaiters & 1
-			       ? FUTEX_CLOCK_REALTIME : 0);
+			       ? 0 : FUTEX_CLOCK_REALTIME);
       err = lll_futex_timed_wait_bitset (&cond->__data.__futex, futex_val,
 					 abstime, clockbit, pshared);
 #endif
