@@ -26,6 +26,7 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <sysdep.h>
+# include <libc-internal.h>
 # include <kernel-features.h>
 
 /* Replacement type for __m128 since this file is included by ld.so,

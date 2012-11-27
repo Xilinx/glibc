@@ -6,7 +6,7 @@
 	(__integer_if_pointer_type_sub): Likewise.
 	(__integer_if_pointer_type): Likewise.
 	(cast_to_integer): Likewise.
-	* sysdeps/x86_64/bits/atomic.h
+	* sysdeps/x86_64/bits/atomic.h: Include <libc-internal.h>.
 	(__arch_c_compare_and_exchange_val_64_acq): Use cast_to_integer
 	before casting to atomic64_t.
 	(atomic_exchange_acq): Likewise.
@@ -21,8 +21,9 @@ nptl/
 
 	* unwind.c (__pthread_unwind): Pass address of unwind_cleanup
 	to THREAD_SETMEM.
-	* sysdeps/i386/tls.h (THREAD_SETMEM): Use cast_to_integer before
-	casting to uint64_t.
+	* sysdeps/i386/tls.h: Include <libc-internal.h>.
+	(THREAD_SETMEM): Use cast_to_integer before casting to uint64_t.
 	(THREAD_SETMEM_NC): Likewise.
-	* sysdeps/x86_64/tls.h (THREAD_SETMEM): Likewise.
+	* sysdeps/x86_64/tls.h: Include <libc-internal.h>.
+	(THREAD_SETMEM): Use cast_to_integer before casting to uint64_t.
 	(THREAD_SETMEM_NC): Likewise.

@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <tls.h>	/* For tcbhead_t.  */
+#include <libc-internal.h>
 
 
 typedef int8_t atomic8_t;
