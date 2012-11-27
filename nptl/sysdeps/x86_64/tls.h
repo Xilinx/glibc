@@ -263,7 +263,7 @@ typedef struct
 	   abort ();							      \
 									      \
 	 asm volatile ("movq %q0,%%fs:%P1" :				      \
-		       : IMM_MODE ((uint64_t) (value)),			      \
+		       : IMM_MODE ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member)));	      \
        }})
 
@@ -288,7 +288,7 @@ typedef struct
 	   abort ();							      \
 									      \
 	 asm volatile ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
-		       : IMM_MODE ((uint64_t) (value)),			      \
+		       : IMM_MODE ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
        }})
