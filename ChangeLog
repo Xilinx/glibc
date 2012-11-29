@@ -1,5 +1,8 @@
 2012-11-29  Roland McGrath  <roland@hack.frob.com>
 
+	* sysdeps/powerpc/powerpc64/entry.h (TEXT_START): Define using a
+	second, differently-typed declaration, rather than a cast.
+
 	* inet/tst-inet6_rth.c (do_test): Use a union rather than type punning.
 
 2012-11-28  Jeff Law  <law@redhat.com>
