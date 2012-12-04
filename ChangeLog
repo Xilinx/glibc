@@ -1,3 +1,16 @@
+2012-11-05  Ondrej Bilka  <neleai@seznam.cz>
+
+	* sysdeps/x86_64/strlen.S: Added new implementation.
+	* sysdeps/x86_64/strnlen.S: Use sysdeps/x86_64/strlen.S.
+	* sysdeps/x86_64/rtld-strlen.S: Use sysdeps/x86_64/strlen.S.
+	* sysdeps/x86_64/multiarch/strlen.S: No longer needed.
+	* sysdeps/x86_64/multiarch/strnlen-sse2-no-bsf.S: No longer needed.
+	* sysdeps/x86_64/multiarch/strnlen.S: No longer needed.
+	* sysdeps/x86_64/multiarch/ifunc-impl-list.c: Delete unused
+	ifuncs.
+	* sysdeps/x86_64/multiarch/Makefile: Updated.
+								
+
 2012-12-01  Mike Frysinger  <vapier@gentoo.org>
 
 	* libio/fileops.c (_IO_new_file_close_it): Do not always flush

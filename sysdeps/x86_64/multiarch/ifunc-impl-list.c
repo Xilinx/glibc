@@ -188,9 +188,6 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, strncpy, 1, __strncpy_sse2))
 
   /* Support sysdeps/x86_64/multiarch/strnlen.S.  */
-  IFUNC_IMPL (i, name, strnlen,
-	      IFUNC_IMPL_ADD (array, i, strnlen, 1, __strnlen_sse2_no_bsf)
-	      IFUNC_IMPL_ADD (array, i, strnlen, 1, __strnlen_sse2))
 
   /* Support sysdeps/x86_64/multiarch/strpbrk.S.  */
   IFUNC_IMPL (i, name, strpbrk,
