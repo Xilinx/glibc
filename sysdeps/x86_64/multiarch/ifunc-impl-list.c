@@ -261,9 +261,6 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 
   /* Support sysdeps/x86_64/multiarch/strlen.S.  */
   IFUNC_IMPL (i, name, strlen,
-	      IFUNC_IMPL_ADD (array, i, strlen, HAS_SSE4_2, __strlen_sse42)
-	      IFUNC_IMPL_ADD (array, i, strlen, 1, __strlen_sse2_pminub)
-	      IFUNC_IMPL_ADD (array, i, strlen, 1, __strlen_sse2_no_bsf)
 	      IFUNC_IMPL_ADD (array, i, strlen, 1, __strlen_sse2)
 	      IFUNC_IMPL_ADD (array, i, strlen, 1, __strlen_sse2))
 
