@@ -1,3 +1,8 @@
+2012-12-18  Roland McGrath  <roland@hack.frob.com>
+
+	* configure.in: Make ld --version output matching grok gold's output.
+	* configure: Regenerated.
+
 2012-12-18  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
 
 	* manual/contrib.texi (Contributors): Spelling correction.
