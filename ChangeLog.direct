@@ -1,0 +1,10 @@
+2012-12-20  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* posix/Makefile (tests-static): New variable.
+	(tests): Add $(tests-static).
+	(tst-exec-static-ARGS): New variable.
+	(tst-spawn-static-ARGS): Likewise.
+	* posix/tst-exec-static.c: New file.
+	* posix/tst-spawn-static.c: Likewise.
+	* posix/tst-exec.c: Support run directly.
+	* posix/tst-spawn.c: Likewise.
