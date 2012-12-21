@@ -285,7 +285,7 @@ $(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
 	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
 
 bug-setlocale1-ENV = LOCPATH=$(common-objpfx)localedata
-bug-setlocale1-ARGS = $(common-objpfx)
+bug-setlocale1-ARGS = -- $(built-program-cmd)
 tst-setlocale2-ENV = LOCPATH=$(common-objpfx)localedata
 
 $(objdir)/iconvdata/gconv-modules:

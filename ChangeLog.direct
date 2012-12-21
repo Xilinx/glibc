@@ -8,3 +8,11 @@
 	* posix/tst-spawn-static.c: Likewise.
 	* posix/tst-exec.c: Support run directly.
 	* posix/tst-spawn.c: Likewise.
+
+localedata/
+
+2012-12-20  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (bug-setlocale1-ARGS): Set to -- $(built-program-cmd).
+	* bug-setlocale1.c (do_test): Support run directly.  Check env[1]
+	instead of newargv[0].

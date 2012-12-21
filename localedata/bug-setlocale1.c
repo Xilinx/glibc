@@ -12,16 +12,25 @@ do_test (int argc, char *argv[])
   if (argc > 1)
     {
       char *newargv[5];
-      asprintf (&newargv[0], "%self/ld.so", argv[1]);
-      if (newargv[0] == NULL)
+      if (argc != 2 && argc != 5)
 	{
-	  puts ("asprintf failed");
+	  printf ("wrong number of arguments (%d)\n", argc);
 	  return 1;
 	}
-      newargv[1] = (char *) "--library-path";
-      newargv[2] = argv[1];
-      newargv[3] = argv[0];
-      newargv[4] = NULL;
+
+      if (argc == 2)
+	{
+	  newargv[0] = argv[0];
+	  newargv[1] = NULL;
+	}
+      else
+	{
+	  newargv[0] = argv[1];
+	  newargv[1] = argv[2];
+	  newargv[2] = argv[3];
+	  newargv[3] = argv[4];
+	  newargv[4] = NULL;
+	}
 
       char *env[3];
       env[0] = (char *) "LC_CTYPE=de_DE.UTF-8";
@@ -32,9 +41,9 @@ do_test (int argc, char *argv[])
 	  return 1;
 	}
       asprintf (&env[1], "LOCPATH=%s", loc);
-      if (newargv[0] == NULL)
+      if (env[1] == NULL)
 	{
-	  puts ("second asprintf failed");
+	  puts ("asprintf failed");
 	  return 1;
 	}
       env[2] = NULL;
