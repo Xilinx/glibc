@@ -91,7 +91,15 @@ typedef unsigned long long int hp_timing_t;
    running in this moment.  This could be changed by using a barrier like
    'cpuid' right before the `rdtsc' instruciton.  But we are not interested
    in accurate clock cycles here so we don't do this.  */
-#define HP_TIMING_NOW(Var)	__asm__ __volatile__ ("rdtsc" : "=A" (Var))
+#ifdef __x86_64__
+/* The "=A" constraint used in 32-bit mode does not work in 64-bit mode.  */
+# define HP_TIMING_NOW(Var) \
+  ({ unsigned int _hi, _lo; \
+     asm volatile ("rdtsc" : "=a" (_lo), "=d" (_hi)); \
+     (Var) = ((unsigned long long int) _hi << 32) | _lo; })
+#else
+# define HP_TIMING_NOW(Var)	__asm__ __volatile__ ("rdtsc" : "=A" (Var))
+#endif
 
 /* Use two 'rdtsc' instructions in a row to find out how long it takes.  */
 #define HP_TIMING_DIFF_INIT() \
@@ -115,8 +123,17 @@ typedef unsigned long long int hp_timing_t;
 /* It's simple arithmetic for us.  */
 #define HP_TIMING_DIFF(Diff, Start, End)	(Diff) = ((End) - (Start))
 
+#ifdef __x86_64__
+/* The funny business for 32-bit mode is not required here.  */
+# define HP_TIMING_ACCUM(Sum, Diff)					      \
+  do {									      \
+    hp_timing_t __diff = (Diff) - GLRO(dl_hp_timing_overhead);		      \
+    __asm__ __volatile__ ("lock; addq %1, %0"				      \
+			  : "=m" (Sum) : "r" (__diff), "m" (Sum));	      \
+  } while (0)
+#else
 /* We have to jump through hoops to get this correctly implemented.  */
-#define HP_TIMING_ACCUM(Sum, Diff) \
+# define HP_TIMING_ACCUM(Sum, Diff) \
   do {									      \
     int __not_done;							      \
     hp_timing_t __oldval = (Sum);					      \
@@ -137,6 +154,7 @@ typedef unsigned long long int hp_timing_t;
       }									      \
     while ((unsigned char) __not_done);					      \
   } while (0)
+#endif
 
 /* No threads, no extra work.  */
 #define HP_TIMING_ACCUM_NT(Sum, Diff)	(Sum) += (Diff)

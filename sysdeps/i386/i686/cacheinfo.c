@@ -1,4 +1,4 @@
 #define DISABLE_PREFETCHW
 #define DISABLE_PREFERRED_MEMORY_INSTRUCTION
 
-#include <sysdeps/x86_64/cacheinfo.c>
+#include <sysdeps/x86/i686/cacheinfo.c>

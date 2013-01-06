@@ -2,8 +2,6 @@
 long-double-fcts = yes
 
 ifeq ($(subdir),csu)
-sysdep_routines += hp-timing
-elide-routines.os += hp-timing
 gen-as-const-headers += link-defines.sym
 endif
 
@@ -16,7 +14,7 @@ tests += tst-mallocalign1
 endif
 
 ifeq ($(subdir),string)
-sysdep_routines += cacheinfo strcasecmp_l-nonascii strncase_l-nonascii
+sysdep_routines += strcasecmp_l-nonascii strncase_l-nonascii
 gen-as-const-headers += locale-defines.sym
 endif
 

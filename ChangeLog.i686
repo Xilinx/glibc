@@ -1,0 +1,20 @@
+2013-01-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/i686/Implies: Add x86/i686.
+	* sysdeps/x86_64/Implies: Likewise.
+	* sysdeps/i386/i686/Makefile (sysdep_routines): Don't add
+	hp-timing nor cacheinfo.
+	(elide-routines.os): Don't add hp-timing.
+	* sysdeps/x86_64/Makefile: Likewise.
+	* sysdeps/i386/i686/cacheinfo.c: Updated.
+	* sysdeps/x86_64/multiarch/cacheinfo.c: Likewise.
+	* sysdeps/i386/i686/hp-timing.c: Moved to ...
+	* sysdeps/x86/i686/hp-timing.c: Here.
+	* sysdeps/i386/i686/hp-timing.h: Moved to ...
+	* sysdeps/x86/i686/hp-timing.h: Here.
+	(HP_TIMING_NOW): Support x86-64.
+	(HP_TIMING_ACCUM): Likewise.
+	* sysdeps/x86/i686/Makefile: New file.
+	* sysdeps/x86_64/cacheinfo.c: Removed.
+	* sysdeps/x86_64/hp-timing.c: Likewise.
+	* sysdeps/x86_64/hp-timing.h: Likewise.
