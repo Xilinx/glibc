@@ -1,3 +1,8 @@
+2013-05-13  Andreas Schwab  <schwab@suse.de>
+
+	[BZ #14991]
+	* charmaps/BIG5-HKSCS: Update to HKSCS-2008.
+
 2013-04-27  Nik Kalach  <nikka@fedoraproject.org>
 
 	[BZ #15221]
