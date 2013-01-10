@@ -21,6 +21,10 @@
 #include <string.h>
 #include "varshift.h"
 
+#ifndef __x86_64__
+# define __strspn_sse2 __strspn_ia32
+#endif
+
 /* We use 0x12:
 	_SIDD_SBYTE_OPS
 	| _SIDD_CMP_EQUAL_ANY

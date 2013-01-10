@@ -17,7 +17,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
-#include <xmmintrin.h>
+#include <nmmintrin.h>
 
 
 /* Similar to __m128i_strloadu.  Convert to lower case for none-POSIX/C

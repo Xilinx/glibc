@@ -53,6 +53,10 @@
    when either CFlag or ZFlag is 1.  If CFlag == 1, ECX has the offset
    X for case 1.  */
 
+#ifndef __x86_64__
+# define __strcspn_sse2 __strcspn_ia32
+#endif
+
 #ifndef STRCSPN_SSE2
 # define STRCSPN_SSE2 __strcspn_sse2
 # define STRCSPN_SSE42 __strcspn_sse42

@@ -24,11 +24,20 @@
 #include <string.h>
 #undef  strstr
 
+#ifndef __x86_64__
+# define __strstr_sse2 __strstr_ia32
+#endif
+
 #define STRSTR __strstr_sse2
 #ifdef SHARED
 # undef libc_hidden_builtin_def
-# define libc_hidden_builtin_def(name) \
+# ifdef __x86_64__
+#  define libc_hidden_builtin_def(name) \
   __hidden_ver1 (__strstr_sse2, __GI_strstr, __strstr_sse2);
+# else
+#  define libc_hidden_builtin_def(name) \
+  __hidden_ver1 (__strstr_ia32, __GI_strstr, __strstr_ia32);
+# endif
 #endif
 
 #include "string/strstr.c"

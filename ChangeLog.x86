@@ -1,0 +1,103 @@
+2012-12-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/i686/multiarch/Makefile (aux): Don't add init-arch.
+	(tests): Don't add test-multiarch.
+	(gen-as-const-headers): Don't add ifunc-defines.sym.
+	(sysdep_routines): Remove strcasestr-nonascii, varshift, 
+	strncpy-c, strncat-c, strcspn-c, strpbrk-c, strspn-c, strstr-c,
+	strcasestr-c, wmemcmp-c and wcscpy-c.
+	(CFLAGS-varshift.c): Removed.
+	(CFLAGS-strcspn-c.c): Likewise.
+	(CFLAGS-strpbrk-c.c): Likewise.
+	(CFLAGS-strspn-c.c): Likewise.
+	(CFLAGS-strstr.c): Likewise.
+	(CFLAGS-strcasestr.c): Likewise.
+	(CFLAGS-strcasestr-nonascii.c): Likewise.
+	* sysdeps/x86_64/multiarch/Makefile: Likewise.
+	* sysdeps/i386/i686/multiarch/Implies: New file.
+	* sysdeps/x86/multiarch/Makefile: Likewise.
+	* sysdeps/x86_64/multiarch/Implies: Likewise.
+	* sysdeps/i386/i686/multiarch/Versions: Removed.
+	* sysdeps/i386/i686/multiarch/ifunc-defines.sym: Likewise.
+	* sysdeps/i386/i686/multiarch/init-arch.c: Likewise.
+	* sysdeps/i386/i686/multiarch/init-arch.h: Likewise.
+	* sysdeps/i386/i686/multiarch/sched_cpucount.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strcasestr-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strcasestr-nonascii.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strcasestr.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strcspn-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strncat-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strncpy-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strpbrk-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strspn-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strstr-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/strstr.c: Likewise.
+	* sysdeps/i386/i686/multiarch/test-multiarch.c: Likewise.
+	* sysdeps/i386/i686/multiarch/varshift.c: Likewise.
+	* sysdeps/i386/i686/multiarch/wcscpy-c.c: Likewise.
+	* sysdeps/i386/i686/multiarch/wmemcmp-c.c: Likewise.
+	* sysdeps/x86_64/multiarch/Versions: Moved to ...
+	* sysdeps/x86/multiarch/Versions: Here.
+	* sysdeps/x86_64/multiarch/ifunc-defines.sym: Moved to ...
+	* sysdeps/x86/multiarch/ifunc-defines.sym: Here.
+	* sysdeps/x86_64/multiarch/init-arch.c: Moved to ...
+	* sysdeps/x86/multiarch/init-arch.c: Here.
+	* sysdeps/x86_64/multiarch/init-arch.h: Moved to ...
+	* sysdeps/x86/multiarch/init-arch.h: Here.
+	* sysdeps/x86_64/multiarch/sched_cpucount.c: Moved to ...
+	* sysdeps/x86/multiarch/sched_cpucount.c: Here.
+	* sysdeps/x86_64/multiarch/strcasestr-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strcasestr-c.c: Here.
+	(__strcasestr_sse2): Defined to __strcasestr_ia32 if __x86_64__
+	isn't defined.
+	(__strcasestr): Remove the "#if 1" out codes.
+	* sysdeps/x86_64/multiarch/strcasestr-nonascii.c: Moved to ...
+	* sysdeps/x86/multiarch/strcasestr-nonascii.c: Here.
+	Include nmmintrin.h instead of xmmintrin.h.
+	* sysdeps/x86_64/multiarch/strcasestr.c: Moved to ...
+	* sysdeps/x86/multiarch/strcasestr.c: Here.
+	* sysdeps/x86_64/multiarch/strcspn-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strcspn-c.c: Here.
+	(__strcspn_sse2): Defined to __strcspn_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/strncat-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strncat-c.c: Here.
+	(__strncat_sse2): Defined to __strncat_ia32 if __x86_64__ isn't
+	defined.
+	(libc_hidden_def): Use __strncat_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/strncpy-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strncpy-c.c: Here.
+	(__strncpy_sse2): Defined to __strncpy_ia32 if __x86_64__ isn't
+	defined.
+	(libc_hidden_def): Use __strncpy_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/strpbrk-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strpbrk-c.c: Here.
+	(__strpbrk_sse2): Defined to __strpbrk_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/strspn-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strspn-c.c: Here.
+	(__strspn_sse2): Defined to __strspn_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/strstr-c.c: Moved to ...
+	* sysdeps/x86/multiarch/strstr-c.c: Here.
+	(__strstr_sse2): Defined to __strstr_ia32 if __x86_64__ isn't
+	defined.
+	(libc_hidden_def): Use __strstr_ia32 if __x86_64__ isn't defined.
+	* sysdeps/x86_64/multiarch/strstr.c: Moved to ...
+	* sysdeps/x86/multiarch/strstr.c: Here.
+	* sysdeps/x86_64/multiarch/test-multiarch.c: Moved to ...
+	* sysdeps/x86/multiarch/test-multiarch.c: Here.
+	* sysdeps/x86_64/multiarch/varshift.c: Moved to ...
+	* sysdeps/x86/multiarch/varshift.c: Here.
+	* sysdeps/x86_64/multiarch/varshift.h: Moved to ...
+	* sysdeps/x86/multiarch/varshift.h: Here.
+	* sysdeps/x86_64/multiarch/wcscpy-c.c: Moved to ...
+	* sysdeps/x86/multiarch/wcscpy-c.c: Here.
+	(__wcscpy_sse2): Defined to __wcscpy_ia32 if __x86_64__ isn't
+	defined.
+	* sysdeps/x86_64/multiarch/wmemcmp-c.c: Moved to ...
+	* sysdeps/x86/multiarch/wmemcmp-c.c: Here.
+	(__wmemcmp_sse2): Defined to __wmemcmp_ia32 if __x86_64__ isn't
+	defined.

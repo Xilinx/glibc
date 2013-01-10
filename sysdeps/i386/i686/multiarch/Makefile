@@ -1,9 +1,3 @@
-ifeq ($(subdir),csu)
-aux += init-arch
-tests += test-multiarch
-gen-as-const-headers += ifunc-defines.sym
-endif
-
 ifeq ($(subdir),string)
 gen-as-const-headers += locale-defines.sym
 sysdep_routines += bzero-sse2 memset-sse2 memcpy-ssse3 mempcpy-ssse3 \
@@ -11,11 +5,11 @@ sysdep_routines += bzero-sse2 memset-sse2 memcpy-ssse3 mempcpy-ssse3 \
 		   memmove-ssse3-rep bcopy-ssse3 bcopy-ssse3-rep \
 		   memset-sse2-rep bzero-sse2-rep strcmp-ssse3 \
 		   strcmp-sse4 strncmp-c strncmp-ssse3 strncmp-sse4 \
-		   memcmp-ssse3 memcmp-sse4 strcasestr-nonascii varshift \
-		   strlen-sse2 strlen-sse2-bsf strncpy-c strcpy-ssse3 \
+		   memcmp-ssse3 memcmp-sse4 \
+		   strlen-sse2 strlen-sse2-bsf strcpy-ssse3 \
 		   strncpy-ssse3 stpcpy-ssse3 stpncpy-ssse3 strcpy-sse2 \
 		   strncpy-sse2 stpcpy-sse2 stpncpy-sse2 strcat-ssse3 \
-		   strcat-sse2 strncat-ssse3 strncat-sse2 strncat-c \
+		   strcat-sse2 strncat-ssse3 strncat-sse2 \
 		   strchr-sse2 strrchr-sse2 strchr-sse2-bsf strrchr-sse2-bsf \
 		   memchr-sse2 memchr-sse2-bsf \
 		   memrchr-sse2 memrchr-sse2-bsf memrchr-c \
@@ -24,22 +18,12 @@ sysdep_routines += bzero-sse2 memset-sse2 memcpy-ssse3 mempcpy-ssse3 \
 		   strcasecmp_l-c strcasecmp-c strcasecmp_l-ssse3 \
 		   strncase_l-c strncase-c strncase_l-ssse3 \
 		   strcasecmp_l-sse4 strncase_l-sse4
-ifeq (yes,$(config-cflags-sse4))
-sysdep_routines += strcspn-c strpbrk-c strspn-c strstr-c strcasestr-c
-CFLAGS-varshift.c += -msse4
-CFLAGS-strcspn-c.c += -msse4
-CFLAGS-strpbrk-c.c += -msse4
-CFLAGS-strspn-c.c += -msse4
-CFLAGS-strstr.c += -msse4
-CFLAGS-strcasestr.c += -msse4
-CFLAGS-strcasestr-nonascii.c += -msse4
-endif
 endif
 
 ifeq ($(subdir),wcsmbs)
 sysdep_routines += wcscmp-sse2 wcscmp-c wcslen-sse2 wcslen-c \
-		   wmemcmp-sse4 wmemcmp-ssse3 wmemcmp-c wcschr-sse2 \
-		   wcschr-c wcsrchr-sse2 wcsrchr-c wcscpy-ssse3 wcscpy-c
+		   wmemcmp-sse4 wmemcmp-ssse3 wcschr-sse2 \
+		   wcschr-c wcsrchr-sse2 wcsrchr-c wcscpy-ssse3
 endif
 
 ifeq (mathyes,$(subdir)$(config-cflags-avx))
