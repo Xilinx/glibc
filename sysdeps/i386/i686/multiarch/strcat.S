@@ -30,12 +30,12 @@
 #ifdef USE_AS_STRNCAT
 # define STRCAT_SSSE3	__strncat_ssse3
 # define STRCAT_SSE2		__strncat_sse2
-# define STRCAT_IA32		__strncat_ia32
+# define STRCAT_GENERIC		__strncat_generic
 # define __GI_STRCAT		__GI_strncat
 #else
 # define STRCAT_SSSE3	__strcat_ssse3
 # define STRCAT_SSE2		__strcat_sse2
-# define STRCAT_IA32		__strcat_ia32
+# define STRCAT_GENERIC		__strcat_generic
 # define __GI_STRCAT		__GI_strcat
 #endif
 
@@ -56,7 +56,7 @@ ENTRY(STRCAT)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	STRCAT_IA32@GOTOFF(%ebx), %eax
+1:	leal	STRCAT_GENERIC@GOTOFF(%ebx), %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	STRCAT_SSE2@GOTOFF(%ebx), %eax
@@ -77,7 +77,7 @@ ENTRY(STRCAT)
 	cmpl	$0, KIND_OFFSET+__cpu_features
 	jne	1f
 	call	__init_cpu_features
-1:	leal	STRCAT_IA32, %eax
+1:	leal	STRCAT_GENERIC, %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features
 	jz	2f
 	leal	STRCAT_SSE2, %eax
@@ -93,15 +93,15 @@ END(STRCAT)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type STRCAT_IA32, @function; \
+	.type STRCAT_GENERIC, @function; \
 	.align 16; \
-	.globl STRCAT_IA32; \
-	.hidden STRCAT_IA32; \
-	STRCAT_IA32: cfi_startproc; \
+	.globl STRCAT_GENERIC; \
+	.hidden STRCAT_GENERIC; \
+	STRCAT_GENERIC: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size STRCAT_IA32, .-STRCAT_IA32
+	cfi_endproc; .size STRCAT_GENERIC, .-STRCAT_GENERIC
 
 # ifdef SHARED
 #  undef libc_hidden_builtin_def
@@ -109,10 +109,10 @@ END(STRCAT)
    The speedup we get from using SSSE3 instruction is likely eaten away
    by the indirect call in the PLT.  */
 #  define libc_hidden_builtin_def(name) \
-	.globl __GI_STRCAT; __GI_STRCAT = STRCAT_IA32
+	.globl __GI_STRCAT; __GI_STRCAT = STRCAT_GENERIC
 #  undef libc_hidden_def
 #  define libc_hidden_def(name) \
-	.globl __GI___STRCAT; __GI___STRCAT = STRCAT_IA32
+	.globl __GI___STRCAT; __GI___STRCAT = STRCAT_GENERIC
 
 # endif
 #endif

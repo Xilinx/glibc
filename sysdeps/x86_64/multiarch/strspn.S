@@ -33,7 +33,7 @@ ENTRY(strspn)
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
-1:	leaq	__strspn_sse2(%rip), %rax
+1:	leaq	__strspn_generic(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
 	jz	2f
 	leaq	__strspn_sse42(%rip), %rax
@@ -42,20 +42,20 @@ END(strspn)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type __strspn_sse2, @function; \
-	.globl __strspn_sse2; \
+	.type __strspn_generic, @function; \
+	.globl __strspn_generic; \
 	.align 16; \
-	__strspn_sse2: cfi_startproc; \
+	__strspn_generic: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size __strspn_sse2, .-__strspn_sse2
+	cfi_endproc; .size __strspn_generic, .-__strspn_generic
 # undef libc_hidden_builtin_def
 /* It doesn't make sense to send libc-internal strspn calls through a PLT.
    The speedup we get from using SSE4.2 instruction is likely eaten away
    by the indirect call in the PLT.  */
 # define libc_hidden_builtin_def(name) \
-	.globl __GI_strspn; __GI_strspn = __strspn_sse2
+	.globl __GI_strspn; __GI_strspn = __strspn_generic
 #endif
 
 #endif /* HAVE_SSE4_SUPPORT */

@@ -33,7 +33,7 @@ ENTRY(wcscpy)
 
 1:	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
 	jnz	2f
-	leaq	__wcscpy_sse2(%rip), %rax
+	leaq	__wcscpy_generic(%rip), %rax
 	ret
 
 2:	leaq	__wcscpy_ssse3(%rip), %rax

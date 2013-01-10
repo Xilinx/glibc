@@ -31,13 +31,13 @@
 # ifdef USE_AS_STRNCPY
 #  define STRCPY_SSSE3	__stpncpy_ssse3
 #  define STRCPY_SSE2		__stpncpy_sse2
-#  define STRCPY_IA32		__stpncpy_ia32
+#  define STRCPY_GENERIC		__stpncpy_generic
 #  define __GI_STRCPY		__GI_stpncpy
 #  define __GI___STRCPY		__GI___stpncpy
 # else
 #  define STRCPY_SSSE3	__stpcpy_ssse3
 #  define STRCPY_SSE2		__stpcpy_sse2
-#  define STRCPY_IA32		__stpcpy_ia32
+#  define STRCPY_GENERIC		__stpcpy_generic
 #  define __GI_STRCPY		__GI_stpcpy
 #  define __GI___STRCPY		__GI___stpcpy
 # endif
@@ -45,12 +45,12 @@
 # ifdef USE_AS_STRNCPY
 #  define STRCPY_SSSE3	__strncpy_ssse3
 #  define STRCPY_SSE2		__strncpy_sse2
-#  define STRCPY_IA32		__strncpy_ia32
+#  define STRCPY_GENERIC	__strncpy_generic
 #  define __GI_STRCPY		__GI_strncpy
 # else
 #  define STRCPY_SSSE3	__strcpy_ssse3
 #  define STRCPY_SSE2		__strcpy_sse2
-#  define STRCPY_IA32		__strcpy_ia32
+#  define STRCPY_GENERIC	__strcpy_generic
 #  define __GI_STRCPY		__GI_strcpy
 # endif
 #endif
@@ -72,7 +72,7 @@ ENTRY(STRCPY)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	STRCPY_IA32@GOTOFF(%ebx), %eax
+1:	leal	STRCPY_GENERIC@GOTOFF(%ebx), %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	STRCPY_SSE2@GOTOFF(%ebx), %eax
@@ -93,7 +93,7 @@ ENTRY(STRCPY)
 	cmpl	$0, KIND_OFFSET+__cpu_features
 	jne	1f
 	call	__init_cpu_features
-1:	leal	STRCPY_IA32, %eax
+1:	leal	STRCPY_GENERIC, %eax
 	testl	$bit_SSE2, CPUID_OFFSET+index_SSE2+__cpu_features
 	jz	2f
 	leal	STRCPY_SSE2, %eax
@@ -109,15 +109,15 @@ END(STRCPY)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type STRCPY_IA32, @function; \
+	.type STRCPY_GENERIC, @function; \
 	.align 16; \
-	.globl STRCPY_IA32; \
-	.hidden STRCPY_IA32; \
-	STRCPY_IA32: cfi_startproc; \
+	.globl STRCPY_GENERIC; \
+	.hidden STRCPY_GENERIC; \
+	STRCPY_GENERIC: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size STRCPY_IA32, .-STRCPY_IA32
+	cfi_endproc; .size STRCPY_GENERIC, .-STRCPY_GENERIC
 
 # ifdef SHARED
 #  undef libc_hidden_builtin_def
@@ -125,10 +125,10 @@ END(STRCPY)
    The speedup we get from using SSSE3 instruction is likely eaten away
    by the indirect call in the PLT.  */
 #  define libc_hidden_builtin_def(name) \
-	.globl __GI_STRCPY; __GI_STRCPY = STRCPY_IA32
+	.globl __GI_STRCPY; __GI_STRCPY = STRCPY_GENERIC
 #  undef libc_hidden_def
 #  define libc_hidden_def(name) \
-	.globl __GI___STRCPY; __GI___STRCPY = STRCPY_IA32
+	.globl __GI___STRCPY; __GI___STRCPY = STRCPY_GENERIC
 
 # endif
 #endif

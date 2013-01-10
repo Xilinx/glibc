@@ -24,33 +24,24 @@
 #include <string.h>
 #undef  strstr
 
-#ifndef __x86_64__
-# define __strstr_sse2 __strstr_ia32
-#endif
-
-#define STRSTR __strstr_sse2
+#define STRSTR __strstr_generic
 #ifdef SHARED
 # undef libc_hidden_builtin_def
-# ifdef __x86_64__
-#  define libc_hidden_builtin_def(name) \
-  __hidden_ver1 (__strstr_sse2, __GI_strstr, __strstr_sse2);
-# else
-#  define libc_hidden_builtin_def(name) \
-  __hidden_ver1 (__strstr_ia32, __GI_strstr, __strstr_ia32);
-# endif
+# define libc_hidden_builtin_def(name) \
+  __hidden_ver1 (__strstr_generic, __GI_strstr, __strstr_generic);
 #endif
 
 #include "string/strstr.c"
 
 extern __typeof (__redirect_strstr) __strstr_sse42 attribute_hidden;
-extern __typeof (__redirect_strstr) __strstr_sse2 attribute_hidden;
+extern __typeof (__redirect_strstr) __strstr_generic attribute_hidden;
 
 #include "init-arch.h"
 
 /* Avoid DWARF definition DIE on ifunc symbol so that GDB can handle
    ifunc symbol properly.  */
 extern __typeof (__redirect_strstr) __libc_strstr;
-libc_ifunc (__libc_strstr, HAS_SSE4_2 ? __strstr_sse42 : __strstr_sse2)
+libc_ifunc (__libc_strstr, HAS_SSE4_2 ? __strstr_sse42 : __strstr_generic)
 
 #undef strstr
 strong_alias (__libc_strstr, strstr)

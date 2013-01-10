@@ -38,7 +38,7 @@ ENTRY(strspn)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__strspn_ia32@GOTOFF(%ebx), %eax
+1:	leal	__strspn_generic@GOTOFF(%ebx), %eax
 	testl	$bit_SSE4_2, CPUID_OFFSET+index_SSE4_2+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	__strspn_sse42@GOTOFF(%ebx), %eax
@@ -54,7 +54,7 @@ ENTRY(strspn)
 	cmpl	$0, KIND_OFFSET+__cpu_features
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__strspn_ia32, %eax
+1:	leal	__strspn_generic, %eax
 	testl	$bit_SSE4_2, CPUID_OFFSET+index_SSE4_2+__cpu_features
 	jz	2f
 	leal	__strspn_sse42, %eax
@@ -64,20 +64,20 @@ END(strspn)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type __strspn_ia32, @function; \
-	.globl __strspn_ia32; \
+	.type __strspn_generic, @function; \
+	.globl __strspn_generic; \
 	.p2align 4; \
-__strspn_ia32: cfi_startproc; \
+__strspn_generic: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size __strspn_ia32, .-__strspn_ia32
+	cfi_endproc; .size __strspn_generic, .-__strspn_generic
 # undef libc_hidden_builtin_def
 /* IFUNC doesn't work with the hidden functions in shared library since
    they will be called without setting up EBX needed for PLT which is
    used by IFUNC.  */
 # define libc_hidden_builtin_def(name) \
-	.globl __GI_strspn; __GI_strspn = __strspn_ia32
+	.globl __GI_strspn; __GI_strspn = __strspn_generic
 #endif
 
 #endif /* HAVE_SSE4_SUPPORT */

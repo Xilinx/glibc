@@ -1,3 +1,75 @@
+2013-01-04  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/i686/multiarch/ifunc-impl-list.c
+	(__libc_ifunc_impl_list): Replace __stpncpy_ia32, __stpcpy_ia32,
+	__strcasestr_ia32, __strcat_ia32, __strcpy_ia32, __strcspn_ia32,
+	__strncat_ia32, __strncpy_ia32, __strpbrk_ia32, __strspn_ia32,
+	__strstr_ia32, __wcscpy_ia32 and __wmemcmp_ia32 with
+	__stpncpy_generic, __stpcpy_generic, __strcasestr_generic,
+	__strcpy_generic, __strcspn_generic, __strncat_generic,
+	__strncpy_generic, __strpbrk_generic, __strspn_generic,
+	__strstr_generic, __wcscpy_generic and __wmemcmp_generic,
+	respectively.
+	* sysdeps/i386/i686/multiarch/strcat.S (STRCAT_IA32): Renamed
+	to ...
+	(STRCAT_GENERIC): This.
+	* sysdeps/i386/i686/multiarch/strcpy.S (STRCPY_IA32): Renamed
+	to ...
+	(STRCPY_GENERIC): This.
+	* sysdeps/i386/i686/multiarch/strcspn.S (STRCSPN_IA32): Renamed
+	to ...
+	(STRCSPN_GENERIC): This.
+	* sysdeps/i386/i686/multiarch/strspn.S: Replace __strspn_ia32
+	with __strspn_generic.
+	* sysdeps/i386/i686/multiarch/wcscpy.S: Replace  __wcscpy_ia32
+	with __wcscpy_generic.
+	* sysdeps/i386/i686/multiarch/wmemcmp.S: Replace __wmemcmp_ia32
+	with __wmemcmp_generic.
+	* sysdeps/x86/i686/multiarch/strcasestr-c.c: Replace
+	__strcasestr_sse2 with __strcasestr_generic.
+	* sysdeps/x86/i686/multiarch/strcspn-c.c: Replace __strcspn_sse2
+	with __strcspn_generic.
+	* sysdeps/x86/i686/multiarch/strncat-c.c: Replace __strncat_sse2
+	with __strncat_generic.
+	* sysdeps/x86/i686/multiarch/strncpy-c.c: Replace __strncpy_sse2
+	with __strncpy_generic.
+	* sysdeps/x86/i686/multiarch/strpbrk-c.c: Replace __strpbrk_sse2
+	with __strpbrk_generic.
+	* sysdeps/x86/i686/multiarch/strspn-c.c: Replace __strspn_sse2
+	with __strspn_generic.
+	* sysdeps/x86/i686/multiarch/strstr-c.c: Replace __strstr_sse2
+	with __strstr_generic.
+	* sysdeps/x86/i686/multiarch/wcscpy-c.c: Replace __wcscpy_sse2
+	with __wcscpy_generic.
+	* sysdeps/x86/i686/multiarch/wmemcmp-c.c: Replace __wmemcmp_sse2
+	with __wmemcmp_generic.
+	* sysdeps/x86_64/multiarch/ifunc-impl-list.c: Replace
+	__stpncpy_sse2, __stpcpy_sse2, __strcasestr_sse2, __strcat_sse2,
+	__strcpy_sse2, __strcspn_sse2, __strncat_sse2, __strncpy_sse2,
+	__strpbrk_sse2, __strspn_sse2, __strstr_sse2, __wcscpy_sse2 and
+	__wmemcmp_sse2 with __stpncpy_generic, __stpcpy_generic,
+	__strcasestr_generic, __strcat_generic, __strcpy_generic,
+	__strcspn_generic, __strncat_generic, __strncpy_generic,
+	__strpbrk_generic, __strspn_generic, __strstr_generic,
+	__wcscpy_generic and __wmemcmp_generic, respectively.
+	* sysdeps/x86_64/multiarch/stpncpy-c.c: Replace __stpncpy_sse2
+	with __stpncpy_generic.
+	* sysdeps/x86_64/multiarch/strcat.S (STRCAT_SSE2): Renamed to
+	...
+	(STRCAT_GENERIC): This.
+	* sysdeps/x86_64/multiarch/strcpy.S (STRCPY_SSE2): Renamed to
+	...
+	(STRCPY_GENRIC): This.
+	* sysdeps/x86_64/multiarch/strcspn.S (STRCSPN_SSE2): Renamed to
+	...
+	(STRCSPN_GENERIC): This.
+	* sysdeps/x86_64/multiarch/strspn.S: Replace __strspn_sse2
+	with __strspn_generic.
+	* sysdeps/x86_64/multiarch/wcscpy.S: Replace __wcscpy_sse2
+	with __wcscpy_generic.
+	* sysdeps/x86_64/multiarch/wmemcmp.S: Replace __wmemcmp_sse2
+	with __wmemcmp_generic.
+
 2012-12-14  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* sysdeps/i386/i686/multiarch/Makefile (aux): Don't add init-arch.

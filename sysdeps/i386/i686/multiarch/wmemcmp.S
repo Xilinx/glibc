@@ -34,7 +34,7 @@ ENTRY(wmemcmp)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
-1:	leal	__wmemcmp_ia32@GOTOFF(%ebx), %eax
+1:	leal	__wmemcmp_generic@GOTOFF(%ebx), %eax
 	testl	$bit_SSSE3, CPUID_OFFSET+index_SSSE3+__cpu_features@GOTOFF(%ebx)
 	jz	2f
 	leal	__wmemcmp_ssse3@GOTOFF(%ebx), %eax

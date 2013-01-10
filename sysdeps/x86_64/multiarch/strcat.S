@@ -29,13 +29,13 @@
 
 #ifdef USE_AS_STRNCAT
 # define STRCAT_SSSE3	         	__strncat_ssse3
-# define STRCAT_SSE2	            	__strncat_sse2
+# define STRCAT_GENERIC	            	__strncat_generic
 # define STRCAT_SSE2_UNALIGNED    	__strncat_sse2_unaligned
 # define __GI_STRCAT	            	__GI_strncat
 # define __GI___STRCAT              __GI___strncat
 #else
 # define STRCAT_SSSE3	         	__strcat_ssse3
-# define STRCAT_SSE2	            	__strcat_sse2
+# define STRCAT_GENERIC	            	__strcat_generic
 # define STRCAT_SSE2_UNALIGNED    	__strcat_sse2_unaligned
 # define __GI_STRCAT	            	__GI_strcat
 # define __GI___STRCAT              __GI___strcat
@@ -53,7 +53,7 @@ ENTRY(STRCAT)
 1:	leaq	STRCAT_SSE2_UNALIGNED(%rip), %rax
 	testl	$bit_Fast_Unaligned_Load, __cpu_features+FEATURE_OFFSET+index_Fast_Unaligned_Load(%rip)
 	jnz	2f
-	leaq	STRCAT_SSE2(%rip), %rax
+	leaq	STRCAT_GENERIC(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
 	jz	2f
 	leaq	STRCAT_SSSE3(%rip), %rax
@@ -62,24 +62,24 @@ END(STRCAT)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type STRCAT_SSE2, @function; \
+	.type STRCAT_GENERIC, @function; \
 	.align 16; \
-	.globl STRCAT_SSE2; \
-	.hidden STRCAT_SSE2; \
-	STRCAT_SSE2: cfi_startproc; \
+	.globl STRCAT_GENERIC; \
+	.hidden STRCAT_GENERIC; \
+	STRCAT_GENERIC: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size STRCAT_SSE2, .-STRCAT_SSE2
+	cfi_endproc; .size STRCAT_GENERIC, .-STRCAT_GENERIC
 # undef libc_hidden_builtin_def
 /* It doesn't make sense to send libc-internal strcat calls through a PLT.
    The speedup we get from using SSSE3 instruction is likely eaten away
    by the indirect call in the PLT.  */
 # define libc_hidden_builtin_def(name) \
-	.globl __GI_STRCAT; __GI_STRCAT = STRCAT_SSE2
+	.globl __GI_STRCAT; __GI_STRCAT = STRCAT_GENERIC
 # undef libc_hidden_def
 # define libc_hidden_def(name) \
-	.globl __GI___STRCAT; __GI___STRCAT = STRCAT_SSE2
+	.globl __GI___STRCAT; __GI___STRCAT = STRCAT_GENERIC
 #endif
 
 #ifndef USE_AS_STRNCAT

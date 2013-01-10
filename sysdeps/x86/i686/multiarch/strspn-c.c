@@ -21,10 +21,6 @@
 #include <string.h>
 #include "varshift.h"
 
-#ifndef __x86_64__
-# define __strspn_sse2 __strspn_ia32
-#endif
-
 /* We use 0x12:
 	_SIDD_SBYTE_OPS
 	| _SIDD_CMP_EQUAL_ANY
@@ -56,7 +52,7 @@
 
    We exit from the loop for case 1.  */
 
-extern size_t __strspn_sse2 (const char *, const char *);
+extern size_t __strspn_generic (const char *, const char *);
 
 
 size_t
@@ -88,7 +84,7 @@ __strspn_sse42 (const char *s, const char *a)
 
 	  /* Don't use SSE4.2 if the length of A > 16.  */
 	  if (length > 16)
-	    return __strspn_sse2 (s, a);
+	    return __strspn_generic (s, a);
 
 	  if (index != 0)
 	    {
@@ -111,7 +107,7 @@ __strspn_sse42 (const char *s, const char *a)
 	  /* There is no NULL terminator.  Don't use SSE4.2 if the length
 	     of A > 16.  */
 	  if (a[16] != 0)
-	    return __strspn_sse2 (s, a);
+	    return __strspn_generic (s, a);
 	}
     }
 

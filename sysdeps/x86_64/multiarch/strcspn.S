@@ -27,13 +27,13 @@
 
 #ifdef USE_AS_STRPBRK
 #define STRCSPN_SSE42	__strpbrk_sse42
-#define STRCSPN_SSE2	__strpbrk_sse2
+#define STRCSPN_GENERIC	__strpbrk_generic
 #define __GI_STRCSPN	__GI_strpbrk
 #else
 #ifndef STRCSPN
 #define STRCSPN		strcspn
 #define STRCSPN_SSE42	__strcspn_sse42
-#define STRCSPN_SSE2	__strcspn_sse2
+#define STRCSPN_GENERIC	__strcspn_generic
 #define __GI_STRCSPN	__GI_strcspn
 #endif
 #endif
@@ -48,7 +48,7 @@ ENTRY(STRCSPN)
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
-1:	leaq	STRCSPN_SSE2(%rip), %rax
+1:	leaq	STRCSPN_GENERIC(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
 	jz	2f
 	leaq	STRCSPN_SSE42(%rip), %rax
@@ -57,20 +57,20 @@ END(STRCSPN)
 
 # undef ENTRY
 # define ENTRY(name) \
-	.type STRCSPN_SSE2, @function; \
-	.globl STRCSPN_SSE2; \
+	.type STRCSPN_GENERIC, @function; \
+	.globl STRCSPN_GENERIC; \
 	.align 16; \
-	STRCSPN_SSE2: cfi_startproc; \
+	STRCSPN_GENERIC: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
 # define END(name) \
-	cfi_endproc; .size STRCSPN_SSE2, .-STRCSPN_SSE2
+	cfi_endproc; .size STRCSPN_GENERIC, .-STRCSPN_GENERIC
 # undef libc_hidden_builtin_def
 /* It doesn't make sense to send libc-internal strcspn calls through a PLT.
    The speedup we get from using SSE4.2 instruction is likely eaten away
    by the indirect call in the PLT.  */
 # define libc_hidden_builtin_def(name) \
-	.globl __GI_STRCSPN; __GI_STRCSPN = STRCSPN_SSE2
+	.globl __GI_STRCSPN; __GI_STRCSPN = STRCSPN_GENERIC
 #endif
 
 #endif /* HAVE_SSE4_SUPPORT */

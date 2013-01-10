@@ -32,7 +32,7 @@ ENTRY(wmemcmp)
 
 1:	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
 	jnz	2f
-	leaq	__wmemcmp_sse2(%rip), %rax
+	leaq	__wmemcmp_generic(%rip), %rax
 	ret
 
 2:	testl	$bit_SSE4_1, __cpu_features+CPUID_OFFSET+index_SSE4_1(%rip)
