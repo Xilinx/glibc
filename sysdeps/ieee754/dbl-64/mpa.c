@@ -602,7 +602,7 @@ void
 SECTION
 __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
-  int i, j, k, k2, ip = p;
+  int i, j, k, ip = p;
   double u, zk;
 
   /* Is z=0?  */
@@ -615,28 +615,30 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
   /* We need not iterate through all X's and Y's since it's pointless to
      multiply zeroes.  */
   for (i = p; i > 0; i--)
-    if (X[i] == 0 && Y[i] == 0)
+    if (X[i] == ZERO && Y[i] == ZERO)
       ip--;
     else
       break;
 
   /* Multiply, add and carry.  */
-  k2 = (__glibc_unlikely (p < 3)) ? p + p : p + 3;
-  zk = Z[k2] = ZERO;
+  k = (__glibc_unlikely (p < 3)) ? p + p : p + 3;
 
-  for (k = k2; k > p; k--)
+  while (k > 2 * ip)
+    Z[k--] = ZERO;
+
+  zk = Z[k] = ZERO;
+
+  while (k > p)
     {
-      for (i = k - ip, j = ip; i < ip + 1; i++, j--)
+      for (i = k - p, j = p; i < p + 1; i++, j--)
 	zk += X[i] * Y[j];
 
       u = (zk + CUTTER) - CUTTER;
       if (u > zk)
 	u -= RADIX;
-      Z[k] = zk - u;
+      Z[k--] = zk - u;
       zk = u * RADIXI;
     }
-  Z[k] = zk;
-  k = MIN(k, 2 * ip);
 
   while (k > 1)
     {
@@ -646,9 +648,8 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
       u = (zk + CUTTER) - CUTTER;
       if (u > zk)
 	u -= RADIX;
-      Z[k] = zk - u;
+      Z[k--] = zk - u;
       zk = u * RADIXI;
-      k--;
     }
   Z[k] = zk;
 
