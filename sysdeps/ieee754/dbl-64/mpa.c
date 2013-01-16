@@ -602,7 +602,7 @@ void
 SECTION
 __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
-  int i, j, k, ip = p;
+  int i, j, k, ip, ip2;
   double u, zk;
 
   /* Is z=0?  */
@@ -613,21 +613,33 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
     }
 
   /* We need not iterate through all X's and Y's since it's pointless to
-     multiply zeroes.  */
-  for (i = p; i > 0; i--)
-    if (X[i] == ZERO && Y[i] == ZERO)
-      ip--;
-    else
+     multiply zeroes.  Here, both are zero...  */
+  for (ip2 = p; ip2 > 0; ip2--)
+    if (X[ip2] != ZERO || Y[ip2] != ZERO)
+      break;
+
+  /* ... and here, at least one of them is still zero.  */
+  for (ip = ip2; ip > 0; ip--)
+    if (X[ip] * Y[ip] != ZERO)
       break;
 
   /* Multiply, add and carry.  */
   k = (__glibc_unlikely (p < 3)) ? p + p : p + 3;
 
-  while (k > 2 * ip)
+  /* For X with precision IP and Y with precision IP2, the term X[I]*Y[K-I] is
+     non-zero only when the ranges of non-zero values overlap.  This happens
+     only for values of K <= IP + IP2.  Note that we go from 1..K-1, which is
+     why we come down to IP + IP2 + 1 and not just IP + IP2.  */
+  while (k > ip + ip2 + 1)
     Z[k--] = ZERO;
 
   zk = Z[k] = ZERO;
 
+  /* This gives us additional precision if required.  This is only executed
+     when P < IP1 + IP2 + 1, i.e. at least one of the numbers have precision
+     of greater than or equal to half of what's required (P).  Anything less
+     and we're just wasting our time since we'll be spinning around
+     multiplying zeroes.  */
   while (k > p)
     {
       for (i = k - p, j = p; i < p + 1; i++, j--)
@@ -640,6 +652,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
       zk = u * RADIXI;
     }
 
+  /* The real deal.  */
   while (k > 1)
     {
       for (i = 1, j = k - 1; i < k; i++, j--)
