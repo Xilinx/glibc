@@ -123,7 +123,7 @@ norm (const mp_no *x, double *y, int p)
 #define R  RADIXI
   int i;
   double c;
-  int a, z[5];
+  long a, z[5];
 
   if (p < 5)
     {
@@ -192,7 +192,7 @@ denorm (const mp_no *x, double *y, int p)
 {
   int i, k;
   double c;
-  int z[5];
+  long z[5];
 
 #define R  RADIXI
   if (EX < -44 || (EX == -44 && X[1] < TWOPOW(5)))
@@ -376,14 +376,14 @@ add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
 
   for (; j > 0; i--, j--)
     {
-      int tmp = Z[k] + X[i] + Y[j];
+      long tmp = Z[k] + X[i] + Y[j];
       Z[k] = tmp % I_RADIX;
       Z[--k] = tmp / I_RADIX;
     }
 
   for (; i > 0; i--)
     {
-      int tmp = Z[k] + X[i];
+      long tmp = Z[k] + X[i];
       Z[k] = tmp % I_RADIX;
       Z[--k] = tmp / I_RADIX;
     }
@@ -424,7 +424,7 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
 	}
       else
 	{
-	  int tmp;
+	  long tmp;
 
 	  i = p;
 	  j = p + 1 - j;
@@ -439,7 +439,7 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
 
   for (; j > 0; i--, j--)
     {
-      int tmp = I_RADIX + Z[k] + X[i] - Y[j];
+      long tmp = I_RADIX + Z[k] + X[i] - Y[j];
 
       Z[k] = tmp % I_RADIX;
       Z[--k] = tmp / I_RADIX - 1;
@@ -447,7 +447,7 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
 
   for (; i > 0; i--)
     {
-      int tmp = I_RADIX + Z[k] + X[i];
+      long tmp = I_RADIX + Z[k] + X[i];
 
       Z[k] = tmp % I_RADIX;
       Z[--k] = tmp / I_RADIX - 1;
