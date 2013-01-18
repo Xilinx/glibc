@@ -61,7 +61,7 @@
 typedef struct
 {
   int e;
-  double d[40];
+  long d[40];
 } mp_no;
 
 typedef union
@@ -81,6 +81,8 @@ extern const mp_no mptwo;
 #define  EZ  z->e
 
 #define ABS(x)   ((x) <  0  ? -(x) : (x))
+
+#define I_RADIX    (1 << 24)		/* 2^24 */
 
 #define  RADIX     0x1.0p24		/* 2^24    */
 #define  RADIXI    0x1.0p-24		/* 2^-24   */

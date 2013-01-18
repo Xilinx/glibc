@@ -604,8 +604,8 @@ SECTION
 __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
   int i, j, k, ip, ip2;
-  double u, zk;
-  double *diag;
+  int64_t zk;
+  int64_t *diag;
 
   /* Is z=0?  */
   if (__glibc_unlikely (X[0] * Y[0] == ZERO))
@@ -645,18 +645,15 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
   while (k > p)
     {
       for (i = k - p, j = p; i < p + 1; i++, j--)
-	zk += X[i] * Y[j];
+	zk += (int64_t) X[i] * Y[j];
 
-      u = (zk + CUTTER) - CUTTER;
-      if (u > zk)
-	u -= RADIX;
-      Z[k--] = zk - u;
-      zk = u * RADIXI;
+      Z[k--] = zk % I_RADIX;
+      zk /= I_RADIX;
     }
 
   /* Precompute sums of diagonal elements so that we can directly use them
      later.  See the next comment to know we why need them.  */
-  diag = alloca (k * sizeof (double));
+  diag = alloca (k * sizeof (int64_t));
   diag[0] = ZERO;
   for (i = 1; i <= ip; i++)
     {
@@ -692,15 +689,12 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 	}
 
       for (i = 1, j = k - 1; i <= lim; i++, j--)
-	zk += (X[i] + X[j]) * (Y[i] + Y[j]);
+	zk += (int64_t) (X[i] + X[j]) * (Y[i] + Y[j]);
 
       zk -= diag[k - 1];
 
-      u = (zk + CUTTER) - CUTTER;
-      if (u > zk)
-	u -= RADIX;
-      Z[k--] = zk - u;
-      zk = u * RADIXI;
+      Z[k--] = zk % I_RADIX;
+      zk /= I_RADIX;
     }
   Z[k] = zk;
 
