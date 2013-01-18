@@ -111,7 +111,7 @@ extern const mp_no mptwo;
 #define  MHALF     -0x1.0p-1		/* -1/2 */
 #define  HALFRAD   0x1.0p23		/* 2^23 */
 
-int __acr (const mp_no *, const mp_no *, int);
+long __acr (const mp_no *, const mp_no *, int);
 void __cpy (const mp_no *, mp_no *, int);
 void __mp_dbl (const mp_no *, double *, int);
 void __dbl_mp (double, mp_no *, int);

@@ -56,10 +56,10 @@ const mp_no mptwo = {1, {1, 2}};
 
 #ifndef NO___ACR
 /* Compare the absolute values of two multiple precision numbers.  */
-int
+long
 __acr (const mp_no *x, const mp_no *y, int p)
 {
-  int i;
+  long i;
 
   if (X[0] == 0 || Y[0] == 0)
     return X[0] - Y[0];
@@ -80,10 +80,11 @@ __acr (const mp_no *x, const mp_no *y, int p)
 /* Copy multiple precision number X into Y.  They could be the same
    number.  */
 void
-__cpy (const mp_no *x, mp_no *y, int p)
+__cpy (const mp_no *x, mp_no *y, int p2)
 {
+  long p = p2;
   EY = EX;
-  for (int i = 0; i <= p; i++)
+  for (long i = 0; i <= p; i++)
     Y[i] = X[i];
 }
 #endif
@@ -92,12 +93,13 @@ __cpy (const mp_no *x, mp_no *y, int p)
 /* Convert a multiple precision number *X into a double precision
    number *Y, normalized case  (|x| >= 2**(-1022))).  */
 static void
-norm (const mp_no *x, double *y, int p)
+norm (const mp_no *x, double *y, int p2)
 {
 #define R  RADIXI
-  int i;
+  long i;
   double c;
   long a, z[5];
+  long p = p2;
 
   if (p < 5)
     {
@@ -162,11 +164,12 @@ norm (const mp_no *x, double *y, int p)
 /* Convert a multiple precision number *X into a double precision
    number *Y, Denormal case  (|x| < 2**(-1022))).  */
 static void
-denorm (const mp_no *x, double *y, int p)
+denorm (const mp_no *x, double *y, int p2)
 {
-  int i, k;
+  long i, k;
   double c;
   long z[5];
+  long p = p2;
 
 #define R  RADIXI
   if (EX < -44 || (EX == -44 && X[1] < TWOPOW(5)))
@@ -289,9 +292,9 @@ __mp_dbl (const mp_no *x, double *y, int p)
    small, the result is truncated.  */
 void
 SECTION
-__dbl_mp (double x, mp_no *y, int p)
+__dbl_mp (double x, mp_no *y, int p2)
 {
-  int i, n;
+  long i, n, p = p2;
 
   /* Sign.  */
   if (x == ZERO)
@@ -330,9 +333,9 @@ __dbl_mp (double x, mp_no *y, int p)
    truncated.  */
 static void
 SECTION
-add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
+add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
-  int i, j, k;
+  long i, j, k, p = p2;
 
   EZ = EX;
 
@@ -377,9 +380,9 @@ add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
    ULP.  */
 static void
 SECTION
-sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
+sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
-  int i, j, k;
+  long i, j, k, p = p2;
 
   EZ = EX;
 
@@ -441,8 +444,9 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
    ULP.  */
 void
 SECTION
-__add (const mp_no *x, const mp_no *y, mp_no *z, int p)
+__add (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
+  long p = p2;
   if (X[0] == 0)
     {
       __cpy (y, z, p);
@@ -454,7 +458,7 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
       return;
     }
 
-  int n = __acr (x, y, p);
+  long n = __acr (x, y, p);
 
   if (X[0] == Y[0])
     {
@@ -491,8 +495,9 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
    one ULP.  */
 void
 SECTION
-__sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
+__sub (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
+  long p = p2;
   if (X[0] == 0)
     {
       __cpy (y, z, p);
@@ -505,7 +510,7 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
       return;
     }
 
-  int n = __acr (x, y, p);
+  long n = __acr (x, y, p);
 
   if (X[0] != Y[0])
     {
@@ -542,9 +547,9 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
    digits.  In case P > 3 the error is bounded by 1.001 ULP.  */
 void
 SECTION
-__mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
+__mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
-  int i, j, k, ip, ip2;
+  long i, j, k, ip, ip2, p = p2;
   int64_t zk;
   int64_t *diag;
 
@@ -659,9 +664,9 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
    *X = 0 is not permissible.  */
 static void
 SECTION
-__inv (const mp_no *x, mp_no *y, int p)
+__inv (const mp_no *x, mp_no *y, int p2)
 {
-  int i;
+  long i, p = p2;
   double t;
   mp_no z, w;
   static const int np1[] =
