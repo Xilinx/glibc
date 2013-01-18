@@ -43,6 +43,7 @@
 #include "endian.h"
 #include "mpa.h"
 #include <sys/param.h>
+#include <alloca.h>
 
 #ifndef SECTION
 # define SECTION
@@ -604,6 +605,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
   int i, j, k, ip, ip2;
   double u, zk;
+  double *diag;
 
   /* Is z=0?  */
   if (__glibc_unlikely (X[0] * Y[0] == ZERO))
@@ -652,11 +654,47 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
       zk = u * RADIXI;
     }
 
-  /* The real deal.  */
+  /* Precompute sums of diagonal elements so that we can directly use them
+     later.  See the next comment to know we why need them.  */
+  diag = alloca (k * sizeof (double));
+  diag[0] = ZERO;
+  for (i = 1; i <= ip; i++)
+    {
+      diag[i] = X[i] * Y[i];
+      diag[i] += diag[i - 1];
+    }
+  while (i < k)
+    diag[i++] = diag[ip];
+
+  /* The real deal.  Mantissa digit Z[k] is the sum of all X[i] * Y[j] where i
+     goes from 1 -> k - 1 and j goes the same range in reverse.  To reduce the
+     number of multiplications, we halve the range and if k is an even number,
+     add the diagonal element X[k/2]Y[k/2].  Through the half range, we compute
+     X[i] * Y[j] as (X[i] + X[j]) * (Y[i] + Y[j]) - X[i] * Y[i] - X[j] * Y[j].
+
+     This reduction tells us that we're summing two things, the first term
+     through the half range and the negative of the sum of the product of all
+     terms of X and Y in the full range.  i.e.
+
+     SUM(X[i] * Y[i]) for k terms.  This is precalculated above for each k in
+     a single loop so that it completes in O(n) time and can hence be directly
+     used in the loop below.  */
   while (k > 1)
     {
-      for (i = 1, j = k - 1; i < k; i++, j--)
-	zk += X[i] * Y[j];
+      int lim = k / 2;
+
+      if (k % 2 == 0)
+        {
+	  /* We want to add this only once, but since we subtract it in the sum
+	     of products above, we add twice.  */
+          zk += 2 * X[lim] * Y[lim];
+	  lim--;
+	}
+
+      for (i = 1, j = k - 1; i <= lim; i++, j--)
+	zk += (X[i] + X[j]) * (Y[i] + Y[j]);
+
+      zk -= diag[k - 1];
 
       u = (zk + CUTTER) - CUTTER;
       if (u > zk)
