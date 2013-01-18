@@ -79,14 +79,14 @@ __acr (const mp_no *x, const mp_no *y, int p)
 {
   int i;
 
-  if (X[0] == ZERO)
+  if (X[0] == 0)
     {
-      if (Y[0] == ZERO)
+      if (Y[0] == 0)
 	i = 0;
       else
 	i = -1;
     }
-  else if (Y[0] == ZERO)
+  else if (Y[0] == 0)
     i = 1;
   else
     {
@@ -379,39 +379,29 @@ add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
       return;
     }
   else
-    Z[k] = ZERO;
+    Z[k] = 0;
 
   for (; j > 0; i--, j--)
     {
-      Z[k] += X[i] + Y[j];
-      if (Z[k] >= RADIX)
-	{
-	  Z[k] -= RADIX;
-	  Z[--k] = ONE;
-	}
-      else
-	Z[--k] = ZERO;
+      int tmp = Z[k] + X[i] + Y[j];
+      Z[k] = tmp % I_RADIX;
+      Z[--k] = tmp / I_RADIX;
     }
 
   for (; i > 0; i--)
     {
-      Z[k] += X[i];
-      if (Z[k] >= RADIX)
-	{
-	  Z[k] -= RADIX;
-	  Z[--k] = ONE;
-	}
-      else
-	Z[--k] = ZERO;
+      int tmp = Z[k] + X[i];
+      Z[k] = tmp % I_RADIX;
+      Z[--k] = tmp / I_RADIX;
     }
 
-  if (Z[1] == ZERO)
+  if (Z[1] == 0)
     {
       for (i = 1; i <= p; i++)
 	Z[i] = Z[i + 1];
     }
   else
-    EZ += ONE;
+    EZ++;
 }
 
 /* Subtract the magnitudes of *X and *Y assuming that abs (*x) > abs (*y) > 0.
