@@ -752,8 +752,8 @@ __dvd (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
   mp_no w;
 
-  if (X[0] == ZERO)
-    Z[0] = ZERO;
+  if (X[0] == 0)
+    Z[0] = 0;
   else
     {
       __inv (y, &w, p);
