@@ -191,10 +191,11 @@ static void
 denorm (const mp_no *x, double *y, int p)
 {
   int i, k;
-  double c, u, z[5];
+  double c;
+  int z[5];
 
 #define R  RADIXI
-  if (EX < -44 || (EX == -44 && X[1] < TWO5))
+  if (EX < -44 || (EX == -44 && X[1] < TWOPOW(5)))
     {
       *y = ZERO;
       return;
@@ -204,22 +205,22 @@ denorm (const mp_no *x, double *y, int p)
     {
       if (EX == -42)
 	{
-	  z[1] = X[1] + TWO10;
-	  z[2] = ZERO;
-	  z[3] = ZERO;
+	  z[1] = X[1] + TWOPOW(10);
+	  z[2] = 0;
+	  z[3] = 0;
 	  k = 3;
 	}
       else if (EX == -43)
 	{
-	  z[1] = TWO10;
+	  z[1] = TWOPOW(10);
 	  z[2] = X[1];
-	  z[3] = ZERO;
+	  z[3] = 0;
 	  k = 2;
 	}
       else
 	{
-	  z[1] = TWO10;
-	  z[2] = ZERO;
+	  z[1] = TWOPOW(10);
+	  z[2] = 0;
 	  z[3] = X[1];
 	  k = 1;
 	}
@@ -228,22 +229,22 @@ denorm (const mp_no *x, double *y, int p)
     {
       if (EX == -42)
 	{
-	  z[1] = X[1] + TWO10;
+	  z[1] = X[1] + TWOPOW(10);
 	  z[2] = X[2];
-	  z[3] = ZERO;
+	  z[3] = 0;
 	  k = 3;
 	}
       else if (EX == -43)
 	{
-	  z[1] = TWO10;
+	  z[1] = TWOPOW(10);
 	  z[2] = X[1];
 	  z[3] = X[2];
 	  k = 2;
 	}
       else
 	{
-	  z[1] = TWO10;
-	  z[2] = ZERO;
+	  z[1] = TWOPOW(10);
+	  z[2] = 0;
 	  z[3] = X[1];
 	  k = 1;
 	}
@@ -252,44 +253,41 @@ denorm (const mp_no *x, double *y, int p)
     {
       if (EX == -42)
 	{
-	  z[1] = X[1] + TWO10;
+	  z[1] = X[1] + TWOPOW(10);
 	  z[2] = X[2];
 	  k = 3;
 	}
       else if (EX == -43)
 	{
-	  z[1] = TWO10;
+	  z[1] = TWOPOW(10);
 	  z[2] = X[1];
 	  k = 2;
 	}
       else
 	{
-	  z[1] = TWO10;
-	  z[2] = ZERO;
+	  z[1] = TWOPOW(10);
+	  z[2] = 0;
 	  k = 1;
 	}
       z[3] = X[k];
     }
 
-  u = (z[3] + TWO57) - TWO57;
-  if (u > z[3])
-    u -= TWO5;
-
-  if (u == z[3])
+  /* z[3] is a multiple of 2^5.  */
+  if (__builtin_expect ((z[3] & (TWOPOW(5) - 1)) == 0, 0))
     {
       for (i = k + 1; i <= p; i++)
 	{
-	  if (X[i] == ZERO)
+	  if (X[i] == 0)
 	    continue;
 	  else
 	    {
-	      z[3] += ONE;
+	      z[3]++;
 	      break;
 	    }
 	}
     }
 
-  c = X[0] * ((z[1] + R * (z[2] + R * z[3])) - TWO10);
+  c = X[0] * ((z[1] + R * (z[2] + R * z[3])) - TWOPOW(10));
 
   *y = c * TWOM1032;
 #undef R
