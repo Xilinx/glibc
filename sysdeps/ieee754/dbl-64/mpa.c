@@ -55,34 +55,24 @@ const mp_no mptwo = {1, {1, 2}};
 #endif
 
 #ifndef NO___ACR
-/* Compare mantissa of two multiple precision numbers regardless of the sign
-   and exponent of the numbers.  */
-static int
-mcr (const mp_no *x, const mp_no *y, int p)
-{
-  int i;
-  for (i = 1; i <= p; i++)
-    {
-      if (X[i] == Y[i])
-	continue;
-      else if (X[i] > Y[i])
-	return 1;
-      else
-	return -1;
-    }
-  return 0;
-}
-
 /* Compare the absolute values of two multiple precision numbers.  */
 int
 __acr (const mp_no *x, const mp_no *y, int p)
 {
+  int i;
+
   if (X[0] == 0 || Y[0] == 0)
     return X[0] - Y[0];
   else if (EX != EY)
     return EX - EY;
   else
-    return mcr (x, y, p);
+    for (i = 1; i <= p; i++)
+      {
+        if (X[i] != Y[i])
+          return (X[i] - Y[i]);
+      }
+
+  return 0;
 }
 #endif
 
