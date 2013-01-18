@@ -77,28 +77,12 @@ mcr (const mp_no *x, const mp_no *y, int p)
 int
 __acr (const mp_no *x, const mp_no *y, int p)
 {
-  int i;
-
-  if (X[0] == 0)
-    {
-      if (Y[0] == 0)
-	i = 0;
-      else
-	i = -1;
-    }
-  else if (Y[0] == 0)
-    i = 1;
+  if (X[0] == 0 || Y[0] == 0)
+    return X[0] - Y[0];
+  else if (EX != EY)
+    return EX - EY;
   else
-    {
-      if (EX > EY)
-	i = 1;
-      else if (EX < EY)
-	i = -1;
-      else
-	i = mcr (x, y, p);
-    }
-
-  return i;
+    return mcr (x, y, p);
 }
 #endif
 
@@ -469,8 +453,6 @@ void
 SECTION
 __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
-  int n;
-
   if (X[0] == 0)
     {
       __cpy (y, z, p);
@@ -482,9 +464,11 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
       return;
     }
 
+  int n = __acr (x, y, p);
+
   if (X[0] == Y[0])
     {
-      if (__acr (x, y, p) > 0)
+      if (n > 0)
 	{
 	  add_magnitudes (x, y, z, p);
 	  Z[0] = X[0];
@@ -497,12 +481,12 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
     }
   else
     {
-      if ((n = __acr (x, y, p)) == 1)
+      if (n > 0)
 	{
 	  sub_magnitudes (x, y, z, p);
 	  Z[0] = X[0];
 	}
-      else if (n == -1)
+      else if (n < 0)
 	{
 	  sub_magnitudes (y, x, z, p);
 	  Z[0] = Y[0];
@@ -519,8 +503,6 @@ void
 SECTION
 __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
-  int n;
-
   if (X[0] == 0)
     {
       __cpy (y, z, p);
@@ -533,9 +515,11 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
       return;
     }
 
+  int n = __acr (x, y, p);
+
   if (X[0] != Y[0])
     {
-      if (__acr (x, y, p) > 0)
+      if (n > 0)
 	{
 	  add_magnitudes (x, y, z, p);
 	  Z[0] = X[0];
@@ -548,12 +532,12 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
     }
   else
     {
-      if ((n = __acr (x, y, p)) == 1)
+      if (n > 0)
 	{
 	  sub_magnitudes (x, y, z, p);
 	  Z[0] = X[0];
 	}
-      else if (n == -1)
+      else if (n < 0)
 	{
 	  sub_magnitudes (y, x, z, p);
 	  Z[0] = -Y[0];
