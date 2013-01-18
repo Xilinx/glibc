@@ -81,6 +81,7 @@ extern const mp_no mptwo;
 #define  EZ  z->e
 
 #define ABS(x)   ((x) <  0  ? -(x) : (x))
+#define TWOPOW(x)  (1 << x)
 
 #define I_RADIX    (1 << 24)		/* 2^24 */
 
