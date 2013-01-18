@@ -419,7 +419,7 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
   if (EX == EY)
     {
       i = j = k = p;
-      Z[k] = Z[k + 1] = ZERO;
+      Z[k] = Z[k + 1] = 0;
     }
   else
     {
@@ -431,53 +431,42 @@ sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p)
 	}
       else
 	{
+	  int tmp;
+
 	  i = p;
 	  j = p + 1 - j;
 	  k = p;
-	  if (Y[j] > ZERO)
-	    {
-	      Z[k + 1] = RADIX - Y[j--];
-	      Z[k] = MONE;
-	    }
-	  else
-	    {
-	      Z[k + 1] = ZERO;
-	      Z[k] = ZERO;
-	      j--;
-	    }
+
+	  tmp = I_RADIX - Y[j];
+	  Z[k + 1] = tmp % I_RADIX;
+	  Z[k] = tmp / I_RADIX - 1;
+	  j--;
 	}
     }
 
   for (; j > 0; i--, j--)
     {
-      Z[k] += (X[i] - Y[j]);
-      if (Z[k] < ZERO)
-	{
-	  Z[k] += RADIX;
-	  Z[--k] = MONE;
-	}
-      else
-	Z[--k] = ZERO;
+      int tmp = I_RADIX + Z[k] + X[i] - Y[j];
+
+      Z[k] = tmp % I_RADIX;
+      Z[--k] = tmp / I_RADIX - 1;
     }
 
   for (; i > 0; i--)
     {
-      Z[k] += X[i];
-      if (Z[k] < ZERO)
-	{
-	  Z[k] += RADIX;
-	  Z[--k] = MONE;
-	}
-      else
-	Z[--k] = ZERO;
+      int tmp = I_RADIX + Z[k] + X[i];
+
+      Z[k] = tmp % I_RADIX;
+      Z[--k] = tmp / I_RADIX - 1;
     }
 
-  for (i = 1; Z[i] == ZERO; i++);
+  for (i = 1; Z[i] == 0; i++);
+
   EZ = EZ - i + 1;
   for (k = 1; i <= p + 1;)
     Z[k++] = Z[i++];
   for (; k <= p;)
-    Z[k++] = ZERO;
+    Z[k++] = 0;
 }
 
 /* Add *X and *Y and store the result in *Z.  X and Y may overlap, but not X
