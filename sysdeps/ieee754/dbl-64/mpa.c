@@ -325,41 +325,36 @@ SECTION
 __dbl_mp (double x, mp_no *y, int p)
 {
   int i, n;
-  double u;
 
   /* Sign.  */
   if (x == ZERO)
     {
-      Y[0] = ZERO;
+      Y[0] = 0;
       return;
     }
   else if (x > ZERO)
-    Y[0] = ONE;
+    Y[0] = 1;
   else
     {
-      Y[0] = MONE;
+      Y[0] = -1;
       x = -x;
     }
 
   /* Exponent.  */
-  for (EY = ONE; x >= RADIX; EY += ONE)
+  for (EY = 1; x >= RADIX; EY++)
     x *= RADIXI;
-  for (; x < ONE; EY -= ONE)
+  for (; x < ONE; EY--)
     x *= RADIX;
 
   /* Digits.  */
   n = MIN (p, 4);
   for (i = 1; i <= n; i++)
     {
-      u = (x + TWO52) - TWO52;
-      if (u > x)
-	u -= ONE;
-      Y[i] = u;
-      x -= u;
-      x *= RADIX;
+      Y[i] = x;
+      x = (x - Y[i]) * RADIX;
     }
   for (; i <= p; i++)
-    Y[i] = ZERO;
+    Y[i] = 0;
 }
 
 /* Add magnitudes of *X and *Y assuming that abs (*X) >= abs (*Y) > 0.  The
