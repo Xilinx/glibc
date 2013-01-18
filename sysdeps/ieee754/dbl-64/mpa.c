@@ -582,21 +582,21 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
   int64_t *diag;
 
   /* Is z=0?  */
-  if (__glibc_unlikely (X[0] * Y[0] == ZERO))
+  if (__glibc_unlikely (X[0] * Y[0] == 0))
     {
-      Z[0] = ZERO;
+      Z[0] = 0;
       return;
     }
 
   /* We need not iterate through all X's and Y's since it's pointless to
      multiply zeroes.  Here, both are zero...  */
   for (ip2 = p; ip2 > 0; ip2--)
-    if (X[ip2] != ZERO || Y[ip2] != ZERO)
+    if (X[ip2] | Y[ip2])
       break;
 
   /* ... and here, at least one of them is still zero.  */
   for (ip = ip2; ip > 0; ip--)
-    if (X[ip] * Y[ip] != ZERO)
+    if (X[ip] * Y[ip])
       break;
 
   /* Multiply, add and carry.  */
@@ -607,9 +607,9 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
      only for values of K <= IP + IP2.  Note that we go from 1..K-1, which is
      why we come down to IP + IP2 + 1 and not just IP + IP2.  */
   while (k > ip + ip2 + 1)
-    Z[k--] = ZERO;
+    Z[k--] = 0;
 
-  zk = Z[k] = ZERO;
+  zk = Z[k] = 0;
 
   /* This gives us additional precision if required.  This is only executed
      when P < IP1 + IP2 + 1, i.e. at least one of the numbers have precision
@@ -628,7 +628,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
   /* Precompute sums of diagonal elements so that we can directly use them
      later.  See the next comment to know we why need them.  */
   diag = alloca (k * sizeof (int64_t));
-  diag[0] = ZERO;
+  diag[0] = 0;
   for (i = 1; i <= ip; i++)
     {
       diag[i] = X[i] * Y[i];
@@ -674,7 +674,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p)
 
   EZ = EX + EY;
   /* Is there a carry beyond the most significant digit?  */
-  if (__glibc_unlikely (Z[1] == ZERO))
+  if (__glibc_unlikely (Z[1] == 0))
     {
       for (i = 1; i <= p; i++)
 	Z[i] = Z[i + 1];
