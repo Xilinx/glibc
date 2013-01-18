@@ -50,8 +50,8 @@
 #endif
 
 #ifndef NO__CONST
-const mp_no mpone = {1, {1.0, 1.0}};
-const mp_no mptwo = {1, {1.0, 2.0}};
+const mp_no mpone = {1, {1, 1}};
+const mp_no mptwo = {1, {1, 2}};
 #endif
 
 #ifndef NO___ACR
