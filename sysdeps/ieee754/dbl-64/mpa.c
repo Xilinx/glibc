@@ -247,7 +247,7 @@ denorm (const mp_no *x, double *y, int p)
     }
 
   /* z[3] is a multiple of 2^5.  */
-  if (__builtin_expect ((z[3] & (TWOPOW(5) - 1)) == 0, 0))
+  if (__glibc_unlikely ((z[3] & (TWOPOW(5) - 1)) == 0))
     {
       for (i = k + 1; i <= p; i++)
 	{
