@@ -122,7 +122,9 @@ norm (const mp_no *x, double *y, int p)
 {
 #define R  RADIXI
   int i;
-  double a, c, u, v, z[5];
+  double c;
+  int a, z[5];
+
   if (p < 5)
     {
       if (p == 1)
@@ -136,44 +138,37 @@ norm (const mp_no *x, double *y, int p)
     }
   else
     {
-      for (a = ONE, z[1] = X[1]; z[1] < TWO23;)
+      for (a = 1, z[1] = X[1]; z[1] < TWOPOW(23); )
 	{
-	  a *= TWO;
-	  z[1] *= TWO;
+	  a *= 2;
+	  z[1] *= 2;
 	}
 
       for (i = 2; i < 5; i++)
 	{
-	  z[i] = X[i] * a;
-	  u = (z[i] + CUTTER) - CUTTER;
-	  if (u > z[i])
-	    u -= RADIX;
-	  z[i] -= u;
-	  z[i - 1] += u * RADIXI;
+	  int64_t tmp = (int64_t) X[i] * a;
+
+	  z[i] = tmp % I_RADIX;
+	  z[i-1] += tmp / I_RADIX;
 	}
 
-      u = (z[3] + TWO71) - TWO71;
-      if (u > z[3])
-	u -= TWO19;
-      v = z[3] - u;
-
-      if (v == TWO18)
+      if (__glibc_unlikely ((z[3] & (TWOPOW(18) - 1)) == 0))
 	{
-	  if (z[4] == ZERO)
+	  if (z[4] == 0)
 	    {
 	      for (i = 5; i <= p; i++)
 		{
-		  if (X[i] == ZERO)
+		  if (X[i] == 0)
 		    continue;
 		  else
 		    {
-		      z[3] += ONE;
+		      z[3]++;
 		      break;
 		    }
 		}
 	    }
 	  else
-	    z[3] += ONE;
+	    z[3]++;
 	}
 
       c = (z[1] + R * (z[2] + R * z[3])) / a;
