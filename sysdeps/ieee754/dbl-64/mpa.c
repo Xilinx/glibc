@@ -478,12 +478,12 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
   int n;
 
-  if (X[0] == ZERO)
+  if (X[0] == 0)
     {
       __cpy (y, z, p);
       return;
     }
-  else if (Y[0] == ZERO)
+  else if (Y[0] == 0)
     {
       __cpy (x, z, p);
       return;
@@ -515,7 +515,7 @@ __add (const mp_no *x, const mp_no *y, mp_no *z, int p)
 	  Z[0] = Y[0];
 	}
       else
-	Z[0] = ZERO;
+	Z[0] = 0;
     }
 }
 
@@ -528,13 +528,13 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
 {
   int n;
 
-  if (X[0] == ZERO)
+  if (X[0] == 0)
     {
       __cpy (y, z, p);
       Z[0] = -Z[0];
       return;
     }
-  else if (Y[0] == ZERO)
+  else if (Y[0] == 0)
     {
       __cpy (x, z, p);
       return;
@@ -566,7 +566,7 @@ __sub (const mp_no *x, const mp_no *y, mp_no *z, int p)
 	  Z[0] = -Y[0];
 	}
       else
-	Z[0] = ZERO;
+	Z[0] = 0;
     }
 }
 
