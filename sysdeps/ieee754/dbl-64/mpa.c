@@ -305,13 +305,13 @@ denorm (const mp_no *x, double *y, int p)
 void
 __mp_dbl (const mp_no *x, double *y, int p)
 {
-  if (X[0] == ZERO)
+  if (X[0] == 0)
     {
       *y = ZERO;
       return;
     }
 
-  if (__glibc_likely (EX > -42 || (EX == -42 && X[1] >= TWO10)))
+  if (__glibc_likely (EX > -42 || (EX == -42 && X[1] >= TWOPOW(10))))
     norm (x, y, p);
   else
     denorm (x, y, p);
