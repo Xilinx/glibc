@@ -1,3 +1,74 @@
+2013-01-16  Andreas Schwab  <schwab@suse.de>
+
+	[BZ #14327]
+	* sem_open.c (sem_open): Use __mktemp instead of mktemp.
+
+2013-01-11  Carlos O'Donell  <codonell@redhat.com>
+
+	* allocatestack.c (allocate_stack): Add comment. Remove assert
+	on attr.
+
+2013-01-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (tst-cancel7-ARGS: Replace $(host-built-program-cmd)
+	with $(host-test-program-cmd).
+	(tst-exec4-ARGS): Likewise.
+	(tst-stackguard1-ARGS): Likewise.
+	($(objpfx)tst-tls6.out): Don't pass $(elf-objpfx) to tst-tls6.sh.
+	Replace $(rtld-installed-name) with $(test-via-rtld-prefix).
+	* tst-tls6.sh (elf_objpfx): Removed.
+	(rtld_installed_name): Renamed to ...
+	(test_via_rtld_prefix): This.
+	(tst_tls5): Prepend ${test_via_rtld_prefix}.
+
+2013-01-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* All files with FSF copyright notices: Update copyright dates
+	using scripts/update-copyrights.
+
+2013-01-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevelrobustlock.S: Reformat
+	copyright notice.
+
+2012-12-28  Andi Kleen  <ak@linux.intel.com>
+
+	* pthread_rwlock_tryrdlock.c (__pthread_rwlock_tryrdlock): Convert
+	to prototype.
+	* pthread_rwlock_trywrlock.c (__pthread_rwlock_trywrlock):
+	Likewise.
+
+2012-12-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h
+	(lll_futex_timed_wait_bitset): New macro.
+
+2012-12-27  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/unix/sysv/linux/s390/lowlevellock.h (SYS_futex):
+	Remove definition.
+	(lll_futex_timed_wait): Replace assembly code with
+	INTERNAL_SYSCALL.
+	(lll_futex_timed_wait_bitset): Likewise.
+	(lll_futex_wake): Likewise.
+	(lll_futex_requeue): Likewise.
+	(lll_futex_wake_unlock): Likewise.
+
+2012-12-08  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/unix/sysv/linux/s390/jmp-unwind.c (_longjmp_unwind):
+	Declare LOCAL_VAR as char.
+
+2012-12-04  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/powerpc/sem_post.c (__old_sem_post):
+	Cast result of atomic_increment_val to (void) instead of storing
+	in otherwise-unused variable.
+
+2012-12-03  Allan McRae  <allan@archlinux.org>
+
+	* Makefile (LDFLAGS-tst-cond24, LDFLAGS-tst-cond25): Remove.
+
 2012-11-26  H.J. Lu  <hongjiu.lu@intel.com>
 
 	* unwind.c (__pthread_unwind): Pass address of unwind_cleanup

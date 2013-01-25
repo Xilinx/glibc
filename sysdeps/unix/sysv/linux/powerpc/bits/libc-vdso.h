@@ -1,5 +1,5 @@
 /* Resolve function pointers to VDSO functions.
-   Copyright (C) 2005 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,6 +29,8 @@ extern void *__vdso_clock_gettime;
 extern void *__vdso_clock_getres;
 
 extern void *__vdso_get_tbfreq;
+
+extern void *__vdso_getcpu;
 
 #endif
 

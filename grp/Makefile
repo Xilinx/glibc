@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2012 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ ifeq ($(run-built-tests),yes)
 ifeq (yes,$(build-shared))
 tests: $(objpfx)tst_fgetgrent.out
 $(objpfx)tst_fgetgrent.out: tst_fgetgrent.sh $(objpfx)tst_fgetgrent
-	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
 
 endif
 endif

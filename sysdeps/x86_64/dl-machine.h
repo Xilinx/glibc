@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  x86-64 version.
-   Copyright (C) 2001-2012 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>.
 
@@ -286,6 +286,21 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 
       switch (r_type)
 	{
+# ifndef RTLD_BOOTSTRAP
+#  ifdef __ILP32__
+	case R_X86_64_SIZE64:
+	  /* Set to symbol size plus addend.  */
+	  *(Elf64_Addr *) (uintptr_t) reloc_addr
+	    = (Elf64_Addr) sym->st_size + reloc->r_addend;
+	  break;
+
+	case R_X86_64_SIZE32:
+#  else
+	case R_X86_64_SIZE64:
+#  endif
+	  /* Set to symbol size plus addend.  */
+	  value = sym->st_size;
+# endif
 	case R_X86_64_GLOB_DAT:
 	case R_X86_64_JUMP_SLOT:
 	  *reloc_addr = value + reloc->r_addend;
@@ -394,6 +409,11 @@ elf_machine_rela (struct link_map *map, const ElfW(Rela) *reloc,
 	     relocation updates the whole 64-bit entry.  */
 	  *(Elf64_Addr *) reloc_addr = (Elf64_Addr) value + reloc->r_addend;
 	  break;
+#  ifndef __ILP32__
+	case R_X86_64_SIZE32:
+	  /* Set to symbol size plus addend.  */
+	  value = sym->st_size;
+#  endif
 	case R_X86_64_32:
 	  value += reloc->r_addend;
 	  *(unsigned int *) reloc_addr = value;

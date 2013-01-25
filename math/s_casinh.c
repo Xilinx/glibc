@@ -1,5 +1,5 @@
 /* Return arc hyperbole sine for double value.
-   Copyright (C) 1997-2012 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -20,7 +20,6 @@
 #include <complex.h>
 #include <math.h>
 #include <math_private.h>
-
 
 __complex__ double
 __casinh (__complex__ double x)
@@ -62,22 +61,7 @@ __casinh (__complex__ double x)
     }
   else
     {
-      __complex__ double y;
-
-      __real__ y = (__real__ x - __imag__ x) * (__real__ x + __imag__ x) + 1.0;
-      __imag__ y = 2.0 * __real__ x * __imag__ x;
-
-      y = __csqrt (y);
-
-      __real__ y += __real__ x;
-      __imag__ y += __imag__ x;
-
-      res = __clog (y);
-
-      /* Ensure zeros have correct sign and results are correct if
-	 very close to branch cuts.  */
-      __real__ res = __copysign (__real__ res, __real__ x);
-      __imag__ res = __copysign (__imag__ res, __imag__ x);
+      res = __kernel_casinh (x, 0);
     }
 
   return res;

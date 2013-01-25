@@ -1,5 +1,4 @@
-/* Copyright (C) 1991-1994,1996-2003,2005,2006,2009,2012
-	Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -77,7 +76,7 @@ extern int gettimeofday (struct timeval *__restrict __tv,
    This call is restricted to the super-user.  */
 extern int settimeofday (const struct timeval *__tv,
 			 const struct timezone *__tz)
-     __THROW __nonnull ((1));
+     __THROW;
 
 /* Adjust the current time of day by the amount in DELTA.
    If OLDDELTA is not NULL, it is filled in with the amount

@@ -1,5 +1,4 @@
-/* Copyright (C) 1996, 1997, 1998, 2003, 2004, 2006 Free Software
-   Foundation, Inc.  This file is part of the GNU C Library.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.  This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -40,16 +39,16 @@
 struct sigcontext {
   unsigned int sc_regmask;
   unsigned int sc_status;
-  unsigned long long sc_pc;
-  unsigned long long sc_regs[32];
-  unsigned long long sc_fpregs[32];
+  __extension__ unsigned long long sc_pc;
+  __extension__ unsigned long long sc_regs[32];
+  __extension__ unsigned long long sc_fpregs[32];
   unsigned int sc_ownedfp;
   unsigned int sc_fpc_csr;
   unsigned int sc_fpc_eir;
   unsigned int sc_used_math;
   unsigned int sc_dsp;
-  unsigned long long sc_mdhi;
-  unsigned long long sc_mdlo;
+  __extension__ unsigned long long sc_mdhi;
+  __extension__ unsigned long long sc_mdlo;
   unsigned long sc_hi1;
   unsigned long sc_lo1;
   unsigned long sc_hi2;
@@ -62,17 +61,17 @@ struct sigcontext {
 
 /* This structure changed in 2.6.12-rc4 when DSP support was added.  */
 struct sigcontext {
-  unsigned long long sc_regs[32];
-  unsigned long long sc_fpregs[32];
-  unsigned long long sc_mdhi;
-  unsigned long long sc_hi1;
-  unsigned long long sc_hi2;
-  unsigned long long sc_hi3;
-  unsigned long long sc_mdlo;
-  unsigned long long sc_lo1;
-  unsigned long long sc_lo2;
-  unsigned long long sc_lo3;
-  unsigned long long sc_pc;
+  __extension__ unsigned long long sc_regs[32];
+  __extension__ unsigned long long sc_fpregs[32];
+  __extension__ unsigned long long sc_mdhi;
+  __extension__ unsigned long long sc_hi1;
+  __extension__ unsigned long long sc_hi2;
+  __extension__ unsigned long long sc_hi3;
+  __extension__ unsigned long long sc_mdlo;
+  __extension__ unsigned long long sc_lo1;
+  __extension__ unsigned long long sc_lo2;
+  __extension__ unsigned long long sc_lo3;
+  __extension__ unsigned long long sc_pc;
   unsigned int sc_fpc_csr;
   unsigned int sc_used_math;
   unsigned int sc_dsp;

@@ -1,6 +1,7 @@
-/* wchar_t type related definitions.  i386/x86-64 version.
-   Copyright (C) 2000-2012 Free Software Foundation, Inc.
+/* Compute positive difference, sparc 32-bit.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by David S. Miller <davem@davemloft.net>.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,17 +17,25 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef _BITS_WCHAR_H
-#define _BITS_WCHAR_H	1
+#include <sysdep.h>
+#include <math_ldbl_opt.h>
 
-#include <bits/wordsize.h>
+ENTRY(__fdim)
+	std	%o0, [%sp + 72]
+	std	%o2, [%sp + 80]
+	ldd	[%sp + 72], %f0
+	ldd	[%sp + 80], %f2
+	fcmpd	%f0, %f2
+	st	%g0, [%sp + 72]
+	fbug	1f
+	 st	%g0, [%sp + 76]
+	ldd	[%sp + 72], %f0
+	fnegd	%f0, %f2
+1:	retl
+	 fsubd	%f0, %f2, %f0
+END(__fdim)
+weak_alias (__fdim, fdim)
 
-#if __WORDSIZE == 64
-# define __WCHAR_MIN	(-2147483647 - 1)
-# define __WCHAR_MAX	(2147483647)
-#else
-# define __WCHAR_MIN	(-2147483647l - 1l)
-# define __WCHAR_MAX	(2147483647l)
+#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
+compat_symbol (libm, __fdim, fdiml, GLIBC_2_1);
 #endif
-
-#endif	/* bits/wchar.h */

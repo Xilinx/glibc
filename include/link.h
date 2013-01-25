@@ -1,6 +1,6 @@
 /* Data structure for communication from the run-time dynamic linker for
    loaded ELF shared objects.
-   Copyright (C) 1995-2012 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -289,7 +289,7 @@ struct link_map
 #endif
 #ifndef FORCED_DYNAMIC_TLS_OFFSET
 # if NO_TLS_OFFSET == 0
-#  define FORCED_DYNAMIC_TLS_OFFSET 1
+#  define FORCED_DYNAMIC_TLS_OFFSET -1
 # elif NO_TLS_OFFSET == -1
 #  define FORCED_DYNAMIC_TLS_OFFSET -2
 # else

@@ -1,5 +1,5 @@
 /* Return cosine of complex double value.
-   Copyright (C) 1997 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -25,11 +25,27 @@ __cacos (__complex__ double x)
 {
   __complex__ double y;
   __complex__ double res;
+  int rcls = fpclassify (__real__ x);
+  int icls = fpclassify (__imag__ x);
 
-  y = __casin (x);
+  if (rcls <= FP_INFINITE || icls <= FP_INFINITE
+      || (rcls == FP_ZERO && icls == FP_ZERO))
+    {
+      y = __casin (x);
 
-  __real__ res = (double) M_PI_2 - __real__ y;
-  __imag__ res = -__imag__ y;
+      __real__ res = (double) M_PI_2 - __real__ y;
+      __imag__ res = -__imag__ y;
+    }
+  else
+    {
+      __real__ y = -__imag__ x;
+      __imag__ y = __real__ x;
+
+      y = __kernel_casinh (y, 1);
+
+      __real__ res = __imag__ y;
+      __imag__ res = __real__ y;
+    }
 
   return res;
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2012 Free Software Foundation, Inc.
+# Copyright (C) 1995-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -186,7 +186,7 @@ endif
 endif
 
 $(objpfx)test-freopen.out: test-freopen.sh $(objpfx)test-freopen
-	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)'	\
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'	\
 	$(common-objpfx)libio/
 
 $(objpfx)tst-fopenloc.check: $(objpfx)tst-fopenloc.out

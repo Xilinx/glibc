@@ -1,3 +1,77 @@
+2013-01-14  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (bug-setlocale1-ARGS): Use $(host-test-program-cmd),
+	not $(test-program-cmd).
+
+2013-01-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile ($(objpfx)sort-test.out): Replace
+	$(run-program-prefix) with $(test-program-prefix).
+	($(objpfx)tst-numeric.out): Likewise.
+	($(objpfx)tst-mbswcs.out): Likewise.
+	($(objpfx)tst-fmon.out): Add $(test-program-prefix).
+	($(objpfx)tst-trans.out): Likewise.
+	($(objpfx)tst-rpmatch.out): Replace $(built-program-cmd) with
+	$(test-program-cmd).
+	($(objpfx)tst-ctype.out): Likewise.
+	($(objpfx)tst-wctype.out): Likewise.
+	($(objpfx)tst-langinfo.out): Likewise.
+	(bug-setlocale1-ARGS): Replace $(built-program-cmd) with
+	$(test-program-cmd).
+	* sort-test.sh (run_program_prefix): Renamed to ...
+	(test_program_prefix): This.
+	* tst-mbswcs.sh: Likewise.
+	* tst-numeric.sh: Likewise.
+	* tst-wctype.sh: Likewise.
+	* tst-fmon.sh (test_program_prefix): New. Replace
+	${run_program_prefix} with ${test_program_prefix} when running.
+	tst-fmon.
+	* tst-trans.sh: (test_program_prefix): New.  Replace
+	${run_program_prefix} with ${test_program_prefix} when running
+	tst-trans.
+
+2013-01-10  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (tests-static): New variable.
+	(tests): Add $(tests-static).
+	(bug-setlocale1-ARGS): Set to -- $(built-program-cmd).
+	(bug-setlocale1-static-ENV): New variable.
+	(bug-setlocale1-static-ARGS): Likewise.
+	* bug-setlocale1.c (do_test): Support run directly.  Check env[1]
+	instead of newargv[0].
+	* bug-setlocale1-static.c: New file.
+
+2013-01-03  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #14982]
+	* locales/dz_BT: Add new contact information for dz-BT maintainer.
+
+	[BZ #13951]
+	* locales/dz_BT: Correct LC_ADDRESS countryname for Bhutan in
+	Dzongkha.
+
+2013-01-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* All files with FSF copyright notices: Update copyright dates
+	using scripts/update-copyrights.
+
+2012-12-06  Joseph Myers  <joseph@codesourcery.com>
+
+	* README: Use sourceware.org in Bugzilla URL.
+	* locales/si_LK (email): Use sourceware.org in email address.
+
+2012-12-03  Ashish Shah  <ashishks@redhat.com>
+
+	* locales/uk_UA (currency_symbol): Fix.
+
+2012-12-03  Rakesh Pandit  <rakesh@fedoraproject.org>
+
+	* locales/ks_IN@devanagari: Fix week day names.
+
+2012-12-03  Jeff Law  <law@redhat.com>
+
+	* locales/zh_CH (abmon): Remove whitespace.
+
 2012-11-26  Nik Kalach  <nikka@fedoraproject.org>
 
 	* locales/ia_FR (abmon): Fix December.

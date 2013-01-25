@@ -1,6 +1,6 @@
 #! /bin/sh
 # Testing the mtrace function.
-# Copyright (C) 2000-2012 Free Software Foundation, Inc.
+# Copyright (C) 2000-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,14 +20,14 @@
 set -e
 
 common_objpfx=$1; shift
-run_program_prefix=$1; shift
+test_program_prefix=$1; shift
 
 status=0
 trap "rm -f ${common_objpfx}malloc/tst-mtrace.leak; exit 1" 1 2 15
 
 MALLOC_TRACE=${common_objpfx}malloc/tst-mtrace.leak \
 LOCPATH=${common_objpfx}localedata GCONV_PATH=${common_objpfx}iconvdata \
-${run_program_prefix} \
+${test_program_prefix} \
   ${common_objpfx}malloc/tst-mtrace || status=1
 
 if test $status -eq 0 && test -f ${common_objpfx}malloc/mtrace; then

@@ -1,5 +1,5 @@
 /* Macros to swap the order of bytes in integer values.
-   Copyright (C) 1997-2012  Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
       (((x) & 0x0000ff00u) <<  8) | (((x) & 0x000000ffu) << 24))
 
 #ifdef __GNUC__
-# if __GNUC_PREREQ (4, 2)
+# if __GNUC_PREREQ (4, 3)
 static __inline unsigned int
 __bswap_32 (unsigned int __bsx)
 {
@@ -70,7 +70,7 @@ __bswap_32 (unsigned int __bsx)
 		     | (((x) & 0x000000000000ff00ull) << 40)		      \
 		     | (((x) & 0x00000000000000ffull) << 56)))
 
-# if __GNUC_PREREQ (4, 2)
+# if __GNUC_PREREQ (4, 3)
 static __inline __uint64_t
 __bswap_64 (__uint64_t __bsx)
 {
@@ -91,7 +91,7 @@ __bswap_64 (__uint64_t __bsx)
 	   }								      \
 	 __r.__ll; }))
 # endif
-#elif __GLIBC_HAVE_LONG_LONG
+#else
 # define __bswap_constant_64(x) \
      ((((x) & 0xff00000000000000ull) >> 56)				      \
       | (((x) & 0x00ff000000000000ull) >> 40)				      \

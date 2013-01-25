@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2001-2002, 2006, 2012 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  * Powerpc Feature masks for the Aux Vector Hardware Capabilities (AT_HWCAP). 
  * This entry is copied to _dl_hwcap or rtld_global._dl_hwcap during startup.
  */
-#define _SYS_AUXV_H
+#define _SYS_AUXV_H 1
 #include <bits/hwcap.h>
 
 #define PPC_FEATURE_970 (PPC_FEATURE_POWER4 + PPC_FEATURE_HAS_ALTIVEC)

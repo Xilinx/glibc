@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2000-2012 Free Software Foundation, Inc.
+# Copyright (C) 2000-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Bruno Haible <haible@clisp.cons.org>, 2000.
 #
@@ -23,7 +23,7 @@
 
 common_objpfx=$1
 objpfx=$2
-run_program_prefix=$3
+test_program_prefix=$3
 charset=$4
 charmap=$5
 
@@ -60,12 +60,12 @@ else
 fi
 
 # iconv in one direction.
-${run_program_prefix} \
+${test_program_prefix} \
 ${objpfx}tst-table-from ${charset} \
   > ${objpfx}tst-${charset}.table
 
 # iconv in the other direction.
-${run_program_prefix} \
+${test_program_prefix} \
 ${objpfx}tst-table-to ${charset} | sort \
   > ${objpfx}tst-${charset}.inverse.table
 

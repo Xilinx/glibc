@@ -1,4 +1,4 @@
-# Copyright (C) 1992-2012 Free Software Foundation, Inc.
+# Copyright (C) 1992-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -104,5 +104,5 @@ ifeq ($(run-built-tests),yes)
 tests: $(objpfx)ftwtest.out
 
 $(objpfx)ftwtest.out: ftwtest-sh $(objpfx)ftwtest
-	$(SHELL) $< $(common-objpfx) '$(built-program-cmd)' > $@
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@
 endif

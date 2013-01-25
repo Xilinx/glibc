@@ -1,4 +1,4 @@
-# Copyright (C) 1997-2004, 2006, 2007, 2012 Free Software Foundation, Inc.
+# Copyright (C) 1997-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -80,4 +80,4 @@ ifeq (yes,$(build-bounded))
 $(tests:%=$(objpfx)%-bp): $(objpfx)librt_b.a $(bounded-thread-library)
 endif
 
-tst-mqueue7-ARGS = -- $(host-built-program-cmd)
+tst-mqueue7-ARGS = -- $(host-test-program-cmd)

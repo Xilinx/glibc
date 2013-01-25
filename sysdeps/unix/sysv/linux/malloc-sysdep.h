@@ -1,5 +1,5 @@
 /* System-specific malloc support functions.  Linux version.
-   Copyright (C) 2012 Free Software Foundation, Inc.
+   Copyright (C) 2012-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -55,3 +55,5 @@ check_may_shrink_heap (void)
 
   return may_shrink_heap;
 }
+
+#define HAVE_MREMAP 1

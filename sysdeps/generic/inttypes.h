@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2001, 2004, 2007, 2012 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -286,8 +286,8 @@ typedef struct
 /* We have to define the `uintmax_t' type using `lldiv_t'.  */
 typedef struct
   {
-    long long int quot;		/* Quotient.  */
-    long long int rem;		/* Remainder.  */
+    __extension__ long long int quot;	/* Quotient.  */
+    __extension__ long long int rem;	/* Remainder.  */
   } imaxdiv_t;
 
 #endif

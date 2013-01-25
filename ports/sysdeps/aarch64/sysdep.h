@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2012 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -25,24 +25,49 @@
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name
 
 /* Define an entry point visible from C.  */
-#define ENTRY(name)							      \
-  .globl C_SYMBOL_NAME(name);						      \
-  .type C_SYMBOL_NAME(name),%function;					      \
-  .align 4;								      \
-  C_LABEL(name)								      \
-  cfi_startproc;							      \
+#define ENTRY(name)						\
+  .globl C_SYMBOL_NAME(name);					\
+  .type C_SYMBOL_NAME(name),%function;				\
+  .align 4;							\
+  C_LABEL(name)							\
+  cfi_startproc;						\
+  CALL_MCOUNT
+
+/* Define an entry point visible from C.  */
+#define ENTRY_ALIGN(name, align)				\
+  .globl C_SYMBOL_NAME(name);					\
+  .type C_SYMBOL_NAME(name),%function;				\
+  .p2align align;						\
+  C_LABEL(name)							\
+  cfi_startproc;						\
+  CALL_MCOUNT
+
+/* Define an entry point visible from C with a specified alignment and
+   pre-padding with NOPs.  This can be used to ensure that a critical
+   loop within a function is cache line aligned.  Note this version
+   does not adjust the padding if CALL_MCOUNT is defined. */
+
+#define ENTRY_ALIGN_AND_PAD(name, align, padding)		\
+  .globl C_SYMBOL_NAME(name);					\
+  .type C_SYMBOL_NAME(name),%function;				\
+  .p2align align;						\
+  .rep padding;							\
+  nop;								\
+  .endr;							\
+  C_LABEL(name)							\
+  cfi_startproc;						\
   CALL_MCOUNT
 
 #undef	END
-#define END(name)							      \
-  cfi_endproc;								      \
+#define END(name)						\
+  cfi_endproc;							\
   ASM_SIZE_DIRECTIVE(name)
 
 /* If compiled for profiling, call `mcount' at the start of each function.  */
 #ifdef	PROF
-# define CALL_MCOUNT			\
-	str	x30, [sp, #-16]!;	\
-	bl	mcount;			\
+# define CALL_MCOUNT						\
+	str	x30, [sp, #-16]!;				\
+	bl	mcount;						\
 	ldr	x30, [sp], #16	;
 #else
 # define CALL_MCOUNT		/* Do nothing.  */

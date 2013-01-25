@@ -1,5 +1,4 @@
-/* Copyright (C) 1997,1998,1999,2000,2003,2004,2006,2010,2012
-	Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -38,8 +37,10 @@ typedef double double_t;
 # define FP_ILOGB0	(-2147483647)
 # define FP_ILOGBNAN	(2147483647)
 
+# if !defined _SOFT_FLOAT && !defined __NO_FPRS__
 /* The powerpc has a combined multiply/add instruction.  */
-# define FP_FAST_FMA 1
-# define FP_FAST_FMAF 1
+#  define FP_FAST_FMA 1
+#  define FP_FAST_FMAF 1
+# endif
 
 #endif	/* ISO C99 */

@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2006,2011,2012 Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ libm-calls = e_acos e_acosh e_asin e_atan2 e_atanh e_cosh e_exp e_fmod	\
 	     s_catan s_casin s_ccos s_csin s_ctan s_ctanh s_cacos	\
 	     s_casinh s_cacosh s_catanh s_csqrt s_cpow s_cproj s_clog10 \
 	     s_fma s_lrint s_llrint s_lround s_llround e_exp10 w_log2	\
-	     s_isinf_ns $(calls:s_%=m_%) x2y2m1
+	     s_isinf_ns $(calls:s_%=m_%) x2y2m1 k_casinh
 
 include ../Makeconfig
 
@@ -199,7 +199,8 @@ endif
 
 gmp-objs = $(patsubst %,$(common-objpfx)stdlib/%.o,\
 		      add_n sub_n cmp addmul_1 mul_1 mul_n divmod_1 \
-		      lshift rshift mp_clz_tab udiv_qrnnd inlines)
+		      lshift rshift mp_clz_tab udiv_qrnnd inlines \
+		      $(gmp-sysdep_routines))
 $(objpfx)atest-exp: $(gmp-objs)
 $(objpfx)atest-sincos: $(gmp-objs)
 $(objpfx)atest-exp2: $(gmp-objs)

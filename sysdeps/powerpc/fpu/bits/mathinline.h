@@ -1,6 +1,5 @@
 /* Inline math functions for powerpc.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2004, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,7 +26,7 @@
 # define __MATH_INLINE __extern_inline
 #endif  /* __cplusplus */
 
-#if defined __GNUC__ && !defined _SOFT_FLOAT
+#if defined __GNUC__ && !defined _SOFT_FLOAT && !defined __NO_FPRS__
 
 #ifdef __USE_ISOC99
 # if !__GNUC_PREREQ (2,97)
@@ -128,4 +127,4 @@ __NTH (fdimf (float __x, float __y))
 
 #endif /* __USE_ISOC99 */
 #endif /* !__NO_MATH_INLINES && __OPTIMIZE__ */
-#endif /* __GNUC__ && !_SOFT_FLOAT */
+#endif /* __GNUC__ && !_SOFT_FLOAT && !__NO_FPRS__ */

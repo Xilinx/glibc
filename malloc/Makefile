@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2012 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -109,7 +109,7 @@ ifeq (yes,$(build-shared))
 ifneq ($(PERL),no)
 tests: $(objpfx)tst-mtrace.out
 $(objpfx)tst-mtrace.out: tst-mtrace.sh $(objpfx)tst-mtrace
-	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
 endif
 endif
 endif

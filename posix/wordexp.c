@@ -1,5 +1,5 @@
 /* POSIX.2 wordexp implementation.
-   Copyright (C) 1997-2012 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Tim Waugh <tim@cyberelk.demon.co.uk>.
 
@@ -953,7 +953,12 @@ exec_comm (char *comm, char **word, size_t *word_length, size_t *max_length,
 	  if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 						    bufsize))) < 1)
 	    {
-	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status, WNOHANG)) == 0)
+	      /* If read returned 0 then the process has closed its
+		 stdout.  Don't use WNOHANG in that case to avoid busy
+		 looping until the process eventually exits.  */
+	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status,
+						 buflen == 0 ? 0 : WNOHANG))
+		  == 0)
 		continue;
 	      if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 							bufsize))) < 1)
@@ -983,7 +988,12 @@ exec_comm (char *comm, char **word, size_t *word_length, size_t *max_length,
 	  if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 						    bufsize))) < 1)
 	    {
-	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status, WNOHANG)) == 0)
+	      /* If read returned 0 then the process has closed its
+		 stdout.  Don't use WNOHANG in that case to avoid busy
+		 looping until the process eventually exits.  */
+	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status,
+						 buflen == 0 ? 0 : WNOHANG))
+		  == 0)
 		continue;
 	      if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 							bufsize))) < 1)

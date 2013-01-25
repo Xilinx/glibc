@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2002, 2005-2011, 2012 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -82,6 +82,6 @@ ifeq ($(run-built-tests),yes)
 tests: $(objpfx)tst-svc.out
 $(objpfx)tst-svc.out: tst-svc.input $(objpfx)tst-svc
 	GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
-	  $(built-program-cmd) < $(word 1,$^) > $@
+	  $(test-program-cmd) < $(word 1,$^) > $@
 	@cmp tst-svc.expect $(objpfx)tst-svc.out
 endif

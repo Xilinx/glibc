@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001, 2011 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -46,8 +46,6 @@ void __c32(mp_no *, mp_no *, mp_no *, int);
 void
 SECTION
 __mptan(double x, mp_no *mpy, int p) {
-
-  static const double MONE = -1.0;
 
   int n;
   mp_no mpw, mpc, mps;

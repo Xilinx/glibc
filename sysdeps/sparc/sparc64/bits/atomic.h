@@ -1,5 +1,5 @@
 /* Atomic operations.  sparc64 version.
-   Copyright (C) 2003, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2003.
 
@@ -55,20 +55,32 @@ typedef uintmax_t uatomic_max_t;
 ({									      \
   __typeof (*(mem)) __acev_tmp;						      \
   __typeof (mem) __acev_mem = (mem);					      \
-  __asm __volatile ("cas [%4], %2, %0"					      \
-		    : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
-		    : "r" (oldval), "m" (*__acev_mem), "r" (__acev_mem),      \
-		      "0" (newval) : "memory");				      \
+  if (__builtin_constant_p (oldval) && (oldval) == 0)			      \
+    __asm __volatile ("cas [%3], %%g0, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "m" (*__acev_mem), "r" (__acev_mem),		      \
+		        "0" (newval) : "memory");			      \
+  else									      \
+    __asm __volatile ("cas [%4], %2, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "r" (oldval), "m" (*__acev_mem), "r" (__acev_mem),    \
+		        "0" (newval) : "memory");			      \
   __acev_tmp; })
 
 #define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
 ({									      \
   __typeof (*(mem)) __acev_tmp;						      \
   __typeof (mem) __acev_mem = (mem);					      \
-  __asm __volatile ("casx [%4], %2, %0"					      \
-		    : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
-		    : "r" ((long) (oldval)), "m" (*__acev_mem),		      \
-		      "r" (__acev_mem), "0" ((long) (newval)) : "memory");    \
+  if (__builtin_constant_p (oldval) && (oldval) == 0)			      \
+    __asm __volatile ("casx [%3], %%g0, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "m" (*__acev_mem), "r" (__acev_mem),		      \
+		        "0" ((long) (newval)) : "memory");		      \
+  else									      \
+    __asm __volatile ("casx [%4], %2, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "r" ((long) (oldval)), "m" (*__acev_mem),	      \
+		        "r" (__acev_mem), "0" ((long) (newval)) : "memory");  \
   __acev_tmp; })
 
 #define atomic_exchange_acq(mem, newvalue) \

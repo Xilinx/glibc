@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2012 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -26,7 +26,7 @@
 __ptr_t
 __mmap (__ptr_t addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
-  return INLINE_SYSCALL (mmap, 6, addr, len, prot, flags, fd, offset);
+  return (__ptr_t) INLINE_SYSCALL (mmap, 6, addr, len, prot, flags, fd, offset);
 }
 
 weak_alias (__mmap, mmap)

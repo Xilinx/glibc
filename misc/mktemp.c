@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 1999, 2000, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
    The last six characters of TEMPLATE must be "XXXXXX";
    they are replaced with a string that makes the filename unique.  */
 char *
-mktemp (template)
+__mktemp (template)
      char *template;
 {
   if (__gen_tempname (template, 0, 0, __GT_NOCREATE) < 0)
@@ -31,5 +31,6 @@ mktemp (template)
 
   return template;
 }
+weak_alias (__mktemp, mktemp)
 
 link_warning (mktemp, "the use of `mktemp' is dangerous, better use `mkstemp'")

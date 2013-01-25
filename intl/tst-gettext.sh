@@ -1,6 +1,6 @@
 #! /bin/sh
 # Test of gettext functions.
-# Copyright (C) 2000-2012 Free Software Foundation, Inc.
+# Copyright (C) 2000-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 set -e
 
 common_objpfx=$1
-run_program_prefix=$2
+test_program_prefix=$2
 objpfx=$3
 malloc_trace=$4
 
@@ -54,7 +54,7 @@ export LOCPATH
 
 # Now run the test.
 MALLOC_TRACE=$malloc_trace LOCPATH=${objpfx}localedir:$LOCPATH \
-${run_program_prefix} \
+${test_program_prefix} \
 ${objpfx}tst-gettext > ${objpfx}tst-gettext.out ${objpfx}domaindir
 
 exit $?

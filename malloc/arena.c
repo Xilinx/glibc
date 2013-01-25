@@ -1,5 +1,5 @@
 /* Malloc implementation for multiple threads without lock contention.
-   Copyright (C) 2001-2012 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Wolfram Gloger <wg@malloc.de>, 2001.
 
@@ -18,9 +18,6 @@
    not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdbool.h>
-
-/* Get the implementation for check_may_shrink_heap.  */
-#include <malloc-sysdep.h>
 
 /* Compile-time constants.  */
 

@@ -1,5 +1,5 @@
 /* Error handler for noninteractive utilities
-   Copyright (C) 1990-2012 Free Software Foundation, Inc.
+   Copyright (C) 1990-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -130,7 +130,6 @@ error_tail (int status, int errnum, const char *message, va_list args)
 #if _LIBC
   if (_IO_fwide (stderr, 0) > 0)
     {
-# define ALLOCA_LIMIT 2000
       size_t len = strlen (message) + 1;
       wchar_t *wmessage = NULL;
       mbstate_t st;
