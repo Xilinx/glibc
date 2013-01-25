@@ -18,34 +18,18 @@
 
 /* Used in linker - use only %xmm8-%xmm15. */
 
-/* Long lived registers are
+/* Long lived register are
+  strlen(s), strnlen(s,n):
+
   %xmm11 - zero
   %rdi   - s
-
-  strnlen(s,n):
   %r10  (s+n)&(~(64-1))
   %r11   s+n  
-  strcat(s,src):
-  %r10  src
-  strncat(s,src,n):
-  %r10  src
-  %r11  n
  */
 
 
 .text
 ENTRY(strlen)
-
-#ifdef AS_STRCAT
-#define RETURN       jmp .cpy_str
-#define RETURN_LAST
-#elif defined(AS_STRNCAT)
-#define RETURN       jmp .cpy_str
-#define RETURN_LAST
-#else
-#define RETURN ret
-#define RETURN_LAST ret
-#endif
 
 #define FIND_ZERO           \
   pcmpeqb   (%rax), %xmm8;  \
@@ -68,19 +52,11 @@ ENTRY(strlen)
   test %rsi,%rsi
   jne L(n_nonzero)
   xor %rax,%rax
-  RETURN
+  ret
 L(n_nonzero):
-#endif
 
 /*Initialize long lived registers. */
-#ifdef AS_STRCAT
-  mov %rsi,%r10
-#endif
-#ifdef AS_STRNCAT
-  mov %rsi,%r10
-  mov %rdx,%r11
-#endif
-#ifdef AS_STRNLEN
+
   add  %rdi,%rsi
   mov  %rsi,%r10
   and  $-64,%r10 
@@ -119,7 +95,7 @@ L(n_nonzero):
   test %rdx,%rdx;   \
   je L(lab);        \
   bsfq %rdx,%rax;   \
-  RETURN
+  ret
 
   andq $-16,%rax
   PROLOG(loop)
@@ -136,7 +112,7 @@ L(n_nonzero):
   test %rdx ,%rdx
   je   L(loop_init)
   bsfq %rdx,%rax
-  RETURN
+  ret
 #endif
 
 L(loop_init):
@@ -171,7 +147,7 @@ L(loop):
   bsfq  %rdx, %rdx       
   addq  %rdx, %rax       
   subq  %rdi, %rax       
-  RETURN  
+  ret  
  
   L(exit):
   pxor %xmm8, %xmm8
@@ -180,7 +156,7 @@ L(loop):
   bsfq  %rdx, %rdx       
   addq  %rdx, %rax       
   subq  %rdi, %rax       
-  RETURN_LAST
+  ret
 
 #else
 L(loop):
@@ -215,12 +191,10 @@ L(loop):
   bsfq  %rdx, %rdx       
   addq  %rdx, %rax       
   subq  %rdi, %rax       
-  RETURN_LAST
+  ret
   
 #endif  
 
-#if !(defined(AS_STRCAT) || defined(AS_STRNCAT))
 END(strlen)
 libc_hidden_builtin_def (strlen)
 weak_alias(strlen,__strlen_sse2)
-#endif
