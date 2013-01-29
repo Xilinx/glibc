@@ -1,15 +1,15 @@
-2012-11-05  Ondrej Bilka  <neleai@seznam.cz>
+2013-01-25  Maxim Kuvyrkov  <maxim.kuvyrkov@gmail.com>
 
-	* sysdeps/x86_64/strlen.S: Added new implementation.
-	* sysdeps/x86_64/strnlen.S: Use sysdeps/x86_64/strlen.S.
-	* sysdeps/x86_64/rtld-strlen.S: Use sysdeps/x86_64/strlen.S.
-	* sysdeps/x86_64/multiarch/strlen.S: No longer needed.
-	* sysdeps/x86_64/multiarch/strnlen-sse2-no-bsf.S: No longer needed.
-	* sysdeps/x86_64/multiarch/strnlen.S: No longer needed.
-	* sysdeps/x86_64/multiarch/ifunc-impl-list.c: Delete unused
-	ifuncs.
-	* sysdeps/x86_64/multiarch/Makefile: Updated.
-								
+	* time/tzfile.c: Include stdint.h for SIZE_MAX.
+
+2013-01-25  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* configure.in (_AC_PROG_CC_C89): New definition.
+	* configure: Regenerate.
+
+	* configure.in (AC_PROG_CPP): New definition.
+	* configure: Regenerate.
+
 2013-01-23  Joseph Myers  <joseph@codesourcery.com>
 
 	* debug/tst-backtrace.h: New file.
