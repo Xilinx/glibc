@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <inttypes.h>
 
 int
 main (int argc, char **argv)
@@ -52,6 +53,7 @@ main (int argc, char **argv)
 	}
     }
 
-  printf (FUNCNAME ": TOTAL: %ldns, MAX: %ldns, MIN: %ldns, AVG: %lfns\n",
-	  total, max, min, (double) total / (ITER * NUM_SAMPLES));
+  printf (FUNCNAME ": TOTAL: %"PRId64"ns, MAX: %"PRId64"ns, "
+	  "MIN: %"PRId64"ns, AVG: %lfns\n", total, max, min,
+	  (double) total / (ITER * NUM_SAMPLES));
 }

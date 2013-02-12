@@ -215,7 +215,7 @@ bench: $(binaries-bench)
 	  mv -f $(objpfx)bench.out $(objpfx)bench.out.old; \
 	fi
 	for run in $^; do \
-	  $(run-bench) >>  $(objpfx)bench.out; \
+	  eval $(run-bench) >>  $(objpfx)bench.out; \
 	done
 
 $(binaries-bench): %: %.o \
