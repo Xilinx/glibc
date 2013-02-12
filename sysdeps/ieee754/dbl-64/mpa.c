@@ -583,20 +583,6 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 
   zk = Z[k] = 0;
 
-  /* This gives us additional precision if required.  This is only executed
-     when P < IP1 + IP2 + 1, i.e. at least one of the numbers have precision
-     of greater than or equal to half of what's required (P).  Anything less
-     and we're just wasting our time since we'll be spinning around
-     multiplying zeroes.  */
-  while (k > p)
-    {
-      for (i = k - p, j = p; i < p + 1; i++, j--)
-	zk += (int64_t) X[i] * Y[j];
-
-      Z[k--] = zk % I_RADIX;
-      zk /= I_RADIX;
-    }
-
   /* Precompute sums of diagonal elements so that we can directly use them
      later.  See the next comment to know we why need them.  */
   diag = alloca (k * sizeof (int64_t));
@@ -608,6 +594,32 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
     }
   while (i < k)
     diag[i++] = diag[ip];
+
+  /* This gives us additional precision if required.  This is only executed
+     when P < IP1 + IP2 + 1, i.e. at least one of the numbers have precision
+     of greater than or equal to half of what's required (P).  Anything less
+     and we're just wasting our time since we'll be spinning around
+     multiplying zeroes.  */
+  while (k > p)
+    {
+      long lim = k / 2;
+
+      if (k % 2 == 0)
+        {
+	  /* We want to add this only once, but since we subtract it in the sum
+	     of products above, we add twice.  */
+          zk += 2 * X[lim] * Y[lim];
+	  lim--;
+	}
+
+      for (i = k - p, j = p; i <= lim; i++, j--)
+	zk += (int64_t) (X[i] + X[j]) * (Y[i] + Y[j]);
+
+      zk -= diag[k - 1];
+
+      Z[k--] = zk % I_RADIX;
+      zk /= I_RADIX;
+    }
 
   /* The real deal.  Mantissa digit Z[k] is the sum of all X[i] * Y[j] where i
      goes from 1 -> k - 1 and j goes the same range in reverse.  To reduce the
@@ -624,7 +636,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
      used in the loop below.  */
   while (k > 1)
     {
-      int lim = k / 2;
+      long lim = k / 2;
 
       if (k % 2 == 0)
         {
