@@ -335,7 +335,7 @@ static void
 SECTION
 add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
-  long i, j, k, p = p2;
+  long i, j, k, p = p2, zk;
 
   EZ = EX;
 
@@ -343,35 +343,38 @@ add_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p2)
   j = p + EY - EX;
   k = p + 1;
 
-  if (j < 1)
+  if (__glibc_unlikely (j < 1))
     {
       __cpy (x, z, p);
       return;
     }
-  else
-    Z[k] = 0;
+
+  zk = 0;
 
   for (; j > 0; i--, j--)
     {
-      long tmp = Z[k] + X[i] + Y[j];
-      Z[k] = tmp % I_RADIX;
-      Z[--k] = tmp / I_RADIX;
+      zk += X[i] + Y[j];
+      Z[k--] = zk % I_RADIX;
+      zk /= I_RADIX;
     }
 
   for (; i > 0; i--)
     {
-      long tmp = Z[k] + X[i];
-      Z[k] = tmp % I_RADIX;
-      Z[--k] = tmp / I_RADIX;
+      zk += X[i];
+      Z[k--] = zk % I_RADIX;
+      zk /= I_RADIX;
     }
 
-  if (Z[1] == 0)
+  if (zk == 0)
     {
       for (i = 1; i <= p; i++)
 	Z[i] = Z[i + 1];
     }
   else
-    EZ++;
+    {
+      Z[1] = zk;
+      EZ++;
+    }
 }
 
 /* Subtract the magnitudes of *X and *Y assuming that abs (*x) > abs (*y) > 0.
@@ -382,52 +385,46 @@ static void
 SECTION
 sub_magnitudes (const mp_no *x, const mp_no *y, mp_no *z, int p2)
 {
-  long i, j, k, p = p2;
+  long i, j, k, p = p2, zk;
 
   EZ = EX;
 
-  if (EX == EY)
+  i = p;
+  j = p + EY - EX;
+  k = p;
+
+  /* Y is too small compared to X, copy X over to the result.  */
+  if (__glibc_unlikely (j < 1))
     {
-      i = j = k = p;
-      Z[k] = Z[k + 1] = 0;
+      __cpy (x, z, p);
+      return;
+    }
+
+  /* The relevant least significant digit in Y is non-zero, so we factor it in
+     to enhance accuracy.  */
+  if (j < p && Y[j + 1] > 0)
+    {
+      Z[k + 1] = RADIX - Y[j + 1];
+      zk = -1;
     }
   else
-    {
-      j = EX - EY;
-      if (j > p)
-	{
-	  __cpy (x, z, p);
-	  return;
-	}
-      else
-	{
-	  long tmp;
+    zk = Z[k + 1] = ZERO;
 
-	  i = p;
-	  j = p + 1 - j;
-	  k = p;
-
-	  tmp = I_RADIX - Y[j];
-	  Z[k + 1] = tmp % I_RADIX;
-	  Z[k] = tmp / I_RADIX - 1;
-	  j--;
-	}
-    }
-
+  /* Subtract and borrow.  */
   for (; j > 0; i--, j--)
     {
-      long tmp = I_RADIX + Z[k] + X[i] - Y[j];
+      zk += I_RADIX + X[i] - Y[j];
 
-      Z[k] = tmp % I_RADIX;
-      Z[--k] = tmp / I_RADIX - 1;
+      Z[k--] = zk % I_RADIX;
+      zk = zk / I_RADIX - 1;
     }
 
   for (; i > 0; i--)
     {
-      long tmp = I_RADIX + Z[k] + X[i];
+      zk += I_RADIX + X[i];
 
-      Z[k] = tmp % I_RADIX;
-      Z[--k] = tmp / I_RADIX - 1;
+      Z[k--] = zk % I_RADIX;
+      zk = zk / I_RADIX - 1;
     }
 
   for (i = 1; Z[i] == 0; i++);
