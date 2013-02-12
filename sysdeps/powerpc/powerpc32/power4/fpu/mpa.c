@@ -69,7 +69,7 @@ mcr (const mp_no *x, const mp_no *y, int p)
 }
 
 /* Compare the absolute values of two multiple precision numbers.  */
-int
+long
 __acr (const mp_no *x, const mp_no *y, int p)
 {
   long i;
