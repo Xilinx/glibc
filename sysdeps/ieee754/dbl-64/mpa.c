@@ -552,6 +552,7 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
   long i, j, k, ip, ip2, p = p2;
   int64_t zk;
   int64_t *diag;
+  const mp_no *a;
 
   /* Is z=0?  */
   if (__glibc_unlikely (X[0] * Y[0] == 0))
@@ -566,9 +567,14 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
     if (X[ip2] | Y[ip2])
       break;
 
+  if (X[ip2])
+    a = y;
+  else
+    a = x;
+
   /* ... and here, at least one of them is still zero.  */
   for (ip = ip2; ip > 0; ip--)
-    if (X[ip] * Y[ip])
+    if (a->d[ip])
       break;
 
   /* Multiply, add and carry.  */
@@ -581,19 +587,19 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
   while (k > ip + ip2 + 1)
     Z[k--] = 0;
 
-  zk = Z[k] = 0;
+  zk = 0;
 
   /* Precompute sums of diagonal elements so that we can directly use them
      later.  See the next comment to know we why need them.  */
   diag = alloca (k * sizeof (int64_t));
-  diag[0] = 0;
+  int64_t d = ZERO;
   for (i = 1; i <= ip; i++)
     {
-      diag[i] = X[i] * Y[i];
-      diag[i] += diag[i - 1];
+      d += X[i] * Y[i];
+      diag[i] = d;
     }
   while (i < k)
-    diag[i++] = diag[ip];
+    diag[i++] = d;
 
   /* This gives us additional precision if required.  This is only executed
      when P < IP1 + IP2 + 1, i.e. at least one of the numbers have precision
@@ -677,31 +683,31 @@ SECTION
 __sqr (const mp_no *x, mp_no *y, int p)
 {
   long i, j, k, ip;
-  double u, yk;
+  int64_t yk;
 
   /* Is z=0?  */
-  if (__glibc_unlikely (X[0] == ZERO))
+  if (__glibc_unlikely (X[0] == 0))
     {
-      Y[0] = ZERO;
+      Y[0] = 0;
       return;
     }
 
   /* We need not iterate through all X's since it's pointless to
      multiply zeroes.  */
   for (ip = p; ip > 0; ip--)
-    if (X[ip] != ZERO)
+    if (X[ip])
       break;
 
   k = (__glibc_unlikely (p < 3)) ? p + p : p + 3;
 
   while (k > 2 * ip + 1)
-    Y[k--] = ZERO;
+    Y[k--] = 0;
 
-  yk = ZERO;
+  yk = 0;
 
   while (k > p)
     {
-      double yk2 = 0.0;
+      int64_t yk2 = 0;
       long lim = k / 2;
 
       if (k % 2 == 0)
@@ -713,21 +719,15 @@ __sqr (const mp_no *x, mp_no *y, int p)
       for (i = k - p, j = p; i <= lim; i++, j--)
 	yk2 += X[i] * X[j];
 
-      yk += 2.0 * yk2;
+      yk += yk2 * 2;
 
-      if (i == j)
-          yk +=  X[i] * X[i];
-
-      u = (yk + CUTTER) - CUTTER;
-      if (u > yk)
-	u -= RADIX;
-      Y[k--] = yk - u;
-      yk = u * RADIXI;
+      Y[k--] = yk % I_RADIX;
+      yk /= I_RADIX;
     }
 
   while (k > 1)
     {
-      double yk2 = 0.0;
+      int64_t yk2 = 0;
       long lim = k / 2;
 
       if (k % 2 == 0)
@@ -739,22 +739,19 @@ __sqr (const mp_no *x, mp_no *y, int p)
       for (i = 1, j = k - 1; i <= lim; i++, j--)
 	yk2 += X[i] * X[j];
 
-      yk += 2.0 * yk2;
+      yk += yk2 * 2;
 
-      u = (yk + CUTTER) - CUTTER;
-      if (u > yk)
-	u -= RADIX;
-      Y[k--] = yk - u;
-      yk = u * RADIXI;
+      Y[k--] = yk % I_RADIX;
+      yk /= I_RADIX;
     }
   Y[k] = yk;
 
   /* Squares are always positive.  */
-  Y[0] = 1.0;
+  Y[0] = 1;
 
   EY = 2 * EX;
   /* Is there a carry beyond the most significant digit?  */
-  if (__glibc_unlikely (Y[1] == ZERO))
+  if (__glibc_unlikely (Y[1] == 0))
     {
       for (i = 1; i <= p; i++)
 	Y[i] = Y[i + 1];
