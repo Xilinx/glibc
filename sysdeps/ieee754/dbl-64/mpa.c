@@ -605,18 +605,13 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
      multiplying zeroes.  */
   while (k > p)
     {
-      long lim = k / 2;
-
-      if (k % 2 == 0)
-        {
-	  /* We want to add this only once, but since we subtract it in the sum
-	     of products above, we add twice.  */
-          zk += 2 * X[lim] * Y[lim];
-	  lim--;
-	}
-
-      for (i = k - p, j = p; i <= lim; i++, j--)
+      for (i = k - p, j = p; i < j; i++, j--)
 	zk += (int64_t) (X[i] + X[j]) * (Y[i] + Y[j]);
+
+      if (i == j)
+	/* We want to add this only once, but since we subtract it in the sum
+	   of products above, we add twice.  */
+        zk += 2 * X[i] * Y[i];
 
       zk -= diag[k - 1];
 
@@ -639,18 +634,13 @@ __mul (const mp_no *x, const mp_no *y, mp_no *z, int p2)
      used in the loop below.  */
   while (k > 1)
     {
-      long lim = k / 2;
-
-      if (k % 2 == 0)
-        {
-	  /* We want to add this only once, but since we subtract it in the sum
-	     of products above, we add twice.  */
-          zk += 2 * X[lim] * Y[lim];
-	  lim--;
-	}
-
-      for (i = 1, j = k - 1; i <= lim; i++, j--)
+      for (i = 1, j = k - 1; i < j; i++, j--)
 	zk += (int64_t) (X[i] + X[j]) * (Y[i] + Y[j]);
+
+      if (i == j)
+	/* We want to add this only once, but since we subtract it in the sum
+	   of products above, we add twice.  */
+        zk += 2 * X[i] * Y[i];
 
       zk -= diag[k - 1];
 
@@ -708,12 +698,9 @@ __sqr (const mp_no *x, mp_no *y, int p)
       long lim = k / 2;
 
       if (k % 2 == 0)
-        {
-	  yk += X[lim] * X[lim];
-	  lim--;
-	}
+	yk += X[lim] * X[lim];
 
-      for (i = k - p, j = p; i <= lim; i++, j--)
+      for (i = k - p, j = p; i < j; i++, j--)
 	yk2 += X[i] * X[j];
 
       yk += yk2 * 2;
@@ -728,12 +715,9 @@ __sqr (const mp_no *x, mp_no *y, int p)
       long lim = k / 2;
 
       if (k % 2 == 0)
-        {
-	  yk += X[lim] * X[lim];
-	  lim--;
-	}
+	yk += X[lim] * X[lim];
 
-      for (i = 1, j = k - 1; i <= lim; i++, j--)
+      for (i = 1, j = k - 1; i < j; i++, j--)
 	yk2 += X[i] * X[j];
 
       yk += yk2 * 2;
