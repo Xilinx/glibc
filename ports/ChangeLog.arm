@@ -1,3 +1,8 @@
+2013-03-08  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/preconfigure.in: New file.
+	* sysdeps/arm/preconfigure: Replaced with generated file.
+
 2013-03-06  Richard Henderson <rth@redhat.com>
 
 	* sysdeps/arm/armv6/rawmemchr.S: New file.
