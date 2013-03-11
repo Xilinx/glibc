@@ -1,5 +1,12 @@
 2013-03-11  Roland McGrath  <roland@hack.frob.com>
 
+	* sysdeps/arm/memcpy.S: Convert to unified assembly syntax.
+	* sysdeps/arm/memmove.S: Likewise.
+	* sysdeps/arm/memset.S: Likewise.
+	* sysdeps/arm/strlen.S: Likewise.
+
+2013-03-11  Roland McGrath  <roland@hack.frob.com>
+
 	* sysdeps/arm/preconfigure.in: New file.
 	* sysdeps/arm/preconfigure: Replaced with generated file.
 
