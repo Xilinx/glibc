@@ -1,3 +1,10 @@
+2013-03-12  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/arm-features.h: Add comment about ARM_ALWAYS_BX.
+	* sysdeps/arm/memcpy.S: Include <arm-features.h>.
+	[ARM_ALWAYS_BX]: Avoid pc as destination.
+	* sysdeps/arm/memmove.S: Likewise.
+
 2013-03-11  Joseph Myers  <joseph@codesourcery.com>
 
 	* sysdeps/arm/preconfigure.in: Add comment about
