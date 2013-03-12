@@ -16,6 +16,9 @@
 	* sysdeps/arm/armv6/strcpy.S: Likewise.
 	* sysdeps/arm/armv6/strlen.S: Likewise.
 	* sysdeps/arm/armv6/strrchr.S: Likewise.
+	* sysdeps/arm/armv6t2/memchr.S: Likewise.
+	* sysdeps/arm/memcpy.S: Likewise.
+	* sysdeps/arm/memmove.S: Likewise.
 	* sysdeps/arm/memset.S: Likewise.
 	* sysdeps/arm/setjmp.S: Likewise.
 	* sysdeps/arm/strlen.S: Likewise.
