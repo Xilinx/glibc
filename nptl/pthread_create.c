@@ -507,8 +507,7 @@ __pthread_create_2_1 (newthread, attr, start_routine, arg)
 #endif
 
   /* Determine scheduling parameters for the thread.  */
-  if (attr != NULL
-      && __builtin_expect ((iattr->flags & ATTR_FLAG_NOTINHERITSCHED) != 0, 0)
+  if (__builtin_expect ((iattr->flags & ATTR_FLAG_NOTINHERITSCHED) != 0, 0)
       && (iattr->flags & (ATTR_FLAG_SCHED_SET | ATTR_FLAG_POLICY_SET)) != 0)
     {
       INTERNAL_SYSCALL_DECL (scerr);
