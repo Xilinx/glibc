@@ -435,15 +435,6 @@ start_thread (void *arg)
 }
 
 
-/* Default thread attributes for the case when the user does not
-   provide any.  */
-static const struct pthread_attr default_attr =
-  {
-    /* Just some value > 0 which gets rounded to the nearest page size.  */
-    .guardsize = 1,
-  };
-
-
 int
 __pthread_create_2_1 (newthread, attr, start_routine, arg)
      pthread_t *newthread;

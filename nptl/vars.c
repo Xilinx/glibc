@@ -20,13 +20,17 @@
 #include <tls.h>
 #include <unistd.h>
 
-/* Default stack size.  */
-size_t __default_stacksize attribute_hidden
-#ifdef SHARED
-;
-#else
-  = PTHREAD_STACK_MIN;
+/* Default thread attributes for the case when the user does not
+   provide any.  */
+struct pthread_attr default_attr =
+  {
+    /* Just some value > 0 which gets rounded to the nearest page size.  */
+    .guardsize = 1,
+#ifndef SHARED
+    .stacksize = PTHREAD_STACK_MIN,
 #endif
+  };
+hidden_data_def (default_attr)
 
 /* Flag whether the machine is SMP or not.  */
 int __is_smp attribute_hidden;

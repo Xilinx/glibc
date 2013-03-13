@@ -147,8 +147,9 @@ enum
 /* Internal variables.  */
 
 
-/* Default stack size.  */
-extern size_t __default_stacksize attribute_hidden;
+/* Default pthread attributes.  */
+extern struct pthread_attr default_attr;
+hidden_proto (default_attr);
 
 /* Size and alignment of static TLS block.  */
 extern size_t __static_tls_size attribute_hidden;
