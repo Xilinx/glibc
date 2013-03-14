@@ -21,11 +21,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
 
 static size_t stacksize = 1024 * 1024;
 
 void *
-verify_result (pthread_attr_t *attr, int adjust_guard)
+verify_result (pthread_attr_t *attr)
 {
   int ret;
   size_t stack;
@@ -36,24 +38,10 @@ verify_result (pthread_attr_t *attr, int adjust_guard)
       return (void *) (uintptr_t) 1;
     }
 
-  /* FIXME Currently, glibc pthread stack size includes the guard size.  This
-     needs to be fixed eventually, but until then, adjust the stack size so
-     that this test does not fail.  */
-  if (adjust_guard)
-    {
-      size_t guard;
-      if ((ret = pthread_attr_getguardsize (attr, &guard)) != 0)
-	{
-	  printf ("pthread_attr_getguardsize failed: %s\n", strerror (ret));
-	  return (void *) (uintptr_t) 1;
-	}
-      stack -= guard;
-    }
-
   if (stacksize != stack)
     {
-      puts ("pthread_attr_set_default did not work for stacksize");
-      printf ("%zd, %zd\n", stacksize, stack);
+      printf ("pthread_attr_set_default failed for stacksize (%zu, %zu)\n",
+	      stacksize, stack);
       return (void *) (uintptr_t) 1;
     }
 
@@ -74,7 +62,7 @@ thr (void *unused)
       return (void *) (uintptr_t) 1;
     }
 
-  if (verify_result (&attr, 0))
+  if (verify_result (&attr))
     return (void *) (uintptr_t) 1;
 
   /* To verify that the attributes actually got applied.  */
@@ -85,7 +73,7 @@ thr (void *unused)
       return (void *) (uintptr_t) 1;
     }
 
-  return verify_result (&attr, 1);
+  return verify_result (&attr);
 }
 
 int
@@ -143,6 +131,20 @@ run_threads (void)
 int
 do_test (void)
 {
+  long pagesize = sysconf (_SC_PAGESIZE);
+
+  if (pagesize < 0)
+    {
+      printf ("sysconf failed: %s\n", strerror (errno));
+      return 1;
+    }
+
+  /* Perturb the size by a page so that we're not aligned on the 64K boundary.
+     pthread_create does this perturbation on x86 to avoid causing the 64k
+     aliasing conflict.  We want to prevent pthread_create from doing that
+     since it is not consistent for all architectures.  */
+  stacksize += pagesize;
+
   /* Run twice to ensure that we don't give a false positive.  */
   puts ("First iteration");
   int ret = run_threads ();
