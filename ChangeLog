@@ -1,3 +1,12 @@
+2013-03-20  Roland McGrath  <roland@hack.frob.com>
+
+	* include/stdlib.h (__call_tls_dtors): Declare with attribute_hidden.
+	Drop libc_hidden_proto.  Declare with __attribute__ ((weak)).
+	* stdlib/cxa_thread_atexit_impl.c (__call_tls_dtors): Define with
+	attribute_hidden.  Drop libc_hidden_def.
+	* stdlib/exit.c (__libc_atexit) [!SHARED]:
+	Call __call_tls_dtors only if it's not NULL.
+
 2013-03-20  Joseph Myers  <joseph@codesourcery.com>
 
 	* aclocal.m4 (LIBC_CONFIG_VAR): New autoconf macro.
