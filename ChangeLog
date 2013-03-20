@@ -1,5 +1,10 @@
 2013-03-20  Roland McGrath  <roland@hack.frob.com>
 
+	* sysdeps/posix/libc_fatal.c: Don't include <sys/syslog.h>.
+	(__libc_message): Never call vsyslog.
+
+2013-03-20  Roland McGrath  <roland@hack.frob.com>
+
 	[BZ #14812]
 	* locale/programs/localedef.c (options): Put N_ translation marker
 	on argument names, not just descriptions.
