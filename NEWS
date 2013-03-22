@@ -26,6 +26,8 @@ Version 2.18
 
 * Added a benchmark framework to track performance of functions in glibc.
 
+* New <math.h> macro named issignaling to check for a signaling NaN (sNaN).
+  This is currently GNU-specific.
 
 Version 2.17
 
