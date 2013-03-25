@@ -53,6 +53,8 @@
 #define FP_ROUNDMODE          __sim_round_mode
 #define FP_TRAPPING_EXCEPTIONS (~__sim_disabled_exceptions & 0x3e000000)
 
+/* FIXME: these variables should be thread specific and preserved
+   across signal handlers, like hardware FP status words.  */
 extern int __sim_exceptions;
 libc_hidden_proto (__sim_exceptions);
 extern int __sim_disabled_exceptions;

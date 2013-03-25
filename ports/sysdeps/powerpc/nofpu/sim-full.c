@@ -21,6 +21,9 @@
 #include "soft-fp.h"
 #include "soft-supp.h"
 
+/* FIXME: these variables should be thread specific and preserved
+   across signal handlers, like hardware FP status words.  */
+
 /* Global to store sticky exceptions.  */
 int __sim_exceptions __attribute__ ((nocommon));
 libc_hidden_data_def (__sim_exceptions);

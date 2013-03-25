@@ -26,6 +26,7 @@ typedef union
 } fenv_union_t;
 
 
+/* FIXME: these variables should be thread-specific.  */
 extern int __sim_exceptions;
 libc_hidden_proto (__sim_exceptions);
 extern int __sim_disabled_exceptions;
