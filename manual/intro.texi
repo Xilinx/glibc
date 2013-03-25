@@ -159,6 +159,39 @@ Utilities standard} (POSIX.2) are also implemented in @theglibc{}.
 These include utilities for dealing with regular expressions and other
 pattern matching facilities (@pxref{Pattern Matching}).
 
+The safety properties of @glibcadj{} functions, documented as MT-, AS-
+and AC- -Safe and -Unsafe are assessed according to the criteria set
+forth in the POSIX standard for Multi-Thread, Async-Signal and
+Async-Cancel safety.
+
+An intuitive definition of these properties, that attempts to capture
+the formal definition in the standard, follows:
+
+@itemize @bullet
+
+@item 
+MT-Safe functions are safe to call in the presence of other threads.  MT
+stands for Multi Thread.
+
+@item 
+AS-Safe functions are safe to call from asynchronous signal handlers.
+AS stands for Asynchronous Signal.
+
+@item
+AC-Safe functions are safe to call when asynchronous cancellation is
+enabled.  AC stands for Asynchronous Cancellation.
+
+@item 
+MT-Unsafe, AS-Unsafe, AC-Unsafe functions are not safe to call within
+the contexts described above: they may cause deviations from the
+specification in the behavior of the calls themselves, or of any other
+concurrent, ongoing or subsequent calls.
+
+Functions not explicitly documented as Safe should be regarded as
+Unsafe.
+
+@end itemize
+
 @comment Roland sez:
 @comment The GNU C library as it stands conforms to 1003.2 draft 11, which
 @comment specifies:

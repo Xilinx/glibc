@@ -47,4 +47,37 @@ GNU/Hurd systems
 GNU/Linux systems
 @end macro
 
+@c Document a function as thread safe.
+@macro mtsafe {comments}
+| MT-Safe |
+@end macro
+@c Document a function as thread unsafe.
+@macro mtunsafe {comments}
+| MT-Unsafe |
+@end macro
+@c Document a function as safe for use in asynchronous signal handlers.
+@macro assafe {comments}
+| AS-Safe |
+@end macro
+@c Document a function as unsafe for use in asynchronous signal
+@c handlers.  This distinguishes unmarked functions, for which this
+@c property has not been assessed, from those that have been analyzed.
+@macro asunsafe {comments}
+@end macro
+@c Document a function as safe for use when asynchronous cancellation is
+@c enabled.
+@macro acsafe {comments}
+| AC-Safe |
+@end macro
+@c Document a function as unsafe for use when asynchronous cancellation
+@c is enabled.  This distinguishes unmarked functions, for which this
+@c property has not been assessed, from those that have been analyzed.
+@macro acunsafe {comments}
+@end macro
+@c Format the thread and async safety properties of a function.
+@macro safety {notes}
+\notes\
+
+@end macro
+
 @end ifclear
