@@ -357,8 +357,19 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
   assert (TCB_ALIGNMENT >= STACK_ALIGN);
 
   /* Get the stack size from the attribute if it is set.  Otherwise we
-     use the default we determined at start time.  */
-  size = attr->stacksize ?: __default_pthread_attr.stacksize;
+     use the default we determined at start time.  Our lock attempt here will
+     never trip with the lock in pthread_create because the stacksize in
+     __default_pthread_attr_lock will never be zero.  So if we deadlock on
+     ourselves here, it is because a bug led to
+     __default_pthread_attr.stacksize being zero.  */
+  if (attr->stacksize)
+    size = attr->stacksize;
+  else
+    {
+      lll_lock (__default_pthread_attr_lock, LLL_PRIVATE);
+      size = __default_pthread_attr.stacksize;
+      lll_unlock (__default_pthread_attr_lock, LLL_PRIVATE);
+    }
 
   /* Get memory for the stack.  */
   if (__builtin_expect (attr->flags & ATTR_FLAG_STACKADDR, 0))
@@ -919,8 +930,9 @@ __reclaim_stacks (void)
 
   in_flight_stack = 0;
 
-  /* Initialize the lock.  */
+  /* Initialize locks.  */
   stack_cache_lock = LLL_LOCK_INITIALIZER;
+  __default_pthread_attr_lock = LLL_LOCK_INITIALIZER;
 }
 
 
