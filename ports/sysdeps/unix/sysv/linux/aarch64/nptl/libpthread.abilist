@@ -222,3 +222,7 @@ GLIBC_2.17
  wait F
  waitpid F
  write F
+GLIBC_2.18
+ GLIBC_2.18 A
+ pthread_attr_get_default_np F
+ pthread_attr_set_default_np F
