@@ -22,6 +22,7 @@
 #include <ldsodefs.h>
 #include <sysdep.h>
 #include <ifunc-impl-list.h>
+#include <stdint.h>
 
 /* Fill ARRAY of MAX elements with IFUNC implementations for function
    NAME and return the number of valid entries.  */
@@ -31,7 +32,7 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			size_t max)
 {
   size_t i = 0;
-  int hwcap;
+  uint64_t hwcap;
 
   hwcap = GLRO(dl_hwcap);
 

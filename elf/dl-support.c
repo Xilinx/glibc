@@ -33,6 +33,7 @@
 #include <unsecvars.h>
 #include <hp-timing.h>
 #include <stackinfo.h>
+#include <stdint.h>
 
 extern char *__progname;
 char **_dl_argv = &__progname;	/* This is checked for some error messages.  */
@@ -211,8 +212,12 @@ _dl_aux_init (ElfW(auxv_t) *av)
 	GL(dl_phnum) = av->a_un.a_val;
 	break;
       case AT_HWCAP:
-	GLRO(dl_hwcap) = (unsigned long int) av->a_un.a_val;
+	GLRO(dl_hwcap) |= (unsigned long int) av->a_un.a_val;
 	break;
+      case AT_HWCAP2:
+	GLRO(dl_hwcap) |= ((uint64_t) av->a_un.a_val) << 32;
+	break;
+
 #ifdef NEED_DL_SYSINFO
       case AT_SYSINFO:
 	GL(dl_sysinfo) = av->a_un.a_val;

@@ -43,6 +43,7 @@
 #include <dl-osinfo.h>
 #include <hp-timing.h>
 #include <tls.h>
+#include <stdint.h>
 
 extern char **_environ attribute_hidden;
 extern char _end[] attribute_hidden;
@@ -154,7 +155,10 @@ _dl_sysdep_start (void **start_argptr,
 	GLRO(dl_platform) = (void *) av->a_un.a_val;
 	break;
       case AT_HWCAP:
-	GLRO(dl_hwcap) = (unsigned long int) av->a_un.a_val;
+	GLRO(dl_hwcap) |= (unsigned long int) av->a_un.a_val;
+	break;
+      case AT_HWCAP2:
+	GLRO(dl_hwcap) |= ((uint64_t) av->a_un.a_val) << 32;
 	break;
       case AT_CLKTCK:
 	GLRO(dl_clktck) = av->a_un.a_val;
@@ -298,6 +302,7 @@ _dl_show_auxv (void)
 	  [AT_SYSINFO - 2] =		{ "SYSINFO:      0x", hex },
 	  [AT_SYSINFO_EHDR - 2] =	{ "SYSINFO_EHDR: 0x", hex },
 	  [AT_RANDOM - 2] =		{ "RANDOM:       0x", hex },
+	  [AT_HWCAP2 - 2] =		{ "HWCAP2:       ", hex },
 	};
       unsigned int idx = (unsigned int) (av->a_type - 2);
 
@@ -309,7 +314,7 @@ _dl_show_auxv (void)
       assert (AT_NULL == 0);
       assert (AT_IGNORE == 1);
 
-      if (av->a_type == AT_HWCAP)
+      if (av->a_type == AT_HWCAP || av->a_type == AT_HWCAP2)
 	{
 	  /* This is handled special.  */
 	  if (_dl_procinfo (av->a_un.a_val) == 0)

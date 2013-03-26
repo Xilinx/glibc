@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <sys/shm.h>
 #include <ldsodefs.h>
+#include <stdint.h>
 
 int
 __getshmlba (void)

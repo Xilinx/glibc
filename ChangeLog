@@ -1,3 +1,28 @@
+2013-03-26  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* elf/dl-cache.c: Include stdint.h for uint64_t.
+	* elf/dl-hwcaps.c: Likewise.
+	* elf/dl-support.c: Likewise.
+	(_dl_aux_init): Add new case for AT_HWCAP2 and 'or' together with
+	AT_HWCAP.
+	* elf/dl-sysdep.c (_dl_sysdep_start): Likewise.
+	(_dl_show_auxv): Add display string for HWCAP2 and display handling
+	code for AT_HWCAP2.
+	* elf/elf.h (AT_HWCAP2): New AT_* definition.
+	* misc/Makefile (tests): Add tst-getauxval.
+	* misc/getauxval.c (__getauxval):  Add return case for AT_HWCAP2.
+	* misc/tst-getauxval.c: New file.
+	* sysdeps/s390/s390-32/multiarch/ifunc-resolve.c: Include stdint.h for
+	uint64_t.
+	(resolve_##FUNC): Change IFUNC resolver to take uint64_t parameter
+	rather than unsigned long int for dl_hwcap.
+	* sysdeps/s390/s390-64/multiarch/ifunc-resolve.c: Likewise.
+	* sysdeps/sparc/sparc64/multiarch/ifunc-impl-list.c: Include stdint.h
+	for uint64_t.
+	(__libc_ifunc_impl_list): Change local int variable hwcap to uint64_t.
+	* sysdeps/unix/sysv/linux/sparc/getshmlba.c: Include stdint.h for
+	uint64_t.
+
 2013-03-26  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/ieee754/dbl-64/mpa.c (__acr): Use integral

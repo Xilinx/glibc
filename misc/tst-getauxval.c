@@ -1,4 +1,5 @@
-/* Copyright (C) 2012-2013 Free Software Foundation, Inc.
+/* Test AT_HWCAP2 with getauxval.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,23 +17,17 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sys/auxv.h>
-#include <ldsodefs.h>
+#include <elf.h>
 
-
-unsigned long int
-__getauxval (unsigned long int type)
+static int
+do_test (void)
 {
-  ElfW(auxv_t) *p;
 
-  if (type == AT_HWCAP)
-    return GLRO(dl_hwcap);
-  else if (type == AT_HWCAP2)
-    return GLRO(dl_hwcap) >> 32;
+  unsigned long int hwcap2;
+  hwcap2 = getauxval (AT_HWCAP2);
 
-  for (p = GLRO(dl_auxv); p->a_type != AT_NULL; p++)
-    if (p->a_type == type)
-      return p->a_un.a_val;
   return 0;
 }
 
-weak_alias (__getauxval, getauxval)
+#define TEST_FUNCTION do_test ()
+#include "../test-skeleton.c"

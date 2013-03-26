@@ -22,7 +22,7 @@
 #include <libintl.h>
 #include <unistd.h>
 #include <ldsodefs.h>
-
+#include <stdint.h>
 #include <dl-procinfo.h>
 
 #ifdef _DL_FIRST_PLATFORM

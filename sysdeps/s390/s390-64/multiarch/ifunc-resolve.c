@@ -19,6 +19,7 @@
 
 #include <unistd.h>
 #include <dl-procinfo.h>
+#include <stdint.h>
 
 #define STFLE_BITS_Z10  34 /* General instructions extension */
 #define STFLE_BITS_Z196 45 /* Distinct operands, pop ... */
@@ -38,7 +39,7 @@
   extern void *FUNC##_z10 attribute_hidden;				\
   extern void *FUNC##_z900 attribute_hidden;				\
 									\
-  void *resolve_##FUNC (unsigned long int dl_hwcap)			\
+  void *resolve_##FUNC (uint64_t dl_hwcap)				\
   {									\
     if (dl_hwcap & HWCAP_S390_STFLE)					\
       {									\
