@@ -1,5 +1,10 @@
 2013-04-08  Roland McGrath  <roland@hack.frob.com>
 
+	* csu/Makefile ($(objpfx)abi-tag.h): Handle abi-tags files in add-on
+	directories too.
+
+2013-04-08  Roland McGrath  <roland@hack.frob.com>
+
 	[BZ #14280]
 	* sysdeps/mach/hurd/bits/ioctls.h (_IOTS): Cast to enum __ioctl_datum
 	when computing value.
