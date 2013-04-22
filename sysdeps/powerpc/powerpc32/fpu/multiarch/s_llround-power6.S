@@ -1,4 +1,4 @@
-/* lround function.  POWER5+, PowerPC32 version.
+/* lround function.  PowerPC32/POWER6 version.
    Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 

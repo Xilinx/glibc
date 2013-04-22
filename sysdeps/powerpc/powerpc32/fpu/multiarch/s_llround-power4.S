@@ -1,4 +1,4 @@
-/* llround function.  PowerPC32 on PowerPC64 version.
+/* llround function.  PowerPC32/POWER4 version.
    Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
