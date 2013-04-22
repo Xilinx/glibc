@@ -2,6 +2,7 @@
    Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund (tege@sics.se).
+   Updated for POWER6 by Steven Munroe (sjmunroe@us.ibm.com).
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -26,18 +27,19 @@
    block beginning at DSTP with LEN `op_t' words (not LEN bytes!).
    Both SRCP and DSTP should be aligned for memory operations on `op_t's.  */
 
+#ifndef WORDCOPY_FWD_ALIGNED
+# define WORDCOPY_FWD_ALIGNED _wordcopy_fwd_aligned
+#endif
+
 void
-_wordcopy_fwd_aligned (dstp, srcp, len)
-     long int dstp;
-     long int srcp;
-     size_t len;
+WORDCOPY_FWD_ALIGNED (long int dstp, long int srcp, size_t len)
 {
   op_t a0, a1;
 
   if (len & 1)
   {
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     srcp += OPSIZ;
@@ -64,18 +66,35 @@ _wordcopy_fwd_aligned (dstp, srcp, len)
    DSTP should be aligned for memory operations on `op_t's, but SRCP must
    *not* be aligned.  */
 
+#ifndef WORDCOPY_FWD_DEST_ALIGNED
+# define WORDCOPY_FWD_DEST_ALIGNED _wordcopy_fwd_dest_aligned
+#endif
+
+#define fwd_align_merge(align)                                         \
+  do                                                                   \
+    {                                                                  \
+      a1 = ((op_t *) srcp)[1];                                         \
+      a2 = ((op_t *) srcp)[2];                                         \
+      ((op_t *) dstp)[0] = MERGE (a0, align*8, a1, (32-align*8));      \
+      ((op_t *) dstp)[1] = MERGE (a1, align*8, a2, (32-align*8));      \
+      a0 = a2;                                                         \
+      srcp += 2 * OPSIZ;                                               \
+      dstp += 2 * OPSIZ;                                               \
+      len -= 2;                                                                \
+    }                                                                  \
+  while (len != 0)
+
 void
-_wordcopy_fwd_dest_aligned (dstp, srcp, len)
-     long int dstp;
-     long int srcp;
-     size_t len;
+WORDCOPY_FWD_DEST_ALIGNED (long int dstp, long int srcp, size_t len)
 {
   op_t a0, a1, a2;
   int sh_1, sh_2;
+  int align;
 
   /* Calculate how to shift a word read at the memory operation
      aligned srcp to make it aligned for copy.  */
 
+  align = srcp % OPSIZ;
   sh_1 = 8 * (srcp % OPSIZ);
   sh_2 = 8 * OPSIZ - sh_1;
 
@@ -88,29 +107,18 @@ _wordcopy_fwd_dest_aligned (dstp, srcp, len)
   {
     a1 = ((op_t *) srcp)[1];
     ((op_t *) dstp)[0] = MERGE (a0, sh_1, a1, sh_2);
-    
+
     if (len == 1)
       return;
-    
+
     a0 = a1;
     srcp += OPSIZ;
     dstp += OPSIZ;
     len -= 1;
   }
 
-  do
-    {
-      a1 = ((op_t *) srcp)[1];
-      a2 = ((op_t *) srcp)[2];
-      ((op_t *) dstp)[0] = MERGE (a0, sh_1, a1, sh_2);
-      ((op_t *) dstp)[1] = MERGE (a1, sh_1, a2, sh_2);
-      a0 = a2;
+  fwd_align_merge (align);
 
-      srcp += 2 * OPSIZ;
-      dstp += 2 * OPSIZ;
-      len -= 2;
-    }
-  while (len != 0);
 }
 
 /* _wordcopy_bwd_aligned -- Copy block finishing right before
@@ -118,11 +126,12 @@ _wordcopy_fwd_dest_aligned (dstp, srcp, len)
    (not LEN bytes!).  Both SRCP and DSTP should be aligned for memory
    operations on `op_t's.  */
 
+#ifndef WORDCOPY_BWD_ALIGNED
+# define WORDCOPY_BWD_ALIGNED _wordcopy_bwd_aligned
+#endif
+
 void
-_wordcopy_bwd_aligned (dstp, srcp, len)
-     long int dstp;
-     long int srcp;
-     size_t len;
+WORDCOPY_BWD_ALIGNED (long int dstp, long int srcp, size_t len)
 {
   op_t a0, a1;
 
@@ -131,7 +140,7 @@ _wordcopy_bwd_aligned (dstp, srcp, len)
     srcp -= OPSIZ;
     dstp -= OPSIZ;
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     len -= 1;
@@ -152,23 +161,41 @@ _wordcopy_bwd_aligned (dstp, srcp, len)
   while (len != 0);
 }
 
+
 /* _wordcopy_bwd_dest_aligned -- Copy block finishing right
    before SRCP to block finishing right before DSTP with LEN `op_t'
    words (not LEN bytes!).  DSTP should be aligned for memory
    operations on `op_t', but SRCP must *not* be aligned.  */
 
+#ifndef WORDCOPY_BWD_DEST_ALIGNED
+# define WORDCOPY_BWD_DEST_ALIGNED _wordcopy_bwd_dest_aligned
+#endif
+
+#define bwd_align_merge(align)                                         \
+  do                                                                   \
+    {                                                                  \
+      srcp -= 2 * OPSIZ;                                               \
+      dstp -= 2 * OPSIZ;                                               \
+      a1 = ((op_t *) srcp)[1];                                         \
+      a0 = ((op_t *) srcp)[0];                                         \
+      ((op_t *) dstp)[1] = MERGE (a1, align*8, a2, (32-align*8));      \
+      ((op_t *) dstp)[0] = MERGE (a0, align*8, a1, (32-align*8));      \
+      a2 = a0;                                                         \
+      len -= 2;                                                                \
+    }                                                                  \
+  while (len != 0)
+
 void
-_wordcopy_bwd_dest_aligned (dstp, srcp, len)
-     long int dstp;
-     long int srcp;
-     size_t len;
+WORDCOPY_BWD_DEST_ALIGNED (long int dstp, long int srcp, size_t len)
 {
   op_t a0, a1, a2;
   int sh_1, sh_2;
+  int align;
 
   /* Calculate how to shift a word read at the memory operation
      aligned srcp to make it aligned for copy.  */
 
+  align = srcp % OPSIZ;
   sh_1 = 8 * (srcp % OPSIZ);
   sh_2 = 8 * OPSIZ - sh_1;
 
@@ -191,18 +218,5 @@ _wordcopy_bwd_dest_aligned (dstp, srcp, len)
     len -= 1;
   }
 
-  do
-    {
-      srcp -= 2 * OPSIZ;
-      dstp -= 2 * OPSIZ;
-
-      a1 = ((op_t *) srcp)[1];
-      a0 = ((op_t *) srcp)[0];
-      ((op_t *) dstp)[1] = MERGE (a1, sh_1, a2, sh_2);
-      ((op_t *) dstp)[0] = MERGE (a0, sh_1, a1, sh_2);
-      a2 = a0;
-
-      len -= 2;
-    }
-  while (len != 0);
+  bwd_align_merge (align);
 }
