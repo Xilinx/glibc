@@ -1,4 +1,4 @@
-/* isnan().  PowerPC32 version.
+/* isnanf().  PowerPC32/POWER5 version.
    Copyright (C) 2008-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19,43 +19,23 @@
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
 
-/* int __isnan(x)  */
-	.machine power6
-EALIGN (__isnan, 4, 0)
+/* int __isnanf(x)  */
+	.machine power5
+EALIGN (__isnanf_power5, 4, 0)
 	stwu	r1,-32(r1)
 	cfi_adjust_cfa_offset (32)
-	ori	r1,r1,0
-	stfd	fp1,24(r1)	/* copy FPR to GPR */
-	ori	r1,r1,0
-	lwz	r4,24(r1)
-	lwz	r5,28(r1)
-	lis	r0,0x7ff0	/* const long r0 0x7ff00000 00000000 */
+	stfs	fp1,28(r1)	/* copy FPR to GPR */
+	nop
+	nop
+	lwz	r4,28(r1)
+	lis	r0,0x7f80	/* const long r0 0x7f800000 */
 	clrlwi	r4,r4,1		/* x = fabs(x) */
 	cmpw	cr7,r4,r0	/* if (fabs(x) =< inf) */
-	cmpwi	cr6,r5,0
 	li	r3,0		/* then return 0 */
 	addi	r1,r1,32
 	cfi_adjust_cfa_offset (-32)
-	bltlr+	cr7
-	bgt-	cr7,L(NaN)
-	beqlr+	cr6
+	blelr+	cr7
 L(NaN):
 	li	r3,1		/* else return 1 */
 	blr
-	END (__isnan)
-
-hidden_def (__isnan)
-weak_alias (__isnan, isnan)
-
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isnan, __isnanl)
-weak_alias (__isnan, isnanl)
-#endif
-
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
-compat_symbol (libc, __isnan, __isnanl, GLIBC_2_0);
-compat_symbol (libc, isnan, isnanl, GLIBC_2_0);
-# endif
-#endif
-
+END (__isnanf_power5)
