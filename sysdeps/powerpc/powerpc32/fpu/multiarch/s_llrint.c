@@ -1,5 +1,5 @@
-/* Round double to long int.  PowerPC32 on PowerPC64 version.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+/* Multiple versions of llrint.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,24 +16,21 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
+#include <math.h>
 #include <math_ldbl_opt.h>
+#include <shlib-compat.h>
+#include "init-arch.h"
 
-/* long long int[r3, r4] __llrint (double x[fp1])  */
-ENTRY (__llrint)	
-	CALL_MCOUNT
-	stwu	r1,-16(r1)
-	cfi_adjust_cfa_offset (16)
-	fctid	fp13,fp1
-	stfd	fp13,8(r1)
-/* Insure the following load is in a different dispatch group by
-   inserting "group ending nop".  */
-	ori	r1,r1,0
-	lwz	r3,8(r1)
-	lwz	r4,12(r1)
-	addi	r1,r1,16	
-	blr
-	END (__llrint)
+extern __typeof (__llrint) __llrint_ppc32 attribute_hidden;
+extern __typeof (__llrint) __llrint_power4 attribute_hidden;
+extern __typeof (__llrint) __llrint_power6 attribute_hidden;
+
+libc_ifunc (__llrint,
+	    (hwcap & PPC_FEATURE_ARCH_2_05)
+	    ? __llrint_power6 :
+	      (hwcap & PPC_FEATURE_POWER4)
+	      ? __llrint_power4
+            : __llrint_ppc32);
 
 weak_alias (__llrint, llrint)
 
@@ -42,5 +39,5 @@ strong_alias (__llrint, __llrintl)
 weak_alias (__llrint, llrintl)
 #endif
 #if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __llrint, llrintl, GLIBC_2_1)
+compat_symbol (libm, __llrint, llrintl, GLIBC_2_1);
 #endif
