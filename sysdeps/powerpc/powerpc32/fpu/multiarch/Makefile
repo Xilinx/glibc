@@ -26,8 +26,13 @@ libm-sysdep_routines += s_llrintf-power6 s_llrintf-power4 s_llrintf-c \
 			s_truncf-power5+ s_truncf-ppc32 s_copysign-power6 \
 			s_copysign-ppc32 s_lround-power6x s_lround-power5+ \
 			s_lround-ppc32 s_lrint-power6x s_lrint-ppc32 \
+			s_logbl-power7 s_logbl-c s_logb-power7 s_logb-c \
+			s_logbf-power7 s_logbf-c s_modf-power5+ s_modf-c \
 			s_modff-power5+ s_modff-c
 
 CFLAGS-s_llround.c = -fno-builtin-llroundf
+CFLAGS-s_logbf-power7.c = -mcpu=power7
+CFLAGS-s_logbl-power7.c = -mcpu=power7
+CFLAGS-s_logb-power7.c = -mcpu=power7
 CFLAGS-s_modf-power5+ = -mcpu=power5+
 endif
