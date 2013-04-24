@@ -1,5 +1,5 @@
-/* Double-precision floating point square root wrapper.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+/* PowerPC32 default implementation for sqrtf.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,32 +17,14 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
-#include <math_private.h>
-#include <fenv_libc.h>
-#include <math_ldbl_opt.h>
 
-double
-__sqrt (double x)		/* wrapper sqrt */
-{
-#ifdef _IEEE_LIBM
-  return __ieee754_sqrt (x);
-#else
-  double z;
-  z = __ieee754_sqrt (x);
-  if (_LIB_VERSION == _IEEE_ || (x != x))
-    return z;
+/* The PPC32 default implementation will fallback to __ieee754_sqrt symbol
+   from sysdeps/powerpc/fpu/e_sqrt.c  */
 
-  if (x < 0.0)
-    return __kernel_standard (x, x, 26);	/* sqrt(negative) */
-  else
-    return z;
-#endif
-}
+#define __sqrt __sqrt_ppc32
+#undef weak_alias
+#define weak_alias(a, b)
+#undef strong_alias
+#define strong_alias(a, b)
 
-weak_alias (__sqrt, sqrt)
-#ifdef NO_LONG_DOUBLE
-  strong_alias (__sqrt, __sqrtl) weak_alias (__sqrt, sqrtl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
-compat_symbol (libm, __sqrt, sqrtl, GLIBC_2_0);
-#endif
+#include <math/w_sqrt.c>
