@@ -1,4 +1,4 @@
-/* Multiple versions of s_finite.
+/* Multiple versions of finite.
    Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
