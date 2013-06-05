@@ -1,4 +1,4 @@
-/* logbl(). PowerPC/POWER7 version.
+/* logbf(). PowerPC/POWER7 version.
    Copyright (C) 2012-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -17,14 +17,13 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
-#include <math_private.h>
-#include <math_ldbl_opt.h>
 
 /* This implementation avoids FP to INT conversions by using VSX
    bitwise instructions over FP values.  */
 
 static const double two1div52 = 2.220446049250313e-16;	/* 1/2**52  */
-static const double two10m1   = -1023.0;		/* 2**10 -1  */
+static const double two10m1   = -1023.0;		/* -2**10 + 1  */
+static const double two7m1    = -127.0;			/* -2**7 + 1  */
 
 /* FP mask to extract the exponent.  */
 static const union {
@@ -32,39 +31,30 @@ static const union {
   double d;
 } mask = { 0x7ff0000000000000ULL };
 
-long double
-__logbl (long double x)
+float
+__logbf (float x)
 {
-  double xh, xl;
+  /* VSX operation are all done internally as double.  */
   double ret;
 
-  if (__builtin_expect (x == 0.0L, 0))
+  if (__builtin_expect (x == 0.0, 0))
     /* Raise FE_DIVBYZERO and return -HUGE_VAL[LF].  */
-    return -1.0L / __builtin_fabsl (x);
+    return -1.0 / __builtin_fabsf (x);
 
-  ldbl_unpack (x, &xh, &xl);
-  /* ret = x & 0x7ff0000000000000;  */
+  /* ret = x & 0x7f800000;  */
   asm (
     "xxland %x0,%x1,%x2\n"
     "fcfid  %0,%0"
-    : "=f" (ret)
-    : "f" (xh), "f" (mask.d));
-  /* ret = (ret >> 52) - 1023.0;  */
+    : "=f"(ret)
+    : "f" (x), "f" (mask.d));
+  /* ret = (ret >> 52) - 1023.0, since ret is double.  */
   ret = (ret * two1div52) + two10m1;
-  if (__builtin_expect (ret > -two10m1, 0))
+  if (__builtin_expect (ret > -two7m1, 0))
     /* Multiplication is used to set logb (+-INF) = INF.  */
-    return (xh * xh);
-  else if (__builtin_expect (ret == two10m1, 0))
-    {
-      /* POSIX specifies that denormal number is treated as
-         though it were normalized.  */
-      int64_t lx, hx;
-
-      GET_LDOUBLE_WORDS64 (hx, lx, x);
-      return (long double) (-1023 - (__builtin_clzll (hx) - 12));
-    }
-  /* Test to avoid logb_downward (0.0) == -0.0.  */
+    return (x * x);
+  /* Since operations are done with double we don't need
+     additional tests for subnormal numbers.
+     The test is to avoid logb_downward (0.0) == -0.0.  */
   return ret == -0.0 ? 0.0 : ret;
 }
-
-long_double_symbol (libm, __logbl, logbl);
+weak_alias (__logbf, logbf)

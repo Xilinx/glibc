@@ -43,5 +43,6 @@ __logbl (long double x)
     }
   return (long double) (rhx - 1023);
 }
-
+#ifndef __logbl
 long_double_symbol (libm, __logbl, logbl);
+#endif
