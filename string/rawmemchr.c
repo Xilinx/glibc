@@ -46,11 +46,13 @@
 #include <sys/types.h>
 
 #undef memchr
-
+#ifndef RAWMEMCHR
+# define RAWMEMCHR __rawmemchr
+#endif
 
 /* Find the first occurrence of C in S.  */
 __ptr_t
-__rawmemchr (s, c_in)
+RAWMEMCHR (s, c_in)
      const __ptr_t s;
      int c_in;
 {
