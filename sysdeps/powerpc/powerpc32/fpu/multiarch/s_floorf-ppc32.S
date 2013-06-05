@@ -1,5 +1,5 @@
-/* floor function.  PowerPC32/power5+ version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* floorf function.  PowerPC32 default version.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,18 +19,9 @@
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
 
-	.machine	"power5"
-EALIGN (__floor, 4, 0)
-	frim	fp1, fp1
-	blr
-	END (__floor)
+#undef weak_alias
+#define weak_alias(a,b)
 
-weak_alias (__floor, floor)
+#define __floorf __floorf_ppc32
 
-#ifdef NO_LONG_DOUBLE
-weak_alias (__floor, floorl)
-strong_alias (__floor, __floorl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
-compat_symbol (libm, __floor, floorl, GLIBC_2_0)
-#endif
+#include <sysdeps/powerpc/powerpc32/fpu/s_floorf.S>
