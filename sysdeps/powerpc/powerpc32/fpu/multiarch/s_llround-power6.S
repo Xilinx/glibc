@@ -1,4 +1,4 @@
-/* lround function.  POWER5+, PowerPC32 version.
+/* lround function.  PowerPC32/POWER6 version.
    Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -29,31 +29,18 @@
    instruction before we use the Floating Convert to Integer Word with
    round to zero instruction.  */
 
-	.machine	"power5"
-ENTRY (__llround)
+	.machine	"power6"
+ENTRY (__llround_power6)
 	stwu    r1,-16(r1)
 	cfi_adjust_cfa_offset (16)
 	frin	fp2,fp1
 	fctidz	fp3,fp2		/* Convert To Integer Word lround toward 0.  */
 	stfd	fp3,8(r1)
-	nop	/* Ensure the following load is in a different dispatch  */
-	nop	/* group to avoid pipe stall on POWER4&5.  */
-	nop
+/* Insure the following load is in a different dispatch group by
+   inserting "group ending nop".  */
+	ori	r1,r1,0
 	lwz	r4,12(r1)
 	lwz	r3,8(r1)
 	addi	r1,r1,16
 	blr
-	END (__llround)
-
-weak_alias (__llround, llround)
-
-strong_alias (__llround, __llroundf)
-weak_alias (__llround, llroundf)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__llround, llroundl)
-strong_alias (__llround, __llroundl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __llround, llroundl, GLIBC_2_1)
-#endif
+END (__llround_power6)
