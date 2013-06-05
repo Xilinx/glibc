@@ -24,8 +24,12 @@
 
 #undef memcpy
 
+#ifndef MEMCPY
+# define MEMCPY memcpy
+#endif
+
 void *
-memcpy (dstpp, srcpp, len)
+MEMCPY (dstpp, srcpp, len)
      void *dstpp;
      const void *srcpp;
      size_t len;
