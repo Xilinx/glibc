@@ -1,4 +1,4 @@
-/* trunc function.  PowerPC32/power5+ version.
+/* truncf function.  PowerPC32/power5+ version.
    Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -17,20 +17,10 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <math_ldbl_opt.h>
 
 	.machine	"power5"
-EALIGN (__trunc, 4, 0)
-	friz	fp1, fp1
+EALIGN (__truncf_power5plus, 4, 0)
+	friz	fp1, fp1	/* The rounding instructions are double.  */
+	frsp	fp1, fp1	/* But we need to set overflow for float.  */
 	blr
-	END (__trunc)
-
-weak_alias (__trunc, trunc)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__trunc, truncl)
-strong_alias (__trunc, __truncl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __trunc, truncl, GLIBC_2_1)
-#endif
+END (__truncf_power5plus)
