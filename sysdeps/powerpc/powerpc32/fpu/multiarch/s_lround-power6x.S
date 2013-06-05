@@ -30,22 +30,9 @@
    round to zero instruction.  */
 
 	.machine	"power6"
-ENTRY (__lround)
+ENTRY (__lround_power6x)
 	frin	fp2,fp1	/* Pre-round +-0.5.  */
 	fctiwz	fp3,fp2	/* Convert To Integer Word lround toward 0.  */
 	mftgpr	r3,fp3	/* Transfer fpr3 to r3.  */
 	blr
-	END (__lround)
-
-weak_alias (__lround, lround)
-
-strong_alias (__lround, __lroundf)
-weak_alias (__lround, lroundf)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__lround, lroundl)
-strong_alias (__lround, __lroundl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __lround, lroundl, GLIBC_2_1)
-#endif
+END (__lround_power6x)
