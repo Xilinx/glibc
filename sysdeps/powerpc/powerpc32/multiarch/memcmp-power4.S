@@ -1,4 +1,4 @@
-/* Optimized strcmp implementation for PowerPC64.
+/* Optimized strcmp implementation for PowerPC32/POWER4.
    Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -21,7 +21,7 @@
 /* int [r3] memcmp (const char *s1 [r3], const char *s2 [r4], size_t size [r5])  */
 
 	.machine power4
-EALIGN (memcmp, 4, 0)
+EALIGN (__memcmp_power4, 4, 0)
 	CALL_MCOUNT
 
 #define rTMP	r0
@@ -977,7 +977,4 @@ L(dureturn25):
         lwz     r24,20(r1)
         lwz     1,0(1)
 	blr
-END (memcmp)
-
-libc_hidden_builtin_def (memcmp)
-weak_alias (memcmp, bcmp)
+END (__memcmp_power4)
