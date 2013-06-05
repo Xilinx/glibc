@@ -1,4 +1,4 @@
-/* llround function.  PowerPC32 on PowerPC64 version.
+/* llround function.  PowerPC32/POWER4 version.
    Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -46,7 +46,8 @@
    is greater/less than +-2^52 we don't need to bias the number with
    +-0.5.  */
 
-ENTRY (__llround)
+	.machine power4
+ENTRY (__llround_power4)
 	stwu    r1,-16(r1)
 	cfi_adjust_cfa_offset (16)
 #ifdef SHARED
@@ -92,17 +93,4 @@ ENTRY (__llround)
 .Lnobias:
 	fmr	fp3,fp1
 	b	.Lconvert
-	END (__llround)
-
-weak_alias (__llround, llround)
-
-strong_alias (__llround, __llroundf)
-weak_alias (__llround, llroundf)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__llround, llroundl)
-strong_alias (__llround, __llroundl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __llround, llroundl, GLIBC_2_1)
-#endif
+END (__llround_power4)
