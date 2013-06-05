@@ -32,7 +32,7 @@
    Each case has an optimized unrolled loop.   */
 
 	.machine power6
-EALIGN (memcpy, 5, 0)
+EALIGN (__memcpy_power6, 5, 0)
 	CALL_MCOUNT
 
     stwu   1,-32(1)
@@ -835,6 +835,4 @@ L(wdus_0):
     lwz  31,24(1)
     addi 1,1,32
     blr
-END (memcpy)
-
-libc_hidden_builtin_def (memcpy)
+END (__memcpy_power6)
