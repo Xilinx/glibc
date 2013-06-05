@@ -120,6 +120,12 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, mempcpy, 1,
 			      __mempcpy_ppc32))
 
+  /* Support sysdeps/powerpc/powerpc32/multiarch/strlen.c.  */
+  IFUNC_IMPL (i, name, strlen,
+	      IFUNC_IMPL_ADD (array, i, strlen, hwcap & PPC_FEATURE_HAS_VSX,
+			      __strlen_power7)
+	      IFUNC_IMPL_ADD (array, i, strlen, 1,
+			      __strlen_ppc32))
 #endif
 
   return i;
