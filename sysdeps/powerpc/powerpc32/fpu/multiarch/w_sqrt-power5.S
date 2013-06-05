@@ -1,4 +1,4 @@
-/* sqrt function.  PowerPC32 version.
+/* sqrt function.  PowerPC32/POWER5 version.
    Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -43,8 +43,8 @@
    this is the best we can do.  */
 
 	.section	".text"
-	.machine power4
-EALIGN (__sqrt, 5, 0)
+	.machine power5
+EALIGN (__sqrt_power5, 5, 0)
 	fabs	fp0,fp1
 	fsqrt	fp2,fp1
 	fcmpu	cr1,fp0,fp1
@@ -93,15 +93,4 @@ EALIGN (__sqrt, 5, 0)
 	bl	__kernel_standard@plt
 	fmr	fp12,fp1
 	b	.L4
-	END	(__sqrt)
-
-weak_alias (__sqrt, sqrt)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__sqrt, sqrtl)
-strong_alias (__sqrt, __sqrtl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
-compat_symbol (libm, __sqrt, sqrtl, GLIBC_2_0)
-#endif
-
+END (__sqrt_power5)

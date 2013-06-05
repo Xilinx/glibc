@@ -1,4 +1,4 @@
-/* sqrtf function.  PowerPC32 version.
+/* sqrtf function.  PowerPC32/POWER5 version.
    Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -43,8 +43,8 @@
    this is the best we can do.  */
 
 	.section	".text"
-	.machine power4
-EALIGN (__sqrtf, 5, 0)
+	.machine power5
+EALIGN (__sqrtf_power5, 5, 0)
 	fabs	fp0,fp1
 	fsqrts	fp2,fp1
 	fcmpu	cr1,fp0,fp1
@@ -93,7 +93,4 @@ EALIGN (__sqrtf, 5, 0)
 	bl	__kernel_standard@plt
 	fmr	fp12,fp1
 	b	.L4
-	END	(__sqrtf)
-
-weak_alias (__sqrtf, sqrtf)
-
+END (__sqrtf_power5)
