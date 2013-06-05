@@ -19,12 +19,13 @@
 #include <stddef.h>
 #include <wchar.h>
 
+#ifndef WCSCPY
+# define WCSCPY wcscpy
+#endif
 
 /* Copy SRC to DEST.  */
 wchar_t *
-wcscpy (dest, src)
-     wchar_t *dest;
-     const wchar_t *src;
+WCSCPY (wchar_t *dest, const wchar_t *src)
 {
   wint_t c,d;
   wchar_t *wcp, *wcp2;
