@@ -1,4 +1,4 @@
-/* isnan().  PowerPC32 version.
+/* Default isnanf implementation for PowerPC32.
    Copyright (C) 2008-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19,39 +19,14 @@
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
 
-/* int __isnan(x)  */
-	.machine power4
-EALIGN (__isnan, 4, 0)
-	mffs	fp0
-	mtfsb0	4*cr6+lt /* reset_fpscr_bit (FPSCR_VE) */
-	fcmpu	cr7,fp1,fp1
-	mtfsf	255,fp0
-	li	r3,0
-	beqlr+	cr7	/* (x == x) then not a NAN */
-	li	r3,1	/* else must be a NAN */
-	blr
-	END (__isnan)
+#undef weak_alias
+#define weak_alias(a, b)
+#undef compat_symbol
+#define compat_symbol(a, b, c, d)
 
-hidden_def (__isnan)
-weak_alias (__isnan, isnan)
+#define __isnan __isnanf_ppc32
+#undef hidden_def
+#define hidden_def(name) \
+  strong_alias (__isnanf_ppc32, __GI___isnanf)
 
-/* It turns out that the 'double' version will also always work for
-   single-precision.  */
-#ifndef __isnan
-strong_alias (__isnan, __isnanf)
-hidden_def (__isnanf)
-weak_alias (__isnanf, isnanf)
-#endif
-
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isnan, __isnanl)
-weak_alias (__isnan, isnanl)
-#endif
-
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
-compat_symbol (libc, __isnan, __isnanl, GLIBC_2_0);
-compat_symbol (libc, isnan, isnanl, GLIBC_2_0);
-# endif
-#endif
-
+#include <sysdeps/powerpc/powerpc32/fpu/s_isnan.S>
