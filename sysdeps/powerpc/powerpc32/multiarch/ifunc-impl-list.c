@@ -56,6 +56,14 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __bzero_power4)
 	      IFUNC_IMPL_ADD (array, i, bzero, 1, __bzero_ppc32))
 
+  /* Support sysdeps/powerpc/powerpc32/multiarch/memchr.c.  */
+  IFUNC_IMPL (i, name, memchr,
+	      IFUNC_IMPL_ADD (array, i, memchr,
+			      hwcap & PPC_FEATURE_HAS_VSX,
+			      __memchr_power7)
+	      IFUNC_IMPL_ADD (array, i, memchr, 1,
+			      __memchr_ppc32))
+
 #ifdef SHARED
   /* Support sysdeps/powerpc/powerpc32/multiarch/memset.c.  */
   IFUNC_IMPL (i, name, memset,
