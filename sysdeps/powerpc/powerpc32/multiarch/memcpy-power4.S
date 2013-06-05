@@ -1,4 +1,4 @@
-/* Optimized memcpy implementation for PowerPC32 on PowerPC64.
+/* Optimized memcpy implementation for PowerPC32.
    Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -32,7 +32,7 @@
    Each case has an optimized unrolled loop.   */
 
 	.machine power4
-EALIGN (memcpy, 5, 0)
+EALIGN (__memcpy_power4, 5, 0)
 	CALL_MCOUNT
 
     stwu  1,-32(1)
@@ -418,6 +418,4 @@ EALIGN (memcpy, 5, 0)
     lwz  31,24(1)
     addi 1,1,32
     blr
-END (memcpy)
-
-libc_hidden_builtin_def (memcpy)
+END (__memcpy_power4)
