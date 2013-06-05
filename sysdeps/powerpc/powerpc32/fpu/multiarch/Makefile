@@ -3,7 +3,8 @@ sysdep_routines += s_isnan-power7 s_isnan-power6 s_isnan-power5 s_isnan-ppc32 \
 		   s_isnanf-power6 s_isnanf-power5 s_isnanf-ppc32 \
 		   s_isinf-power7 s_isinf-ppc32 s_isinff-ppc32 \
 		   s_finite-power7 s_finite-ppc32 s_finitef-ppc32 \
-		   s_copysign-power6 s_copysign-ppc32
+		   s_copysign-power6 s_copysign-ppc32 s_modf-power5+ \
+		   s_modf-ppc32 s_modff-power5+ s_modff-ppc32
 
 libm-sysdep_routines += s_llrintf-power6 s_llrintf-power4 s_llrintf-ppc32 \
 			s_llrint-power6 s_llrint-power4 s_llrint-ppc32 \
@@ -22,7 +23,10 @@ libm-sysdep_routines += s_llrintf-power6 s_llrintf-power4 s_llrintf-ppc32 \
 			s_trunc-ppc32 s_truncf-power5+ s_truncf-ppc32 \
 			s_copysign-power6 s_copysign-ppc32 s_lround-power6x \
 			s_lround-power5+ s_lround-ppc32 s_lrint-power6x \
-			s_lrint-ppc32
+			s_lrint-ppc32 s_modf-power5+ s_modf-ppc32 \
+			s_modff-power5+ s_modff-ppc32
 
 CFLAGS-s_llround.c = -fno-builtin-llroundf
+CFLAGS-s_modf-power5+.c = -mcpu=power5+
+CFLAGS-s_modff-power5+.c = -mcpu=power5+
 endif
