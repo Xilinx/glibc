@@ -1,5 +1,5 @@
-/* Round double to long int.  POWER6x PowerPC64 version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* Round double to long int.  PowerPC32 default version.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,26 +19,13 @@
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
 
-	.machine	"power6"
-/* long long int[r3] __llrint (double x[fp1])  */
-ENTRY (__llrint)
-	CALL_MCOUNT 0
-	fctid	fp13,fp1
-	mftgpr  r3,fp13
-	blr
-	END (__llrint)
+#undef weak_alias
+#define weak_alias(a,b)
+#undef strong_alias
+#define strong_alias(a,b)
+#undef compat_symbol
+#define compat_symbol(a,b,c,d)
 
-strong_alias (__llrint, __lrint)
-weak_alias (__llrint, llrint)
-weak_alias (__lrint, lrint)
+#define __llrint __llrint_ppc64
 
-#ifdef NO_LONG_DOUBLE
-strong_alias (__llrint, __llrintl)
-weak_alias (__llrint, llrintl)
-strong_alias (__lrint, __lrintl)
-weak_alias (__lrint, lrintl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __llrint, llrintl, GLIBC_2_1)
-compat_symbol (libm, __lrint, lrintl, GLIBC_2_1)
-#endif
+#include <sysdeps/powerpc/powerpc64/fpu/s_llrint.S>
