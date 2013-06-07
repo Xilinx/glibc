@@ -20,18 +20,8 @@
 #include <math_ldbl_opt.h>
 
 	.machine	"power5"
-EALIGN (__ceil, 4, 0)
+EALIGN (__ceil_power5plus, 4, 0)
 	CALL_MCOUNT 0
 	frip	fp1, fp1
 	blr
-	END (__ceil)
-
-weak_alias (__ceil, ceil)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__ceil, ceill)
-strong_alias (__ceil, __ceill)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
-compat_symbol (libm, __ceil, ceill, GLIBC_2_0)
-#endif
+END (__ceil_power5plus)
