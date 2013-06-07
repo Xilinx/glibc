@@ -21,7 +21,7 @@
 
 /* int [r3] strlen (char *s [r3])  */
 	.machine  power7
-ENTRY (strlen)
+ENTRY (__strlen_power7)
 	CALL_MCOUNT 1
 	dcbt	0,r3
 	clrrdi	r4,r3,3	      /* Align the address to doubleword boundary.  */
@@ -92,5 +92,4 @@ L(done):
 	srdi	r0,r0,3	      /* Convert leading zeroes to bytes.  */
 	add	r3,r5,r0      /* Compute final length.  */
 	blr
-END (strlen)
-libc_hidden_builtin_def (strlen)
+END (__strlen_power7)
