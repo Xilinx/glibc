@@ -24,7 +24,7 @@
 		     const char *s2 [r4],
 		     size_t size [r5])  */
 
-EALIGN (strncmp,5,0)
+EALIGN (__strncmp_power7,5,0)
 	CALL_MCOUNT 3
 
 #define rTMP	r0
@@ -174,5 +174,4 @@ L(u4):	sub	rRTN,rWORD1,rWORD2
 L(ux):
 	li	rRTN,0
 	blr
-END (strncmp)
-libc_hidden_builtin_def (strncmp)
+END (__strncmp_power7)
