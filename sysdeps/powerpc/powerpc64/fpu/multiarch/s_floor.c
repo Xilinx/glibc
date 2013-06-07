@@ -1,5 +1,5 @@
-/* floor function.  PowerPC64/power5+ version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* Multiple versions of floor.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,22 +16,25 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
+#include <math.h>
 #include <math_ldbl_opt.h>
+#include <shlib-compat.h>
+#include "init-arch.h"
 
-	.machine	"power5"
-EALIGN (__floor, 4, 0)
-	CALL_MCOUNT 0
-	frim	fp1, fp1
-	blr
-	END (__floor)
+extern __typeof (__floor) __floor_ppc64 attribute_hidden;
+extern __typeof (__floor) __floor_power5plus attribute_hidden;
+
+libc_ifunc (__floor,
+	    (hwcap & PPC_FEATURE_POWER5_PLUS)
+	    ? __floor_power5plus
+            : __floor_ppc64);
 
 weak_alias (__floor, floor)
 
 #ifdef NO_LONG_DOUBLE
-weak_alias (__floor, floorl)
 strong_alias (__floor, __floorl)
+weak_alias (__floor, floorl)
 #endif
 #if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
-compat_symbol (libm, __floor, floorl, GLIBC_2_0)
+compat_symbol (libm, __floor, floorl, GLIBC_2_0);
 #endif
