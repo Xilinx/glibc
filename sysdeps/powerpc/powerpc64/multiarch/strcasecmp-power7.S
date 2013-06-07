@@ -26,9 +26,8 @@
    int [r3] strcasecmp_l (const char *s1 [r3], const char *s2 [r4],
                           __locale_t loc [r5]) */
 
-#ifndef STRCMP
-# define __STRCMP __strcasecmp
-# define STRCMP   strcasecmp
+#ifndef __STRCMP
+# define __STRCMP __strcasecmp_power7
 #endif
 
 ENTRY (__STRCMP)
@@ -117,6 +116,3 @@ L(done):
 	extsw	rRTN, r0
 	blr
 END (__STRCMP)
-
-weak_alias (__STRCMP, STRCMP)
-libc_hidden_builtin_def (__STRCMP)
