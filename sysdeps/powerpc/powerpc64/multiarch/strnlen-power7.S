@@ -21,7 +21,7 @@
 
 /* int [r3] strnlen (char *s [r3], int size [r4])  */
 	.machine  power7
-ENTRY (__strnlen)
+ENTRY (__strnlen_power7)
 	CALL_MCOUNT 2
 	dcbt	0,r3
 	clrrdi  r8,r3,3
@@ -165,6 +165,4 @@ L(loop_small):
 	cmpld	r9,r7
 	bge	L(end_max)
 	b	L(loop_small)
-END (__strnlen)
-weak_alias (__strnlen, strnlen)
-libc_hidden_builtin_def (strnlen)
+END (__strnlen_power7)
