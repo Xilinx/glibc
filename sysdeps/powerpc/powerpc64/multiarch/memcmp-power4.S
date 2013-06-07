@@ -21,7 +21,7 @@
 /* int [r3] memcmp (const char *s1 [r3], const char *s2 [r4], size_t size [r5])  */
 
 	.machine power4
-EALIGN (memcmp, 4, 0)
+EALIGN (__memcmp_power4, 4, 0)
 	CALL_MCOUNT 3
 
 #define rTMP	r0
@@ -971,6 +971,4 @@ L(duzeroLength):
 	li	rRTN,0
 	blr
 
-END (memcmp)
-libc_hidden_builtin_def (memcmp)
-weak_alias (memcmp, bcmp)
+END (__memcmp_power4)
