@@ -27,7 +27,7 @@
 	.section    ".text"
 	.type	    __isnan, @function
 	.machine    power7
-EALIGN (__isnan, 4, 0)
+EALIGN (__isnan_power7, 4, 0)
 	CALL_MCOUNT 0
 	lfd	fp0,.LC0@toc(r2)
 	ftdiv	cr7,fp1,fp0
@@ -44,25 +44,4 @@ EALIGN (__isnan, 4, 0)
 	blelr	cr7	      /* LE means not NaN.  */
 	li	r3,1	      /* else return 1  */
 	blr
-	END (__isnan)
-
-hidden_def (__isnan)
-weak_alias (__isnan, isnan)
-
-/* It turns out that the 'double' version will also always work for
-   single-precision.  */
-strong_alias (__isnan, __isnanf)
-hidden_def (__isnanf)
-weak_alias (__isnanf, isnanf)
-
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isnan, __isnanl)
-weak_alias (__isnan, isnanl)
-#endif
-
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
-compat_symbol (libc, __isnan, __isnanl, GLIBC_2_0);
-compat_symbol (libc, isnan, isnanl, GLIBC_2_0);
-# endif
-#endif
+END (__isnan_power7)
