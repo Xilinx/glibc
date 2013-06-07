@@ -20,41 +20,17 @@
 #include <math_ldbl_opt.h>
 
 /* int __isnan(x)  */
-	.machine power5
-EALIGN (__isnan, 4, 0)
+	.machine power6
+EALIGN (__isnan_power6x, 4, 0)
 	CALL_MCOUNT 0
-	stfd	fp1,-8(r1)	/* copy FPR to GPR */
+	mftgpr	r4,fp1		/* copy FPR to GPR */
 	lis	r0,0x7ff0
-	nop			/* insure the following is in a different */
-	nop			/* dispatch group */
-	ld	r4,-8(r1)
-	sldi	r0,r0,32	/* const long r0 0x7ff00000 00000000 */
+	ori	r1,r1,0
 	clrldi	r4,r4,1		/* x = fabs(x) */
+	sldi	r0,r0,32	/* const long r0 0x7ff00000 00000000 */
 	cmpd	cr7,r4,r0	/* if (fabs(x) <= inf) */
 	li	r3,0		/* then return 0 */
 	blelr+	cr7
 	li	r3,1		/* else return 1 */
 	blr
-	END (__isnan)
-
-hidden_def (__isnan)
-weak_alias (__isnan, isnan)
-
-/* It turns out that the 'double' version will also always work for
-   single-precision.  */
-strong_alias (__isnan, __isnanf)
-hidden_def (__isnanf)
-weak_alias (__isnanf, isnanf)
-
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isnan, __isnanl)
-weak_alias (__isnan, isnanl)
-#endif
-
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
-compat_symbol (libc, __isnan, __isnanl, GLIBC_2_0);
-compat_symbol (libc, isnan, isnanl, GLIBC_2_0);
-# endif
-#endif
-
+END (__isnan_power6x)
