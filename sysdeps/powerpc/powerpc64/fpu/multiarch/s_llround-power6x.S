@@ -30,25 +30,10 @@
    round to zero instruction.  */
 
 	.machine	"power6"
-ENTRY (__llround)
+ENTRY (__llround_power6x)
 	CALL_MCOUNT 0
 	frin	fp2,fp1	/* Round to nearest +-0.5.  */
 	fctidz	fp3,fp2	/* Convert To Integer DW round toward 0.  */
 	mftgpr	r3,fp3  /* Transfer integer to R3.  */
 	blr
-	END (__llround)
-
-strong_alias (__llround, __lround)
-weak_alias (__llround, llround)
-weak_alias (__lround, lround)
-
-#ifdef NO_LONG_DOUBLE
-weak_alias (__llround, llroundl)
-strong_alias (__llround, __llroundl)
-weak_alias (__lround, lroundl)
-strong_alias (__lround, __lroundl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __llround, llroundl, GLIBC_2_1)
-compat_symbol (libm, __lround, lroundl, GLIBC_2_1)
-#endif
+END (__llround_power6x)
