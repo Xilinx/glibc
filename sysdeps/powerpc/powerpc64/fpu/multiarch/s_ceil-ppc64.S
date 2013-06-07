@@ -1,5 +1,5 @@
-/* ceilf function.  PowerPC64/power5+ version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* ceil function.  PowerPC64 default version.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,14 +17,15 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
+#include <math_ldbl_opt.h>
 
-	.machine	"power5"
-EALIGN (__ceilf, 4, 0)
-	CALL_MCOUNT 0
-	frip	fp1, fp1	/* The rounding instructions are double.  */
-	frsp	fp1, fp1	/* But we need to set ooverflow for float.  */
-	blr
-	END (__ceilf)
+#undef weak_alias
+#define weak_alias(a,b)
+#undef strong_alias
+#define strong_alias(a,b)
+#undef compat_symbol
+#define compat_symbol(a,b,c,d)
 
-weak_alias (__ceilf, ceilf)
+#define __ceil __ceil_ppc64
 
+#include <sysdeps/powerpc/powerpc64/fpu/s_ceil.S>
