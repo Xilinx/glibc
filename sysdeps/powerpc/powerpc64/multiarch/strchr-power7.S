@@ -21,7 +21,7 @@
 
 /* int [r3] strchr (char *s [r3], int c [r4])  */
 	.machine  power7
-ENTRY (strchr)
+ENTRY (__strchr_power7)
 	CALL_MCOUNT 2
 	dcbt	0,r3
 	clrrdi	r8,r3,3	      /* Align the address to doubleword boundary.  */
@@ -196,6 +196,4 @@ L(done_null):
 	srdi	r0,r0,3	      /* Convert leading zeros to bytes.  */
 	add	r3,r8,r0      /* Return address of the matching null byte.  */
 	blr
-END (strchr)
-weak_alias (strchr, index)
-libc_hidden_builtin_def (strchr)
+END (__strchr_power7)

@@ -1,0 +1,40 @@
+/* PowerPC64 default implementation of strchr.
+   Copyright (C) 2013 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <sysdep.h>
+
+#ifdef SHARED
+# undef ENTRY
+# define ENTRY(name)						\
+  ENTRY_2(__strchr_ppc64)					\
+  .align ALIGNARG(2);						\
+  BODY_LABEL(__strchr_ppc64):					\
+  cfi_startproc;
+
+# undef END
+# define END(name)						\
+  cfi_endproc;							\
+  TRACEBACK(__strchr_ppc64)					\
+  END_2(__strchr_ppc64)
+
+# undef libc_hidden_builtin_def
+# define libc_hidden_builtin_def(name)				\
+    .globl __GI_strchr; __GI_strchr = __strchr_ppc64
+#endif
+
+#include <sysdeps/powerpc/powerpc64/strchr.S>
