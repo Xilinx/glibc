@@ -147,6 +147,17 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, wcsrchr, 1,
 			      __wcsrchr_ppc64))
 
+  /* Support sysdeps/powerpc/powerpc64/multiarch/wcscpy.c.  */
+  IFUNC_IMPL (i, name, wcscpy,
+	      IFUNC_IMPL_ADD (array, i, wcscpy,
+			      hwcap & PPC_FEATURE_HAS_VSX,
+			      __wcscpy_power7)
+	      IFUNC_IMPL_ADD (array, i, wcscpy,
+			      hwcap & PPC_FEATURE_ARCH_2_05,
+			      __wcscpy_power6)
+	      IFUNC_IMPL_ADD (array, i, wcscpy, 1,
+			      __wcscpy_ppc64))
+
 #ifdef SHARED
   /* Support sysdeps/powerpc/powerpc64/multiarch/memcpy.c.  */
   IFUNC_IMPL (i, name, memcpy,
