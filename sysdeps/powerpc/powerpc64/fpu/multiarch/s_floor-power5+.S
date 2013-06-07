@@ -1,4 +1,4 @@
-/* floorf function.  PowerPC64/power5+ version.
+/* floor function.  PowerPC64/power5+ version.
    Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -17,14 +17,11 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
+#include <math_ldbl_opt.h>
 
 	.machine	"power5"
-EALIGN (__floorf, 4, 0)
+EALIGN (__floor_power5plus, 4, 0)
 	CALL_MCOUNT 0
-	frim	fp1, fp1	/* The rounding instructions are double.  */
-	frsp	fp1, fp1	/* But we need to set ooverflow for float.  */
+	frim	fp1, fp1
 	blr
-	END (__floorf)
-
-weak_alias (__floorf, floorf)
-
+END (__floor_power5plus)
