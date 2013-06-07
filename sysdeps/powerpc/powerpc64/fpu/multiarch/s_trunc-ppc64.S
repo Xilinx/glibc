@@ -1,5 +1,5 @@
-/* trunc function.  PowerPC64/power5+ version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* trunc function.  PowerPC64 default version.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,19 +19,13 @@
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
 
-	.machine	"power5"
-EALIGN (__trunc, 4, 0)
-	CALL_MCOUNT 0
-	friz	fp1, fp1
-	blr
-	END (__trunc)
+#undef weak_alias
+#define weak_alias(a,b)
+#undef strong_alias
+#define strong_alias(a,b)
+#undef compat_symbol
+#define compat_symbol(a,b,c,d)
 
-weak_alias (__trunc, trunc)
+#define __trunc __trunc_ppc64
 
-#ifdef NO_LONG_DOUBLE
-weak_alias (__trunc, truncl)
-strong_alias (__trunc, __truncl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __trunc, truncl, GLIBC_2_1)
-#endif
+#include <sysdeps/powerpc/powerpc64/fpu/s_trunc.S>
