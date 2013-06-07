@@ -26,7 +26,7 @@
    to 0, to take advantage of the dcbz instruction.  */
 
 	.machine power4
-EALIGN (memset, 5, 0)
+EALIGN (__memset_power4, 5, 0)
 	CALL_MCOUNT 3
 
 #define rTMP	r0
@@ -232,16 +232,13 @@ L(medium_27f):
 L(medium_28t):
 	std	rCHR, -8(rMEMP)
 	blr
-END_GEN_TB (memset,TB_TOCLESS)
-libc_hidden_builtin_def (memset)
+END_GEN_TB (__memset_power4,TB_TOCLESS)
 
 /* Copied from bzero.S to prevent the linker from inserting a stub
    between bzero and memset.  */
-ENTRY (__bzero)
-	CALL_MCOUNT 3
-	mr	r5,r4
-	li	r4,0
-	b	L(_memset)
-END_GEN_TB (__bzero,TB_TOCLESS)
-
-weak_alias (__bzero, bzero)
+ENTRY (__bzero_power4)
+        CALL_MCOUNT 3
+        mr      r5,r4
+        li      r4,0
+        b       L(_memset)
+END_GEN_TB (__bzero_power4,TB_TOCLESS)
