@@ -5,7 +5,8 @@ sysdep_routines += memcpy-power7 memcpy-a2 memcpy-power6 memcpy-cell \
 		   memset-ppc64 mempcpy-power7 mempcpy-ppc64 memchr-power7 \
 		   memchr-ppc64 memrchr-power7 memrchr-ppc64 \
 		   rawmemchr-power7 rawmemchr-ppc64 strlen-power7 \
-		   strlen-ppc64 strnlen-power7 strnlen-ppc64
+		   strlen-ppc64 strnlen-power7 strnlen-ppc64 \
+		   strcasecmp-power7 strcasecmp_l-power7
 
 # Refrain GCC to create recursive calls
 CFLAGS-rtld-memset.c += -fno-tree-loop-distribute-patterns
