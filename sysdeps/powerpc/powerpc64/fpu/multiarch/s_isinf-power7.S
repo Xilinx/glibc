@@ -27,7 +27,7 @@
 	.section    ".text"
 	.type	    __isinf, @function
 	.machine    power7
-EALIGN (__isinf, 4, 0)
+EALIGN (__isinf_power7, 4, 0)
 	CALL_MCOUNT 0
 	lfd	fp0,.LC0@toc(r2)
 	ftdiv	cr7,fp1,fp0
@@ -46,25 +46,5 @@ EALIGN (__isinf, 4, 0)
 	beqlr   cr7	      /* EQ means INF, otherwise -INF.  */
 	li      r3,-1
 	blr
-	END (__isinf)
-
-hidden_def (__isinf)
-weak_alias (__isinf, isinf)
-
-/* It turns out that the 'double' version will also always work for
-   single-precision.  */
-strong_alias (__isinf, __isinff)
-hidden_def (__isinff)
-weak_alias (__isinff, isinff)
-
-#ifdef NO_LONG_DOUBLE
-strong_alias (__isinf, __isinfl)
-weak_alias (__isinf, isinfl)
-#endif
-
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
-compat_symbol (libc, __isinf, __isinfl, GLIBC_2_0);
-compat_symbol (libc, isinf, isinfl, GLIBC_2_0);
-# endif
-#endif
+END (__isinf_power7)
+weak_alias (__isinf_power7, __isinff_power7)
