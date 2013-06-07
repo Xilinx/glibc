@@ -1,5 +1,5 @@
-/* round function.  PowerPC64/power5+ version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* Multiple versions of roundf.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,22 +16,17 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
+#include <math.h>
 #include <math_ldbl_opt.h>
+#include <shlib-compat.h>
+#include "init-arch.h"
 
-	.machine	"power5"
-EALIGN (__round, 4, 0)
-	CALL_MCOUNT 0
-	frin	fp1, fp1
-	blr
-	END (__round)
+extern __typeof (__roundf) __roundf_ppc64 attribute_hidden;
+extern __typeof (__roundf) __roundf_power5plus attribute_hidden;
 
-weak_alias (__round, round)
+libc_ifunc (__roundf,
+	    (hwcap & PPC_FEATURE_POWER5_PLUS)
+	    ? __roundf_power5plus
+            : __roundf_ppc64);
 
-#ifdef NO_LONG_DOUBLE
-weak_alias (__round, roundl)
-strong_alias (__round, __roundl)
-#endif
-#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
-compat_symbol (libm, __round, roundl, GLIBC_2_1)
-#endif
+weak_alias (__roundf, roundf)
