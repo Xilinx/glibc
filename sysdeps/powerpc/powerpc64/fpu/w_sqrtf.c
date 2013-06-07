@@ -26,28 +26,15 @@
 float
 __sqrtf (float x)		/* wrapper sqrtf */
 {
-#ifdef _IEEE_LIBM
-  return __ieee754_sqrtf (x);
-#else
   float z;
-/* Power4 (ISA V2.0) and above implement sqrtf in hardware.  */
+  /* Power4 (ISA V2.0) and above implement sqrtf in hardware.  */
    __asm __volatile (
 	"	fsqrts	%0,%1\n"
 		: "=f" (z)
 		: "f" (x));
+  if (__builtin_expect (isless (x, 0.0f), 0) && _LIB_VERSION != _IEEE_)
+    return __kernel_standard_f (x, x, 126); /* sqrtf(negative)  */
 
-  if (__builtin_expect (_LIB_VERSION == _IEEE_, 0))
-    return z;
-
-  if (__builtin_expect (x != x, 0))
-    return z;
-
-  if  (__builtin_expect (x < 0.0, 0))
-    /* sqrtf(negative) */
-    return (float) __kernel_standard ((double) x, (double) x, 126);
-  else
-    return z;
-#endif
+  return z;
 }
-
 weak_alias (__sqrtf, sqrtf)
