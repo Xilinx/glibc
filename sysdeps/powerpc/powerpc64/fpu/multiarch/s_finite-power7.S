@@ -27,7 +27,7 @@
 	.section    ".text"
 	.type	    __finite, @function
 	.machine    power7
-EALIGN (__finite, 4, 0)
+EALIGN (__finite_power7, 4, 0)
 	CALL_MCOUNT 0
 	lfd     fp0,.LC0@toc(r2)
 	ftdiv   cr7,fp1,fp0
@@ -48,25 +48,5 @@ EALIGN (__finite, 4, 0)
 	bltlr   cr7	      /* LT means finite, other non-finite.  */
 	li      r3,0
 	blr
-	END (__finite)
-
-hidden_def (__finite)
-weak_alias (__finite, finite)
-
-/* It turns out that the 'double' version will also always work for
-   single-precision.  */
-strong_alias (__finite, __finitef)
-hidden_def (__finitef)
-weak_alias (__finitef, finitef)
-
-#ifdef IS_IN_libm
-# if LONG_DOUBLE_COMPAT (libm, GLIBC_2_0)
-compat_symbol (libm, __finite, __finitel, GLIBC_2_0)
-compat_symbol (libm, finite, finitel, GLIBC_2_0)
-# endif
-#else
-# if LONG_DOUBLE_COMPAT (libc, GLIBC_2_0)
-compat_symbol (libc, __finite, __finitel, GLIBC_2_0);
-compat_symbol (libc, finite, finitel, GLIBC_2_0);
-# endif
-#endif
+END (__finite_power7)
+weak_alias (__finite_power7, __finitef_power7)
