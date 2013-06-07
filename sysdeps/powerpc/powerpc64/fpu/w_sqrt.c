@@ -1,5 +1,5 @@
-/* Single-precision floating point square root.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Double-precision floating point square root wrapper.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,15 +16,30 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include <math_ldbl_opt.h>
 #include <math.h>
 #include <math_private.h>
+#include <fenv_libc.h>
 
-#undef __ieee754_sqrtf
-float
-__ieee754_sqrtf (float x)
+double
+__sqrt (double x)
 {
   double z;
-  __asm ("fsqrts %0,%1" : "=f" (z) : "f" (x));
+  /* Power4 (ISA V2.0) and above implement sqrt in hardware.  */
+  __asm __volatile (
+	"	fsqrt	%0,%1\n"
+		: "=f" (z)
+		: "f" (x));
+
+  if (__builtin_expect (isless (x, 0.0), 0) && _LIB_VERSION != _IEEE_)
+    return __kernel_standard (x, x, 26); /* sqrt(negative)  */
   return z;
 }
-strong_alias (__ieee754_sqrtf, __sqrtf_finite)
+
+weak_alias (__sqrt, sqrt)
+#ifdef NO_LONG_DOUBLE
+strong_alias (__sqrt, __sqrtl) weak_alias (__sqrt, sqrtl)
+#endif
+#if LONG_DOUBLE_COMPAT(libm, GLIBC_2_0)
+compat_symbol (libm, __sqrt, sqrtl, GLIBC_2_0);
+#endif
