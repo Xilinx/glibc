@@ -2,5 +2,6 @@ ifeq ($(subdir),string)
 sysdep_routines += memcpy-power7 memcpy-a2 memcpy-power6 memcpy-cell \
 		   memcpy-power4 memcpy-ppc64 memcmp-power7 memcmp-power4 \
 		   memcmp-ppc64 memset-power7 memset-power6 memset-power4 \
-		   memset-ppc64 mempcpy-power7 mempcpy-ppc64
+		   memset-ppc64 mempcpy-power7 mempcpy-ppc64 memchr-power7 \
+		   memchr-ppc64
 endif
