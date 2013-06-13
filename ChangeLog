@@ -1,3 +1,10 @@
+2013-06-12  Roland McGrath  <roland@hack.frob.com>
+
+	* posix/tst-waitid.c (do_test): Distinguish different instances of
+	stopped/continued in CHECK_SIGCHLD uses.  Insert a delay between
+	sending SIGSTOP and calling waitpid to ensure SIGCHLD gets delivered
+	before entering the kernel for waitpid.
+
 2013-06-11  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
 
 	[BZ #15605]
