@@ -1,5 +1,10 @@
 2013-06-17  Roland McGrath  <roland@hack.frob.com>
 
+	* csu/Makefile ($(objpfx)abi-tag.h): Handle abi-tags files in add-on
+	directories too.
+
+2013-06-17  Roland McGrath  <roland@hack.frob.com>
+
 	* scripts/sysd-rules.awk: Sort sysd_rules_patterns by descending
 	length of target pattern, then descending length of dependency pattern.
 	* configure.in (AWK): Require gawk 3.1.2 or newer.
