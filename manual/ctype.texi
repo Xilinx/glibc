@@ -691,6 +691,7 @@ This type is defined in @file{wctype.h}.
 @comment wctype.h
 @comment ISO
 @deftypefun wctrans_t wctrans (const char *@var{property})
+@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
 The @code{wctrans} function has to be used to find out whether a named
 mapping is defined in the current locale selected for the
 @code{LC_CTYPE} category.  If the returned value is non-zero, you can use
@@ -713,6 +714,7 @@ These functions are declared in @file{wctype.h}.
 @comment wctype.h
 @comment ISO
 @deftypefun wint_t towctrans (wint_t @var{wc}, wctrans_t @var{desc})
+@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
 @code{towctrans} maps the input character @var{wc}
 according to the rules of the mapping for which @var{desc} is a
 descriptor, and returns the value it finds.  @var{desc} must be
