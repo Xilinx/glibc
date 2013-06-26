@@ -475,6 +475,12 @@ Instead, use the facilities described in @ref{Time Zone Functions}.
 @comment sys/time.h
 @comment BSD
 @deftypefun int gettimeofday (struct timeval *@var{tp}, struct timezone *@var{tzp})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
+@c On most GNU/Linux systems this is a direct syscall, but the posix/
+@c implementation (not used on GNU/Linux or GNU/Hurd) relies on time and
+@c localtime_r, saving and restoring tzname in an unsafe manner.
+@c On some GNU/Linux variants, ifunc resolvers are used in shared libc
+@c for vdso resolution.  ifunc-vdso-revisit.
 The @code{gettimeofday} function returns the current calendar time as
 the elapsed time since the epoch in the @code{struct timeval} structure
 indicated by @var{tp}.  (@pxref{Elapsed Time} for a description of
