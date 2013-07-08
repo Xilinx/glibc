@@ -780,4 +780,3 @@ _CIS_LARGE_ARGS:
 
 .type __libm_sincos_large#,@function
 .global __libm_sincos_large#
-

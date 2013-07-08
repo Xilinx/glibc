@@ -76,4 +76,3 @@ void _dl_unmap (struct link_map *map);
 #define DL_FIXUP_VALUE_CODE_ADDR(value) ((value).ip)
 #define DL_FIXUP_VALUE_ADDR(value) ((uintptr_t) &(value))
 #define DL_FIXUP_ADDR_VALUE(addr) (*(struct fdesc *) (addr))
-

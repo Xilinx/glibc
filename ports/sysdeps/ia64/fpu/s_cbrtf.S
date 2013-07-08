@@ -759,7 +759,3 @@ GLOBAL_LIBM_ENTRY(cbrtf)
 
 
 GLOBAL_LIBM_END(cbrtf)
-
-
-
-

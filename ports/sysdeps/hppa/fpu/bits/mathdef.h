@@ -36,4 +36,3 @@ typedef double double_t;	/* `double' expressions are evaluated as
 
 /* On hppa `long double' is 64-bits. */
 #undef __NO_LONG_DOUBLE_MATH
-

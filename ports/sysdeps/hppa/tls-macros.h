@@ -112,4 +112,3 @@
       __result;  \
   })
 #endif
-

@@ -2754,4 +2754,3 @@ LOCAL_LIBM_END(__libm_callout_2)
 
 .type   __libm_pi_by_2_reduce#,@function
 .global __libm_pi_by_2_reduce#
-

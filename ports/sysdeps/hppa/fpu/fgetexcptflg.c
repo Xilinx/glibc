@@ -34,4 +34,3 @@ fegetexceptflag (fexcept_t *flagp, int excepts)
   /* Success.  */
   return 0;
 }
-

@@ -77,4 +77,3 @@ _fini:
 	stwm	%r4,64(%sp)
 	stw	%r19,-32(%sp)
 	copy	%r19,%r4
-

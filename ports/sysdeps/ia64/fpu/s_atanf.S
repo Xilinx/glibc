@@ -553,4 +553,3 @@ ATANF_X_INF_NAN_ZERO:
 ;;
 
 GLOBAL_LIBM_END(atanf)
-

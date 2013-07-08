@@ -25,4 +25,3 @@ extern int obj5func2 (int);
 extern int obj6func1 (int);
 
 extern int obj6func2 (int);
-

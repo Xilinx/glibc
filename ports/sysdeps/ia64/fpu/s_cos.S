@@ -765,4 +765,3 @@ LOCAL_LIBM_END(__libm_callout_sincos)
 .global  __libm_sin_large#
 .type    __libm_cos_large#,@function
 .global  __libm_cos_large#
-

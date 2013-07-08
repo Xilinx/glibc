@@ -1135,4 +1135,3 @@ ASINH_UNORM:
 ;;
 
 GLOBAL_LIBM_END(asinh)
-
