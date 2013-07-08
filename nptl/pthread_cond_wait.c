@@ -114,8 +114,6 @@ __pthread_cond_wait (cond, mutex)
 
   LIBC_PROBE (cond_wait, 2, cond, mutex);
 
-  LIBC_PROBE (cond_wait, 2, cond, mutex);
-
   /* Make sure we are alone.  */
   lll_lock (cond->__data.__lock, pshared);
 

@@ -36,6 +36,8 @@
 #include <aio_cancel.c>
 #else
 
+#include <unistd.h>
+#include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
 
