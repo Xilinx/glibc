@@ -1,5 +1,5 @@
 /* Get loaded objects program headers.
-   Copyright (C) 2001-2004, 2006-2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2001.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <ldsodefs.h>
@@ -40,7 +39,7 @@ __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
 
   /* Make sure nobody modifies the list of loaded objects.  */
   __rtld_lock_lock_recursive (GL(dl_load_write_lock));
-  __libc_cleanup_push (cancel_handler, 0);
+  __libc_cleanup_push (cancel_handler, NULL);
 
   /* We have to determine the namespace of the caller since this determines
      which namespace is reported.  */
@@ -92,10 +91,6 @@ hidden_def (__dl_iterate_phdr)
 weak_alias (__dl_iterate_phdr, dl_iterate_phdr);
 
 #else
-
-/* dl-support.c defines these and initializes them early on.  */
-extern ElfW(Phdr) *_dl_phdr;
-extern size_t _dl_phnum;
 
 int
 dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,

@@ -38,22 +38,13 @@ static char rcsid[] = "$NetBSD: s_tanh.c,v 1.7 1995/05/10 20:48:22 jtc Exp $";
  *	only tanh(0)=0 is exact for finite argument.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
-#ifdef __STDC__
 static const long double one=1.0L, two=2.0L, tiny = 1.0e-300L;
-#else
-static long double one=1.0L, two=2.0L, tiny = 1.0e-300L;
-#endif
 
-#ifdef __STDC__
-	long double __tanhl(long double x)
-#else
-	long double __tanhl(x)
-	long double x;
-#endif
+long double __tanhl(long double x)
 {
 	long double t,z;
 	int64_t jx,ix,lx;

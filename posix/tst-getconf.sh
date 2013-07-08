@@ -1,18 +1,26 @@
 #! /bin/sh
+# Test for getconf(1).
+# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# This file is part of the GNU C Library.
+
+# The GNU C Library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+# The GNU C Library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
+
+set -e
 
 common_objpfx=$1; shift
-elf_objpfx=$1; shift
-if [ $# -eq 0 ]; then
-  # Static case.
-  runit() {
-    "$@"
-  }
-else
-  rtld_installed_name=$1; shift
-  runit() {
-    ${elf_objpfx}${rtld_installed_name} --library-path ${common_objpfx} "$@"
-  }
-fi
+run_getconf=$1; shift
 
 logfile=$common_objpfx/posix/tst-getconf.out
 
@@ -26,7 +34,7 @@ rm -f $logfile
 result=0
 while read name; do
   echo -n "getconf $name: " >> $logfile
-  runit ${common_objpfx}posix/getconf "$name" 2>> $logfile >> $logfile
+  ${run_getconf} "$name" < /dev/null 2>> $logfile >> $logfile
   if test $? -ne 0; then
     echo "*** $name FAILED" >> $logfile
     result=1
@@ -204,7 +212,7 @@ EOF
 
 while read name; do
   echo -n "getconf $name /: " >> $logfile
-  runit ${common_objpfx}posix/getconf "$name" / 2>> $logfile >> $logfile
+  ${run_getconf} "$name" / < /dev/null 2>> $logfile >> $logfile
   if test $? -ne 0; then
     echo "*** $name FAILED" >> $logfile
     result=1

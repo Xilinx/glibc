@@ -1,5 +1,5 @@
 /* Handle symbol and library versioning.
-   Copyright (C) 1997-2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <elf.h>
 #include <errno.h>
@@ -24,14 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ldsodefs.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 #include <assert.h>
-
-
-#ifndef VERSYMIDX
-# define VERSYMIDX(tag)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (tag))
-#endif
 
 
 #define make_string(string, rest...) \
@@ -91,7 +85,7 @@ match_symbol (const char *name, Lmid_t ns, ElfW(Word) hash, const char *string,
   if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_VERSIONS, 0))
     _dl_debug_printf ("\
 checking for version `%s' in file %s [%lu] required by file %s [%lu]\n",
-		      string, map->l_name[0] ? map->l_name : rtld_progname,
+		      string, DSO_FILENAME (map->l_name),
 		      map->l_ns, name, ns);
 
   if (__builtin_expect (map->l_info[VERSYMIDX (DT_VERDEF)] == NULL, 0))
@@ -168,7 +162,7 @@ no version information available (required by ", name, ")");
 			   name, ")");
   result = 1;
  call_cerror:
-  _dl_signal_cerror (0, map->l_name[0] ? map->l_name : rtld_progname,
+  _dl_signal_cerror (0, DSO_FILENAME (map->l_name),
 		     N_("version lookup error"), errstring);
   return result;
 }
@@ -216,7 +210,7 @@ _dl_check_map_versions (struct link_map *map, int verbose, int trace_mode)
 					  &buf[sizeof (buf) - 1], 10, 0),
 				   " of Verneed record\n");
 	call_error:
-	  _dl_signal_error (errval, *map->l_name ? map->l_name : rtld_progname,
+	  _dl_signal_error (errval, DSO_FILENAME (map->l_name),
 			    NULL, errstring);
 	}
 
@@ -240,8 +234,7 @@ _dl_check_map_versions (struct link_map *map, int verbose, int trace_mode)
 	      while (1)
 		{
 		  /* Match the symbol.  */
-		  result |= match_symbol ((*map->l_name
-					   ? map->l_name : rtld_progname),
+		  result |= match_symbol (DSO_FILENAME (map->l_name),
 					  map->l_ns, aux->vna_hash,
 					  strtab + aux->vna_name,
 					  needed->l_real, verbose,

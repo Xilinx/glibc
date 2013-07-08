@@ -1,5 +1,5 @@
 /* Print size value using units for orders of magnitude.
-   Copyright (C) 1997-2002, 2004, 2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
    Based on a proposal by Larry McVoy <lm@sgi.com>.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
 #include <ieee754.h>
@@ -29,7 +28,7 @@
 /* This defines make it possible to use the same code for GNU C library and
    the GNU I/O library.	 */
 #define PUT(f, s, n) _IO_sputn (f, s, n)
-#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : INTUSE(_IO_padn) (f, c, n))
+#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : _IO_padn (f, c, n))
 /* We use this file GNU C library and GNU I/O library.	So make
    names equal.	 */
 #undef putc
@@ -43,7 +42,7 @@
 #define outchar(ch)							      \
   do									      \
     {									      \
-      register const int outc = (ch);					      \
+      const int outc = (ch);						      \
       if (putc (outc, fp) == EOF)					      \
 	return -1;							      \
       ++done;								      \
@@ -52,7 +51,7 @@
 #define PRINT(ptr, wptr, len)						      \
   do									      \
     {									      \
-      register size_t outlen = (len);					      \
+      size_t outlen = (len);						      \
       if (len > 20)							      \
 	{								      \
 	  if (PUT (fp, wide ? (const char *) wptr : ptr, outlen) != outlen)   \

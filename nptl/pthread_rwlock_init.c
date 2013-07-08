@@ -1,4 +1,4 @@
-/* Copyright (C) 2002,2007,2009,2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,16 +13,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include "pthreadP.h"
 #include <string.h>
 #include <kernel-features.h>
 
 
-static const struct pthread_rwlockattr default_attr =
+static const struct pthread_rwlockattr default_rwlockattr =
   {
     .lockkind = PTHREAD_RWLOCK_DEFAULT_NP,
     .pshared = PTHREAD_PROCESS_PRIVATE
@@ -36,7 +35,7 @@ __pthread_rwlock_init (rwlock, attr)
 {
   const struct pthread_rwlockattr *iattr;
 
-  iattr = ((const struct pthread_rwlockattr *) attr) ?: &default_attr;
+  iattr = ((const struct pthread_rwlockattr *) attr) ?: &default_rwlockattr;
 
   memset (rwlock, '\0', sizeof (*rwlock));
 

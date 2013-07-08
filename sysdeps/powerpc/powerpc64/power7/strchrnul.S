@@ -1,5 +1,5 @@
 /* Optimized strchrnul implementation for PowerPC64/POWER7 using cmpb insn.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,17 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int [r3] strchrnul (char *s [r3], int c [r4])  */
 	.machine  power7
-ENTRY (BP_SYM(__strchrnul))
+ENTRY (__strchrnul)
 	CALL_MCOUNT 2
 	dcbt	0,r3
 	clrrdi	r8,r3,3	      /* Align the address to doubleword boundary.  */
@@ -113,6 +110,6 @@ L(done):
 	srdi	r0,r0,3	      /* Convert leading zeros to bytes.  */
 	add	r3,r8,r0      /* Return address of matching c/null byte.  */
 	blr
-END (BP_SYM (__strchrnul))
+END (__strchrnul)
 weak_alias (__strchrnul,strchrnul)
 libc_hidden_builtin_def (__strchrnul)

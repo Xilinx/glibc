@@ -1,6 +1,5 @@
 /* System-specific socket constants and types.  Linux version.
-   Copyright (C) 1991, 1992, 1994-2001, 2004, 2006-2010, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef __BITS_SOCKET_H
 #define __BITS_SOCKET_H
@@ -36,39 +34,8 @@ typedef __socklen_t socklen_t;
 # define __socklen_t_defined
 #endif
 
-/* Types of sockets.  */
-enum __socket_type
-{
-  SOCK_STREAM = 1,		/* Sequenced, reliable, connection-based
-				   byte streams.  */
-#define SOCK_STREAM SOCK_STREAM
-  SOCK_DGRAM = 2,		/* Connectionless, unreliable datagrams
-				   of fixed maximum length.  */
-#define SOCK_DGRAM SOCK_DGRAM
-  SOCK_RAW = 3,			/* Raw protocol interface.  */
-#define SOCK_RAW SOCK_RAW
-  SOCK_RDM = 4,			/* Reliably-delivered messages.  */
-#define SOCK_RDM SOCK_RDM
-  SOCK_SEQPACKET = 5,		/* Sequenced, reliable, connection-based,
-				   datagrams of fixed maximum length.  */
-#define SOCK_SEQPACKET SOCK_SEQPACKET
-  SOCK_DCCP = 6,		/* Datagram Congestion Control Protocol.  */
-#define SOCK_DCCP SOCK_DCCP
-  SOCK_PACKET = 10,		/* Linux specific way of getting packets
-				   at the dev level.  For writing rarp and
-				   other similar things on the user level. */
-#define SOCK_PACKET SOCK_PACKET
-
-  /* Flags to be ORed into the type parameter of socket and socketpair and
-     used for the flags parameter of paccept.  */
-
-  SOCK_CLOEXEC = 02000000,	/* Atomically set close-on-exec flag for the
-				   new descriptor(s).  */
-#define SOCK_CLOEXEC SOCK_CLOEXEC
-  SOCK_NONBLOCK = 04000		/* Atomically mark descriptor(s) as
-				   non-blocking.  */
-#define SOCK_NONBLOCK SOCK_NONBLOCK
-};
+/* Get the architecture-dependent definition of enum __socket_type.  */
+#include <bits/socket_type.h>
 
 /* Protocol families.  */
 #define	PF_UNSPEC	0	/* Unspecified.  */
@@ -112,7 +79,8 @@ enum __socket_type
 #define PF_CAIF		37	/* CAIF sockets.  */
 #define PF_ALG		38	/* Algorithm sockets.  */
 #define PF_NFC		39	/* NFC sockets.  */
-#define	PF_MAX		40	/* For now..  */
+#define PF_VSOCK	40	/* vSockets.  */
+#define	PF_MAX		41	/* For now..  */
 
 /* Address families.  */
 #define	AF_UNSPEC	PF_UNSPEC
@@ -156,6 +124,7 @@ enum __socket_type
 #define AF_CAIF		PF_CAIF
 #define AF_ALG		PF_ALG
 #define AF_NFC		PF_NFC
+#define AF_VSOCK	PF_VSOCK
 #define	AF_MAX		PF_MAX
 
 /* Socket level values.  Others are defined in the appropriate headers.
@@ -240,6 +209,8 @@ enum
 #define	MSG_MORE	MSG_MORE
     MSG_WAITFORONE	= 0x10000, /* Wait for at least one packet to return.*/
 #define MSG_WAITFORONE	MSG_WAITFORONE
+    MSG_FASTOPEN	= 0x20000000, /* Send data in TCP SYN.  */
+#define MSG_FASTOPEN	MSG_FASTOPEN
 
     MSG_CMSG_CLOEXEC	= 0x40000000	/* Set close_on_exit for file
 					   descriptor received through
@@ -266,15 +237,6 @@ struct msghdr
 
     int msg_flags;		/* Flags on received message.  */
   };
-
-#ifdef __USE_GNU
-/* For `recvmmsg'.  */
-struct mmsghdr
-  {
-    struct msghdr msg_hdr;	/* Actual message header.  */
-    unsigned int msg_len;	/* Number of received bytes for the entry.  */
-  };
-#endif
 
 /* Structure used for storage of ancillary data object information.  */
 struct cmsghdr
@@ -419,26 +381,5 @@ struct linger
     int l_onoff;		/* Nonzero to linger on close.  */
     int l_linger;		/* Time to linger.  */
   };
-
-
-__BEGIN_DECLS
-
-/* Receive up to VLEN messages as described by VMESSAGES from socket FD.
-   Returns the number of bytes read or -1 for errors.
-
-   This function is a cancellation point and therefore not marked with
-   __THROW.  */
-extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
-		     unsigned int __vlen, int __flags,
-		     __const struct timespec *__tmo);
-
-/* Send a VLEN messages as described by VMESSAGES to socket FD.
-   Return the number of datagrams successfully written or -1 for errors.
-This function is a cancellation point and therefore not marked with
-   __THROW.  */
-extern int sendmmsg (int __fd, struct mmsghdr *__vmessages,
-		     unsigned int __vlen, int __flags);
-
-__END_DECLS
 
 #endif	/* bits/socket.h */

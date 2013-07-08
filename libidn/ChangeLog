@@ -1,3 +1,40 @@
+2013-06-11   Ondřej Bílka  <neleai@seznam.cz>
+
+	* gunicomp.h: Fix trailing whitespaces.
+	* gunidecomp.h: Likewise.
+	* nfkc.c: Likewise.
+	* rfc3454.c: Likewise.
+
+2013-05-31  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile ($(objpfx)libcidn.so): Remove dependencies on libc.
+
+2013-05-16  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* idna.c: Add missing #include <stdint.h> due to uint64_t or uint32_t
+	usage.
+	* nfkc.c: Likewise.
+	* stringprep.c: Likewise.
+
+2013-01-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* All files with FSF copyright notices: Update copyright dates
+	using scripts/update-copyrights.
+
+2012-10-09  Roland McGrath  <roland@hack.frob.com>
+
+	* configure.in: If $shared != yes, just disable the add-on entirely
+	and issue a warning.
+	* configure: Regenerated.
+
+2012-03-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* Makefile (distribute): Remove variable.
+
+2011-12-03  Ulrich Drepper  <drepper@gmail.com>
+
+	* idna.c (idna_to_unicode_4z4z): Remove variable rc.
+
 2008-02-10  Jim Meyering  <meyering@redhat.com>
 
 	* stringprep.c (stringprep, stringprep_profile): Remove useless

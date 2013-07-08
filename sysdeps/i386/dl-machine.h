@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  i386 version.
-   Copyright (C) 1995-2005, 2006, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -145,18 +144,16 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 
 #ifdef IN_DL_RUNTIME
 
-# if !defined PROF && !__BOUNDED_POINTERS__
+# ifndef PROF
 /* We add a declaration of this function here so that in dl-runtime.c
    the ELF_MACHINE_RUNTIME_TRAMPOLINE macro really can pass the parameters
    in registers.
 
    We cannot use this scheme for profiling because the _mcount call
    destroys the passed register information.  */
-/* GKM FIXME: Fix trampoline to pass bounds so we can do
-   without the `__unbounded' qualifier.  */
 #define ARCH_FIXUP_ATTRIBUTE __attribute__ ((regparm (3), stdcall, unused))
 
-extern ElfW(Addr) _dl_fixup (struct link_map *__unbounded l,
+extern ElfW(Addr) _dl_fixup (struct link_map *l,
 			     ElfW(Word) reloc_offset)
      ARCH_FIXUP_ATTRIBUTE;
 extern ElfW(Addr) _dl_profile_fixup (struct link_map *l,
@@ -334,7 +331,9 @@ elf_machine_rel (struct link_map *map, const Elf32_Rel *reloc,
   else
 # endif	/* !RTLD_BOOTSTRAP and have no -z combreloc */
     {
+# ifndef RTLD_BOOTSTRAP
       const Elf32_Sym *const refsym = sym;
+# endif
       struct link_map *sym_map = RESOLVE_MAP (&sym, version, r_type);
       Elf32_Addr value = sym_map == NULL ? 0 : sym_map->l_addr + sym->st_value;
 
@@ -347,6 +346,12 @@ elf_machine_rel (struct link_map *map, const Elf32_Rel *reloc,
 
       switch (r_type)
 	{
+# ifndef RTLD_BOOTSTRAP
+	case R_386_SIZE32:
+	  /* Set to symbol size plus addend.  */
+	  *reloc_addr += sym->st_size;
+	  break;
+# endif
 	case R_386_GLOB_DAT:
 	case R_386_JMP_SLOT:
 	  *reloc_addr = value;
@@ -459,8 +464,7 @@ elf_machine_rel (struct link_map *map, const Elf32_Rel *reloc,
 	      strtab = (const char *) D_PTR (map, l_info[DT_STRTAB]);
 	      _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-				rtld_progname ?: "<program name unknown>",
-				strtab + refsym->st_name);
+				RTLD_PROGNAME, strtab + refsym->st_name);
 	    }
 	  memcpy (reloc_addr_arg, (void *) value,
 		  MIN (sym->st_size, refsym->st_size));
@@ -506,6 +510,9 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 
       switch (ELF32_R_TYPE (reloc->r_info))
 	{
+	case R_386_SIZE32:
+	  /* Set to symbol size plus addend.  */
+	  value = sym->st_size;
 	case R_386_GLOB_DAT:
 	case R_386_JMP_SLOT:
 	case R_386_32:
@@ -602,8 +609,7 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 	      strtab = (const char *) D_PTR (map, l_info[DT_STRTAB]);
 	      _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-				rtld_progname ?: "<program name unknown>",
-				strtab + refsym->st_name);
+				RTLD_PROGNAME, strtab + refsym->st_name);
 	    }
 	  memcpy (reloc_addr_arg, (void *) value,
 		  MIN (sym->st_size, refsym->st_size));

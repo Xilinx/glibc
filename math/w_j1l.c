@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <math.h>
@@ -26,9 +25,10 @@
 long double
 __j1l (long double x)
 {
-  if (__builtin_expect (fabsl (x) > X_TLOSS, 0) && _LIB_VERSION != _IEEE_)
+  if (__builtin_expect (isgreater (fabsl (x), X_TLOSS), 0)
+      && _LIB_VERSION != _IEEE_ && _LIB_VERSION != _POSIX_)
     /* j1(|x|>X_TLOSS) */
-    return __kernel_standard (x, x, 236);
+    return __kernel_standard_l (x, x, 236);
 
   return __ieee754_j1l (x);
 }
@@ -39,20 +39,21 @@ weak_alias (__j1l, j1l)
 long double
 __y1l (long double x)
 {
-  if (__builtin_expect (x <= 0.0L || x > X_TLOSS, 0) && _LIB_VERSION != _IEEE_)
+  if (__builtin_expect (islessequal (x, 0.0L) || isgreater (x, X_TLOSS), 0)
+      && _LIB_VERSION != _IEEE_)
     {
       if (x < 0.0L)
 	{
 	  /* d = zero/(x-x) */
 	  feraiseexcept (FE_INVALID);
-	  return __kernel_standard (x, x, 211);
+	  return __kernel_standard_l (x, x, 211);
 	}
       else if (x == 0.0L)
 	/* d = -one/(x-x) */
-	return __kernel_standard (x, x, 210);
-      else
+	return __kernel_standard_l (x, x, 210);
+      else if (_LIB_VERSION != _POSIX_)
 	/* y1(x>X_TLOSS) */
-	return __kernel_standard (x, x, 237);
+	return __kernel_standard_l (x, x, 237);
     }
 
   return __ieee754_y1l (x);

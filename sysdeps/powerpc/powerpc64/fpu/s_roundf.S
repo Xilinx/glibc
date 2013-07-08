@@ -1,5 +1,5 @@
 /* roundf  function.  PowerPC64 version.
-   Copyright (C) 2004 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -25,13 +24,13 @@
 .LC1:	/* 0.5 */
 	.tc FD_3f000000_0[TC],0x3f00000000000000
 	.section	".text"
-	
+
 /* float [fp1] roundf  (float x [fp1])
-   IEEE 1003.1 round function.  IEEE specifies "round to the nearest 
+   IEEE 1003.1 round function.  IEEE specifies "round to the nearest
    integer value, rounding halfway cases away from zero, regardless of
    the current rounding mode."  However PowerPC Architecture defines
-   "Round to Nearest" as "Choose the best approximation. In case of a 
-   tie, choose the one that is even (least significant bit o).". 
+   "Round to Nearest" as "Choose the best approximation. In case of a
+   tie, choose the one that is even (least significant bit o).".
    So we can't use the PowerPC "Round to Nearest" mode. Instead we set
    "Round toward Zero" mode and round by adding +-0.5 before rounding
    to the integer value.  */
@@ -63,7 +62,7 @@ EALIGN (__roundf, 4, 0)
 	fnabs	fp1,fp1		/* if (x == 0.0)  */
 				/* x = -0.0; */
 .L9:
-	mtfsf	0x01,fp11	/* restore previous rounding mode.  */	
+	mtfsf	0x01,fp11	/* restore previous rounding mode.  */
 	blr
 	END (__roundf)
 

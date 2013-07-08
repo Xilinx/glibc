@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997, 1999, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _NL_TYPES_H
 #define _NL_TYPES_H 1
@@ -40,12 +39,12 @@ typedef int nl_item;
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern nl_catd catopen (__const char *__cat_name, int __flag) __nonnull ((1));
+extern nl_catd catopen (const char *__cat_name, int __flag) __nonnull ((1));
 
 /* Return translation with NUMBER in SET of CATALOG; if not found
    return STRING.  */
 extern char *catgets (nl_catd __catalog, int __set, int __number,
-		      __const char *__string) __THROW __nonnull ((1));
+		      const char *__string) __THROW __nonnull ((1));
 
 /* Close message CATALOG.  */
 extern int catclose (nl_catd __catalog) __THROW __nonnull ((1));

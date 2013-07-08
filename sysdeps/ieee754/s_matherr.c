@@ -14,19 +14,12 @@
 static char rcsid[] = "$NetBSD: s_matherr.c,v 1.6 1995/05/10 20:47:53 jtc Exp $";
 #endif
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	int
-	weak_function
-	 __matherr(struct exception *x)
-#else
-	int
-	weak_function
-	__matherr(x)
-	struct exception *x;
-#endif
+int
+weak_function
+__matherr(struct exception *x)
 {
 	int n=0;
 	if(x->arg1!=x->arg1) return 0;

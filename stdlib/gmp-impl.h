@@ -1,6 +1,6 @@
 /* Include file for internal GNU MP types and definitions.
 
-Copyright (C) 1991, 1993, 1994, 1995, 1996, 2011 Free Software Foundation, Inc.
+Copyright (C) 1991-2013 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -15,9 +15,8 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-MA 02111-1307, USA. */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, see
+<http://www.gnu.org/licenses/>.  */
 
 /* When using gcc, make sure to use its builtin alloca.  */
 #if ! defined (alloca) && defined (__GNUC__)
@@ -217,7 +216,8 @@ extern mp_size_t __gmp_default_fp_limb_precision;
    has to be set.  Put the quotient in Q and the remainder in R.  */
 #define udiv_qrnnd_preinv(q, r, nh, nl, d, di) \
   do {									\
-    mp_limb_t _q, _ql, _r;						\
+    mp_limb_t _ql __attribute__ ((unused));				\
+    mp_limb_t _q, _r;							\
     mp_limb_t _xh, _xl;							\
     umul_ppmm (_q, _ql, (nh), (di));					\
     _q += (nh);			/* DI is 2**BITS_PER_MP_LIMB too small */\

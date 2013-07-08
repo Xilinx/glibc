@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@uni-paderborn.de>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _NIS_NSS_NISPLUS_H
 #define _NIS_NSS_NISPLUS_H	1
@@ -29,7 +28,8 @@
 extern const enum nss_status __niserr2nss_tab[] attribute_hidden;
 extern const unsigned int __niserr2nss_count attribute_hidden;
 
-static inline enum nss_status
+static enum nss_status
+__attribute__ ((unused))
 niserr2nss (int errval)
 {
   if ((unsigned int) errval >= __niserr2nss_count)

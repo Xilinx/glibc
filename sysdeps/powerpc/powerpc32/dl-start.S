@@ -1,5 +1,5 @@
 /* Machine-dependent ELF startup code.  PowerPC version.
-   Copyright (C) 1995-2000, 2002, 2004, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -47,16 +46,15 @@ _dl_start_user:
    passed by value!).  */
 
 /*  Put our GOT pointer in r31, */
-	bcl	20,31,1f
-1:	mflr	r31
-	addis	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@ha
-	addi	r31,r31,_GLOBAL_OFFSET_TABLE_-1b@l
+	SETUP_GOT_ACCESS(r31,got_label)
+	addis	r31,r31,_GLOBAL_OFFSET_TABLE_-got_label@ha
+	addi	r31,r31,_GLOBAL_OFFSET_TABLE_-got_label@l
 /*  the address of _start in r30, */
 	mr	r30,r3
 /*  &_dl_argc in 29, &_dl_argv in 27, and _dl_loaded in 28.  */
-	lwz	r28,_rtld_global@got(r31)
+	lwz	r28,_rtld_local@got(r31)
 	lwz	r29,_dl_argc@got(r31)
-	lwz	r27,_dl_argv@got(r31)
+	lwz	r27,INTUSE(_dl_argv)@got(r31)
 
 /* Call _dl_init (_dl_loaded, _dl_argc, _dl_argv, _dl_argv+_dl_argc+1). */
 	lwz	r3,0(r28)
@@ -76,7 +74,7 @@ _dl_start_user:
 	slwi	r5,r3,2
 	add	r6,r4,r5
 	addi	r5,r6,4
-/* pass the auxilary vector in r6. This is passed to us just after _envp.  */
+/* pass the auxiliary vector in r6. This is passed to us just after _envp.  */
 2:	lwzu	r0,4(r6)
 	cmpwi	r0,0
 	bne	2b

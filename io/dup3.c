@@ -1,4 +1,4 @@
-/* Copyright (C) 2008, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -25,7 +24,7 @@
    open the same file as FD is which setting flags according to
    FLAGS.  Return FD2 or -1.  */
 int
-dup3 (fd, fd2, flags)
+__dup3 (fd, fd2, flags)
      int fd;
      int fd2;
      int flags;
@@ -43,7 +42,6 @@ dup3 (fd, fd2, flags)
   __set_errno (ENOSYS);
   return -1;
 }
-libc_hidden_def (dup3)
+libc_hidden_def (__dup3)
+weak_alias (__dup3, dup3)
 stub_warning (dup3)
-
-#include <stub-tag.h>

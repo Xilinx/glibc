@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2000, 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
    Optimized by Toshiyasu Morita <toshiyasu.morita@hsa.hitachi.com>
@@ -14,12 +14,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <endian.h>
 
 /* void *memcpy(void *dst, const void *src, size_t n);
     No overlap between the memory of DST and of SRC are assumed.  */
@@ -50,7 +48,7 @@ L_wordalign:
 
 	mov.w	@r0+,r1		/* Copy one word.  */
 	add	#-2,r6
-#if __BYTE_ORDER == __BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 	add	#1,r4
 	mov.b	r1,@r4
 	shlr8	r1
@@ -99,7 +97,7 @@ L_copydest1_or_3_loop:
 	mov.l	@r5+,r0		/* Read first longword.  */
 	dt	r7
 	mov.l	@r5+,r1		/* Read second longword.  */
-#if __BYTE_ORDER == __BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 	/* Write first longword as byte, word, byte.  */
 	mov.b	r0,@(4,r4)
 	shlr8	r0
@@ -141,7 +139,7 @@ L_copydest2_loop:
 	mov.l	@r5+,r0
 	dt	r7
 	mov.l	@r5+,r1
-#if __BYTE_ORDER == __BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 	mov.w	r0,@(2,r4)
 	shlr16	r0
 	mov.w	r0,@r4

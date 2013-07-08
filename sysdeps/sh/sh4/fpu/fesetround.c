@@ -1,5 +1,5 @@
 /* Set current rounding direction.
-   Copyright (C) 1998, 2000, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@arthur.rhein-neckar.de>, 1998.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <fpu_control.h>
@@ -24,21 +23,21 @@
 int
 fesetround (int round)
 {
-  unsigned int cw;
+  fpu_control_t cw;
 
-  if ((round & ~0x3) != 0)
+  if ((round & ~0x1) != 0)
     /* ROUND is no valid rounding mode.  */
-    return 0;
+    return 1;
 
   /* Get current state.  */
   _FPU_GETCW (cw);
 
   /* Set rounding bits.  */
-  cw &= ~0x3;
+  cw &= ~0x1;
   cw |= round;
   /* Set new state.  */
   _FPU_SETCW (cw);
 
-  return 1;
+  return 0;
 }
 libm_hidden_def (fesetround)

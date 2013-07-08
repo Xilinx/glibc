@@ -1,5 +1,5 @@
 /* Internal function for converting integers to ASCII.
-   Copyright (C) 1994-1996,1999,2000,2002,2007 Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund <tege@matematik.su.se>
    and Ulrich Drepper <drepper@gnu.org>.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <gmp-mparam.h>
 #include <gmp.h>
@@ -25,7 +24,7 @@
 #include <stdlib/gmp-impl.h>
 #include <stdlib/longlong.h>
 
-#include "_itowa.h"
+#include <_itowa.h>
 
 
 /* Canonize environment.  For some architectures not all values might
@@ -86,7 +85,7 @@ extern const wchar_t _itowa_lower_digits[] attribute_hidden;
 extern const wchar_t _itowa_upper_digits[] attribute_hidden;
 
 
-#if LLONG_MAX != LONG_MAX
+#if _ITOA_NEEDED
 wchar_t *
 _itowa (value, buflim, base, upper_case)
      unsigned long long int value;
@@ -103,7 +102,7 @@ _itowa (value, buflim, base, upper_case)
     {
 # define RUN_2N(BITS) \
       do								      \
-        {								      \
+	{								      \
 	  /* `unsigned long long int' always has 64 bits.  */		      \
 	  mp_limb_t work_hi = value >> (64 - BITS_PER_MP_LIMB);		      \
 									      \
@@ -160,7 +159,8 @@ _itowa (value, buflim, base, upper_case)
 	if (brec->flag)
 	  while (value != 0)
 	    {
-	      mp_limb_t quo, rem, x, dummy;
+	      mp_limb_t quo, rem, x;
+	      mp_limb_t dummy __attribute__ ((unused));
 
 	      umul_ppmm (x, dummy, value, base_multiplier);
 	      quo = (x + ((value - x) >> 1)) >> (brec->post_shift - 1);
@@ -171,7 +171,8 @@ _itowa (value, buflim, base, upper_case)
 	else
 	  while (value != 0)
 	    {
-	      mp_limb_t quo, rem, x, dummy;
+	      mp_limb_t quo, rem, x;
+	      mp_limb_t dummy __attribute__ ((unused));
 
 	      umul_ppmm (x, dummy, value, base_multiplier);
 	      quo = x >> brec->post_shift;
@@ -297,7 +298,8 @@ _itowa (value, buflim, base, upper_case)
 	    if (brec->flag)
 	      while (ti != 0)
 		{
-		  mp_limb_t quo, rem, x, dummy;
+		  mp_limb_t quo, rem, x;
+		  mp_limb_t dummy __attribute__ ((unused));
 
 		  umul_ppmm (x, dummy, ti, base_multiplier);
 		  quo = (x + ((ti - x) >> 1)) >> (brec->post_shift - 1);
@@ -309,7 +311,8 @@ _itowa (value, buflim, base, upper_case)
 	    else
 	      while (ti != 0)
 		{
-		  mp_limb_t quo, rem, x, dummy;
+		  mp_limb_t quo, rem, x;
+		  mp_limb_t dummy __attribute__ ((unused));
 
 		  umul_ppmm (x, dummy, ti, base_multiplier);
 		  quo = x >> brec->post_shift;

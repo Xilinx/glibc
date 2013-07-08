@@ -47,33 +47,26 @@ static char rcsid[] = "$NetBSD: $";
 #include <math.h>
 #include <math_private.h>
 
-#ifdef __STDC__
-	long double __jnl(int n, long double x)	/* wrapper jnl */
-#else
-	long double __jnl(n,x)			/* wrapper jnl */
-	long double x; int n;
-#endif
+long double __jnl(int n, long double x)	/* wrapper jnl */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_jnl(n,x);
 #else
 	long double z;
 	z = __ieee754_jnl(n,x);
-	if(_LIB_VERSION == _IEEE_ || __isnanl(x) ) return z;
+	if (_LIB_VERSION == _IEEE_
+	    || _LIB_VERSION == _POSIX_
+	    || __isnanl(x))
+	  return z;
 	if(fabsl(x)>X_TLOSS) {
-	    return __kernel_standard((double)n,x,238); /* jn(|x|>X_TLOSS,n) */
+	    return __kernel_standard_l((double)n,x,238); /* jn(|x|>X_TLOSS,n) */
 	} else
 	    return z;
 #endif
 }
 weak_alias (__jnl, jnl)
 
-#ifdef __STDC__
-	long double __ynl(int n, long double x)	/* wrapper ynl */
-#else
-	long double __ynl(n,x)			/* wrapper ynl */
-	long double x; int n;
-#endif
+long double __ynl(int n, long double x)	/* wrapper ynl */
 {
 #ifdef _IEEE_LIBM
 	return __ieee754_ynl(n,x);
@@ -84,13 +77,13 @@ weak_alias (__jnl, jnl)
         if(x <= 0.0){
                 if(x==0.0)
                     /* d= -one/(x-x); */
-                    return __kernel_standard((double)n,x,212);
+                    return __kernel_standard_l((double)n,x,212);
                 else
                     /* d = zero/(x-x); */
-                    return __kernel_standard((double)n,x,213);
+                    return __kernel_standard_l((double)n,x,213);
         }
-	if(x>X_TLOSS) {
-	    return __kernel_standard((double)n,x,239); /* yn(x>X_TLOSS,n) */
+	if(x>X_TLOSS && _LIB_VERSION != _POSIX_) {
+	    return __kernel_standard_l((double)n,x,239); /* yn(x>X_TLOSS,n) */
 	} else
 	    return z;
 #endif

@@ -1,7 +1,7 @@
 /* Software floating-point emulation.
    Compare (*a) and (*b), return float condition code.
    Signal exception (unless masked) if unordered.
-   Copyright (C) 1997,1999 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com) and
 		  Jakub Jelinek (jj@ultra.linux.cz).
@@ -17,9 +17,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include "soft-fp.h"
 #include "quad.h"
@@ -38,7 +37,7 @@ int _Qp_cmpe(const long double *a, const long double *b)
   if (r == 3)
     FP_SET_EXCEPTION(FP_EX_INVALID);
   QP_HANDLE_EXCEPTIONS(
-  	__asm (
+	__asm (
 "	ldd [%0], %%f52\n"
 "	ldd [%0+8], %%f54\n"
 "	ldd [%1], %%f56\n"

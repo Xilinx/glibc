@@ -1,6 +1,6 @@
 /* strtok (str, delim) -- Return next DELIM separated token from STR.
    For Intel 80686.
-   Copyright (C) 1998, 2000, 2001, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -15,14 +15,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
 /* This file can be used for three variants of the strtok function:
 
@@ -44,14 +41,10 @@
 #else
 	.bss
 	.local save_ptr
-	ASM_TYPE_DIRECTIVE (save_ptr, @object)
+	.type save_ptr, @object
 	.size save_ptr, 4
 save_ptr:
-# if __BOUNDED_POINTERS__
-	.space 12
-# else
 	.space 4
-# endif
 
 # ifdef PIC
 #  define SAVE_PTR save_ptr@GOTOFF(%ebx)
@@ -63,15 +56,15 @@ save_ptr:
 #endif
 
 #if !defined USE_AS_STRTOK_R && defined PIC
-# define PARMS	LINKAGE+256+4	/* space for table and saved PIC register */
+# define PARMS	4+256+4	/* space for table and saved PIC register */
 #else
-# define PARMS	LINKAGE+256	/* space for table */
+# define PARMS	4+256	/* space for table */
 #endif
 #define RTN	PARMS
-#define STR	RTN+RTN_SIZE
-#define DELIM	STR+PTR_SIZE
+#define STR	RTN
+#define DELIM	STR+4
 #ifdef USE_AS_STRTOK_R
-# define SAVE	DELIM+PTR_SIZE
+# define SAVE	DELIM+4
 #endif
 
 	.text
@@ -81,8 +74,7 @@ save_ptr:
 	ret
 #endif
 
-ENTRY (BP_SYM (FUNCTION))
-	ENTER
+ENTRY (FUNCTION)
 
 #if !defined USE_AS_STRTOK_R && defined PIC
 	pushl %ebx			/* Save PIC register.  */
@@ -128,23 +120,7 @@ ENTRY (BP_SYM (FUNCTION))
 	cmove %eax, %edx
 	testl %edx, %edx
 	jz L(returnNULL)
-#if __BOUNDED_POINTERS__
-# ifdef USE_AS_STRTOK_R
-	movl SAVE(%esp), %ecx	/* borrow %ecx for a moment */
-# endif
-	je L(0)
-	/* Save bounds of incoming non-NULL STR into save area.  */
-	movl 4+STR(%esp), %eax
-	movl %eax, 4+SAVE_PTR
-	movl 8+STR(%esp), %eax
-	movl %eax, 8+SAVE_PTR
-L(0):	CHECK_BOUNDS_LOW (%edx, SAVE_PTR)
-# ifdef USE_AS_STRTOK_R
-	xorl %ecx, %ecx		/* restore %ecx to zero */
-# endif
-#endif
 	movl DELIM(%esp), %eax		/* Get start of delimiter set.  */
-	CHECK_BOUNDS_LOW (%eax, DELIM(%esp))
 
 /* For understanding the following code remember that %ecx == 0 now.
    Although all the following instruction only modify %cl we always
@@ -152,17 +128,17 @@ L(0):	CHECK_BOUNDS_LOW (%edx, SAVE_PTR)
 
 L(2):	movb (%eax), %cl	/* get byte from stopset */
 	testb %cl, %cl		/* is NUL char? */
-	jz L(1_1)		/* yes => start compare loop */
+	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%esp,%ecx)	/* set corresponding byte in stopset table */
 
 	movb 1(%eax), %cl	/* get byte from stopset */
 	testb $0xff, %cl	/* is NUL char? */
-	jz L(1_2)		/* yes => start compare loop */
+	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%esp,%ecx)	/* set corresponding byte in stopset table */
 
 	movb 2(%eax), %cl	/* get byte from stopset */
 	testb $0xff, %cl	/* is NUL char? */
-	jz L(1_3)		/* yes => start compare loop */
+	jz L(1)			/* yes => start compare loop */
 	movb %cl, (%esp,%ecx)	/* set corresponding byte in stopset table */
 
 	movb 3(%eax), %cl	/* get byte from stopset */
@@ -171,16 +147,7 @@ L(2):	movb (%eax), %cl	/* get byte from stopset */
 	testb $0xff, %cl	/* is NUL char? */
 	jnz L(2)		/* no => process next dword from stopset */
 
-#if __BOUNDED_POINTERS__
-	jmp L(1_0)		/* pointer is correct for bounds check */
-L(1_3):	incl %eax		/* adjust pointer for bounds check */
-L(1_2):	incl %eax		/* ditto */
-L(1_1):	incl %eax		/* ditto */
-L(1_0):	CHECK_BOUNDS_HIGH (%eax, DELIM(%esp), jbe)
-#else
-L(1_3):; L(1_2):; L(1_1):	/* fall through */
-#endif
-	leal -4(%edx), %eax	/* prepare loop */
+L(1):	leal -4(%edx), %eax	/* prepare loop */
 
 	/* We use a neat trick for the following loop.  Normally we would
 	   have to test for two termination conditions
@@ -254,8 +221,6 @@ L(8):	cmpl %eax, %edx
 	movl SAVE(%esp), %ecx
 #endif
 	movl %edx, SAVE_PTR
-	CHECK_BOUNDS_HIGH (%edx, SAVE_PTR, jb)
-	RETURN_BOUNDED_POINTER (SAVE_PTR)
 
 L(epilogue):
 	/* Remove the stopset table.  */
@@ -266,8 +231,7 @@ L(epilogue):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (ebx)
 #endif
-	LEAVE
-	RET_PTR
+	ret
 
 L(returnNULL):
 	xorl %eax, %eax
@@ -275,7 +239,6 @@ L(returnNULL):
 	movl SAVE(%esp), %ecx
 #endif
 	movl %edx, SAVE_PTR
-	RETURN_NULL_BOUNDED_POINTER
 	jmp L(epilogue)
 
-END (BP_SYM (FUNCTION))
+END (FUNCTION)

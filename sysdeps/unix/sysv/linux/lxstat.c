@@ -1,5 +1,5 @@
 /* lxstat using old-style Unix lstat system call.
-   Copyright (C) 1991,1995-1998,2000,2002,2003 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Ho hum, if xstat == xstat64 we must get rid of the prototype or gcc
    will complain since they don't strictly match.  */
@@ -28,7 +27,6 @@
 
 #include <sysdep.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 #include <xstatconv.h>
 
@@ -37,8 +35,7 @@ int
 __lxstat (int vers, const char *name, struct stat *buf)
 {
   if (vers == _STAT_VER_KERNEL)
-    return INLINE_SYSCALL (lstat, 2, CHECK_STRING (name),
-			   CHECK_1 ((struct kernel_stat *) buf));
+    return INLINE_SYSCALL (lstat, 2, name, (struct kernel_stat *) buf);
 
 #ifdef STAT_IS_KERNEL_STAT
   errno = EINVAL;
@@ -47,7 +44,7 @@ __lxstat (int vers, const char *name, struct stat *buf)
   struct kernel_stat kbuf;
   int result;
 
-  result = INLINE_SYSCALL (lstat, 2, CHECK_STRING (name), __ptrvalue (&kbuf));
+  result = INLINE_SYSCALL (lstat, 2, name, &kbuf);
   if (result == 0)
     result = __xstat_conv (vers, &kbuf, buf);
 

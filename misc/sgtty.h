@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1992, 1996, 1998, 1999 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SGTTY_H
 #define	_SGTTY_H	1
@@ -33,7 +32,7 @@ __BEGIN_DECLS
 extern int gtty (int __fd, struct sgttyb *__params) __THROW;
 
 /* Set the terminal parameters associated with FD to *PARAMS.  */
-extern int stty (int __fd, __const struct sgttyb *__params) __THROW;
+extern int stty (int __fd, const struct sgttyb *__params) __THROW;
 
 
 __END_DECLS

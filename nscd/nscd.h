@@ -1,4 +1,4 @@
-/* Copyright (c) 1998-2001, 2003-2009, 2011 Free Software Foundation, Inc.
+/* Copyright (c) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1998.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _NSCD_H
 #define _NSCD_H	1
@@ -201,9 +200,7 @@ extern gid_t old_gid;
 /* Prototypes for global functions.  */
 
 /* Wrapper functions with error checking for standard functions.  */
-extern void *xmalloc (size_t n);
-extern void *xcalloc (size_t n, size_t s);
-extern void *xrealloc (void *o, size_t n);
+#include <programs/xmalloc.h>
 
 /* nscd.c */
 extern void termination_handler (int signum) __attribute__ ((__noreturn__));

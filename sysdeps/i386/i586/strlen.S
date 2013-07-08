@@ -1,6 +1,6 @@
 /* strlen -- Compute length of NUL terminated string.
    Highly optimized version for ix86, x>=5.
-   Copyright (C) 1995,1996,1997,2000,2002,2003 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.ai.mit.edu>.
 
@@ -15,14 +15,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
 /* This version is especially optimized for the i586 (and following?)
    processors.  This is mainly done by using the two pipelines.  The
@@ -37,15 +34,13 @@
 /* The magic value which is used throughout in the whole code.  */
 #define magic 0xfefefeff
 
-#define PARMS	LINKAGE		/* no space for saved regs */
+#define PARMS	4		/* no space for saved regs */
 #define STR	PARMS
 
 	.text
-ENTRY (BP_SYM (strlen))
-	ENTER
+ENTRY (strlen)
 
 	movl STR(%esp), %eax
-	CHECK_BOUNDS_LOW (%eax, STR(%esp))
 	movl $3, %edx		/* load mask (= 3) */
 
 	andl %eax, %edx		/* separate last two bits of address */
@@ -179,11 +174,9 @@ L(3):	subl $4, %eax		/* correct too early pointer increment */
 
 	incl %eax		/* increment pointer */
 
-L(2):	CHECK_BOUNDS_HIGH (%eax, STR(%esp), jb)
-	subl STR(%esp), %eax	/* now compute the length as difference
+L(2):	subl STR(%esp), %eax	/* now compute the length as difference
 				   between start and terminating NUL
 				   character */
-	LEAVE
 	ret
-END (BP_SYM (strlen))
+END (strlen)
 libc_hidden_builtin_def (strlen)

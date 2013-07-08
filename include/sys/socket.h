@@ -1,6 +1,7 @@
 #ifndef _SYS_SOCKET_H
 #include <socket/sys/socket.h>
 
+#ifndef _ISOMAC
 /* Now define the internal interfaces.  */
 
 /* Create a new socket of type TYPE in domain DOMAIN, using
@@ -26,9 +27,9 @@ extern int __getpeername (int __fd, __SOCKADDR_ARG __addr,
 			  socklen_t *__len) attribute_hidden;
 
 /* Send N bytes of BUF to socket FD.  Returns the number sent or -1.  */
-extern ssize_t __libc_send (int __fd, __const void *__buf, size_t __n,
+extern ssize_t __libc_send (int __fd, const void *__buf, size_t __n,
 			    int __flags);
-extern ssize_t __send (int __fd, __const void *__buf, size_t __n, int __flags);
+extern ssize_t __send (int __fd, const void *__buf, size_t __n, int __flags);
 libc_hidden_proto (__send)
 
 /* Read N bytes into BUF from socket FD.
@@ -37,7 +38,7 @@ extern ssize_t __libc_recv (int __fd, void *__buf, size_t __n, int __flags);
 
 /* Send N bytes of BUF on socket FD to peer at address ADDR (which is
    ADDR_LEN bytes long).  Returns the number sent, or -1 for errors.  */
-extern ssize_t __libc_sendto (int __fd, __const void *__buf, size_t __n,
+extern ssize_t __libc_sendto (int __fd, const void *__buf, size_t __n,
 			      int __flags, __CONST_SOCKADDR_ARG __addr,
 			      socklen_t __addr_len);
 
@@ -56,8 +57,7 @@ extern ssize_t __libc_recvfrom (int __fd, void *__restrict __buf, size_t __n,
 extern int __libc_connect (int __fd, __CONST_SOCKADDR_ARG __addr,
 			   socklen_t __len);
 extern int __connect (int __fd, __CONST_SOCKADDR_ARG __addr, socklen_t __len);
-extern int __connect_internal (int __fd, __CONST_SOCKADDR_ARG __addr,
-			       socklen_t __len) attribute_hidden;
+libc_hidden_proto (__connect)
 
 /* Read N bytes into BUF from socket FD.
    Returns the number read or -1 for errors.
@@ -69,10 +69,10 @@ extern ssize_t __recv (int __fd, void *__buf, size_t __n, int __flags)
 
 /* Send N bytes of BUF on socket FD to peer at address ADDR (which is
    ADDR_LEN bytes long).  Returns the number sent, or -1 for errors.  */
-extern ssize_t __libc_sendto (int __fd, __const void *__buf, size_t __n,
+extern ssize_t __libc_sendto (int __fd, const void *__buf, size_t __n,
 			      int __flags, __CONST_SOCKADDR_ARG __addr,
 			      socklen_t __addr_len);
-extern ssize_t __sendto (int __fd, __const void *__buf, size_t __n,
+extern ssize_t __sendto (int __fd, const void *__buf, size_t __n,
 			 int __flags, __CONST_SOCKADDR_ARG __addr,
 			 socklen_t __addr_len) attribute_hidden;
 
@@ -86,10 +86,14 @@ extern ssize_t __recvfrom (int __fd, void *__restrict __buf, size_t __n,
 
 /* Send a message described MESSAGE on socket FD.
    Returns the number of bytes sent, or -1 for errors.  */
-extern ssize_t __libc_sendmsg (int __fd, __const struct msghdr *__message,
+extern ssize_t __libc_sendmsg (int __fd, const struct msghdr *__message,
 			       int __flags);
-extern ssize_t __sendmsg (int __fd, __const struct msghdr *__message,
+extern ssize_t __sendmsg (int __fd, const struct msghdr *__message,
 			  int __flags) attribute_hidden;
+
+extern int __sendmmsg (int __fd, struct mmsghdr *__vmessages,
+                       unsigned int __vlen, int __flags);
+libc_hidden_proto (__sendmmsg)
 
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.  */
@@ -102,7 +106,7 @@ extern ssize_t __recvmsg (int __fd, struct msghdr *__message,
    to *OPTVAL (which is OPTLEN bytes long).
    Returns 0 on success, -1 for errors.  */
 extern int __setsockopt (int __fd, int __level, int __optname,
-			 __const void *__optval,
+			 const void *__optval,
 			 socklen_t __optlen) attribute_hidden;
 
 /* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
@@ -132,33 +136,28 @@ extern int __listen (int __fd, int __n) attribute_hidden;
    new socket's descriptor, or -1 for errors.  */
 extern int __libc_accept (int __fd, __SOCKADDR_ARG __addr,
 			  socklen_t *__restrict __addr_len)
-     __THROW;
+     __THROW attribute_hidden;
 libc_hidden_proto (accept)
+extern int __libc_accept4 (int __fd, __SOCKADDR_ARG __addr,
+			   socklen_t *__restrict __addr_len, int __flags)
+     __THROW attribute_hidden;
 
 /* Return the length of a `sockaddr' structure.  */
 #ifdef _HAVE_SA_LEN
 # define SA_LEN(_x)      (_x)->sa_len
 #else
 extern int __libc_sa_len (sa_family_t __af);
-extern int __libc_sa_len_internal (sa_family_t __af) attribute_hidden;
-# ifndef NOT_IN_libc
-#  define SA_LEN(_x)      INTUSE(__libc_sa_len)((_x)->sa_family)
-# else
-#  define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
-# endif
-#endif
-
-
-#ifndef NOT_IN_libc
-# define __connect(fd, addr, len) INTUSE(__connect) (fd, addr, len)
+libc_hidden_proto (__libc_sa_len)
+# define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 #endif
 
 #ifdef SOCK_CLOEXEC
-extern int __have_sock_cloexec;
+extern int __have_sock_cloexec attribute_hidden;
 /* At lot of other functionality became available at the same time as
    SOCK_CLOEXEC.  Avoid defining separate variables for all of them
    unless it is really necessary.  */
 # define __have_paccept __have_sock_cloexec
 #endif
 
+#endif
 #endif

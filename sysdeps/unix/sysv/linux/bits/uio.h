@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997, 2006, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if !defined _SYS_UIO_H && !defined _FCNTL_H
 # error "Never include <bits/uio.h> directly; use <sys/uio.h> instead."
@@ -49,27 +48,30 @@ struct iovec
 
 #endif
 
-#if defined _SYS_UIO_H && !defined _BITS_UIO_H_FOR_SYS_UIO_H
-#define _BITS_UIO_H_FOR_SYS_UIO_H 1
+
+#ifdef __USE_GNU
+# if defined _SYS_UIO_H && !defined _BITS_UIO_H_FOR_SYS_UIO_H
+#  define _BITS_UIO_H_FOR_SYS_UIO_H 1
 
 __BEGIN_DECLS
 
 /* Read from another process' address space.  */
-extern ssize_t process_vm_readv (pid_t __pid, __const struct iovec *__lvec,
+extern ssize_t process_vm_readv (pid_t __pid, const struct iovec *__lvec,
 				 unsigned long int __liovcnt,
-				 __const struct iovec *__rvec,
+				 const struct iovec *__rvec,
 				 unsigned long int __riovcnt,
 				 unsigned long int __flags)
   __THROW;
 
 /* Write to another process' address space.  */
-extern ssize_t process_vm_writev (pid_t __pid, __const struct iovec *__lvec,
+extern ssize_t process_vm_writev (pid_t __pid, const struct iovec *__lvec,
 				  unsigned long int __liovcnt,
-				  __const struct iovec *__rvec,
+				  const struct iovec *__rvec,
 				  unsigned long int __riovcnt,
 				  unsigned long int __flags)
   __THROW;
 
 __END_DECLS
 
+# endif
 #endif

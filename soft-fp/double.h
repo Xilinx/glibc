@@ -1,7 +1,6 @@
 /* Software floating-point emulation.
    Definitions for IEEE Double Precision
-   Copyright (C) 1997, 1998, 1999, 2006, 2007, 2008, 2009
-   Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz),
@@ -28,9 +27,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if _FP_W_TYPE_SIZE < 32
 #error "Here's a nickel kid.  Go buy yourself a real computer."
@@ -38,8 +36,10 @@
 
 #if _FP_W_TYPE_SIZE < 64
 #define _FP_FRACTBITS_D		(2 * _FP_W_TYPE_SIZE)
+#define _FP_FRACTBITS_DW_D	(4 * _FP_W_TYPE_SIZE)
 #else
 #define _FP_FRACTBITS_D		_FP_W_TYPE_SIZE
+#define _FP_FRACTBITS_DW_D	(2 * _FP_W_TYPE_SIZE)
 #endif
 
 #define _FP_FRACBITS_D		53
@@ -61,6 +61,11 @@
 #define _FP_OVERFLOW_D		\
 	((_FP_W_TYPE)1 << _FP_WFRACBITS_D % _FP_W_TYPE_SIZE)
 
+#define _FP_WFRACBITS_DW_D	(2 * _FP_WFRACBITS_D)
+#define _FP_WFRACXBITS_DW_D	(_FP_FRACTBITS_DW_D - _FP_WFRACBITS_DW_D)
+#define _FP_HIGHBIT_DW_D	\
+  ((_FP_W_TYPE)1 << (_FP_WFRACBITS_DW_D - 1) % _FP_W_TYPE_SIZE)
+
 typedef float DFtype __attribute__((mode(DF)));
 
 #if _FP_W_TYPE_SIZE < 64
@@ -68,7 +73,7 @@ typedef float DFtype __attribute__((mode(DF)));
 union _FP_UNION_D
 {
   DFtype flt;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
 #if __BYTE_ORDER == __BIG_ENDIAN
     unsigned sign  : 1;
     unsigned exp   : _FP_EXPBITS_D;
@@ -151,6 +156,7 @@ union _FP_UNION_D
 #define FP_DIV_D(R,X,Y)			_FP_DIV(D,2,R,X,Y)
 #define FP_SQRT_D(R,X)			_FP_SQRT(D,2,R,X)
 #define _FP_SQRT_MEAT_D(R,S,T,X,Q)	_FP_SQRT_MEAT_2(R,S,T,X,Q)
+#define FP_FMA_D(R,X,Y,Z)		_FP_FMA(D,2,4,R,X,Y,Z)
 
 #define FP_CMP_D(r,X,Y,un)	_FP_CMP(D,2,r,X,Y,un)
 #define FP_CMP_EQ_D(r,X,Y)	_FP_CMP_EQ(D,2,r,X,Y)
@@ -162,12 +168,14 @@ union _FP_UNION_D
 #define _FP_FRAC_HIGH_D(X)	_FP_FRAC_HIGH_2(X)
 #define _FP_FRAC_HIGH_RAW_D(X)	_FP_FRAC_HIGH_2(X)
 
+#define _FP_FRAC_HIGH_DW_D(X)	_FP_FRAC_HIGH_4(X)
+
 #else
 
 union _FP_UNION_D
 {
   DFtype flt;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
 #if __BYTE_ORDER == __BIG_ENDIAN
     unsigned sign   : 1;
     unsigned exp    : _FP_EXPBITS_D;
@@ -248,6 +256,7 @@ union _FP_UNION_D
 #define FP_DIV_D(R,X,Y)			_FP_DIV(D,1,R,X,Y)
 #define FP_SQRT_D(R,X)			_FP_SQRT(D,1,R,X)
 #define _FP_SQRT_MEAT_D(R,S,T,X,Q)	_FP_SQRT_MEAT_1(R,S,T,X,Q)
+#define FP_FMA_D(R,X,Y,Z)		_FP_FMA(D,1,2,R,X,Y,Z)
 
 /* The implementation of _FP_MUL_D and _FP_DIV_D should be chosen by
    the target machine.  */
@@ -261,5 +270,7 @@ union _FP_UNION_D
 
 #define _FP_FRAC_HIGH_D(X)	_FP_FRAC_HIGH_1(X)
 #define _FP_FRAC_HIGH_RAW_D(X)	_FP_FRAC_HIGH_1(X)
+
+#define _FP_FRAC_HIGH_DW_D(X)	_FP_FRAC_HIGH_2(X)
 
 #endif /* W_TYPE_SIZE < 64 */

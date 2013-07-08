@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2009, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This file contains a bit of information about the stack allocation
    of the processor.  */
@@ -35,10 +34,10 @@
    for which they need to act as barriers as well, hence the additional
    (unnecessary) parameters.  */
 #define stackinfo_get_sp() \
-  ({ void *p__; asm volatile ("mov %%rsp, %0" : "=r" (p__)); p__; })
+  ({ void *p__; asm volatile ("mov %%" RSP_LP ", %0" : "=r" (p__)); p__; })
 #define stackinfo_sub_sp(ptr) \
   ({ ptrdiff_t d__;						\
-     asm volatile ("sub %%rsp, %0" : "=r" (d__) : "0" (ptr));	\
+     asm volatile ("sub %%" RSP_LP " , %0" : "=r" (d__) : "0" (ptr));	\
      d__; })
 
 #endif	/* stackinfo.h */

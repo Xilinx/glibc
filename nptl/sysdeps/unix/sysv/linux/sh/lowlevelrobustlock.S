@@ -1,5 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005, 2006, 2007
-   Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
@@ -116,6 +114,8 @@ __lll_robust_lock_wait:
 
 3:
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	ret
 	 mov	r4, r0
 	cfi_endproc
@@ -138,6 +138,8 @@ __lll_robust_timedlock_wait:
 	mov.l	.L1g, r0
 	cmp/hs	r0, r1
 	bt	3f
+
+	cfi_remember_state
 
 	mov.l	r11, @-r15
 	cfi_adjust_cfa_offset(4)
@@ -232,12 +234,22 @@ __lll_robust_timedlock_wait:
 	mov	#0, r0
 
 6:
+	cfi_remember_state
 	add	#8, r15
+	cfi_adjust_cfa_offset (-8)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r9
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r9)
 	mov.l	@r15+, r10
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r10)
 	rts
 	 mov.l	@r15+, r11
+	/* Omit CFI for restore in delay slot.  */
+	cfi_restore_state
 
 7:
 	/* Check whether the time expired.  */
@@ -248,6 +260,8 @@ __lll_robust_timedlock_wait:
 8:
 	bra	6b
 	 mov	#ETIMEDOUT, r0
+
+	cfi_restore_state
 3:
 	rts
 	 mov	#EINVAL, r0

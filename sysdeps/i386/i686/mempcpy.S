@@ -1,7 +1,7 @@
 /* Copy memory block and return pointer to following byte.
    For Intel 80x86, x>=6.
    This file is part of the GNU C Library.
-   Copyright (C) 1998,1999,2000,2002,2004,2005 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,20 +15,17 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE		/* no space for saved regs */
+#define PARMS	4		/* no space for saved regs */
 #define RTN	PARMS
-#define DEST	RTN+RTN_SIZE
-#define SRC	DEST+PTR_SIZE
-#define LEN	SRC+PTR_SIZE
+#define DEST	RTN
+#define SRC	DEST+4
+#define LEN	SRC+4
 
 	.text
 #if defined PIC && !defined NOT_IN_libc
@@ -38,18 +35,15 @@ ENTRY_CHK (__mempcpy_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END_CHK (__mempcpy_chk)
 #endif
-ENTRY (BP_SYM (__mempcpy))
-	ENTER
+ENTRY (__mempcpy)
 
 	movl	LEN(%esp), %ecx
 	movl	%edi, %eax
 	cfi_register (edi, eax)
 	movl	DEST(%esp), %edi
-	CHECK_BOUNDS_BOTH_WIDE (%edi, DEST(%esp), %ecx)
 	movl	%esi, %edx
 	cfi_register (esi, edx)
 	movl	SRC(%esp), %esi
-	CHECK_BOUNDS_BOTH_WIDE (%esi, SRC(%esp), %ecx)
 	cld
 	shrl	$1, %ecx
 	jnc	1f
@@ -63,11 +57,9 @@ ENTRY (BP_SYM (__mempcpy))
 	cfi_restore (edi)
 	movl	%edx, %esi
 	cfi_restore (esi)
-	RETURN_BOUNDED_POINTER (DEST(%esp))
 
-	LEAVE
-	RET_PTR
-END (BP_SYM (__mempcpy))
-libc_hidden_def (BP_SYM (__mempcpy))
-weak_alias (BP_SYM (__mempcpy), BP_SYM (mempcpy))
+	ret
+END (__mempcpy)
+libc_hidden_def (__mempcpy)
+weak_alias (__mempcpy, mempcpy)
 libc_hidden_builtin_def (mempcpy)

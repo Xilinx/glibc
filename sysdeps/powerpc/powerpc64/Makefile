@@ -25,15 +25,21 @@ no-special-regs := $(sort $(foreach n,40 41 50 51 60 61 62 63 \
 				    -ffixed-v$n)) \
 		   -ffixed-vrsave -ffixed-vscr -mno-altivec -mno-vsx
 
+# Need to prevent gcc from using fprs in code used during dynamic linking.
+
+CFLAGS-dl-runtime.os = $(no-special-regs)
+CFLAGS-dl-lookup.os = $(no-special-regs)
+CFLAGS-dl-misc.os = $(no-special-regs)
+CFLAGS-rtld-mempcpy.os = $(no-special-regs)
+CFLAGS-rtld-memmove.os = $(no-special-regs)
+CFLAGS-rtld-memchr.os = $(no-special-regs)
+CFLAGS-rtld-strnlen.os = $(no-special-regs)
+
+CFLAGS-libc-start.c += -fno-asynchronous-unwind-tables
+
 ifeq ($(subdir),csu)
 sysdep_routines += hp-timing
 elide-routines.os += hp-timing
-ifneq ($(elf),no)
-# The initfini generation code doesn't work in the presence of -fPIC, so
-# we use -fpic instead which is much better.
-CFLAGS-initfini.s += -fpic -O1
-endif
-CFLAGS-libc-start.c += -fno-asynchronous-unwind-tables
 endif
 
 ifeq ($(subdir),elf)

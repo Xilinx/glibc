@@ -1,5 +1,4 @@
-/* Copyright (C) 1993, 1997-2002, 2003, 2004, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -31,12 +29,9 @@
 # define _POSIX_SOURCE
 #endif
 #include "libioP.h"
-#if _IO_HAVE_SYS_WAIT
 #include <signal.h>
 #include <unistd.h>
-#ifdef __STDC__
 #include <stdlib.h>
-#endif
 #ifdef _LIBC
 # include <unistd.h>
 # include <shlib-compat.h>
@@ -54,8 +49,6 @@
 #endif
 extern _IO_pid_t _IO_fork (void) __THROW;
 #endif
-
-#endif /* _IO_HAVE_SYS_WAIT */
 
 #ifndef _IO_dup2
 #ifdef _LIBC
@@ -118,7 +111,6 @@ _IO_new_proc_open (fp, command, mode)
      const char *command;
      const char *mode;
 {
-#if _IO_HAVE_SYS_WAIT
   int read_or_write;
   int parent_end, child_end;
   int pipe_fds[2];
@@ -277,9 +269,6 @@ _IO_new_proc_open (fp, command, mode)
 
   _IO_mask_flags (fp, read_or_write, _IO_NO_READS|_IO_NO_WRITES);
   return fp;
-#else /* !_IO_HAVE_SYS_WAIT */
-  return NULL;
-#endif
 }
 
 _IO_FILE *
@@ -303,7 +292,7 @@ _IO_new_popen (command, mode)
   new_f->fpx.file.file._lock = &new_f->lock;
 #endif
   fp = &new_f->fpx.file.file;
-  INTUSE(_IO_init) (fp, 0);
+  _IO_init (fp, 0);
   _IO_JUMPS (&new_f->fpx.file) = &_IO_proc_jumps;
   _IO_new_file_init (&new_f->fpx.file);
 #if  !_IO_UNIFIED_JUMPTABLES
@@ -311,7 +300,7 @@ _IO_new_popen (command, mode)
 #endif
   if (_IO_new_proc_open (fp, command, mode) != NULL)
     return (_IO_FILE *) &new_f->fpx.file;
-  INTUSE(_IO_un_link) (&new_f->fpx.file);
+  _IO_un_link (&new_f->fpx.file);
   free (new_f);
   return NULL;
 }
@@ -321,7 +310,6 @@ _IO_new_proc_close (fp)
      _IO_FILE *fp;
 {
   /* This is not name-space clean. FIXME! */
-#if _IO_HAVE_SYS_WAIT
   int wstatus;
   _IO_proc_file **ptr = &proc_file_chain;
   _IO_pid_t wait_pid;
@@ -360,9 +348,6 @@ _IO_new_proc_close (fp)
   if (wait_pid == -1)
     return -1;
   return wstatus;
-#else /* !_IO_HAVE_SYS_WAIT */
-  return -1;
-#endif
 }
 
 static const struct _IO_jump_t _IO_proc_jumps = {
@@ -370,20 +355,20 @@ static const struct _IO_jump_t _IO_proc_jumps = {
   JUMP_INIT(finish, _IO_new_file_finish),
   JUMP_INIT(overflow, _IO_new_file_overflow),
   JUMP_INIT(underflow, _IO_new_file_underflow),
-  JUMP_INIT(uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT(pbackfail, INTUSE(_IO_default_pbackfail)),
+  JUMP_INIT(uflow, _IO_default_uflow),
+  JUMP_INIT(pbackfail, _IO_default_pbackfail),
   JUMP_INIT(xsputn, _IO_new_file_xsputn),
-  JUMP_INIT(xsgetn, INTUSE(_IO_default_xsgetn)),
+  JUMP_INIT(xsgetn, _IO_default_xsgetn),
   JUMP_INIT(seekoff, _IO_new_file_seekoff),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, _IO_new_file_setbuf),
   JUMP_INIT(sync, _IO_new_file_sync),
-  JUMP_INIT(doallocate, INTUSE(_IO_file_doallocate)),
-  JUMP_INIT(read, INTUSE(_IO_file_read)),
+  JUMP_INIT(doallocate, _IO_file_doallocate),
+  JUMP_INIT(read, _IO_file_read),
   JUMP_INIT(write, _IO_new_file_write),
-  JUMP_INIT(seek, INTUSE(_IO_file_seek)),
+  JUMP_INIT(seek, _IO_file_seek),
   JUMP_INIT(close, _IO_new_proc_close),
-  JUMP_INIT(stat, INTUSE(_IO_file_stat)),
+  JUMP_INIT(stat, _IO_file_stat),
   JUMP_INIT(showmanyc, _IO_default_showmanyc),
   JUMP_INIT(imbue, _IO_default_imbue)
 };

@@ -1,5 +1,5 @@
 /* Optimized strlen implementation for PowerPC.
-   Copyright (C) 1997, 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* The algorithm here uses the following techniques:
 
@@ -73,7 +70,7 @@
 
 /* int [r3] strlen (char *s [r3])  */
 
-ENTRY (BP_SYM (strlen))
+ENTRY (strlen)
 
 #define rTMP1	r0
 #define rRTN	r3	/* incoming STR arg, outgoing result */
@@ -89,7 +86,6 @@ ENTRY (BP_SYM (strlen))
 #define rTMP3	r11
 #define rTMP4	r12
 
-	CHECK_BOUNDS_LOW (rRTN, rTMP1, rTMP2)
 
 	clrrwi	rSTR, rRTN, 2
 	lis	r7F7F, 0x7f7f
@@ -154,7 +150,6 @@ L(done0):
 	subf	rTMP1, rRTN, rSTR
 	srwi	rTMP3, rTMP3, 3
 	add	rRTN, rTMP1, rTMP3
-	/* GKM FIXME: check high bound.  */
 	blr
-END (BP_SYM (strlen))
+END (strlen)
 libc_hidden_builtin_def (strlen)

@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,94,95,96,97,2002 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <hurd.h>
@@ -23,8 +22,6 @@
 #include <hurd/socket.h>
 #include <sys/un.h>
 #include <hurd/ifsock.h>
-
-#undef __connect
 
 /* Open a connection on socket FD to peer at ADDR (which LEN bytes long).
    For connectionless socket types, just set the default address to send to
@@ -74,5 +71,5 @@ __connect (int fd, __CONST_SOCKADDR_ARG addrarg, socklen_t len)
   return err ? __hurd_dfail (fd, err) : 0;
 }
 
-INTDEF(__connect)
+libc_hidden_def (__connect)
 weak_alias (__connect, connect)

@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2000,2002,2003,2005,2006,2011 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for dirent portion of the library.
@@ -27,7 +26,6 @@ routines	:= opendir closedir readdir readdir_r rewinddir \
 		   getdents getdents64 dirfd readdir64 readdir64_r scandir64 \
 		   alphasort64 versionsort64 fdopendir \
 		   scandirat scandirat64
-distribute := dirstream.h
 
 tests	   := list tst-seekdir opendir-tst1 bug-readdir1 tst-fdopendir \
 	      tst-fdopendir2

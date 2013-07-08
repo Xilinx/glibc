@@ -1,6 +1,6 @@
 /* Copy SIZE bytes from SRC to DEST.
    For SPARC v7.
-   Copyright (C) 1996, 1999, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller <davem@caip.rutgers.edu>,
 		  Eddie C. Dost <ecd@skynet.be> and
@@ -17,9 +17,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -105,11 +104,17 @@
 	std	%t2, [%dst + offset + offset2 + 0x08];
 
 	.text
-	.align	4
+ENTRY(__mempcpy)
+	add		%o0, %o2, %g1
+	ba		101f
+	 st		%g1, [%sp + 64]
+END(__mempcpy)
 
+	.align	4
 ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
-	sub		%o0, %o1, %o4
 	st		%o0, [%sp + 64]
+101:
+	sub		%o0, %o1, %o4
 9:	andcc		%o4, 3, %o5
 0:	bne		86f
 	 cmp		%o2, 15
@@ -301,7 +306,7 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 	mov		32, %g2
 	be		4f
 	 sub		%g2, %g4, %g6
-	
+
 	blu		3f
 	 cmp		%g3, 0x8
 
@@ -534,7 +539,7 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 	add		%o1, 64, %o1
 	bne		41b
 	 add		%o0, 64, %o0
-	 
+
 	andcc		%o2, 0x30, %o3
 	be,a		1f
 	 srl		%g1, 16, %g2
@@ -579,7 +584,7 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 	add		%o1, 64, %o1
 	bne		42b
 	 add		%o0, 64, %o0
-	 
+
 	andcc		%o2, 0x30, %o3
 	be,a		1f
 	 srl		%g1, 16, %g2
@@ -593,7 +598,7 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 1:	sth		%g2, [%o0 - 2]
 
 	/* Fall through */
-	 
+
 88:	and		%o2, 0xe, %o3
 	mov		%o7, %g2
 	sll		%o3, 3, %o4
@@ -642,3 +647,7 @@ ENTRY(memcpy)		/* %o0=dst %o1=src %o2=len */
 END(memcpy)
 
 libc_hidden_builtin_def (memcpy)
+
+libc_hidden_def (__mempcpy)
+weak_alias (__mempcpy, mempcpy)
+libc_hidden_builtin_def (mempcpy)

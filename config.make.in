@@ -11,6 +11,7 @@ exec_prefix = @exec_prefix@
 datadir = @datadir@
 libdir = @libdir@
 slibdir = @libc_cv_slibdir@
+rtlddir = @libc_cv_rtlddir@
 localedir = @libc_cv_localedir@
 sysconfdir = @libc_cv_sysconfdir@
 libexecdir = @libexecdir@
@@ -18,6 +19,7 @@ rootsbindir = @libc_cv_rootsbindir@
 infodir = @infodir@
 includedir = @includedir@
 datarootdir = @datarootdir@
+localstatedir = @libc_cv_localstatedir@
 
 # Should we use and build ldconfig?
 use-ldconfig = @use_ldconfig@
@@ -34,32 +36,23 @@ config-sysdirs = @sysnames@
 cflags-cpu = @libc_cv_cc_submachine@
 asflags-cpu = @libc_cv_cc_submachine@
 
-config-cflags-sse4 = @libc_cv_cc_sse4@
-config-cflags-avx = @libc_cv_cc_avx@
-config-cflags-novzeroupper = @libc_cv_cc_novzeroupper@
-config-asflags-i686 = @libc_cv_as_i686@
+config-extra-cflags = @libc_extra_cflags@
+config-cflags-nofma = @libc_cv_cc_nofma@
 
 defines = @DEFINES@
+sysheaders = @sysheaders@
 sysincludes = @SYSINCLUDES@
 c++-sysincludes = @CXX_SYSINCLUDES@
 all-warnings = @all_warnings@
 
-elf = @elf@
 have-z-combreloc = @libc_cv_z_combreloc@
 have-z-execstack = @libc_cv_z_execstack@
-have-initfini = @libc_cv_have_initfini@
 have-Bgroup = @libc_cv_Bgroup@
-have-as-needed = @libc_cv_as_needed@
-libgcc_s_suffix = @libc_cv_libgcc_s_suffix@
-need-nopic-initfini = @nopic_initfini@
 with-fp = @with_fp@
 old-glibc-headers = @old_glibc_headers@
 unwind-find-fde = @libc_cv_gcc_unwind_find_fde@
-have-cpp-asm-debuginfo = @libc_cv_cpp_asm_debuginfo@
-enable-check-abi = @enable_check_abi@
 have-forced-unwind = @libc_cv_forced_unwind@
 have-fpie = @libc_cv_fpie@
-have-mfma4 = @libc_cv_cc_fma4@
 gnu89-inline-CFLAGS = @gnu89_inline@
 have-ssp = @libc_cv_ssp@
 have-selinux = @have_selinux@
@@ -89,18 +82,19 @@ sizeof-long-double = @sizeof_long_double@
 nss-crypt = @libc_cv_nss_crypt@
 
 # Configuration options.
-build-static = @static@
 build-shared = @shared@
 build-pic-default= @libc_cv_pic_default@
 build-profile = @profile@
-build-omitfp = @omitfp@
-build-bounded = @bounded@
 build-static-nss = @static_nss@
 add-ons = @add_ons@
 add-on-subdirs = @add_on_subdirs@
 sysdeps-add-ons = @sysdeps_add_ons@
 cross-compiling = @cross_compiling@
 force-install = @force_install@
+link-obsolete-rpc = @link_obsolete_rpc@
+build-nscd = @build_nscd@
+use-nscd = @use_nscd@
+build-hardcoded-path-in-tests= @hardcoded_path_in_tests@
 
 # Build tools.
 CC = @CC@
@@ -108,16 +102,17 @@ CXX = @CXX@
 BUILD_CC = @BUILD_CC@
 CFLAGS = @CFLAGS@
 CPPFLAGS-config = @CPPFLAGS@
+CPPUNDEFS = @CPPUNDEFS@
 ASFLAGS-config = @ASFLAGS_config@
 AR = @AR@
+NM = @NM@
 MAKEINFO = @MAKEINFO@
 AS = $(CC) -c
-MIG = @MIG@
-PWD_P = @PWD_P@
 BISON = @BISON@
 AUTOCONF = @AUTOCONF@
 OBJDUMP = @OBJDUMP@
 OBJCOPY = @OBJCOPY@
+READELF = @READELF@
 
 # Installation tools.
 INSTALL = @INSTALL@
@@ -136,5 +131,11 @@ PERL = @PERL@
 
 # Additional libraries.
 LIBGD = @LIBGD@
+
+# Package versions and bug reporting configuration.
+PKGVERSION = @PKGVERSION@
+PKGVERSION_TEXI = @PKGVERSION_TEXI@
+REPORT_BUGS_TO = @REPORT_BUGS_TO@
+REPORT_BUGS_TEXI = @REPORT_BUGS_TEXI@
 
 # More variables may be inserted below by configure.

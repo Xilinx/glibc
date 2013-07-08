@@ -1,5 +1,5 @@
 /* High-resolution sleep with the specified clock.
-   Copyright (C) 2000, 2001, 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -40,8 +39,8 @@
 /* This implementation assumes that these is only a `nanosleep' system
    call.  So we have to remap all other activities.  */
 int
-clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
-		 struct timespec *rem)
+__clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
+		   struct timespec *rem)
 {
   struct timespec now;
 
@@ -99,3 +98,4 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
 
   return __builtin_expect (nanosleep (req, rem), 0) ? errno : 0;
 }
+weak_alias (__clock_nanosleep, clock_nanosleep)

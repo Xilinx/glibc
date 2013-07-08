@@ -1,4 +1,4 @@
-/* Copyright (C) 1992, 1996, 1997, 2000, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_ENDIAN_H
 #define	_ENDIAN_H	1
@@ -56,7 +55,7 @@
 #endif
 
 
-#ifdef __USE_BSD
+#if defined __USE_BSD && !defined __ASSEMBLER__
 /* Conversion interfaces.  */
 # include <bits/byteswap.h>
 
@@ -75,6 +74,7 @@
 #  define htole64(x) (x)
 #  define be64toh(x) __bswap_64 (x)
 #  define le64toh(x) (x)
+
 # else
 #  define htobe16(x) (x)
 #  define htole16(x) __bswap_16 (x)

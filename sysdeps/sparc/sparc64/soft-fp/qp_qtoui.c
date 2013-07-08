@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Return (unsigned int)(*a)
-   Copyright (C) 1997, 1999, 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com) and
 		  Jakub Jelinek (jj@ultra.linux.cz).
@@ -16,9 +16,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define FP_ROUNDMODE FP_RND_ZERO
 #include "soft-fp.h"
@@ -34,8 +33,8 @@ unsigned int _Qp_qtoui(const long double *a)
   FP_UNPACK_RAW_QP(A, a);
   FP_TO_INT_Q(r, A, 32, -1);
   QP_HANDLE_EXCEPTIONS(
-  	int rx;
-  	__asm (
+	int rx;
+	__asm (
 "	ldd [%1], %%f52\n"
 "	ldd [%1+8], %%f54\n"
 "	fqtoi %%f52, %%f31\n"

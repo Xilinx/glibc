@@ -42,7 +42,7 @@
  *
  */
 
-/* Copyright 2001 by Stephen L. Moshier <moshier@na-net.ornl.gov> 
+/* Copyright 2001 by Stephen L. Moshier <moshier@na-net.ornl.gov>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -55,11 +55,11 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 
-#include "math_private.h"
+#include <math_private.h>
 
 /* arctan(k/8), k = 0, ..., 82 */
 static const long double atantbl[84] = {
@@ -167,6 +167,7 @@ static const long double
   q4 = 2.173623741810414221251136181221172551416E1L;
   /* q5 = 1.000000000000000000000000000000000000000E0 */
 
+static const long double huge = 1.0e4930L;
 
 long double
 __atanl (long double x)
@@ -191,6 +192,22 @@ __atanl (long double x)
 	return (x + x);
 
       /* Infinity. */
+      if (sign)
+	return -atantbl[83];
+      else
+	return atantbl[83];
+    }
+
+  if (k <= 0x3fc50000) /* |x| < 2**-58 */
+    {
+      /* Raise inexact. */
+      if (huge + x > 0.0)
+	return x;
+    }
+
+  if (k >= 0x40720000) /* |x| > 2**115 */
+    {
+      /* Saturate result to {-,+}pi/2 */
       if (sign)
 	return -atantbl[83];
       else

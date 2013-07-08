@@ -1,5 +1,5 @@
 /* Synchronize I/O in given file descriptor.
-   Copyright (C) 1997, 1999, 2002, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 /* We use an UGLY hack to prevent gcc from finding us cheating.  The
@@ -29,6 +28,7 @@
 /* And undo the hack.  */
 #undef aio_fsync64
 #include <errno.h>
+#include <fcntl.h>
 
 #include <aio_misc.h>
 
@@ -36,17 +36,14 @@
 int
 aio_fsync (int op, struct aiocb *aiocbp)
 {
-  int flags;
-
   if (op != O_DSYNC && __builtin_expect (op != O_SYNC, 0))
     {
       __set_errno (EINVAL);
       return -1;
     }
 
-  flags = fcntl (aiocbp->aio_fildes, F_GETFL);
-  if (__builtin_expect (flags == -1, 0)
-      || __builtin_expect ((flags & (O_RDWR | O_WRONLY)) == 0, 0))
+  /* Verify that this is an open file descriptor.  */
+  if (__glibc_unlikely (fcntl (aiocbp->aio_fildes, F_GETFL) == -1))
     {
       __set_errno (EBADF);
       return -1;

@@ -3,7 +3,7 @@
 @chapter String and Array Utilities
 
 Operations on strings (or arrays of characters) are an important part of
-many programs.  The GNU C library provides an extensive set of string
+many programs.  @Theglibc{} provides an extensive set of string
 utility functions, including functions for copying, concatenating,
 comparing, and searching strings.  Many of these functions can also
 operate on arbitrary regions of storage; for example, the @code{memcpy}
@@ -303,7 +303,8 @@ This function was introduced in @w{Amendment 1} to @w{ISO C90}.
 The @code{strnlen} function returns the length of the string @var{s} in
 bytes if this length is smaller than @var{maxlen} bytes.  Otherwise it
 returns @var{maxlen}.  Therefore this function is equivalent to
-@code{(strlen (@var{s}) < n ? strlen (@var{s}) : @var{maxlen})} but it
+@code{(strlen (@var{s}) < @var{maxlen} ? strlen (@var{s}) : @var{maxlen})}
+but it
 is more efficient and works even if the string @var{s} is not
 null-terminated.
 
@@ -478,7 +479,7 @@ The value returned by @code{memmove} is the value of @var{to}.
 
 @comment wchar.h
 @comment ISO
-@deftypefun {wchar_t *} wmemmove (wchar *@var{wto}, const wchar_t *@var{wfrom}, size_t @var{size})
+@deftypefun {wchar_t *} wmemmove (wchar_t *@var{wto}, const wchar_t *@var{wfrom}, size_t @var{size})
 @code{wmemmove} copies the @var{size} wide characters at @var{wfrom}
 into the @var{size} wide characters at @var{wto}, even if those two
 blocks of space overlap.  In the case of overlap, @code{memmove} is
@@ -668,7 +669,7 @@ the end of the string @var{wto} (that is, the address of the terminating
 null character @code{wto + strlen (wfrom)}) rather than the beginning.
 
 This function is not part of ISO or POSIX but was found useful while
-developing the GNU C Library itself.
+developing @theglibc{} itself.
 
 The behavior of @code{wcpcpy} is undefined if the strings overlap.
 
@@ -694,7 +695,7 @@ is implemented to be useful in contexts where this behavior of the
 @emph{first} written null character.
 
 This function is not part of ISO or POSIX but was found useful while
-developing the GNU C Library itself.
+developing @theglibc{} itself.
 
 Its behavior is undefined if the strings overlap.  The function is
 declared in @file{string.h}.
@@ -720,7 +721,7 @@ is implemented to be useful in contexts where this behavior of the
 @emph{first} written null character.
 
 This function is not part of ISO or POSIX but was found useful while
-developing the GNU C Library itself.
+developing @theglibc{} itself.
 
 Its behavior is undefined if the strings overlap.
 
@@ -823,7 +824,6 @@ to use @code{strcat}/@code{wcscat}.  A lot of time is wasted finding the
 end of the destination string so that the actual copying can start.
 This is a common example:
 
-@cindex __va_copy
 @cindex va_copy
 @smallexample
 /* @r{This function concatenates arbitrarily many strings.  The last}
@@ -837,9 +837,7 @@ concat (const char *str, @dots{})
   char *result;
 
   va_start (ap, str);
-  /* @r{Actually @code{va_copy}, but this is the name more gcc versions}
-     @r{understand.}  */
-  __va_copy (ap2, ap);
+  va_copy (ap2, ap);
 
   /* @r{Determine how much space we need.}  */
   for (s = str; s != NULL; s = va_arg (ap, const char *))
@@ -885,6 +883,7 @@ concat (const char *str, @dots{})
     @{
       char *newp;
       char *wp;
+      const char *s;
 
       va_start (ap, str);
 
@@ -1066,7 +1065,7 @@ If the contents of the two blocks are equal, @code{memcmp} returns
 @code{0}.
 @end deftypefun
 
-@comment wcjar.h
+@comment wchar.h
 @comment ISO
 @deftypefun int wmemcmp (const wchar_t *@var{a1}, const wchar_t *@var{a2}, size_t @var{size})
 The function @code{wmemcmp} compares the @var{size} wide characters
@@ -1172,7 +1171,7 @@ regards these characters as parts of the alphabet they do match.
 
 @comment wchar.h
 @comment GNU
-@deftypefun int wcscasecmp (const wchar_t *@var{ws1}, const wchar_T *@var{ws2})
+@deftypefun int wcscasecmp (const wchar_t *@var{ws1}, const wchar_t *@var{ws2})
 This function is like @code{wcscmp}, except that differences in case are
 ignored.  How uppercase and lowercase characters are related is
 determined by the currently selected locale.  In the standard @code{"C"}
@@ -1368,8 +1367,11 @@ efficiently using @code{strxfrm}.)
 /* @r{This is the comparison function used with @code{qsort}.} */
 
 int
-compare_elements (char **p1, char **p2)
+compare_elements (const void *v1, const void *v2)
 @{
+  char * const *p1 = v1;
+  char * const *p1 = v2;
+
   return strcoll (*p1, *p2);
 @}
 
@@ -1460,8 +1462,11 @@ struct sorter @{ char *input; char *transformed; @};
    @r{to sort an array of @code{struct sorter}.} */
 
 int
-compare_elements (struct sorter *p1, struct sorter *p2)
+compare_elements (const void *v1, const void *v2)
 @{
+  const struct sorter *p1 = v1;
+  const struct sorter *p2 = v2;
+
   return strcmp (p1->transformed, p2->transformed);
 @}
 
@@ -1647,9 +1652,12 @@ strchr ("hello, world", '?')
 
 The terminating null character is considered to be part of the string,
 so you can use this function get a pointer to the end of a string by
-specifying a null character as the value of the @var{c} argument.  It
-would be better (but less portable) to use @code{strchrnul} in this
-case, though.
+specifying a null character as the value of the @var{c} argument.
+
+When @code{strchr} returns a null pointer, it does not let you know
+the position of the terminating null character it has found.  If you
+need that information, it is better (but less portable) to use
+@code{strchrnul} than to search for it a second time.
 @end deftypefun
 
 @comment wchar.h
@@ -1708,7 +1716,7 @@ There is no restriction on the second parameter of @code{strchr} so it
 could very well also be the NUL character.  Those readers thinking very
 hard about this might now point out that the @code{strchr} function is
 more expensive than the @code{strlen} function since we have two abort
-criteria.  This is right.  But in the GNU C library the implementation of
+criteria.  This is right.  But in @theglibc{} the implementation of
 @code{strchr} is optimized in a special way so that @code{strchr}
 actually is faster.
 
@@ -1970,7 +1978,7 @@ separately.  The function is not locale-dependent.
 
 @comment wchar.h
 @comment ISO
-@deftypefun {wchar_t *} wcstok (wchar_t *@var{newstring}, const char *@var{delimiters})
+@deftypefun {wchar_t *} wcstok (wchar_t *@var{newstring}, const wchar_t *@var{delimiters})
 A string can be split into tokens by making a series of calls to the
 function @code{wcstok}.
 
@@ -2023,7 +2031,7 @@ when @code{strtok} or @code{wcstok} tries to modify it, your program
 will get a fatal signal for writing in read-only memory.  @xref{Program
 Error Signals}.  Even if the operation of @code{strtok} or @code{wcstok}
 would not require a modification of the string (e.g., if there is
-exactly one token) the string can (and in the GNU libc case will) be
+exactly one token) the string can (and in the @glibcadj{} case will) be
 modified.
 
 This is a special case of a general principle: if a part of a program
@@ -2060,7 +2068,7 @@ token = strtok (NULL, delimiters);    /* token => "punctuation" */
 token = strtok (NULL, delimiters);    /* token => NULL */
 @end smallexample
 
-The GNU C library contains two more functions for tokenizing a string
+@Theglibc{} contains two more functions for tokenizing a string
 which overcome the limitation of non-reentrancy.  They are only
 available for multibyte character strings.
 
@@ -2167,7 +2175,7 @@ on different systems.
 
 @comment libgen.h
 @comment XPG
-@deftypefun {char *} basename (char *@var{path})
+@deftypefun {char *} basename (const char *@var{path})
 This is the standard XPG defined @code{basename}. It is similar in
 spirit to the GNU version, but may modify the @var{path} by removing
 trailing '/' characters.  If the @var{path} is made up entirely of '/'
@@ -2216,8 +2224,8 @@ function can be found in @file{libgen.h}.
 The function below addresses the perennial programming quandary: ``How do
 I take good data in string form and painlessly turn it into garbage?''
 This is actually a fairly simple task for C programmers who do not use
-the GNU C library string functions, but for programs based on the GNU C
-library, the @code{strfry} function is the preferred method for
+@theglibc{} string functions, but for programs based on @theglibc{},
+the @code{strfry} function is the preferred method for
 destroying string data.
 
 The prototype for this function is in @file{string.h}.
@@ -2233,7 +2241,7 @@ input with the anagram in place.  For each position in the string,
 
 The return value of @code{strfry} is always @var{string}.
 
-@strong{Portability Note:}  This function is unique to the GNU C library.
+@strong{Portability Note:}  This function is unique to @theglibc{}.
 
 @end deftypefun
 
@@ -2274,7 +2282,7 @@ want to see it or doesn't want to see it very much.  To really prevent
 people from retrieving the information, use stronger encryption such as
 that described in @xref{Cryptographic Functions}.
 
-@strong{Portability Note:}  This function is unique to the GNU C library.
+@strong{Portability Note:}  This function is unique to @theglibc{}.
 
 @end deftypefun
 
@@ -2475,7 +2483,7 @@ Returns the number of elements in the argz vector @var{argz} and
 
 @comment argz.h
 @comment GNU
-@deftypefun {void} argz_extract (char *@var{argz}, size_t @var{argz_len}, char **@var{argv})
+@deftypefun {void} argz_extract (const char *@var{argz}, size_t @var{argz_len}, char **@var{argv})
 The @code{argz_extract} function converts the argz vector @var{argz} and
 @var{argz_len} into a Unix-style argument vector stored in @var{argv},
 by putting pointers to every element in @var{argz} into successive
@@ -2553,7 +2561,7 @@ is @code{0}, @var{entry} is added to the end instead (as if by
 
 @comment argz.h
 @comment GNU
-@deftypefun {char *} argz_next (char *@var{argz}, size_t @var{argz_len}, const char *@var{entry})
+@deftypefun {char *} argz_next (const char *@var{argz}, size_t @var{argz_len}, const char *@var{entry})
 The @code{argz_next} function provides a convenient way of iterating
 over the elements in the argz vector @var{argz}.  It returns a pointer
 to the next element in @var{argz} after the element @var{entry}, or

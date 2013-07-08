@@ -1,7 +1,7 @@
 /*
  * UFC-crypt: ultra fast crypt(3) implementation
  *
- * Copyright (C) 1991, 1992, 1993, 1996 Free Software Foundation, Inc.
+ * Copyright (C) 1991-2013 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,8 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * see <http://www.gnu.org/licenses/>.
  *
  * @(#)crypt.c	2.25 12/20/96
  *
@@ -89,8 +88,8 @@ _ufc_doit_r(itr, __data, res)
 {
   int i;
   long64 l, r, s, *k;
-  register long64 *sb01 = (long64*)__data->sb0;
-  register long64 *sb23 = (long64*)__data->sb2;
+  long64 *sb01 = (long64*)__data->sb0;
+  long64 *sb23 = (long64*)__data->sb2;
 
   l = (((long64)res[0]) << 32) | ((long64)res[1]);
   r = (((long64)res[2]) << 32) | ((long64)res[3]);

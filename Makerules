@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2010, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Common rules for making the GNU C library.  This file is included
@@ -218,14 +217,9 @@ endif
 # later directory would be chosen over a .c file in an earlier directory,
 # which does not preserve the desired sysdeps ordering behavior.
 
-# System-dependent makefiles can put in `inhibit-sysdep-asm' wildcard
-# patterns matching sysdep directories whose assembly source files should
-# be suppressed.
-ifdef inhibit-sysdep-asm
-define check-inhibit-asm
-case $$sysdir in $(subst $(empty) ,|,$(inhibit-sysdep-asm))) asm= ;; esac;
-endef
-endif
+# System-dependent makefiles can put in `inhibit-sysdep-asm' regexps
+# matching sysdep directories whose assembly source files should be
+# suppressed.
 
 -include $(common-objpfx)sysd-rules
 ifneq ($(sysd-rules-sysdirs),$(config-sysdirs))
@@ -234,34 +228,16 @@ ifneq ($(sysd-rules-sysdirs),$(config-sysdirs))
 sysd-rules-force = FORCE
 FORCE:
 endif
-$(common-objpfx)sysd-rules: $(common-objpfx)config.make $(..)Makerules \
+$(common-objpfx)sysd-rules: $(..)scripts/sysd-rules.awk \
+			    $(common-objpfx)config.make $(..)Makerules \
 			    $(sysdep-makefiles) $(sysdep-makeconfigs) \
 			    $(sysd-rules-force)
 	-@rm -f $@T
-	(echo 'sysd-rules-sysdirs := $(config-sysdirs)';		      \
-	 for dir in $(config-sysdirs); do				      \
-	   case "$$dir" in						      \
-	   /*) ;;							      \
-	   *) dir="\$$(..)$$dir" ;;					      \
-	   esac;							      \
-	   asm='.S .s';							      \
-	   $(check-inhibit-asm)						      \
-	   for o in $(all-object-suffixes); do				      \
-	     set $(subst :, ,$(sysd-rules-patterns));			      \
-	     while [ $$# -ge 2 ]; do					      \
-	       t=$$1; shift; 						      \
-	       d=$$1; shift;						      \
-	       v=$${t%%%}; [ x"$$v" = x ] || v="\$$($${v}CPPFLAGS)";	      \
-	       for s in $$asm .c; do					      \
-		 echo "\$$(objpfx)$$t$$o: $$dir/$$d$$s \$$(before-compile)";  \
-		 echo "	\$$(compile-command$$s) $$v";			      \
-	       done;							      \
-	     done;							      \
-	   done;							      \
-	   echo "\$$(inst_includedir)/%.h: $$dir/%.h \$$(+force)";	      \
-	   echo "	\$$(do-install)"; 				      \
-	 done;								      \
-	 echo 'sysd-rules-done = t') > $@T
+	LC_ALL=C $(AWK) -f $< > $@T \
+			-v all_object_suffixes='$(all-object-suffixes)' \
+			-v inhibit_sysdep_asm='$(inhibit-sysdep-asm)' \
+			-v sysd_rules_patterns='$(sysd-rules-patterns)' \
+			-v config_sysdirs='$(config-sysdirs)'
 	mv -f $@T $@
 
 ifndef sysd-rules-done
@@ -271,12 +247,6 @@ endif
 
 define o-iterator-doit
 $(objpfx)%$o: %.S $(before-compile); $$(compile-command.S)
-endef
-object-suffixes-left := $(all-object-suffixes)
-include $(o-iterator)
-
-define o-iterator-doit
-$(objpfx)%$o: %.s $(before-compile); $$(compile-command.s)
 endef
 object-suffixes-left := $(all-object-suffixes)
 include $(o-iterator)
@@ -300,12 +270,6 @@ ifdef objpfx
 # Generated source files will end up there.
 define o-iterator-doit
 $(objpfx)%$o: $(objpfx)%.S $(before-compile); $$(compile-command.S)
-endef
-object-suffixes-left := $(all-object-suffixes)
-include $(o-iterator)
-
-define o-iterator-doit
-$(objpfx)%$o: $(objpfx)%.s $(before-compile); $$(compile-command.s)
 endef
 object-suffixes-left := $(all-object-suffixes)
 include $(o-iterator)
@@ -366,23 +330,30 @@ endif # sysd-sorted-done
 # Generate .dT files as we compile.
 compile-mkdep-flags = -MD -MP -MF $@.dt -MT $@
 compile-command.S = $(compile.S) $(OUTPUT_OPTION) $(compile-mkdep-flags)
-compile-command.s = $(COMPILE.s) $< $(OUTPUT_OPTION) $(compile-mkdep-flags)
 compile-command.c = $(compile.c) $(OUTPUT_OPTION) $(compile-mkdep-flags)
 compile-command.cc = $(compile.cc) $(OUTPUT_OPTION) $(compile-mkdep-flags)
+
+# Like compile-mkdep-flags, but for use with $(BUILD_CC).  We don't want to
+# track system includes here, they may spuriously trigger an install rule,
+# and would cause the check-local-headers test to fail.
+native-compile-mkdep-flags = -MMD -MP -MF $@.dt -MT $@
 
 # GCC can grok options after the file name, and it looks nicer that way.
 compile.c = $(CC) $< -c $(CFLAGS) $(CPPFLAGS)
 compile.cc = $(CXX) $< -c $(CXXFLAGS) $(CPPFLAGS)
 compile.S = $(CC) $< -c $(CPPFLAGS) $(S-CPPFLAGS) \
 		  $(ASFLAGS) $(ASFLAGS-$(suffix $@))
+COMPILE.c = $(CC) -c $(CFLAGS) $(CPPFLAGS)
 COMPILE.S = $(CC) -c $(CPPFLAGS) $(S-CPPFLAGS) \
 		  $(ASFLAGS) $(ASFLAGS-$(suffix $@))
-COMPILE.s = $(filter-out -pipe,$(CC)) -c $(ASFLAGS)
 
 # We need this for the output to go in the right place.  It will default to
 # empty if make was configured to work with a cc that can't grok -c and -o
 # together.  You can't compile the C library with such a compiler.
 OUTPUT_OPTION = -o $@
+
+# This is the end of the pipeline for compiling generated C code.
+compile-stdin.c = $(COMPILE.c) -o $@ -x c - $(compile-mkdep-flags)
 
 # We need the $(CFLAGS) to be in there to have the right predefines during
 # the dependency run for C sources.  But having it for assembly sources can
@@ -408,27 +379,22 @@ endif
 
 # Modify the list of routines we build for different targets
 
-ifeq (yesyes,$(build-shared)$(elf))
+ifeq (yes,$(build-shared))
 ifndef libc.so-version
 # Undefine this because it can't work when we libc.so is unversioned.
 static-only-routines =
 endif
 endif
 
-# Bounded pointer thunks are only built for *.ob
-elide-bp-thunks = $(addprefix $(bppfx),$(bp-thunks))
-
 elide-routines.oS += $(filter-out $(static-only-routines),\
-				  $(routines) $(aux) $(sysdep_routines)) \
-		     $(elide-bp-thunks)
-elide-routines.os += $(static-only-routines) $(elide-bp-thunks)
+				  $(routines) $(aux) $(sysdep_routines))
+elide-routines.os += $(static-only-routines)
 
 # If we have versioned code we don't need the old versions in any of the
 # static libraries.
-elide-routines.o  += $(shared-only-routines) $(elide-bp-thunks)
-elide-routines.op += $(shared-only-routines) $(elide-bp-thunks)
-elide-routines.og += $(shared-only-routines) $(elide-bp-thunks)
-elide-routines.ob += $(shared-only-routines)
+elide-routines.o  += $(shared-only-routines)
+elide-routines.op += $(shared-only-routines)
+elide-routines.og += $(shared-only-routines)
 
 # Shared library building.
 
@@ -443,42 +409,44 @@ map-file = $(firstword $($(@F:.so=-map)) \
 load-map-file = $(map-file:%=-Wl,--version-script=%)
 endif
 
+# Compiler arguments to use to link a shared object with libc and
+# ld.so.  This is intended to be as similar as possible to a default
+# link with an installed libc.
+link-libc-args = -Wl,--start-group \
+		 $(libc-for-link) \
+		 $(common-objpfx)libc_nonshared.a \
+		 $(as-needed) $(elfobjdir)/ld.so $(no-as-needed) \
+		 -Wl,--end-group
+
+# The corresponding shared libc to use.  This may be modified for a
+# particular target.
+libc-for-link = $(common-objpfx)libc.so
+
+# The corresponding dependencies.  As these are used in dependencies,
+# not just commands, they cannot use target-specific variables so need
+# to name both possible libc.so objects.
+link-libc-deps = $(common-objpfx)libc.so $(common-objpfx)linkobj/libc.so \
+		 $(common-objpfx)libc_nonshared.a $(elfobjdir)/ld.so
+
 # Pattern rule to build a shared object from an archive of PIC objects.
 # This must come after the installation rules so Make doesn't try to
 # build shared libraries in place from the installed *_pic.a files.
 # $(LDLIBS-%.so) may contain -l switches to generate run-time dependencies
-# on other shared objects.
-lib%.so: lib%_pic.a $(+preinit) $(+postinit) $(+interp)
-ifneq (,$(findstring aix,$(config-os)))
-	(echo '#!'; \
-	 dump -g $< | sed '1,6d' | cut -f2 | sort | uniq) > $(<:a=exp)
-endif
-	$(build-shlib)
+# on other shared objects.  The linking with libc and ld.so is intended
+# to be as similar as possible to a default link with an installed libc.
+lib%.so: lib%_pic.a $(+preinit) $(+postinit) $(+interp) $(link-libc-deps)
+	$(build-shlib) $(link-libc-args)
 
-ifeq ($(elf),yes)
 define build-shlib-helper
 $(LINK.o) -shared $(static-libgcc) -Wl,-O1 $(sysdep-LDFLAGS) \
-	  $(if $($(@F)-no-z-defs)$(no-z-defs),,-Wl,-z,defs) $(config-LDFLAGS) \
+	  $(if $($(@F)-no-z-defs)$(no-z-defs),,-Wl,-z,defs) $(rtld-LDFLAGS) \
 	  $(extra-B-$(@F:lib%.so=%).so) -B$(csu-objpfx) \
 	  $(extra-B-$(@F:lib%.so=%).so) $(load-map-file) \
 	  -Wl,-soname=lib$(libprefix)$(@F:lib%.so=%).so$($(@F)-version) \
 	  $(LDFLAGS.so) $(LDFLAGS-$(@F:lib%.so=%).so) \
 	  -L$(subst :, -L,$(rpath-link)) -Wl,-rpath-link=$(rpath-link)
 endef
-else
-ifneq (,$(findstring aix,$(config-os)))
-define build-shlib-helper
-$(LINK.o) -Wl,-G,-bM:SRE,-bnoentry,-bE:$(<:a=exp) \
-	  $(sysdep-LDFLAGS) $(config-LDFLAGS) $(extra-B-$(@F:lib%.so=%).so) \
-	  $(extra-B-$(@F:lib%.so=%).so) $(load-map-file) \
-	  $(LDFLAGS.so) $(LDFLAGS-$(@F:lib%.so=%).so) \
-	  -L$(subst :, -L,$(rpath-link))
-endef
-else
-endif
-endif
 
-ifeq (yes,$(elf))
 ifeq (yes,$(use-default-link))
 # If the linker is good enough, we can let it use its default linker script.
 shlib-lds =
@@ -489,7 +457,7 @@ else
 $(common-objpfx)shlib.lds: $(common-objpfx)config.make $(..)Makerules
 	$(LINK.o) -shared -Wl,-O1 \
 		  -nostdlib -nostartfiles \
-		  $(sysdep-LDFLAGS) $(config-LDFLAGS) $(LDFLAGS.so) \
+		  $(sysdep-LDFLAGS) $(rtld-LDFLAGS) $(LDFLAGS.so) \
 		  -Wl,--verbose 2>&1 | \
 	  sed > $@T \
 	      -e '/^=========/,/^=========/!d;/^=========/d' \
@@ -527,74 +495,34 @@ define build-shlib
 $(build-shlib-helper) -o $@ $(shlib-lds-flags) \
 	  $(csu-objpfx)abi-note.o $(build-shlib-objlist)
 endef
-else
-ifneq (,$(findstring aix,$(config-os)))
-define build-shlib
-$(build-shlib-helper) \
-	-o $@ \
-	$(filter-out $(map-file) $(+preinit) $(+postinit),$^) \
-	$(no-whole-archive) $(LDLIBS-$(@F:lib%.so=%).so)
-endef
-define build-shlib
-$(build-shlib-helper) \
-	  $(build-shlib-objlist)
-endef
-endif
-endif
 
-ifneq (,$(findstring aix,$(config-os)))
 define build-module-helper
-$(LINK.o) -Wl,-G -Wl,-bM:SRE -Wl,-bnoentry -Wl,-bexpall \
-	  $(sysdep-LDFLAGS) $(config-LDFLAGS) \
-	  $(load-map-file) \
-	  $(LDFLAGS.so) $(LDFLAGS-$(@F:%.so=%).so) \
-	  -L$(subst :, -L,$(rpath-link)) -Wl,-L=$(rpath-link)
-endef
-else
-define build-module-helper
-$(LINK.o) -shared $(static-libgcc) $(sysdep-LDFLAGS) $(config-LDFLAGS) \
+$(LINK.o) -shared $(static-libgcc) $(sysdep-LDFLAGS) $(rtld-LDFLAGS) \
 	  $(if $($(@F)-no-z-defs)$(no-z-defs),,-Wl,-z,defs) \
 	  -B$(csu-objpfx) $(load-map-file) \
 	  $(LDFLAGS.so) $(LDFLAGS-$(@F:%.so=%).so) \
 	  -L$(subst :, -L,$(rpath-link)) -Wl,-rpath-link=$(rpath-link)
 endef
-endif
 
 # This macro is similar to build-shlib but it does not define a soname
 # and it does not depend on the destination name to start with `lib'.
-ifeq (yes,$(elf))
 # binutils only position loadable notes into the first page for binaries,
 # not for shared objects
 define build-module
 $(build-module-helper) -o $@ $(shlib-lds-flags) \
-	  $(csu-objpfx)abi-note.o $(build-module-objlist)
+	  $(csu-objpfx)abi-note.o $(build-module-objlist) $(link-libc-args)
 endef
 define build-module-asneeded
 $(build-module-helper) -o $@ $(shlib-lds-flags) \
 	  $(csu-objpfx)abi-note.o \
-	  -Wl,--as-needed $(build-module-objlist) -Wl,--no-as-needed
+	  -Wl,--as-needed $(build-module-objlist) -Wl,--no-as-needed \
+	  $(link-libc-args)
 endef
-else
-ifneq (,$(findstring aix,$(config-os)))
-define build-module
-$(build-module-helper) \
-	  -o $@ \
-	  $(filter-out $(map-file) $(+preinit) $(+postinit),$^) \
-	  $(no-whole-archive) $(LDLIBS-$(@F:%.so=%).so)
-endef
-else
-define build-module
-define build-module
-$(build-module-helper) \
-	  -o $@ \
-	  $(build-module-objlist)
-endef
-endif
-endif
 
 build-module-helper-objlist = \
 	$(patsubst %_pic.a,$(whole-archive) %_pic.a $(no-whole-archive),\
-		   $(filter-out %.lds $(map-file) $(+preinit) $(+postinit),$^))
+		   $(filter-out %.lds $(map-file) $(+preinit) $(+postinit) \
+				$(link-libc-deps),$^))
 
 build-module-objlist = $(build-module-helper-objlist) $(LDLIBS-$(@F:%.so=%).so)
 build-shlib-objlist = $(build-module-helper-objlist) \
@@ -617,7 +545,6 @@ endif
 # contains some of libc_pic.a already, which will prevent the COMMONs
 # from being allocated in libc.so, which introduces evil dependencies
 # between libc.so and ld.so, which can make it impossible to upgrade.
-ifeq ($(elf),yes)
 $(common-objpfx)libc_pic.os: $(common-objpfx)libc_pic.a
 	$(LINK.o) -nostdlib -nostartfiles -r -o $@ \
 	$(LDFLAGS-c_pic.os) -Wl,-d $(whole-archive) $^ -o $@
@@ -638,6 +565,9 @@ generated += libc_pic.opts libc_pic.os.clean
 libc_pic_clean := .clean
 endif
 
+# Do not filter ld.so out of libc.so link.
+$(common-objpfx)libc.so: link-libc-deps = # empty
+
 # Use our own special initializer and finalizer files for libc.so.
 $(common-objpfx)libc.so: $(elfobjdir)/soinit.os \
 			 $(common-objpfx)libc_pic.os$(libc_pic_clean) \
@@ -655,23 +585,6 @@ $(common-objpfx)libc.so$(libc.so-version): $(common-objpfx)libc.so
 common-generated += libc.so$(libc.so-version)
 endif
 endif
-else
-ifneq (,$(findstring aix,$(config-os)))
-$(common-objpfx)libc.so: $(common-objpfx)libc_pic.a
-	@rm -f $@
-	(echo '#!'; \
-	 dump -g $^ | sed '1,6d' | cut -f2 | sort | uniq) > $(^:a=exp)
-	sed '/__mulh/d;/__mull/d;/__divss/d;/__divus/d;/__quoss/d;/__quous/d' \
-	    /lib/syscalls.exp > $(common-objpfx)syscalls.exp
-	$(LINK.o) -G -bM:SRE -bnoentry -bE:$(^:a=exp) \
-		  -bE:$(common-objpfx)syscalls.exp \
-		  -bI:$(common-objpfx)syscalls.exp \
-		  -L$(common-objpfx) -o $@ $^
-# AIX runtime ld wants libc.so to be libc.a(shr.o) hardwired
-	cp $@ $(common-objpfx)shr.o
-	$(AR) $(ARFLAGS) $(common-objpfx)libc.a $(common-objpfx)shr.o
-endif
-endif
 
 # Figure out the source filenames in this directory.
 
@@ -685,11 +598,7 @@ headers := $(headers) $(sysdep_headers)
 
 # This is the list of all object files, gotten by
 # replacing every ".c" in `sources' with a ".o".
-# We also add bounded-pointer thunks, which are later
-# elided for all suffixes except for `.ob'.
-override objects := $(addprefix $(objpfx),$(sources:.c=.o) \
-		      $(patsubst %,$(bppfx)%.o,\
-			$(filter $(routines) $(sysdep_routines),$(bp-thunks))))
+override objects := $(addprefix $(objpfx),$(sources:.c=.o))
 
 
 # The makefile may define $(extra-libs) with `libfoo libbar'
@@ -714,13 +623,13 @@ include $(patsubst %,$(..)extra-modules.mk,$(modules-names))
 
 extra-modules-build := $(filter-out $(modules-names-nobuild),$(modules-names))
 $(extra-modules-build:%=$(objpfx)%.so): $(objpfx)%.so: \
-		$(objpfx)%.os $(shlib-lds) \
-		$(common-objpfx)libc.so $(common-objpfx)libc_nonshared.a
+		$(objpfx)%.os $(shlib-lds) $(link-libs-deps)
 	$(build-module)
 endif
 
 +depfiles := $(sources:.c=.d) \
 	     $(patsubst %.o,%.d,$(filter %.o,$(extra-objs:.os=.o))) \
+	     $(patsubst %.oS,%.d,$(filter %.oS,$(extra-objs))) \
 	     $(patsubst %.o,%.d,$(filter %.o,$(extra-test-objs:.os=.o))) \
 	     $(addsuffix .d,$(tests) $(xtests) $(test-srcs))
 ifeq ($(build-programs),yes)
@@ -924,11 +833,11 @@ install-lib.so-unversioned := $(filter-out $(versioned), $(install-lib.so))
 #	$(inst_libdir)/libfoo.so	-- for linking, symlink or ld script
 #	$(inst_slibdir)/libfoo.so.NN	-- for loading by SONAME, symlink
 #	$(inst_slibdir)/libfoo-X.Y.Z.so -- the real shared object file
-V := $(firstword $($(subdir)-version) $(version))
+lib-version := $(firstword $($(subdir)-version) $(version))
 install-lib-nosubdir: $(install-lib.so-unversioned:%=$(inst_slibdir)/%) \
 		      $(foreach L,$(install-lib.so-versioned),\
 				$(inst_libdir)/$L \
-				$(inst_slibdir)/$(L:.so=)-$V.so \
+				$(inst_slibdir)/$(L:.so=)-$(lib-version).so \
 				$(inst_slibdir)/$L$($L-version))
 
 # Install all the unversioned shared libraries.
@@ -956,7 +865,7 @@ ifeq (no,$(cross-compiling))
 symbolic-link-prog := $(common-objpfx)elf/sln
 symbolic-link-list := $(common-objpfx)elf/symlink.list
 define make-shlib-link
-echo $(<F) $@ >> $(symbolic-link-list)
+echo `$(..)scripts/rellns-sh -p $< $@` $@ >> $(symbolic-link-list)
 endef
 else # cross-compiling
 # We need a definition that can be used by elf/Makefile's install rules.
@@ -966,7 +875,7 @@ endif
 ifndef make-shlib-link
 define make-shlib-link
 rm -f $@
-$(LN_S) $(<F) $@
+$(LN_S) `$(..)scripts/rellns-sh -p $< $@` $@
 endef
 endif
 
@@ -992,7 +901,7 @@ $(common-objpfx)format.lds: $(..)scripts/output-format.sed \
 ifneq (unknown,$(output-format))
 	echo > $@.new 'OUTPUT_FORMAT($(output-format))'
 else
-	$(LINK.o) -shared $(sysdep-LDFLAGS) $(config-LDFLAGS) $(LDFLAGS.so) \
+	$(LINK.o) -shared $(sysdep-LDFLAGS) $(rtld-LDFLAGS) $(LDFLAGS.so) \
 		  -x c /dev/null -o $@.so -Wl,--verbose -v 2>&1 \
 	| sed -n -f $< > $@.new
 	test -s $@.new
@@ -1020,7 +929,7 @@ $(inst_libdir)/libc.so: $(common-objpfx)format.lds \
 	 cat $<; \
 	 echo 'GROUP ( $(slibdir)/libc.so$(libc.so-version)' \
 	      '$(libdir)/$(patsubst %,$(libtype.oS),$(libprefix)$(libc-name))'\
-	      ' AS_NEEDED (' $(slibdir)/$(rtld-installed-name) ') )' \
+	      ' AS_NEEDED (' $(rtlddir)/$(rtld-installed-name) ') )' \
 	) > $@.new
 	mv -f $@.new $@
 
@@ -1147,6 +1056,8 @@ ifdef headers
 # headers in the sysdeps tree.
 $(inst_includedir)/%.h: $(objpfx)%.h $(+force)
 	$(do-install)
+$(inst_includedir)/%.h: $(common-objpfx)%.h $(+force)
+	$(do-install)
 $(inst_includedir)/%.h: %.h $(+force)
 	$(do-install)
 $(inst_includedir)/%.h: $(..)include/%.h $(+force)
@@ -1191,25 +1102,16 @@ install-no-libc.a-nosubdir: install-bin-nosubdir install-bin-script-nosubdir \
 endif
 install: install-no-libc.a-nosubdir
 
-# Command to compile $< in $(objdir) using the native libraries.
+# Command to compile $< using the native libraries.
 define native-compile
 $(make-target-directory)
-$(patsubst %/,cd % &&,$(objpfx)) \
 $(BUILD_CC) $($(basename $(<F))-CFLAGS) $(ALL_BUILD_CFLAGS) \
-	    $(firstword $(filter /%,$< $(shell pwd)/$<)) -o $(@F)
-endef
-
-# Command to compile $< in $(common-objdir) using the native libraries.
-# We must cd to $(objdir) anyway so that $(..)config.h is valid.
-define common-objdir-compile
-$(patsubst %/,cd % &&,$(objpfx)) \
-$(BUILD_CC) $($(basename $(<F))-CFLAGS) $(ALL_BUILD_CFLAGS) \
-	    $(firstword $(filter /%,$< $(shell pwd)/$<)) -o $(..)$(@F)
+	    $< $(OUTPUT_OPTION) $(BUILD_LDFLAGS)
 endef
 
 # We always want to use configuration definitions.
-# Note that this is only used for commands running in $(objpfx).
-ALL_BUILD_CFLAGS = $(BUILD_CFLAGS) -include $(..)config.h
+ALL_BUILD_CFLAGS = $(BUILD_CFLAGS) $(BUILD_CPPFLAGS) -D_GNU_SOURCE \
+		   -DIS_IN_build -include $(common-objpfx)config.h
 
 # Support the GNU standard name for this target.
 .PHONY: check
@@ -1239,54 +1141,38 @@ ifeq ($(versioning),yes)
 	mv -f $@T $@
 
 %.dynsym: %.so
-	$(OBJDUMP) --dynamic-syms $< > $@T
+	LC_ALL=C $(OBJDUMP) --dynamic-syms $< > $@T
 	mv -f $@T $@
 
-check-abi-%: $(..)scripts/extract-abilist.awk $(common-objpfx)config.make \
-	     $(..)abilist/%.abilist $(objpfx)%.symlist
+vpath %.abilist $(+sysdep_dirs)
+
+# The .PRECIOUS rule prevents the files built by an implicit rule whose
+# target pattern is %.symlist from being considered "intermediate files"
+# and automatically removed.  We only want these files to be removed by
+# 'make clean', which is handled by the 'generated' variable.
+.PRECIOUS: %.symlist
+generated += $(extra-libs:=.symlist)
+
+check-abi-%: $(common-objpfx)config.make %.abilist $(objpfx)%.symlist
 	$(check-abi)
-check-abi-%: $(..)scripts/extract-abilist.awk $(common-objpfx)config.make \
-	     $(..)abilist/%.abilist $(common-objpfx)%.symlist
+check-abi-%: $(common-objpfx)config.make %.abilist $(common-objpfx)%.symlist
 	$(check-abi)
 define check-abi
-	LC_ALL=C \
-	$(AWK) -f $< -v 'config=$(check-abi-config)' \
-	       $(patsubst %,-v 'lastversion=%',$($*-abi-frozen)) \
-	       $(filter %.abilist,$^) \
-	| { diff -p -U 0 - $(filter %.symlist,$^) $(check-abi-warn) ; }
+	diff -p -U 0 $(filter %.abilist,$^) $(filter %.symlist,$^)
 endef
-ifeq ($(enable-check-abi),warn)
-check-abi-warn = || echo '*** WARNING: $*.so failed ABI check'
-endif
 
-ifeq ($(firstword $(sysd-sorted-done) f)$(firstword $(generating) f),tf)
-config-tls := thread
-check-abi-config := \
-  $(config-machine)-$(config-vendor)-$(config-os)/$(config-tls)
-endif
-
-update-abi-%: $(..)scripts/merge-abilist.awk $(..)abilist/%.abilist \
-	      $(objpfx)%.symlist
+update-abi-%: $(objpfx)%.symlist %.abilist
 	$(update-abi)
-update-abi-%: $(..)scripts/merge-abilist.awk $(..)abilist/%.abilist \
-	      $(common-objpfx)%.symlist
+update-abi-%: $(common-objpfx)%.symlist %.abilist
 	$(update-abi)
-ifndef update-abi-config
 define update-abi
-	@echo 'Run $(MAKE) $@ update-abi-config=REGEXP'; exit 2
-endef
-else
-define update-abi
-LC_ALL=C $(AWK) -v config='$(update-abi-config)' -f $^ \
-	 > $(..)abilist/$*.abilist.new
-@if cmp -s $(..)abilist/$*.abilist.new $(..)abilist/$*.abilist 2> /dev/null; \
- then rm -f $(..)abilist/$*.abilist.new; \
-      echo '+++ $(..)abilist/$*.abilist is unchanged'; \
- else mv -f $(..)abilist/$*.abilist.new $(..)abilist/$*.abilist; \
-      echo '*** Now check $*.abilist changes for correctness ***'; \
+@if cmp -s $^ 2> /dev/null; \
+ then \
+      echo '+++ $(filter %.abilist,$^) is unchanged'; \
+ else cp -f $^; \
+      echo '*** Now check $(filter %.abilist,$^) changes for correctness ***'; \
  fi
 endef
-endif
 
 .PHONY: update-abi check-abi
 update-abi: $(patsubst %.so,update-abi-%,$(install-lib.so-versioned))
@@ -1306,10 +1192,8 @@ common-generated += libc.symlist
 endif
 
 ifeq ($(build-shared),yes)
-ifneq ($(enable-check-abi),no)
 ifdef subdir
 tests: check-abi
-endif
 endif
 endif
 
@@ -1331,7 +1215,7 @@ $(stdio_lim:h=st): $(..)stdio-common/stdio_lim.h.in $(..)Rules \
 	  echo '#define _LIBC 1';					\
 	  echo '#include "$(..)misc/sys/uio.h"'; } |			\
 	$(CC) -E -dM -MD -MP -MF $(@:st=dT) -MT '$(@:st=h) $(@:st=d)' 	\
-	      $(+includes) -xc - -o $(@:st=hT)
+	      $(CPPUNDEFS) $(+includes) -xc - -o $(@:st=hT)
 	sed $(sed-remove-objpfx) $(sed-remove-dotdot)			\
 	    $(@:st=dT) > $(@:st=dt)
 	mv -f $(@:st=dt) $(@:st=d)
@@ -1381,9 +1265,7 @@ mostlyclean: common-mostlyclean
 
 do-tests-clean:
 	-rm -f $(addprefix $(objpfx),$(addsuffix .out,$(tests) $(xtests) \
-						      $(test-srcs)) \
-				     $(addsuffix -bp.out,$(tests) $(xtests) \
-							 $(test-srcs)))
+						      $(test-srcs)))
 
 # Remove the object files.
 common-mostlyclean:
@@ -1392,12 +1274,8 @@ common-mostlyclean:
 				     $(addsuffix .o,$(tests) $(xtests) \
 						    $(test-srcs) $(others) \
 						    $(sysdep-others)) \
-				     $(addsuffix -bp,$(tests) $(xtests) \
-						     $(test-srcs)) \
 				     $(addsuffix .out,$(tests) $(xtests) \
-						      $(test-srcs)) \
-				     $(addsuffix -bp.out,$(tests) $(xtests) \
-							 $(test-srcs)))
+						      $(test-srcs)))
 	-rm -f $(addprefix $(objpfx),$(extra-objs) $(extra-test-objs) \
 				     $(install-lib) $(install-lib.so) \
 				     $(install-lib.so:%.so=%_pic.a))
@@ -1415,11 +1293,10 @@ common-clean: common-mostlyclean
 	-rm -f $(objpfx)*.d $(objpfx)*.dt
 	-rm -fr $(addprefix $(objpfx),$(generated-dirs))
 	-rm -f $(addprefix $(common-objpfx),$(common-generated))
+	-rm -f $(gen-as-const-headers:%.sym=$(common-objpfx)%.h)
 
 # Produce a file `stubs' which contains `#define __stub_FUNCTION'
-# for each function which is a stub.  We grovel over all the .d files
-# looking for references to <stub-tag.h>.  Then we grovel over each
-# referenced source file to see what stub function it defines.
+# for each function which is a stub.
 
 ifdef objpfx
 .PHONY: stubs # The parent Makefile calls this target.

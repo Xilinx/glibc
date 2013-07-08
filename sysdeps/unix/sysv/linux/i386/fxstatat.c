@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Ho hum, if fxstatat == fxstatat64 we must get rid of the prototype or gcc
    will complain since they don't strictly match.  */
@@ -30,18 +29,10 @@
 
 #include <sysdep.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 #include <kernel-features.h>
 
 #include <xstatconv.h>
-
-#ifdef __NR_stat64
-# if __ASSUME_STAT64_SYSCALL == 0
-/* The variable is shared between all wrappers around *stat64 calls.  */
-extern int __have_no_stat64;
-# endif
-#endif
 
 
 /* Get information about the file NAME relative to FD in ST.  */
@@ -107,62 +98,23 @@ __fxstatat (int vers, int fd, const char *file, struct stat *st, int flag)
       file = buf;
     }
 
-# if __ASSUME_STAT64_SYSCALL == 0
-  struct kernel_stat kst;
-# endif
   if (vers == _STAT_VER_KERNEL)
     {
       if (flag & AT_SYMLINK_NOFOLLOW)
-	result = INTERNAL_SYSCALL (lstat, err, 2, CHECK_STRING (file),
-				   CHECK_1 ((struct kernel_stat *) st));
+	result = INTERNAL_SYSCALL (lstat, err, 2, file,
+				   (struct kernel_stat *) st);
       else
-	result = INTERNAL_SYSCALL (stat, err, 2, CHECK_STRING (file),
-				   CHECK_1 ((struct kernel_stat *) st));
+	result = INTERNAL_SYSCALL (stat, err, 2, file,
+				   (struct kernel_stat *) st);
       goto out;
     }
 
-# if __ASSUME_STAT64_SYSCALL > 0
-
   if (flag & AT_SYMLINK_NOFOLLOW)
-    result = INTERNAL_SYSCALL (lstat64, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&st64));
+    result = INTERNAL_SYSCALL (lstat64, err, 2, file, &st64);
   else
-    result = INTERNAL_SYSCALL (stat64, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&st64));
+    result = INTERNAL_SYSCALL (stat64, err, 2, file, &st64);
   if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
     return __xstat32_conv (vers, &st64, st);
-# else
-#  if defined __NR_stat64
-  /* To support 32 bit UIDs, we have to use stat64.  The normal stat
-     call only returns 16 bit UIDs.  */
-  if (! __have_no_stat64)
-    {
-      if (flag & AT_SYMLINK_NOFOLLOW)
-	result = INTERNAL_SYSCALL (lstat64, err, 2, CHECK_STRING (file),
-				   __ptrvalue (&st64));
-      else
-	result = INTERNAL_SYSCALL (stat64, err, 2, CHECK_STRING (file),
-				   __ptrvalue (&st64));
-
-      if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
-	result = __xstat32_conv (vers, &st64, st);
-
-      if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1)
-	  || INTERNAL_SYSCALL_ERRNO (result, err) != ENOSYS)
-	goto out;
-
-      __have_no_stat64 = 1;
-    }
-#  endif
-  if (flag & AT_SYMLINK_NOFOLLOW)
-    result = INTERNAL_SYSCALL (lstat, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&kst));
-  else
-    result = INTERNAL_SYSCALL (stat, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&kst));
-  if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
-    return __xstat_conv (vers, &kst, st);
-# endif  /* __ASSUME_STAT64_SYSCALL  */
 
  out:
   if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (result, err), 0))

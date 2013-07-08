@@ -1,5 +1,5 @@
 /* libc-internal interface for mutex locks.  Stub version.
-   Copyright (C) 1996,97,99,2000-2002,2003 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _BITS_LIBC_LOCK_H
 #define _BITS_LIBC_LOCK_H 1
@@ -45,11 +44,11 @@
 /* Initialize the named lock variable, leaving it in a consistent, unlocked
    state.  */
 #define __libc_lock_init(NAME)
+#define __rtld_lock_initialize(NAME)
 #define __libc_rwlock_init(NAME)
 
 /* Same as last but this time we initialize a recursive mutex.  */
 #define __libc_lock_init_recursive(NAME)
-#define __rtld_lock_init_recursive(NAME)
 
 /* Finalize the named lock variable, which must be locked.  It cannot be
    used again until __libc_lock_init is called again on it.  This must be
@@ -98,6 +97,9 @@
     }									      \
   } while (0)
 
+/* Get once control variable.  */
+#define __libc_once_get(ONCE_CONTROL) \
+  ((ONCE_CONTROL) == 1)
 
 /* Start a critical region with a cleanup function */
 #define __libc_cleanup_region_start(DOIT, FCT, ARG)			    \
@@ -127,12 +129,12 @@
 typedef int __libc_key_t;
 
 /* Create key for thread specific data.  */
-#define __libc_key_create(KEY,DEST) -1
+#define __libc_key_create(KEY,DEST)	((void) (KEY), (void) (DEST), -1)
 
 /* Set thread-specific data associated with KEY to VAL.  */
-#define __libc_setspecific(KEY,VAL) ((void)0)
+#define __libc_setspecific(KEY,VAL)	((void) (KEY), (void) (VAL))
 
 /* Get thread-specific data associated with KEY.  */
-#define __libc_getspecific(KEY) 0
+#define __libc_getspecific(KEY)		((void) (KEY), (void *) 0)
 
 #endif	/* bits/libc-lock.h */

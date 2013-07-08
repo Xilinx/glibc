@@ -1,5 +1,5 @@
 /* Shift a limb left, low level routine.
-   Copyright (C) 1996, 1997, 1999, 2000, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,24 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* mp_limb_t mpn_lshift (mp_ptr wp, mp_srcptr up, mp_size_t usize,
-  			 unsigned int cnt)  */
+			 unsigned int cnt)  */
 
-EALIGN (BP_SYM (__mpn_lshift), 3, 0)
+EALIGN (__mpn_lshift, 3, 0)
 
-#if __BOUNDED_POINTERS__
-	slwi r10,r5,2		/* convert limbs to bytes */
-	CHECK_BOUNDS_BOTH_WIDE (r3, r8, r9, r10)
-	CHECK_BOUNDS_BOTH_WIDE (r4, r8, r9, r10)
-#endif
 	mtctr	r5		# copy size into CTR
 	cmplwi	cr0,r5,16	# is size < 16
 	slwi	r0,r5,2
@@ -130,4 +122,4 @@ L(n):	lwzu	r10,-4(r4);						\
 	DO_LSHIFT(30)
 	DO_LSHIFT(31)
 
-END (BP_SYM (__mpn_lshift))
+END (__mpn_lshift)

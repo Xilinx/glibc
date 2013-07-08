@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# Copyright (C) 1999, 2001 Free Software Foundation, Inc.
+# Copyright (C) 1999-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Andreas Jaeger <aj@suse.de>, 1999.
 
@@ -14,9 +14,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 # Information about tests are stored in: %results
 # $results{$test}{"type"} is the result type, e.g. normal or complex.
@@ -78,7 +77,9 @@ use vars qw (%results @all_floats %suffices @all_functions);
     "remainder", "remquo", "rint", "round", "scalb", "scalbn", "scalbln",
     "sin", "sincos", "sinh", "sqrt", "tan", "tanh", "tgamma",
     "trunc", "y0", "y1", "yn" );
-# "fpclassify", "isfinite", "isnormal", "signbit" are not tabulated
+# fpclassify, isnormal, isfinite, isinf, isnan, issignaling, signbit,
+# isgreater, isgreaterequal, isless, islessequal, islessgreater, isunordered
+# are not tabulated.
 
 if ($#ARGV == 0) {
   $sources = $ARGV[0];
@@ -234,6 +235,6 @@ sub by_platforms {
 
   $pa = $pplatforms{$a} ? $pplatforms{$a} : $a;
   $pb = $pplatforms{$b} ? $pplatforms{$b} : $b;
-  
+
   return $pa cmp $pb;
 }

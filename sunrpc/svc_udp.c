@@ -3,6 +3,23 @@
  * Server side for UDP/IP based RPC.  (Does some caching in the hopes of
  * achieving execute-at-most-once semantics.)
  *
+ * Copyright (C) 2012-2013 Free Software Foundation, Inc.
+ * This file is part of the GNU C Library.
+ *
+ * The GNU C Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * The GNU C Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with the GNU C Library; if not, see
+ * <http://www.gnu.org/licenses/>.
+ *
  * Copyright (c) 2010, Oracle America, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -184,7 +201,7 @@ svcudp_create: xp_pad is too small for IP_PKTINFO\n"));
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (svcudp_bufcreate)
 #else
-libc_hidden_nolink (svcudp_bufcreate, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (svcudp_bufcreate, GLIBC_2_0)
 #endif
 
 SVCXPRT *
@@ -196,7 +213,7 @@ svcudp_create (sock)
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (svcudp_create)
 #else
-libc_hidden_nolink (svcudp_create, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (svcudp_create, GLIBC_2_0)
 #endif
 
 static enum xprt_stat
@@ -277,8 +294,12 @@ again:
 		       (int) su->su_iosz, 0,
 		       (struct sockaddr *) &(xprt->xp_raddr), &len);
   xprt->xp_addrlen = len;
-  if (rlen == -1 && errno == EINTR)
-    goto again;
+  if (rlen == -1)
+    {
+      if (errno == EINTR)
+	goto again;
+      __svc_accept_failed ();
+    }
   if (rlen < 16)		/* < 4 32-bit ints? */
     return FALSE;
   xdrs->x_op = XDR_DECODE;
@@ -500,7 +521,7 @@ svcudp_enablecache (SVCXPRT *transp, u_long size)
   su->su_cache = (char *) uc;
   return 1;
 }
-libc_hidden_nolink (svcudp_enablecache, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (svcudp_enablecache, GLIBC_2_0)
 
 
 /*

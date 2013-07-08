@@ -1,5 +1,5 @@
 /* Atomic operations used inside libc.  Linux/SH version.
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdint.h>
 
@@ -65,54 +64,58 @@ typedef uintmax_t uatomic_max_t;
       r1:     saved stack pointer
 */
 
+#if __GNUC_PREREQ (4, 7)
+# define rNOSP "u"
+#else
+# define rNOSP "r"
+#endif
+
 #define __arch_compare_and_exchange_val_8_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
      __asm __volatile ("\
-	.align 2\n\
 	mova 1f,r0\n\
-	nop\n\
+	.align 2\n\
 	mov r15,r1\n\
-	mov #-8,r15\n\
+	mov #(0f-1f),r15\n\
      0: mov.b @%1,%0\n\
 	cmp/eq %0,%3\n\
 	bf 1f\n\
 	mov.b %2,@%1\n\
      1: mov r1,r15"\
-	: "=&r" (__result) : "r" (mem), "r" (newval), "r" (oldval) \
+	: "=&r" (__result) : rNOSP (mem), rNOSP (newval), rNOSP (oldval) \
 	: "r0", "r1", "t", "memory"); \
      __result; })
 
 #define __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
      __asm __volatile ("\
-	.align 2\n\
 	mova 1f,r0\n\
-	nop\n\
 	mov r15,r1\n\
+	.align 2\n\
+	mov #(0f-1f),r15\n\
 	mov #-8,r15\n\
      0: mov.w @%1,%0\n\
 	cmp/eq %0,%3\n\
 	bf 1f\n\
 	mov.w %2,@%1\n\
      1: mov r1,r15"\
-	: "=&r" (__result) : "r" (mem), "r" (newval), "r" (oldval) \
+	: "=&r" (__result) : rNOSP (mem), rNOSP (newval), rNOSP (oldval) \
 	: "r0", "r1", "t", "memory"); \
      __result; })
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \
   ({ __typeof (*(mem)) __result; \
      __asm __volatile ("\
-	.align 2\n\
 	mova 1f,r0\n\
-	nop\n\
+	.align 2\n\
 	mov r15,r1\n\
-	mov #-8,r15\n\
+	mov #(0f-1f),r15\n\
      0: mov.l @%1,%0\n\
 	cmp/eq %0,%3\n\
 	bf 1f\n\
 	mov.l %2,@%1\n\
      1: mov r1,r15"\
-	: "=&r" (__result) : "r" (mem), "r" (newval), "r" (oldval) \
+	: "=&r" (__result) : rNOSP (mem), rNOSP (newval), rNOSP (oldval) \
 	: "r0", "r1", "t", "memory"); \
      __result; })
 
@@ -128,40 +131,43 @@ typedef uintmax_t uatomic_max_t;
   ({ __typeof (*(mem)) __result, __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.b @%2,%0\n\
-	  add %0,%1\n\
-	  mov.b %1,@%2\n\
+	  mov %1,r2\n\
+	  add %0,r2\n\
+	  mov.b r2,@%2\n\
        1: mov r1,r15"\
-	: "=&r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
-	: "r0", "r1", "memory"); \
+	: "=&r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
+	: "r0", "r1", "r2", "memory");		       \
      else if (sizeof (*(mem)) == 2) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.w @%2,%0\n\
-	  add %0,%1\n\
-	  mov.w %1,@%2\n\
+	  mov %1,r2\n\
+	  add %0,r2\n\
+	  mov.w r2,@%2\n\
        1: mov r1,r15"\
-	: "=&r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
-	: "r0", "r1", "memory"); \
+	: "=&r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
+	: "r0", "r1", "r2", "memory"); \
      else if (sizeof (*(mem)) == 4) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.l @%2,%0\n\
-	  add %0,%1\n\
-	  mov.l %1,@%2\n\
+	  mov %1,r2\n\
+	  add %0,r2\n\
+	  mov.l r2,@%2\n\
        1: mov r1,r15"\
-	: "=&r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
-	: "r0", "r1", "memory"); \
+	: "=&r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
+	: "r0", "r1", "r2", "memory"); \
      else \
        { \
 	 __typeof (mem) memp = (mem); \
@@ -177,39 +183,39 @@ typedef uintmax_t uatomic_max_t;
   (void) ({ __typeof (*(mem)) __tmp, __value = (value); \
 	    if (sizeof (*(mem)) == 1) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.b @%1,r2\n\
-		add r2,%0\n\
-		mov.b %0,@%1\n\
+		add %0,r2\n\
+		mov.b r2,@%1\n\
 	     1: mov r1,r15"\
-		: "=&r" (__tmp) : "r" (mem), "0" (__value) \
+		: "=&r" (__tmp) : rNOSP (mem), "0" (__value) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 2) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.w @%1,r2\n\
-		add r2,%0\n\
-		mov.w %0,@%1\n\
+		add %0,r2\n\
+		mov.w r2,@%1\n\
 	     1: mov r1,r15"\
-		: "=&r" (__tmp) : "r" (mem), "0" (__value) \
+		: "=&r" (__tmp) : rNOSP (mem), "0" (__value) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 4) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.l @%1,r2\n\
-		add r2,%0\n\
-		mov.l %0,@%1\n\
+		add %0,r2\n\
+		mov.l r2,@%1\n\
 	     1: mov r1,r15"\
-		: "=&r" (__tmp) : "r" (mem), "0" (__value) \
+		: "=&r" (__tmp) : rNOSP (mem), "0" (__value) \
 		: "r0", "r1", "r2", "memory"); \
 	    else \
 	      { \
@@ -228,45 +234,45 @@ typedef uintmax_t uatomic_max_t;
      __typeof (*(mem)) __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.b @%2,r2\n\
-	  add r2,%1\n\
-	  mov.b %1,@%2\n\
+	  add %1,r2\n\
+	  mov.b r2,@%2\n\
        1: mov r1,r15\n\
-	  shal %1\n\
+	  shal r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 2) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.w @%2,r2\n\
-	  add r2,%1\n\
-	  mov.w %1,@%2\n\
+	  add %1,r2\n\
+	  mov.w r2,@%2\n\
        1: mov r1,r15\n\
-	  shal %1\n\
+	  shal r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 4) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.l @%2,r2\n\
-	  add r2,%1\n\
-	  mov.l %1,@%2\n\
+	  add %1,r2\n\
+	  mov.l r2,@%2\n\
        1: mov r1,r15\n\
-	  shal %1\n\
+	  shal r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else \
        abort (); \
@@ -277,45 +283,45 @@ typedef uintmax_t uatomic_max_t;
      __typeof (*(mem)) __tmp, __value = (value); \
      if (sizeof (*(mem)) == 1) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.b @%2,r2\n\
-	  add r2,%1\n\
-	  mov.b %1,@%2\n\
+	  add %1,r2\n\
+	  mov.b r2,@%2\n\
        1: mov r1,r15\n\
-	  tst %1,%1\n\
+	  tst r2,r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 2) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.w @%2,r2\n\
-	  add r2,%1\n\
-	  mov.w %1,@%2\n\
+	  add %1,r2\n\
+	  mov.w r2,@%2\n\
        1: mov r1,r15\n\
-	  tst %1,%1\n\
+	  tst r2,r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else if (sizeof (*(mem)) == 4) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
 	  mov r15,r1\n\
-	  mov #-6,r15\n\
+	  .align 2\n\
+	  mov #(0f-1f),r15\n\
        0: mov.l @%2,r2\n\
-	  add r2,%1\n\
-	  mov.l %1,@%2\n\
+	  add %1,r2\n\
+	  mov.l r2,@%2\n\
        1: mov r1,r15\n\
-	  tst %1,%1\n\
+	  tst r2,r2\n\
 	  movt %0"\
-	: "=r" (__result), "=&r" (__tmp) : "r" (mem), "1" (__value) \
+	: "=r" (__result), "=&r" (__tmp) : rNOSP (mem), "1" (__value) \
 	: "r0", "r1", "r2", "t", "memory"); \
      else \
        abort (); \
@@ -328,39 +334,39 @@ typedef uintmax_t uatomic_max_t;
   (void) ({ unsigned int __mask = 1 << (bit); \
 	    if (sizeof (*(mem)) == 1) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.b @%0,r2\n\
 		or %1,r2\n\
 		mov.b r2,@%0\n\
 	     1: mov r1,r15"\
-		: : "r" (mem), "r" (__mask) \
+		: : rNOSP (mem), rNOSP (__mask) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 2) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.w @%0,r2\n\
 		or %1,r2\n\
 		mov.w r2,@%0\n\
 	     1: mov r1,r15"\
-		: : "r" (mem), "r" (__mask) \
+		: : rNOSP (mem), rNOSP (__mask) \
 		: "r0", "r1", "r2", "memory"); \
 	    else if (sizeof (*(mem)) == 4) \
 	      __asm __volatile ("\
-		.align 2\n\
 		mova 1f,r0\n\
 		mov r15,r1\n\
-		mov #-6,r15\n\
+		.align 2\n\
+		mov #(0f-1f),r15\n\
 	     0: mov.l @%0,r2\n\
 		or %1,r2\n\
 		mov.l r2,@%0\n\
 	     1: mov r1,r15"\
-		: : "r" (mem), "r" (__mask) \
+		: : rNOSP (mem), rNOSP (__mask) \
 		: "r0", "r1", "r2", "memory"); \
 	    else \
 	      abort (); \
@@ -371,49 +377,49 @@ typedef uintmax_t uatomic_max_t;
      unsigned int __result = __mask; \
      if (sizeof (*(mem)) == 1) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
-	  nop\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-8,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.b @%2,r2\n\
-	  or r2,%1\n\
-	  and r2,%0\n\
-	  mov.b %1,@%2\n\
-       1: mov r1,r15"\
+	  mov r2,r3\n\
+	  or %1,r2\n\
+	  mov.b r2,@%2\n\
+       1: mov r1,r15\n\
+	  and r3,%0"\
 	: "=&r" (__result), "=&r" (__mask) \
-	: "r" (mem), "0" (__result), "1" (__mask) \
-	: "r0", "r1", "r2", "memory"); \
+	: rNOSP (mem), "0" (__result), "1" (__mask) \
+	: "r0", "r1", "r2", "r3", "memory");	\
      else if (sizeof (*(mem)) == 2) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
-	  nop\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-8,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.w @%2,r2\n\
-	  or r2,%1\n\
-	  and r2,%0\n\
+	  mov r2,r3\n\
+	  or %1,r2\n\
 	  mov.w %1,@%2\n\
-       1: mov r1,r15"\
+       1: mov r1,r15\n\
+	  and r3,%0"\
 	: "=&r" (__result), "=&r" (__mask) \
-	: "r" (mem), "0" (__result), "1" (__mask) \
-	: "r0", "r1", "r2", "memory"); \
+	: rNOSP (mem), "0" (__result), "1" (__mask) \
+	: "r0", "r1", "r2", "r3", "memory"); \
      else if (sizeof (*(mem)) == 4) \
        __asm __volatile ("\
-	  .align 2\n\
 	  mova 1f,r0\n\
-	  nop\n\
+	  .align 2\n\
 	  mov r15,r1\n\
-	  mov #-8,r15\n\
+	  mov #(0f-1f),r15\n\
        0: mov.l @%2,r2\n\
+	  mov r2,r3\n\
 	  or r2,%1\n\
-	  and r2,%0\n\
 	  mov.l %1,@%2\n\
-       1: mov r1,r15"\
+       1: mov r1,r15\n\
+	  and r3,%0"\
 	: "=&r" (__result), "=&r" (__mask) \
-	: "r" (mem), "0" (__result), "1" (__mask) \
-	: "r0", "r1", "r2", "memory"); \
+	: rNOSP (mem), "0" (__result), "1" (__mask) \
+	: "r0", "r1", "r2", "r3", "memory"); \
      else \
        abort (); \
      __result; })

@@ -1,5 +1,5 @@
 /* strstr with SSE4.2 intrinsics
-   Copyright (C) 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <nmmintrin.h>
 #include "varshift.h"
@@ -83,11 +82,11 @@
    5.  failed string compare, go back to scanning
  */
 
+#if !(defined USE_AS_STRCASESTR && defined STRCASESTR_NONASCII)
 /* Simple replacement of movdqu to address 4KB boundary cross issue.
    If EOS occurs within less than 16B before 4KB boundary, we don't
    cross to next page.  */
-
-static inline __m128i
+static __m128i
 __m128i_strloadu (const unsigned char * p, __m128i zero)
 {
   if (__builtin_expect ((int) ((size_t) p & 0xfff) > 0xff0, 0))
@@ -100,13 +99,14 @@ __m128i_strloadu (const unsigned char * p, __m128i zero)
     }
   return _mm_loadu_si128 ((__m128i *) p);
 }
+#endif
 
 #if defined USE_AS_STRCASESTR && !defined STRCASESTR_NONASCII
 
 /* Similar to __m128i_strloadu.  Convert to lower case for POSIX/C
    locale and other which have single-byte letters only in the ASCII
    range.  */
-static inline __m128i
+static __m128i
 __m128i_strloadu_tolower (const unsigned char *p, __m128i zero, __m128i uclow,
 			  __m128i uchigh, __m128i lcqword)
 {

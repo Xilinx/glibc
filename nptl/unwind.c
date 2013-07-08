@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>
    and Richard Henderson <rth@redhat.com>, 2003.
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <setjmp.h>
 #include <stdlib.h>
@@ -69,7 +68,7 @@ unwind_stop (int version, _Unwind_Action actions,
 	 registered with the old method which would be unwound by this
 	 step.  */
       struct _pthread_cleanup_buffer *oldp = buf->priv.data.cleanup;
-      void *cfa = (void *) _Unwind_GetCFA (context);
+      void *cfa = (void *) (_Unwind_Ptr) _Unwind_GetCFA (context);
 
       if (curp != oldp && (do_longjump || FRAME_LEFT (cfa, curp, adj)))
 	{
@@ -125,7 +124,7 @@ __pthread_unwind (__pthread_unwind_buf_t *buf)
   /* This is not a catchable exception, so don't provide any details about
      the exception type.  We do need to initialize the field though.  */
   THREAD_SETMEM (self, exc.exception_class, 0);
-  THREAD_SETMEM (self, exc.exception_cleanup, unwind_cleanup);
+  THREAD_SETMEM (self, exc.exception_cleanup, &unwind_cleanup);
 
   _Unwind_ForcedUnwind (&self->exc, unwind_stop, ibuf);
 #else

@@ -1,5 +1,5 @@
 /* Test and measure strcmp and wcscmp functions.
-   Copyright (C) 1999, 2002, 2003, 2005, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
    Added wcscmp support by Liubov Dmitrieva <liubov.dmitrieva@gmail.com>, 2011.
@@ -15,11 +15,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#ifdef WIDE
+# define TEST_NAME "wcscmp"
+#else
+# define TEST_NAME "strcmp"
+#endif
 #include "test-string.h"
 
 #ifdef WIDE
@@ -81,6 +85,8 @@ stupid_wcscmp (const wchar_t *s1, const wchar_t *s2)
 }
 
 #else
+# include <limits.h>
+
 # define L(str) str
 # define STRCMP strcmp
 # define STRCPY strcpy
@@ -155,24 +161,6 @@ do_one_test (impl_t *impl,
 {
   if (check_result (impl, s1, s2, exp_result) < 0)
     return;
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, s1, s2);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
-    }
 }
 
 static void
@@ -208,27 +196,23 @@ do_test (size_t align1, size_t align2, size_t len, int max_char,
   s2[len + 1] = 24 + exp_result;
   s2[len - 1] -= exp_result;
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, alignment %2zd/%2zd:", len, align1, align2);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, s1, s2, exp_result);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void
 do_random_tests (void)
 {
-  for (size_t a = 0; a < CHARBYTES; a += CHARALIGN)
-    for (size_t b = 0; b < CHARBYTES; b += CHARALIGN)
-      {
-	UCHAR *p1 = (UCHAR *) (buf1 + page_size - 512 * CHARBYTES - a);
-	UCHAR *p2 = (UCHAR *) (buf2 + page_size - 512 * CHARBYTES - b);
+	UCHAR *p1 = (UCHAR *) (buf1 + page_size - 512 * CHARBYTES);
+	UCHAR *p2 = (UCHAR *) (buf2 + page_size - 512 * CHARBYTES);
 
 	for (size_t n = 0; n < ITERATIONS; n++)
 	  {
+	    /* for wcscmp case align1 and align2 mean here alignment
+	       in wchar_t symbols, it equal 4*k alignment in bytes, we
+	       don't check other alignments like for example
+	       p1 = (wchar_t *)(buf1 + 1)
+	       because it's wrong using of wchar_t type.  */
 	    size_t align1 = random () & 31;
 	    size_t align2;
 	    if (random () & 1)
@@ -274,7 +258,7 @@ do_random_tests (void)
 	      }
 
 	    int result = 0;
-	    MEMCPY ((CHAR *) (p2 + align2), (CHAR *) (p1 + align1), pos);
+	    MEMCPY (p2 + align2, p1 + align1, pos);
 	    if (pos < len1)
 	      {
 		if (p2[align2 + pos] == p1[align1 + pos])
@@ -302,13 +286,12 @@ do_random_tests (void)
 		    || (r < 0 && result >= 0)
 		    || (r > 0 && result <= 0))
 		  {
-		    error (0, 0, "Iteration %zd - wrong result in function %s (%zd, %zd, %zd, %zd, %zd) %d != %d, p1 %p p2 %p",
+		    error (0, 0, "Iteration %zd - wrong result in function %s (align in bytes: %zd, align in bytes: %zd, len1:  %zd, len2: %zd, pos: %zd) %d != %d, p1 %p p2 %p",
 			   n, impl->name, (size_t) (p1 + align1) & 63, (size_t) (p1 + align2) & 63, len1, len2, pos, r, result, p1, p2);
 		    ret = 1;
 		  }
 	      }
-	  }
-      }
+     }
 }
 
 static void

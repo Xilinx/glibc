@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-93,96,97,98,99,2001,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,23 +12,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_FNMATCH_H
 #define	_FNMATCH_H	1
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
-
-#ifndef const
-# if (defined __STDC__ && __STDC__) || defined __cplusplus
-#  define __const	const
-# else
-#  define __const
-# endif
 #endif
 
 /* We #undef these before defining them because some losing systems
@@ -62,8 +53,7 @@ extern "C" {
 
 /* Match NAME against the filename pattern PATTERN,
    returning zero if it matches, FNM_NOMATCH if not.  */
-extern int fnmatch (__const char *__pattern, __const char *__name,
-		    int __flags);
+extern int fnmatch (const char *__pattern, const char *__name, int __flags);
 
 #ifdef	__cplusplus
 }

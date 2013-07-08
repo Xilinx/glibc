@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <kernel-features.h>
@@ -133,11 +132,8 @@ __pthread_once:
 	.size	__pthread_once,.-__pthread_once
 
 
-	.globl	__pthread_once_internal
-__pthread_once_internal = __pthread_once
-
-	.globl	pthread_once
-pthread_once = __pthread_once
+hidden_def (__pthread_once)
+strong_alias (__pthread_once, pthread_once)
 
 
 	.type	clear_once_control,@function
@@ -189,9 +185,9 @@ clear_once_control:
 	.hidden	DW.ref.__gcc_personality_v0
 	.weak	DW.ref.__gcc_personality_v0
 	.section .gnu.linkonce.d.DW.ref.__gcc_personality_v0,"aw",@progbits
-	.align	8
+	.align	LP_SIZE
 	.type	DW.ref.__gcc_personality_v0, @object
-	.size	DW.ref.__gcc_personality_v0, 8
+	.size	DW.ref.__gcc_personality_v0, LP_SIZE
 DW.ref.__gcc_personality_v0:
-	.quad	__gcc_personality_v0
+	ASM_ADDR __gcc_personality_v0
 #endif

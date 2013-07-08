@@ -1,5 +1,5 @@
 /* sqrtf function.  PowerPC32 version.
-   Copyright (C) 2007, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 1 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -23,22 +22,22 @@
 /* float [fp1] sqrts (float x [fp1])
    Power4 (ISA V2.0) and above implement sqrt in hardware (not optional).
    The fsqrts instruction generates the correct value for all inputs and
-   sets the appropriate floating point exceptions.  Extented checking is
+   sets the appropriate floating point exceptions.  Extended checking is
    only needed to set errno (via __kernel_standard) if the input value
    is negative.
-   
+
    So compare the input value against the absolute value of itself.
    This will compare equal unless the value is negative (EDOM) or a NAN,
    in which case we branch to the extend wrapper.  If equal we can return
    the result directly.
-   
+
    This part of the function looks like a leaf routine,  so no need to
    stack a frame or execute prologue/epilogue code. It is safe to
    branch directly to w_sqrt as long as the input value (f1) is
    preserved. Putting the sqrt result into f2 (float parameter 2)
    allows passing both the input value and sqrt result into the extended
    wrapper so there is no need to recompute.
-   
+
    This tactic avoids the overhead of stacking a frame for the normal
    (non-error) case.  Until gcc supports prologue shrink-wrapping
    this is the best we can do.  */
@@ -63,11 +62,9 @@ EALIGN (__sqrtf, 5, 0)
 	cfi_offset(lr,20-16)
 	cfi_offset(r30,8-16)
 #ifdef SHARED
-	bcl	20,31,.LCF1
-.LCF1:
-	mflr	r30
-	addis	r30,r30,_GLOBAL_OFFSET_TABLE_-.LCF1@ha
-	addi	r30,r30,_GLOBAL_OFFSET_TABLE_-.LCF1@l
+	SETUP_GOT_ACCESS(r30,got_label)
+	addis	r30,r30,_GLOBAL_OFFSET_TABLE_-got_label@ha
+	addi	r30,r30,_GLOBAL_OFFSET_TABLE_-got_label@l
 	lwz	r9,_LIB_VERSION@got(30)
 	lwz	r0,0(r9)
 #else

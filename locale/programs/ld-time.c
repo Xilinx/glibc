@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 1995.
 
@@ -13,8 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -25,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <stdint.h>
 #include <sys/uio.h>
 
 #include <assert.h>
@@ -1040,7 +1040,7 @@ time_read (struct linereader *ldfile, struct localedef_t *result,
 		  time->cat[cnt] = "";					      \
 		  time->w##cat[cnt++] = empty_wstr;			      \
 		}							      \
-	      								      \
+									      \
 	      if (now->tok == tok_semicolon)				      \
 		{							      \
 		  now = lr_token (ldfile, charmap, result, repertoire,	      \

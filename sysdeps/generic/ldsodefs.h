@@ -1,5 +1,5 @@
 /* Run-time dynamic linker data structures for loaded ELF shared objects.
-   Copyright (C) 1995-2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_LDSODEFS_H
 #define	_LDSODEFS_H	1
@@ -27,6 +26,7 @@
 #define __need_NULL
 #include <stddef.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <elf.h>
 #include <dlfcn.h>
@@ -41,6 +41,12 @@
 #include <kernel-features.h>
 
 __BEGIN_DECLS
+
+#define VERSYMIDX(sym)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (sym))
+#define VALIDX(tag)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGNUM \
+			 + DT_EXTRANUM + DT_VALTAGIDX (tag))
+#define ADDRIDX(tag)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGNUM \
+			 + DT_EXTRANUM + DT_VALNUM + DT_ADDRTAGIDX (tag))
 
 /* We use this macro to refer to ELF types independent of the native wordsize.
    `ElfW(TYPE)' is used in place of `Elf32_TYPE' or `Elf64_TYPE'.  */
@@ -122,6 +128,11 @@ typedef struct link_map *lookup_t;
    | ((PROT_WRITE | PROT_EXEC) << (PF_W | PF_X) * 4)			      \
    | ((PROT_READ | PROT_WRITE | PROT_EXEC) << ((PF_R | PF_W | PF_X) * 4)))
 
+/* The filename itself, or the main program name, if available.  */
+#define DSO_FILENAME(name) ((name)[0] ? (name)				      \
+			    : (rtld_progname ?: "<main program>"))
+
+#define RTLD_PROGNAME (rtld_progname ?: "<program name unknown>")
 
 /* For the version handling we need an array with only names and their
    hash values.  */
@@ -183,30 +194,6 @@ enum allowmask
   };
 
 
-/* Type for list of auditing interfaces.  */
-struct La_i86_regs;
-struct La_i86_retval;
-struct La_x86_64_regs;
-struct La_x86_64_retval;
-struct La_ppc32_regs;
-struct La_ppc32_retval;
-struct La_ppc64_regs;
-struct La_ppc64_retval;
-struct La_sh_regs;
-struct La_sh_retval;
-struct La_alpha_regs;
-struct La_alpha_retval;
-struct La_s390_32_regs;
-struct La_s390_32_retval;
-struct La_s390_64_regs;
-struct La_s390_64_retval;
-struct La_ia64_regs;
-struct La_ia64_retval;
-struct La_sparc32_regs;
-struct La_sparc32_retval;
-struct La_sparc64_regs;
-struct La_sparc64_retval;
-
 struct audit_ifaces
 {
   void (*activity) (uintptr_t *, unsigned int);
@@ -222,105 +209,12 @@ struct audit_ifaces
   };
   union
   {
-    Elf32_Addr (*i86_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
-				    uintptr_t *, struct La_i86_regs *,
-				    unsigned int *, const char *name,
-				    long int *framesizep);
-    Elf64_Addr (*x86_64_gnu_pltenter) (Elf64_Sym *, unsigned int, uintptr_t *,
-				       uintptr_t *, struct La_x86_64_regs *,
-				       unsigned int *, const char *name,
-				       long int *framesizep);
-    Elf32_Addr (*ppc32_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
-				      uintptr_t *, struct La_ppc32_regs *,
-				      unsigned int *, const char *name,
-				      long int *framesizep);
-    Elf64_Addr (*ppc64_gnu_pltenter) (Elf64_Sym *, unsigned int, uintptr_t *,
-				      uintptr_t *, struct La_ppc64_regs *,
-				      unsigned int *, const char *name,
-				      long int *framesizep);
-    uintptr_t (*sh_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
-				  uintptr_t *, const struct La_sh_regs *,
-				  unsigned int *, const char *name,
-				  long int *framesizep);
-    Elf64_Addr (*alpha_gnu_pltenter) (Elf64_Sym *, unsigned int, uintptr_t *,
-				      uintptr_t *, struct La_alpha_regs *,
-				      unsigned int *, const char *name,
-				      long int *framesizep);
-    Elf32_Addr (*s390_32_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *,
-					uintptr_t *, struct La_s390_32_regs *,
-					unsigned int *, const char *name,
-					long int *framesizep);
-    Elf64_Addr (*s390_64_gnu_pltenter) (Elf64_Sym *, unsigned int, uintptr_t *,
-					uintptr_t *, struct La_s390_64_regs *,
-					unsigned int *, const char *name,
-					long int *framesizep);
-    Elf64_Addr (*ia64_gnu_pltenter) (Elf64_Sym *, unsigned int, uintptr_t *,
-				     uintptr_t *, struct La_ia64_regs *,
-				     unsigned int *, const char *name,
-				     long int *framesizep);
-    Elf32_Addr (*sparc32_gnu_pltenter) (Elf32_Sym *, unsigned int,
-					uintptr_t *, uintptr_t *,
-					const struct La_sparc32_regs *,
-					unsigned int *, const char *name,
-					long int *framesizep);
-    Elf64_Addr (*sparc64_gnu_pltenter) (Elf64_Sym *, unsigned int,
-					uintptr_t *, uintptr_t *,
-					const struct La_sparc64_regs *,
-					unsigned int *, const char *name,
-					long int *framesizep);
 #ifdef ARCH_PLTENTER_MEMBERS
     ARCH_PLTENTER_MEMBERS;
 #endif
   };
   union
   {
-    unsigned int (*i86_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *,
-				     uintptr_t *, const struct La_i86_regs *,
-				     struct La_i86_retval *, const char *);
-    unsigned int (*x86_64_gnu_pltexit) (Elf64_Sym *, unsigned int, uintptr_t *,
-					uintptr_t *,
-					const struct La_x86_64_regs *,
-					struct La_x86_64_retval *,
-					const char *);
-    unsigned int (*ppc32_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *,
-				       uintptr_t *,
-				       const struct La_ppc32_regs *,
-				       struct La_ppc32_retval *, const char *);
-    unsigned int (*ppc64_gnu_pltexit) (Elf64_Sym *, unsigned int, uintptr_t *,
-				       uintptr_t *,
-				       const struct La_ppc64_regs *,
-				       struct La_ppc64_retval *, const char *);
-    unsigned int (*sh_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *,
-				    uintptr_t *, const struct La_sh_regs *,
-				    struct La_sh_retval *, const char *);
-    unsigned int (*alpha_gnu_pltexit) (Elf64_Sym *, unsigned int, uintptr_t *,
-				       uintptr_t *,
-				       const struct La_alpha_regs *,
-				       struct La_alpha_retval *, const char *);
-    unsigned int (*s390_32_gnu_pltexit) (Elf32_Sym *, unsigned int,
-					 uintptr_t *, uintptr_t *,
-					 const struct La_s390_32_regs *,
-					 struct La_s390_32_retval *,
-					 const char *);
-    unsigned int (*s390_64_gnu_pltexit) (Elf64_Sym *, unsigned int,
-					 uintptr_t *, uintptr_t *,
-					 const struct La_s390_64_regs *,
-					 struct La_s390_64_retval *,
-					 const char *);
-    unsigned int (*ia64_gnu_pltexit) (Elf64_Sym *, unsigned int, uintptr_t *,
-				      uintptr_t *,
-				      const struct La_ia64_regs *,
-				      struct La_ia64_retval *, const char *);
-    unsigned int (*sparc32_gnu_pltexit) (Elf32_Sym *, unsigned int,
-					 uintptr_t *, uintptr_t *,
-					 const struct La_sparc32_regs *,
-					 struct La_sparc32_retval *,
-					 const char *);
-    unsigned int (*sparc64_gnu_pltexit) (Elf64_Sym *, unsigned int,
-					 uintptr_t *, uintptr_t *,
-					 const struct La_sparc32_regs *,
-					 struct La_sparc32_retval *,
-					 const char *);
 #ifdef ARCH_PLTEXIT_MEMBERS
     ARCH_PLTEXIT_MEMBERS;
 #endif
@@ -390,7 +284,7 @@ struct rtld_global
     /* Search table for unique objects.  */
     struct unique_sym_table
     {
-      __rtld_lock_recursive_t lock;
+      __rtld_lock_define_recursive (, lock)
       struct unique_sym
       {
 	uint32_t hashval;
@@ -570,6 +464,9 @@ struct rtld_global_ro
   /* Cached value of `getpagesize ()'.  */
   EXTERN size_t _dl_pagesize;
 
+  /* Do we read from ld.so.cache?  */
+  EXTERN int _dl_inhibit_cache;
+
   /* Copy of the content of `_dl_main_searchlist' at startup time.  */
   EXTERN struct r_scope_elem _dl_initial_searchlist;
 
@@ -603,6 +500,9 @@ struct rtld_global_ro
 
   /* Mask for important hardware capabilities we honour. */
   EXTERN uint64_t _dl_hwcap_mask;
+
+  /* Pointer to the auxv list supplied to the program at startup.  */
+  EXTERN ElfW(auxv_t) *_dl_auxv;
 
   /* Get architecture specific definitions.  */
 #define PROCINFO_DECL
@@ -644,7 +544,7 @@ struct rtld_global_ro
   EXTERN uintptr_t _dl_sysinfo;
 #endif
 
-#if defined NEED_DL_SYSINFO || defined NEED_DL_SYSINFO_DSO
+#ifdef NEED_DL_SYSINFO_DSO
   /* The vsyscall page is a virtual DSO pre-mapped by the kernel.
      This points to its ELF header.  */
   EXTERN const ElfW(Ehdr) *_dl_sysinfo_dso;
@@ -653,6 +553,10 @@ struct rtld_global_ro
      and this points to it.  */
   EXTERN struct link_map *_dl_sysinfo_map;
 #endif
+
+  /* Mask for more hardware capabilities that are available on some
+     platforms.  */
+  EXTERN uint64_t _dl_hwcap2;
 
 #ifdef SHARED
   /* We add a function table to _rtld_global which is then used to
@@ -707,6 +611,12 @@ extern const struct rtld_global_ro _rtld_global_ro
 #endif
 #undef EXTERN
 
+#ifndef SHARED
+/* dl-support.c defines these and initializes them early on.  */
+extern const ElfW(Phdr) *_dl_phdr;
+extern size_t _dl_phnum;
+#endif
+
 #ifdef IS_IN_rtld
 /* This is the initial value of GL(dl_error_catch_tsd).
    A non-TLS libpthread will change it.  */
@@ -724,7 +634,11 @@ rtld_hidden_proto (_dl_make_stack_executable)
    might use the variable which results in copy relocations on some
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
-extern void *__libc_stack_end attribute_relro;
+extern void *__libc_stack_end
+#ifndef LIBC_STACK_END_NOT_RELRO
+     attribute_relro
+#endif
+     ;
 rtld_hidden_proto (__libc_stack_end)
 
 /* Parameters passed to the dynamic linker.  */
@@ -735,6 +649,16 @@ extern char **_dl_argv
 #endif
      ;
 #ifdef IS_IN_rtld
+extern unsigned int _dl_skip_args attribute_hidden
+# ifndef DL_ARGV_NOT_RELRO
+     attribute_relro
+# endif
+     ;
+extern unsigned int _dl_skip_args_internal attribute_hidden
+# ifndef DL_ARGV_NOT_RELRO
+     attribute_relro
+# endif
+     ;
 extern char **_dl_argv_internal attribute_hidden
 # ifndef DL_ARGV_NOT_RELRO
      attribute_relro
@@ -1107,6 +1031,17 @@ extern int _dl_addr_inside_object (struct link_map *l, const ElfW(Addr) addr)
 
 /* Show show of an object.  */
 extern void _dl_show_scope (struct link_map *new, int from);
+
+extern struct link_map *_dl_find_dso_for_object (const ElfW(Addr) addr)
+     internal_function;
+rtld_hidden_proto (_dl_find_dso_for_object)
+
+/* Initialization which is normally done by the dynamic linker.  */
+extern void _dl_non_dynamic_init (void) internal_function;
+
+/* Used by static binaries to check the auxiliary vector.  */
+extern void _dl_aux_init (ElfW(auxv_t) *av) internal_function;
+
 
 __END_DECLS
 

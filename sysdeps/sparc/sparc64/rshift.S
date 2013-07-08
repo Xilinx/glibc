@@ -1,6 +1,6 @@
 /* SPARC v9 __mpn_rshift --
 
-   Copyright (C) 1996, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
 
    This file is part of the GNU MP Library.
 
@@ -15,9 +15,8 @@
    License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.  */
+   along with the GNU MP Library; see the file COPYING.LIB.  If not,
+   see <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 

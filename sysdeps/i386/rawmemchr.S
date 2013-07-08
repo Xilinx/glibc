@@ -1,6 +1,6 @@
 /* rawmemchr (str, ch) -- Return pointer to first occurrence of CH in STR.
    For Intel 80x86, x>=3.
-   Copyright (C) 1994-2000,2002,2005 Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>
    Optimised a little by Alan Modra <Alan@SPRI.Levels.UniSA.Edu.Au>
@@ -23,23 +23,19 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+4	/* space for 1 saved reg */
+#define PARMS	4+4	/* space for 1 saved reg */
 #define RTN	PARMS
-#define STR	RTN+RTN_SIZE
-#define CHR	STR+PTR_SIZE
+#define STR	RTN
+#define CHR	STR+4
 
 	.text
-ENTRY (BP_SYM (__rawmemchr))
-	ENTER
+ENTRY (__rawmemchr)
 
 	/* Save callee-safe register used in this function.  */
 	pushl %edi
@@ -49,7 +45,6 @@ ENTRY (BP_SYM (__rawmemchr))
 	/* Load parameters into registers.  */
 	movl STR(%esp), %eax
 	movl CHR(%esp), %edx
-	CHECK_BOUNDS_LOW (%eax, STR(%esp))
 
 	/* At the moment %edx contains C.  What we need for the
 	   algorithm is C in all bytes of the dword.  Avoid
@@ -216,15 +211,12 @@ L(8):	testb %cl, %cl		/* test first byte in dword */
 	/* No further test needed we we know it is one of the four bytes.  */
 
 L(9):
-	CHECK_BOUNDS_HIGH (%eax, STR(%esp), jb)
-	RETURN_BOUNDED_POINTER (STR(%esp))
 	popl %edi		/* pop saved register */
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
-	RET_PTR
-END (BP_SYM (__rawmemchr))
+	ret
+END (__rawmemchr)
 
-libc_hidden_def (BP_SYM (__rawmemchr))
-weak_alias (BP_SYM (__rawmemchr), BP_SYM (rawmemchr))
+libc_hidden_def (__rawmemchr)
+weak_alias (__rawmemchr, rawmemchr)

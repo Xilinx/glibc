@@ -1,5 +1,4 @@
-/* Copyright (C) 1994, 1997, 1999-2002, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -46,9 +44,9 @@ _IO_wstrn_overflow (fp, c)
 
   if (fp->_wide_data->_IO_buf_base != snf->overflow_buf)
     {
-      INTUSE(_IO_wsetb) (fp, snf->overflow_buf,
-			 snf->overflow_buf + (sizeof (snf->overflow_buf)
-					      / sizeof (wchar_t)), 0);
+      _IO_wsetb (fp, snf->overflow_buf,
+		 snf->overflow_buf + (sizeof (snf->overflow_buf)
+				      / sizeof (wchar_t)), 0);
 
       fp->_wide_data->_IO_write_base = snf->overflow_buf;
       fp->_wide_data->_IO_read_base = snf->overflow_buf;
@@ -73,15 +71,15 @@ const struct _IO_jump_t _IO_wstrn_jumps attribute_hidden =
   JUMP_INIT(finish, _IO_wstr_finish),
   JUMP_INIT(overflow, (_IO_overflow_t) _IO_wstrn_overflow),
   JUMP_INIT(underflow, (_IO_underflow_t) _IO_wstr_underflow),
-  JUMP_INIT(uflow, (_IO_underflow_t) INTUSE(_IO_wdefault_uflow)),
+  JUMP_INIT(uflow, (_IO_underflow_t) _IO_wdefault_uflow),
   JUMP_INIT(pbackfail, (_IO_pbackfail_t) _IO_wstr_pbackfail),
-  JUMP_INIT(xsputn, INTUSE(_IO_wdefault_xsputn)),
-  JUMP_INIT(xsgetn, INTUSE(_IO_wdefault_xsgetn)),
+  JUMP_INIT(xsputn, _IO_wdefault_xsputn),
+  JUMP_INIT(xsgetn, _IO_wdefault_xsgetn),
   JUMP_INIT(seekoff, _IO_wstr_seekoff),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, _IO_default_setbuf),
   JUMP_INIT(sync, _IO_default_sync),
-  JUMP_INIT(doallocate, INTUSE(_IO_wdefault_doallocate)),
+  JUMP_INIT(doallocate, _IO_wdefault_doallocate),
   JUMP_INIT(read, _IO_default_read),
   JUMP_INIT(write, _IO_default_write),
   JUMP_INIT(seek, _IO_default_seek),

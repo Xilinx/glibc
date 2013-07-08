@@ -1,5 +1,6 @@
 /* Multiple versions of memset and bzero
-   Copyright (C) 2010, 2011 Free Software Foundation, Inc.
+   All versions must be listed in ifunc-impl-list.c.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by David S. Miller (davem@davemloft.net)
    This file is part of the GNU C Library.
 
@@ -14,27 +15,31 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <rtld-global-offsets.h>
 
 #if !defined NOT_IN_libc
 	.text
 ENTRY(memset)
 	.type	memset, @gnu_indirect_function
 # ifdef SHARED
-	mov	%o7, %o5
-	sethi	%hi(_GLOBAL_OFFSET_TABLE_-4), %o3
-	call	1f
-	 or	%o3, %lo(_GLOBAL_OFFSET_TABLE_+4), %o3
-1:	add	%o7, %o3, %o3
-	mov	%o5, %o7
+	SETUP_PIC_REG_LEAF(o3, o5)
 # endif
-	andcc	%o0, HWCAP_SPARC_BLKINIT, %g0
-	be	9f
+	set	HWCAP_SPARC_CRYPTO, %o1
+	andcc	%o0, %o1, %g0
+	be	1f
+	 andcc	%o0, HWCAP_SPARC_BLKINIT, %g0
+# ifdef SHARED
+	sethi	%gdop_hix22(__memset_niagara4), %o1
+	xor	%o1, %gdop_lox10(__memset_niagara4), %o1
+# else
+	set	__memset_niagara4, %o1
+# endif
+	ba	10f
+	 nop
+1:	be	9f
 	 nop
 # ifdef SHARED
 	sethi	%gdop_hix22(__memset_niagara1), %o1
@@ -62,15 +67,21 @@ END(memset)
 ENTRY(__bzero)
 	.type	bzero, @gnu_indirect_function
 # ifdef SHARED
-	mov	%o7, %o5
-	sethi	%hi(_GLOBAL_OFFSET_TABLE_-4), %o3
-	call	1f
-	 or	%o3, %lo(_GLOBAL_OFFSET_TABLE_+4), %o3
-1:	add	%o7, %o3, %o3
-	mov	%o5, %o7
+	SETUP_PIC_REG_LEAF(o3, o5)
 # endif
-	andcc	%o0, HWCAP_SPARC_BLKINIT, %g0
-	be	9f
+	set	HWCAP_SPARC_CRYPTO, %o1
+	andcc	%o0, %o1, %g0
+	be	1f
+	 andcc	%o0, HWCAP_SPARC_BLKINIT, %g0
+# ifdef SHARED
+	sethi	%gdop_hix22(__bzero_niagara4), %o1
+	xor	%o1, %gdop_lox10(__bzero_niagara4), %o1
+# else
+	set	__bzero_niagara4, %o1
+# endif
+	ba	10f
+	 nop
+1:	be	9f
 	 nop
 # ifdef SHARED
 	sethi	%gdop_hix22(__bzero_niagara1), %o1
@@ -100,10 +111,10 @@ weak_alias (__bzero, bzero)
 # undef weak_alias
 # define weak_alias(a, b)
 
-# undef libc_hidden_builtin_def
-/* IFUNC doesn't work with the hidden functions in a shared library.  */
-# define libc_hidden_builtin_def(name) \
-	.globl __GI_memset; __GI_memset = __memset_ultra1
+libc_hidden_builtin_def (memset)
+
+#undef libc_hidden_builtin_def
+#define libc_hidden_builtin_def(name)
 
 #define memset __memset_ultra1
 #define __bzero __bzero_ultra1

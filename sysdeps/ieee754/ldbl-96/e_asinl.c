@@ -28,8 +28,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* __ieee754_asin(x)
  * Method :
@@ -58,19 +58,18 @@
  */
 
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
   one = 1.0L,
   huge = 1.0e+4932L,
- pio2_hi = 1.5707963267948966192021943710788178805159986950457096099853515625L,
-  pio2_lo = 2.9127320560933561582586004641843300502121E-20L,
-  pio4_hi = 7.8539816339744830960109718553940894025800E-1L,
+  pio2_hi = 0x1.921fb54442d1846ap+0L, /* pi/2 rounded to nearest to 64
+					 bits.  */
+  pio2_lo = -0x7.6733ae8fe47c65d8p-68L, /* pi/2 - pio2_hi rounded to
+					   nearest to 64 bits.  */
+  pio4_hi = 0xc.90fdaa22168c235p-4L, /* pi/4 rounded to nearest to 64
+					bits.  */
 
 	/* coefficient for R(x^2) */
 
@@ -91,14 +90,8 @@ static long double
   qS4 =  -1.568433562487314651121702982333303458814E1L;
     /* 1.000000000000000000000000000000000000000E0 */
 
-#ifdef __STDC__
 long double
 __ieee754_asinl (long double x)
-#else
-double
-__ieee754_asinl (x)
-     long double x;
-#endif
 {
   long double t, w, p, q, c, r, s;
   int32_t ix;

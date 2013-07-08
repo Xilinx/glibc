@@ -1,5 +1,5 @@
 /* Support for *xattr interfaces on GNU/Hurd.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <hurd.h>
 #include <hurd/xattr.h>
@@ -30,7 +29,7 @@
    gnu.author		empty if st_author==st_uid
 			uid_t giving st_author value
    gnu.translator	empty if no passive translator
-  			translator and arguments: "/hurd/foo\0arg1\0arg2\0"
+			translator and arguments: "/hurd/foo\0arg1\0arg2\0"
 */
 
 error_t

@@ -1,4 +1,4 @@
-/* Copyright (C) 1993,1995,1997-2004,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -26,9 +25,7 @@
    in files containing the exception.  */
 
 #include "libioP.h"
-#ifdef __STDC__
 #include <stdlib.h>
-#endif
 #if _LIBC
 # include "../iconv/gconv_int.h"
 # include <shlib-compat.h>
@@ -55,11 +52,11 @@ _IO_new_fclose (fp)
 
   /* First unlink the stream.  */
   if (fp->_IO_file_flags & _IO_IS_FILEBUF)
-    INTUSE(_IO_un_link) ((struct _IO_FILE_plus *) fp);
+    _IO_un_link ((struct _IO_FILE_plus *) fp);
 
   _IO_acquire_lock (fp);
   if (fp->_IO_file_flags & _IO_IS_FILEBUF)
-    status = INTUSE(_IO_file_close_it) (fp);
+    status = _IO_file_close_it (fp);
   else
     status = fp->_flags & _IO_ERR_SEEN ? -1 : 0;
   _IO_release_lock (fp);
@@ -80,7 +77,7 @@ _IO_new_fclose (fp)
   else
     {
       if (_IO_have_backup (fp))
-	INTUSE(_IO_free_backup_area) (fp);
+	_IO_free_backup_area (fp);
     }
   if (fp != _IO_stdin && fp != _IO_stdout && fp != _IO_stderr)
     {

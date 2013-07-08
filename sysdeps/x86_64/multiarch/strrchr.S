@@ -1,5 +1,6 @@
-/* strrchr with SSE4.2
-   Copyright (C) 2009 Free Software Foundation, Inc.
+/* Multiple versions of strrchr
+   All versions must be listed in ifunc-impl-list.c.
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <init-arch.h>
@@ -32,6 +32,8 @@ ENTRY(strrchr)
 	jne	1f
 	call	__init_cpu_features
 1:	leaq	__strrchr_sse2(%rip), %rax
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
 	jz	2f
 	leaq	__strrchr_sse42(%rip), %rax
@@ -88,6 +90,8 @@ END(strrchr)
 	.section .text.sse4.2,"ax",@progbits
 	.align	16
 	.type	__strrchr_sse42, @function
+	.globl	__strrchr_sse42
+	.hidden	__strrchr_sse42
 __strrchr_sse42:
 	cfi_startproc
 	CALL_MCOUNT
@@ -266,6 +270,8 @@ L(psrldq_table):
 # define ENTRY(name) \
 	.type __strrchr_sse2, @function; \
 	.align 16; \
+	.globl __strrchr_sse2; \
+	.hidden __strrchr_sse2; \
 	__strrchr_sse2: cfi_startproc; \
 	CALL_MCOUNT
 # undef END

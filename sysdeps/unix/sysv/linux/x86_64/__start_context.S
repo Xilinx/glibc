@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -40,8 +39,9 @@ ENTRY(__start_context)
 	call	JUMPTARGET(__setcontext)
 	/* If this returns (which can happen if the syscall fails) we'll
 	   exit the program with the return error value (-1).  */
+	movq	%rax,%rdi
 
-2:	movq	%rax,%rdi
+2:
 	call	HIDDEN_JUMPTARGET(exit)
 	/* The 'exit' call should never return.  In case it does cause
 	   the process to terminate.  */

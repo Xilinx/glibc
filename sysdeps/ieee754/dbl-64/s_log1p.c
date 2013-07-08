@@ -78,8 +78,8 @@
  *	 See HP-15C Advanced Functions Handbook, p.193.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const double
 ln2_hi  =  6.93147180369123816490e-01,	/* 3fe62e42 fee00000 */
@@ -106,11 +106,11 @@ __log1p(double x)
 
 	k = 1;
 	if (hx < 0x3FDA827A) {			/* x < 0.41422  */
-	    if(ax>=0x3ff00000) {		/* x <= -1.0 */
+	    if(__builtin_expect(ax>=0x3ff00000, 0)) { /* x <= -1.0 */
 		if(x==-1.0) return -two54/(x-x);/* log1p(-1)=+inf */
 		else return (x-x)/(x-x);	/* log1p(x<-1)=NaN */
 	    }
-	    if(ax<0x3e200000) {			/* |x| < 2**-29 */
+	    if(__builtin_expect(ax<0x3e200000, 0)) { /* |x| < 2**-29 */
 		math_force_eval(two54+x);	/* raise inexact */
 		if (ax<0x3c900000)		/* |x| < 2**-54 */
 		    return x;
@@ -120,7 +120,7 @@ __log1p(double x)
 	    if(hx>0||hx<=((int32_t)0xbfd2bec3)) {
 		k=0;f=x;hu=1;}	/* -0.2929<x<0.41422 */
 	}
-	if (hx >= 0x7ff00000) return x+x;
+	else if (__builtin_expect(hx >= 0x7ff00000, 0)) return x+x;
 	if(k!=0) {
 	    if(hx<0x43400000) {
 		u  = 1.0+x;

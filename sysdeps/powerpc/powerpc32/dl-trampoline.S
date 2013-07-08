@@ -1,5 +1,5 @@
 /* PLT trampolines.  PPC32 version.
-   Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -137,6 +136,7 @@ _dl_prof_resolve:
 	stw r9,40(r1)
 	stw r10,44(r1)
 	stw r0,8(r1)
+#ifndef __NO_FPRS__
  # Save the floating point registers
 	stfd fp1,48(r1)
 	stfd fp2,56(r1)
@@ -146,6 +146,7 @@ _dl_prof_resolve:
 	stfd fp6,88(r1)
 	stfd fp7,96(r1)
 	stfd fp8,104(r1)
+#endif
  # XXX TODO: store vmx registers
  # Load the extra parameters.
 	addi r6,r1,16
@@ -169,6 +170,7 @@ _dl_prof_resolve:
 	lwz r4,20(r1)
 	lwz r3,16(r1)
         lwz r0,12(r1)
+#ifndef __NO_FPRS__
  # Load the floating point registers.
 	lfd fp1,48(r1)
 	lfd fp2,56(r1)
@@ -178,6 +180,7 @@ _dl_prof_resolve:
 	lfd fp6,88(r1)
 	lfd fp7,96(r1)
 	lfd fp8,104(r1)
+#endif
  # ...unwind the stack frame, and jump to the PLT entry we updated.
 	addi r1,r1,320
 	bctr

@@ -1,6 +1,5 @@
 /* The `struct utmp' type, describing entries in the utmp file.  GNU version.
-   Copyright (C) 1993, 1996, 1997, 1998, 1999, 2002
-   Free Software Foundation, Inc.
+   Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _UTMP_H
 # error "Never include <bits/utmp.h> directly; use <utmp.h> instead."
@@ -37,7 +35,7 @@
    previous logins.  */
 struct lastlog
   {
-#if __WORDSIZE == 64 && defined __WORDSIZE_COMPAT32
+#ifdef __WORDSIZE_TIME64_COMPAT32
     int32_t ll_time;
 #else
     __time_t ll_time;
@@ -70,7 +68,7 @@ struct utmp
 /* The ut_session and ut_tv fields must be the same size when compiled
    32- and 64-bit.  This allows data files and shared memory to be
    shared between 32- and 64-bit applications.  */
-#if __WORDSIZE == 64 && defined __WORDSIZE_COMPAT32
+#ifdef __WORDSIZE_TIME64_COMPAT32
   int32_t ut_session;		/* Session ID, used for windowing.  */
   struct
   {

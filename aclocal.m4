@@ -1,3 +1,13 @@
+dnl We require that everyone use exactly the same Autoconf version so that
+dnl the internal functions defined and used by the main configure script
+dnl match those expected by the fragments.
+m4_define([GLIBC_AUTOCONF_VERSION], [2.68])
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), GLIBC_AUTOCONF_VERSION, [],
+      [m4_fatal(m4_flatten(
+Exactly version GLIBC_AUTOCONF_VERSION of Autoconf is required but you have
+m4_defn([AC_AUTOCONF_VERSION])
+), [63])])dnl
+dnl
 dnl We define the macro GLIBC_PROVIDES to do an AC_PROVIDE for each macro
 dnl which appears in configure.in before the sysdep configure scripts are run.
 dnl Each sysdep configure.in does GLIBC_PROVIDES first, to avoid any
@@ -10,12 +20,19 @@ AC_PROVIDE([_AS_ECHO_N_PREPARE])dnl
 AC_PROVIDE([_AS_ECHO_PREPARE])dnl
 AC_PROVIDE([_AS_CR_PREPARE])dnl
 AC_PROVIDE([_AS_TR_SH_PREPARE])dnl
+AC_PROVIDE([_AS_VAR_ARITH_PREPARE])dnl
 AC_PROVIDE([AC_PROG_INSTALL])dnl
-AC_PROVIDE([AC_PROG_RANLIB])dnl
 AC_PROVIDE([AC_PROG_CC])dnl
 AC_PROVIDE([AC_PROG_CPP])dnl
 AC_PROVIDE([_AS_PATH_SEPARATOR_PREPARE])dnl
 AC_PROVIDE([_AS_TEST_PREPARE])dnl
+AC_PROVIDE([_AS_BASENAME_PREPARE])dnl
+AC_PROVIDE([_AS_ME_PREPARE])dnl
+AC_PROVIDE([_AS_LINENO_PREPARE])dnl
+AC_PROVIDE([AS_SHELL_FN_as_fn_set_status])dnl
+AC_PROVIDE([AS_SHELL_FN_as_fn_exit])dnl
+AC_PROVIDE([AS_SHELL_FN_as_fn_arith])dnl
+AC_PROVIDE([AS_SHELL_FN_ac_fn_c_try_compile])dnl
 define([AS_MESSAGE_LOG_FD],5)dnl
 define([AS_MESSAGE_FD],6)dnl
 dnl Ripped out of AS_INIT, which does more cruft we do not want.
@@ -114,3 +131,153 @@ AC_CACHE_CHECK(whether $LD is GNU ld, libc_cv_prog_ld_gnu,
 [LIBC_PROG_FOO_GNU($LD, libc_cv_prog_ld_gnu=yes, libc_cv_prog_ld_gnu=no)])
 gnu_ld=$libc_cv_prog_ld_gnu
 ])
+
+dnl Run a static link test with -nostdlib -nostartfiles.
+dnl LIBC_TRY_LINK_STATIC([code], [action-if-true], [action-if-false])
+AC_DEFUN([LIBC_TRY_LINK_STATIC],
+[cat > conftest.c <<EOF
+int _start (void) { return 0; }
+int __start (void) { return 0; }
+$1
+EOF
+AS_IF([AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS -o conftest
+		       conftest.c -static -nostartfiles -nostdlib
+		       1>&AS_MESSAGE_LOG_FD])],
+      [$2], [$3])
+rm -f conftest*])
+
+dnl Test a compiler option or options with an empty input file.
+dnl LIBC_TRY_CC_OPTION([options], [action-if-true], [action-if-false])
+AC_DEFUN([LIBC_TRY_CC_OPTION],
+[AS_IF([AC_TRY_COMMAND([${CC-cc} $1 -xc /dev/null -S -o /dev/null])],
+	[$2], [$3])])
+
+dnl Find and source sysdeps/*/preconfigure.
+dnl LIBC_PRECONFIGURE([$srcdir], [for])
+AC_DEFUN([LIBC_PRECONFIGURE], [dnl
+if frags=`ls -d $1/sysdeps/*/preconfigure 2> /dev/null`
+then
+  AC_MSG_CHECKING($2 preconfigure fragments)
+  for frag in $frags; do
+    name=`echo "$frag" | sed 's@/[[^/]]*[$]@@;s@^.*/@@'`
+    echo $ECHO_N "$name $ECHO_C" >&AS_MESSAGE_FD
+    . "$frag"
+  done
+  AC_MSG_RESULT()
+fi])
+
+# These two macros are taken from GCC's config/acx.m4.
+dnl Support the --with-pkgversion configure option.
+dnl ACX_PKGVERSION(default-pkgversion)
+AC_DEFUN([ACX_PKGVERSION],[
+  AC_ARG_WITH(pkgversion,
+    AS_HELP_STRING([--with-pkgversion=PKG],
+                   [Use PKG in the version string in place of "$1"]),
+    [case "$withval" in
+      yes) AC_MSG_ERROR([package version not specified]) ;;
+      no)  PKGVERSION= ;;
+      *)   PKGVERSION="($withval) " ;;
+     esac],
+    PKGVERSION="($1) "
+  )
+  PKGVERSION_TEXI=`echo "$PKGVERSION" | sed 's/@/@@/g'`
+  AC_SUBST(PKGVERSION)
+  AC_SUBST(PKGVERSION_TEXI)
+])
+
+dnl Support the --with-bugurl configure option.
+dnl ACX_BUGURL(default-bugurl)
+AC_DEFUN([ACX_BUGURL],[
+  AC_ARG_WITH(bugurl,
+    AS_HELP_STRING([--with-bugurl=URL],
+                   [Direct users to URL to report a bug]),
+    [case "$withval" in
+      yes) AC_MSG_ERROR([bug URL not specified]) ;;
+      no)  BUGURL=
+	   ;;
+      *)   BUGURL="$withval"
+	   ;;
+     esac],
+     BUGURL="$1"
+  )
+  case ${BUGURL} in
+  "")
+    REPORT_BUGS_TO=
+    REPORT_BUGS_TEXI=
+    ;;
+  *)
+    REPORT_BUGS_TO="<$BUGURL>"
+    REPORT_BUGS_TEXI=@uref{`echo "$BUGURL" | sed 's/@/@@/g'`}
+    ;;
+  esac;
+  AC_SUBST(REPORT_BUGS_TO)
+  AC_SUBST(REPORT_BUGS_TEXI)
+])
+
+dnl Check linker option support.
+dnl LIBC_LINKER_FEATURE([ld_option], [cc_option], [action-if-true], [action-if-false])
+AC_DEFUN([LIBC_LINKER_FEATURE],
+[AC_MSG_CHECKING([for linker that supports $1])
+libc_linker_feature=no
+if test x"$gnu_ld" = x"yes"; then
+  libc_linker_check=`$LD -v --help 2>/dev/null | grep "\$1"`
+  if test -n "$libc_linker_check"; then
+    cat > conftest.c <<EOF
+int _start (void) { return 42; }
+EOF
+    if AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
+				$2 -nostdlib -nostartfiles
+				-fPIC -shared -o conftest.so conftest.c
+				1>&AS_MESSAGE_LOG_FD])
+    then
+      libc_linker_feature=yes
+    fi
+    rm -f conftest*
+  fi
+fi
+if test $libc_linker_feature = yes; then
+  $3
+else
+  $4
+fi
+AC_MSG_RESULT($libc_linker_feature)])
+
+dnl Add a makefile variable, with value set from a shell string
+dnl (expanded by the shell inside double quotes), to config.make.
+dnl LIBC_CONFIG_VAR(make-variable, shell-value)
+AC_DEFUN([LIBC_CONFIG_VAR],
+[config_vars="$config_vars
+$1 = $2"])
+
+dnl Check that function FUNC was inlined as a builtin.  The code fragment
+dnl CODE is compiled with additional options CC_OPTION.  If FUNC is
+dnl not found in the assembly then it is assumed the compiler has support
+dnl for this builtin and has inlined the call.  If the compiler has the
+dnl feature then ACTION-IF-TRUE is called, otherwise ACTION-IF-FALSE.
+dnl It is up to the caller to provide a CC_OPTION that ensures the
+dnl builtin is inlined if present.
+dnl Warning: This may not work for some machines. For example on ARM the
+dnl ABI dictates that some functions should not be inlined and instead
+dnl should be provided by a compiler helper library e.g. __aeabi_memcpy.
+dnl This is done to reduce code size.
+dnl LIBC_COMPILER_BUILTIN([func], [code], [cc_option], [action-if-true], [action-if-false])
+AC_DEFUN([LIBC_COMPILER_BUILTIN_INLINED],
+[AC_MSG_CHECKING([for compiler support of inlined builtin function $1])
+libc_compiler_builtin_inlined=no
+cat > conftest.c <<EOF
+int _start (void) { $2 return 0; }
+EOF
+if ! AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS $LDFLAGS
+		     $3 -nostdlib -nostartfiles
+		     -S conftest.c -o - | fgrep "$1"
+		     1>&AS_MESSAGE_LOG_FD])
+then
+  libc_compiler_builtin_inlined=yes
+fi
+rm -f conftest*
+if test $libc_compiler_builtin_inlined = yes; then
+  $4
+else
+  $5
+fi
+AC_MSG_RESULT($libc_compiler_builtin_inlined)])

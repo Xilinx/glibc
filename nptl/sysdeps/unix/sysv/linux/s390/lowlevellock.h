@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2006-2008, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LOWLEVELLOCK_H
 #define _LOWLEVELLOCK_H	1
@@ -38,6 +37,8 @@
 #define FUTEX_TRYLOCK_PI	8
 #define FUTEX_WAIT_BITSET	9
 #define FUTEX_WAKE_BITSET	10
+#define FUTEX_WAIT_REQUEUE_PI   11
+#define FUTEX_CMP_REQUEUE_PI    12
 #define FUTEX_PRIVATE_FLAG	128
 #define FUTEX_CLOCK_REALTIME	256
 
@@ -77,39 +78,34 @@
 #define lll_futex_wait(futex, val, private) \
   lll_futex_timed_wait (futex, val, NULL, private)
 
-#define lll_futex_timed_wait(futex, val, timespec, private) \
+#define lll_futex_timed_wait(futexp, val, timespec, private) \
   ({									      \
-    register unsigned long int __r2 asm ("2") = (unsigned long int) (futex);  \
-    register unsigned long int __r3 asm ("3")				      \
-      = __lll_private_flag (FUTEX_WAIT, private);			      \
-    register unsigned long int __r4 asm ("4") = (unsigned long int) (val);    \
-    register unsigned long int __r5 asm ("5") = (unsigned long int)(timespec);\
-    register unsigned long int __result asm ("2");			      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
 									      \
-    __asm __volatile ("svc %b1"						      \
-		      : "=d" (__result)					      \
-		      : "i" (SYS_futex), "0" (__r2), "d" (__r3),	      \
-			"d" (__r4), "d" (__r5)				      \
-		      : "cc", "memory" );				      \
-    __result;								      \
+    INTERNAL_SYSCALL (futex, __err, 4, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAIT, private),	      \
+			      (val), (timespec));			      \
   })
 
-
-#define lll_futex_wake(futex, nr, private) \
+#define lll_futex_timed_wait_bitset(futexp, val, timespec, clockbit, private) \
   ({									      \
-    register unsigned long int __r2 asm ("2") = (unsigned long int) (futex);  \
-    register unsigned long int __r3 asm ("3")				      \
-      = __lll_private_flag (FUTEX_WAKE, private);			      \
-    register unsigned long int __r4 asm ("4") = (unsigned long int) (nr);     \
-    register unsigned long int __result asm ("2");			      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    int __op = FUTEX_WAIT_BITSET | clockbit;				      \
 									      \
-    __asm __volatile ("svc %b1"						      \
-		      : "=d" (__result)					      \
-		      : "i" (SYS_futex), "0" (__r2), "d" (__r3), "d" (__r4)   \
-		      : "cc", "memory" );				      \
-    __result;								      \
+    INTERNAL_SYSCALL (futex, __err, 6, (futexp),		      \
+			      __lll_private_flag (__op, private),	      \
+			      (val), (timespec), NULL /* Unused.  */, 	      \
+			      FUTEX_BITSET_MATCH_ANY);			      \
   })
 
+#define lll_futex_wake(futexp, nr, private) \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+									      \
+    INTERNAL_SYSCALL (futex, __err, 4, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAKE, private),	      \
+			      (nr), 0);					      \
+  })
 
 #define lll_robust_dead(futexv, private) \
   do									      \
@@ -123,47 +119,55 @@
 
 
 /* Returns non-zero if error happened, zero if success.  */
-#define lll_futex_requeue(futex, nr_wake, nr_move, mutex, val, private) \
+#define lll_futex_requeue(futexp, nr_wake, nr_move, mutex, val, private) \
   ({									      \
-    register unsigned long int __r2 asm ("2") = (unsigned long int) (futex);  \
-    register unsigned long int __r3 asm ("3")				      \
-      = __lll_private_flag (FUTEX_CMP_REQUEUE, private);		      \
-    register unsigned long int __r4 asm ("4") = (long int) (nr_wake);	      \
-    register unsigned long int __r5 asm ("5") = (long int) (nr_move);	      \
-    register unsigned long int __r6 asm ("6") = (unsigned long int) (mutex);  \
-    register unsigned long int __r7 asm ("7") = (int) (val);		      \
-    register unsigned long __result asm ("2");				      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
 									      \
-    __asm __volatile ("svc %b1"						      \
-		      : "=d" (__result)					      \
-		      : "i" (SYS_futex), "0" (__r2), "d" (__r3),	      \
-			"d" (__r4), "d" (__r5), "d" (__r6), "d" (__r7)	      \
-		      : "cc", "memory" );				      \
-    __result > -4096UL;							      \
+    __ret = INTERNAL_SYSCALL (futex, __err, 6, (futexp),		      \
+			      __lll_private_flag (FUTEX_CMP_REQUEUE, private),\
+			      (nr_wake), (nr_move), (mutex), (val));	      \
+    INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
   })
-
 
 /* Returns non-zero if error happened, zero if success.  */
-#define lll_futex_wake_unlock(futex, nr_wake, nr_wake2, futex2, private) \
+#define lll_futex_wake_unlock(futexp, nr_wake, nr_wake2, futexp2, private) \
   ({									      \
-    register unsigned long int __r2 asm ("2") = (unsigned long int) (futex);  \
-    register unsigned long int __r3 asm ("3")				      \
-      = __lll_private_flag (FUTEX_WAKE_OP, private);			      \
-    register unsigned long int __r4 asm ("4") = (long int) (nr_wake);	      \
-    register unsigned long int __r5 asm ("5") = (long int) (nr_wake2);	      \
-    register unsigned long int __r6 asm ("6") = (unsigned long int) (futex2); \
-    register unsigned long int __r7 asm ("7")				      \
-      = (int) FUTEX_OP_CLEAR_WAKE_IF_GT_ONE;				      \
-    register unsigned long __result asm ("2");				      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
 									      \
-    __asm __volatile ("svc %b1"						      \
-		      : "=d" (__result)					      \
-		      : "i" (SYS_futex), "0" (__r2), "d" (__r3),	      \
-			"d" (__r4), "d" (__r5), "d" (__r6), "d" (__r7)	      \
-		      : "cc", "memory" );				      \
-    __result > -4096UL;							      \
+    __ret = INTERNAL_SYSCALL (futex, __err, 6, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAKE_OP, private),    \
+			      (nr_wake), (nr_wake2), (futexp2),		      \
+			      FUTEX_OP_CLEAR_WAKE_IF_GT_ONE);		      \
+    INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
   })
 
+/* Priority Inheritance support.  */
+#define lll_futex_wait_requeue_pi(futexp, val, mutex, private) \
+  lll_futex_timed_wait_requeue_pi (futexp, val, NULL, 0, mutex, private)
+
+#define lll_futex_timed_wait_requeue_pi(futexp, val, timespec, clockbit,      \
+					mutex, private)			      \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    int __op = FUTEX_WAIT_REQUEUE_PI | clockbit;			      \
+									      \
+    INTERNAL_SYSCALL (futex, __err, 5, (futexp),			      \
+		      __lll_private_flag (__op, private),		      \
+		      (val), (timespec), mutex); 			      \
+  })
+
+#define lll_futex_cmp_requeue_pi(futexp, nr_wake, nr_move, mutex, val, priv)  \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
+									      \
+    __ret = INTERNAL_SYSCALL (futex, __err, 6, (futexp),		      \
+			      __lll_private_flag (FUTEX_CMP_REQUEUE_PI, priv),\
+			      (nr_wake), (nr_move), (mutex), (val));	      \
+    INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
+  })
 
 #define lll_compare_and_swap(futex, oldval, newval, operation) \
   do {									      \
@@ -330,7 +334,7 @@ __lll_robust_timedlock (int *futex, const struct timespec *abstime,
 #define LLL_LOCK_INITIALIZER		(0)
 #define LLL_LOCK_INITIALIZER_LOCKED	(1)
 
-/* The kernel notifies a process with uses CLONE_CLEARTID via futex
+/* The kernel notifies a process which uses CLONE_CHILD_CLEARTID via futex
    wakeup when the clone terminates.  The memory location contains the
    thread ID while the clone is running and is reset to zero
    afterwards.	*/

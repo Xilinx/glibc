@@ -1,4 +1,4 @@
-/* Copyright (C) 2003,2004,2007,2010,2011 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <endian.h>
 #include <errno.h>
@@ -65,6 +64,11 @@ __pthread_cond_timedwait (cond, mutex, abstime)
   int pshared = (cond->__data.__mutex == (void *) ~0l)
 		? LLL_SHARED : LLL_PRIVATE;
 
+#if (defined lll_futex_timed_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+  int pi_flag = 0;
+#endif
+
   /* Make sure we are alone.  */
   lll_lock (cond->__data.__lock, pshared);
 
@@ -80,6 +84,11 @@ __pthread_cond_timedwait (cond, mutex, abstime)
   ++cond->__data.__total_seq;
   ++cond->__data.__futex;
   cond->__data.__nwaiters += 1 << COND_NWAITERS_SHIFT;
+
+  /* Work around the fact that the kernel rejects negative timeout values
+     despite them being valid.  */
+  if (__builtin_expect (abstime->tv_sec < 0, 0))
+    goto timeout;
 
   /* Remember the mutex we are using here.  If there is already a
      different address store this is a bad user bug.  Do not store
@@ -105,33 +114,20 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 
   while (1)
     {
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
       struct timespec rt;
       {
-#ifdef __NR_clock_gettime
+# ifdef __NR_clock_gettime
 	INTERNAL_SYSCALL_DECL (err);
-	int ret;
-	ret = INTERNAL_VSYSCALL (clock_gettime, err, 2,
-				(cond->__data.__nwaiters
-				 & ((1 << COND_NWAITERS_SHIFT) - 1)),
-				&rt);
-# ifndef __ASSUME_POSIX_TIMERS
-	if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (ret, err), 0))
-	  {
-	    struct timeval tv;
-	    (void) gettimeofday (&tv, NULL);
-
-	    /* Convert the absolute timeout value to a relative timeout.  */
-	    rt.tv_sec = abstime->tv_sec - tv.tv_sec;
-	    rt.tv_nsec = abstime->tv_nsec - tv.tv_usec * 1000;
-	  }
-	else
-# endif
-	  {
-	    /* Convert the absolute timeout value to a relative timeout.  */
-	    rt.tv_sec = abstime->tv_sec - rt.tv_sec;
-	    rt.tv_nsec = abstime->tv_nsec - rt.tv_nsec;
-	  }
-#else
+	(void) INTERNAL_VSYSCALL (clock_gettime, err, 2,
+				  (cond->__data.__nwaiters
+				   & ((1 << COND_NWAITERS_SHIFT) - 1)),
+				  &rt);
+	/* Convert the absolute timeout value to a relative timeout.  */
+	rt.tv_sec = abstime->tv_sec - rt.tv_sec;
+	rt.tv_nsec = abstime->tv_nsec - rt.tv_nsec;
+# else
 	/* Get the current time.  So far we support only one clock.  */
 	struct timeval tv;
 	(void) gettimeofday (&tv, NULL);
@@ -139,7 +135,7 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 	/* Convert the absolute timeout value to a relative timeout.  */
 	rt.tv_sec = abstime->tv_sec - tv.tv_sec;
 	rt.tv_nsec = abstime->tv_nsec - tv.tv_usec * 1000;
-#endif
+# endif
       }
       if (rt.tv_nsec < 0)
 	{
@@ -154,6 +150,7 @@ __pthread_cond_timedwait (cond, mutex, abstime)
 
 	  goto timeout;
 	}
+#endif
 
       unsigned int futex_val = cond->__data.__futex;
 
@@ -163,9 +160,46 @@ __pthread_cond_timedwait (cond, mutex, abstime)
       /* Enable asynchronous cancellation.  Required by the standard.  */
       cbuffer.oldtype = __pthread_enable_asynccancel ();
 
-      /* Wait until woken by signal or broadcast.  */
-      err = lll_futex_timed_wait (&cond->__data.__futex,
-				  futex_val, &rt, pshared);
+/* REQUEUE_PI was implemented after FUTEX_CLOCK_REALTIME, so it is sufficient
+   to check just the former.  */
+#if (defined lll_futex_timed_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+      /* If pi_flag remained 1 then it means that we had the lock and the mutex
+	 but a spurious waker raced ahead of us.  Give back the mutex before
+	 going into wait again.  */
+      if (pi_flag)
+	{
+	  __pthread_mutex_cond_lock_adjust (mutex);
+	  __pthread_mutex_unlock_usercnt (mutex, 0);
+	}
+      pi_flag = USE_REQUEUE_PI (mutex);
+
+      if (pi_flag)
+	{
+	  unsigned int clockbit = (cond->__data.__nwaiters & 1
+				   ? 0 : FUTEX_CLOCK_REALTIME);
+	  err = lll_futex_timed_wait_requeue_pi (&cond->__data.__futex,
+						 futex_val, abstime, clockbit,
+						 &mutex->__data.__lock,
+						 pshared);
+	  pi_flag = (err == 0);
+	}
+      else
+#endif
+
+	{
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
+	  /* Wait until woken by signal or broadcast.  */
+	  err = lll_futex_timed_wait (&cond->__data.__futex,
+				      futex_val, &rt, pshared);
+#else
+	  unsigned int clockbit = (cond->__data.__nwaiters & 1
+				   ? 0 : FUTEX_CLOCK_REALTIME);
+	  err = lll_futex_timed_wait_bitset (&cond->__data.__futex, futex_val,
+					     abstime, clockbit, pshared);
+#endif
+	}
 
       /* Disable asynchronous cancellation.  */
       __pthread_disable_asynccancel (cbuffer.oldtype);
@@ -217,7 +251,16 @@ __pthread_cond_timedwait (cond, mutex, abstime)
   __pthread_cleanup_pop (&buffer, 0);
 
   /* Get the mutex before returning.  */
-  err = __pthread_mutex_cond_lock (mutex);
+#if (defined lll_futex_timed_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+  if (pi_flag)
+    {
+      __pthread_mutex_cond_lock_adjust (mutex);
+      err = 0;
+    }
+  else
+#endif
+    err = __pthread_mutex_cond_lock (mutex);
 
   return err ?: result;
 }

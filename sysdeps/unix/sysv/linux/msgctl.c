@@ -1,5 +1,4 @@
-/* Copyright (C) 1995,1997,1998,2000,2002,2004,2006
-	Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/msg.h>
@@ -26,20 +24,19 @@
 #include <string.h>
 #include <sys/syscall.h>
 #include <shlib-compat.h>
-#include <bp-checks.h>
 
 #include <kernel-features.h>
 
 struct __old_msqid_ds
 {
   struct __old_ipc_perm msg_perm;	/* structure describing operation permission */
-  struct msg *__unbounded __msg_first;	/* pointer to first message on queue */
-  struct msg *__unbounded __msg_last;	/* pointer to last message on queue */
+  struct msg *__msg_first;		/* pointer to first message on queue */
+  struct msg *__msg_last;		/* pointer to last message on queue */
   __time_t msg_stime;			/* time of last msgsnd command */
   __time_t msg_rtime;			/* time of last msgrcv command */
   __time_t msg_ctime;			/* time of last change */
-  struct wait_queue *__unbounded __wwait; /* ??? */
-  struct wait_queue *__unbounded __rwait; /* ??? */
+  struct wait_queue *__wwait;		/* ??? */
+  struct wait_queue *__rwait;		/* ??? */
   unsigned short int __msg_cbytes;	/* current number of bytes on queue */
   unsigned short int msg_qnum;		/* number of messages currently on queue */
   unsigned short int msg_qbytes;	/* max number of bytes allowed on queue */
@@ -59,7 +56,7 @@ int
 attribute_compat_text_section
 __old_msgctl (int msqid, int cmd, struct __old_msqid_ds *buf)
 {
-  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl, msqid, cmd, 0, CHECK_1 (buf));
+  return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl, msqid, cmd, 0, buf);
 }
 compat_symbol (libc, __old_msgctl, msgctl, GLIBC_2_0);
 #endif
@@ -69,7 +66,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
 {
 #if __ASSUME_IPC64 > 0
   return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			 msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
+			 msqid, cmd | __IPC_64, 0, buf);
 #else
   switch (cmd) {
     case MSG_STAT:
@@ -78,7 +75,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
       break;
     default:
       return INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd, 0, CHECK_1 (buf));
+			     msqid, cmd, 0, buf);
   }
 
   {
@@ -88,7 +85,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
     /* Unfortunately there is no way how to find out for sure whether
        we should use old or new msgctl.  */
     result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd | __IPC_64, 0, CHECK_1 (buf));
+			     msqid, cmd | __IPC_64, 0, buf);
     if (result != -1 || errno != EINVAL)
       return result;
 
@@ -106,8 +103,7 @@ __new_msgctl (int msqid, int cmd, struct msqid_ds *buf)
 	    return -1;
 	  }
       }
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl,
-			     msqid, cmd, 0, __ptrvalue (&old));
+    result = INLINE_SYSCALL (ipc, 5, IPCOP_msgctl, msqid, cmd, 0, &old);
     if (result != -1 && cmd != IPC_SET)
       {
 	memset(buf, 0, sizeof(*buf));

@@ -1,5 +1,5 @@
 /* Create simple DB database from textual input.
-   Copyright (C) 1996-2000, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <argp.h>
 #include <assert.h>
@@ -28,12 +27,16 @@
 #include <libintl.h>
 #include <locale.h>
 #include <search.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/mman.h>
+#include <sys/param.h>
 #include <sys/stat.h>
+#include <sys/uio.h>
 #include "nss_db/nss_db.h"
 
 /* Get libc version number.  */
@@ -45,6 +48,10 @@
 /* SELinux support.  */
 #ifdef HAVE_SELINUX
 # include <selinux/selinux.h>
+#endif
+
+#ifndef MAP_POPULATE
+# define MAP_POPULATE 0
 #endif
 
 #define PACKAGE _libc_intl_domainname
@@ -167,8 +174,7 @@ static void reset_file_creation_context (void);
 
 
 /* External functions.  */
-extern void *xmalloc (size_t n) __attribute_malloc__;
-extern void *xcalloc (size_t n, size_t m) __attribute_malloc__;
+#include <programs/xmalloc.h>
 
 
 int
@@ -355,13 +361,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
 static char *
 more_help (int key, const char *text, void *input)
 {
+  char *tp = NULL;
   switch (key)
     {
     case ARGP_KEY_HELP_EXTRA:
       /* We print some extra information.  */
-      return strdup (gettext ("\
+      if (asprintf (&tp, gettext ("\
 For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"));
+%s.\n"), REPORT_BUGS_TO) < 0)
+	return NULL;
+      return tp;
     default:
       break;
     }
@@ -372,12 +381,12 @@ For bug reporting instructions, please see:\n\
 static void
 print_version (FILE *stream, struct argp_state *state)
 {
-  fprintf (stream, "makedb (GNU %s) %s\n", PACKAGE, VERSION);
+  fprintf (stream, "makedb %s%s\n", PKGVERSION, VERSION);
   fprintf (stream, gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2011");
+"), "2013");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 
@@ -580,12 +589,15 @@ copy_valstr (const void *nodep, const VISIT which, const int depth)
 }
 
 
+/* Determine if the candidate is prime by using a modified trial division
+   algorithm. The candidate must be both odd and greater than 4.  */
 static int
 is_prime (size_t candidate)
 {
-  /* No even number and none less than 10 will be passed here.  */
   size_t divn = 3;
   size_t sq = divn * divn;
+
+  assert (candidate > 4 && candidate % 2 != 0);
 
   while (sq < candidate && candidate % divn != 0)
     {
@@ -601,8 +613,8 @@ is_prime (size_t candidate)
 static size_t
 next_prime (size_t seed)
 {
-  /* Make it definitely odd.  */
-  seed |= 1;
+  /* Make sure that we're always greater than 4.  */
+  seed = (seed + 4) | 1;
 
   while (!is_prime (seed))
     seed += 2;

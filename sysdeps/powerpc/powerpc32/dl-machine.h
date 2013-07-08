@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  PowerPC version.
-   Copyright (C) 1995-2003, 2005, 2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -24,6 +23,7 @@
 
 #include <assert.h>
 #include <dl-tls.h>
+#include <dl-irel.h>
 
 /* Translate a processor specific dynamic tag to the index
    in l_info array.  */
@@ -309,7 +309,7 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
       && __builtin_expect (ELFW(ST_TYPE) (sym->st_info) == STT_GNU_IFUNC, 0)
       && __builtin_expect (sym->st_shndx != SHN_UNDEF, 1)
       && __builtin_expect (!skip_ifunc, 1))
-    value = ((Elf32_Addr (*) (void)) value) ();
+    value = elf_ifunc_invoke (value);
 
   /* A small amount of code is duplicated here for speed.  In libc,
      more than 90% of the relocs are R_PPC_RELATIVE; in the X11 shared
@@ -388,9 +388,5 @@ elf_machine_lazy_rel (struct link_map *map,
 {
   /* elf_machine_runtime_setup handles this. */
 }
-
-/* The SVR4 ABI specifies that the JMPREL relocs must be inside the
-   DT_RELA table.  */
-#define ELF_MACHINE_PLTREL_OVERLAP 1
 
 #endif /* RESOLVE_MAP */

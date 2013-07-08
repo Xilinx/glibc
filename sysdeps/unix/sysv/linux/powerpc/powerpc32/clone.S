@@ -1,5 +1,5 @@
 /* Wrapper around clone system call.
-   Copyright (C) 1997,98,99,2000,02,04,2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,16 +13,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #include <kernel-features.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #define CLONE_VM	0x00000100
 #define CLONE_THREAD	0x00010000
@@ -33,13 +30,10 @@
    all the freaky stuff we have to do to make the call useful.  */
 
 /* int [r3] clone(int (*fn)(void *arg) [r3], void *child_stack [r4],
-   		  int flags [r5], void *arg [r6], void *parent_tid [r7],
+		  int flags [r5], void *arg [r6], void *parent_tid [r7],
 		  void *tls [r8], void *child_tid [r9]); */
 
-ENTRY (BP_SYM (__clone))
-	/* GKM FIXME: add bounds checks, where sensible.  */
-	DISCARD_BOUNDS (r4)
-	DISCARD_BOUNDS (r6)
+ENTRY (__clone)
 
 	/* Check for child_stack == NULL || fn == NULL.  */
 	cmpwi	cr0,r4,0
@@ -53,11 +47,7 @@ ENTRY (BP_SYM (__clone))
 #ifdef RESET_PID
 	stmw	r28,16(r1)
 #else
-# ifndef __ASSUME_FIXED_CLONE_SYSCALL
-	stmw	r29,16(r1)
-# else
 	stmw	r30,16(r1)
-# endif
 #endif
 
 	/* Set up stack frame for child.  */
@@ -67,9 +57,6 @@ ENTRY (BP_SYM (__clone))
 
 	/* Save fn, args, stack across syscall.  */
 	mr	r30,r3			/* Function in r30.  */
-#ifndef __ASSUME_FIXED_CLONE_SYSCALL
-	mr	r29,r4			/* Stack pointer in r29.  */
-#endif
 #ifdef RESET_PID
 	mr	r28,r5
 #endif
@@ -96,14 +83,6 @@ ENTRY (BP_SYM (__clone))
 	crandc	cr1*4+eq,cr1*4+eq,cr0*4+so
 	bne-	cr1,L(parent)		/* The '-' is to minimise the race.  */
 
-#ifndef __ASSUME_FIXED_CLONE_SYSCALL
-	/* On at least mklinux DR3a5, clone() doesn't actually change
-	   the stack pointer.  I'm pretty sure this is a bug, because
-	   it adds a race condition if a signal is sent to a thread
-	   just after it is created (in the previous three instructions).  */
-	mr	r1,r29
-#endif
-
 #ifdef RESET_PID
 	andis.	r0,r28,CLONE_THREAD>>16
 	bne+	r0,L(oldpid)
@@ -129,11 +108,7 @@ L(parent):
 #ifdef RESET_PID
 	lmw	r28,16(r1)
 #else
-# ifndef __ASSUME_FIXED_CLONE_SYSCALL
-	lmw	r29,16(r1)
-# else
 	lmw	r30,16(r1)
-# endif
 #endif
 	addi	r1,r1,32
 	bnslr+
@@ -144,6 +119,6 @@ L(badargs):
 	b	__syscall_error@local
 
 	cfi_startproc
-END (BP_SYM (__clone))
+END (__clone)
 
-weak_alias (BP_SYM (__clone), BP_SYM (clone))
+weak_alias (__clone, clone)

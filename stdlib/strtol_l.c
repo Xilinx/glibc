@@ -1,5 +1,5 @@
 /* Convert string representing a number to integer value, using given locale.
-   Copyright (C) 1997, 2002, 2004, 2006, 2007, 2010 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 #if HAVE_CONFIG_H
@@ -44,6 +43,7 @@
 #include <string.h>
 #include <locale.h>
 #include <xlocale.h>
+#include <stdint.h>
 #include <bits/wordsize.h>
 
 #ifdef USE_NUMBER_GROUPING
@@ -231,11 +231,11 @@ INTERNAL (__strtol_l) (nptr, endptr, base, group, loc)
      __locale_t loc;
 {
   int negative;
-  register unsigned LONG int cutoff;
-  register unsigned int cutlim;
-  register unsigned LONG int i;
-  register const STRING_TYPE *s;
-  register UCHAR_TYPE c;
+  unsigned LONG int cutoff;
+  unsigned int cutlim;
+  unsigned LONG int i;
+  const STRING_TYPE *s;
+  UCHAR_TYPE c;
   const STRING_TYPE *save, *end;
   int overflow;
 #ifndef USE_WIDE_CHAR
@@ -536,16 +536,10 @@ libc_hidden_def (INTERNAL (__strtol_l))
 /* External user entry point.  */
 
 #if _LIBC - 0 == 0
-# undef PARAMS
-# if defined (__STDC__) && __STDC__
-#  define PARAMS(Args) Args
-# else
-#  define PARAMS(Args) ()
-# endif
 
 /* Prototype.  */
-extern INT __strtol_l PARAMS ((const STRING_TYPE *nptr, STRING_TYPE **endptr,
-			       int base));
+extern INT __strtol_l (const STRING_TYPE *nptr, STRING_TYPE **endptr,
+		       int base);
 #endif
 
 

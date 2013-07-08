@@ -1,5 +1,5 @@
 /* truncf function.  PowerPC64 version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -23,10 +22,10 @@
 .LC0:	/* 2**23 */
 	.tc FD_4b000000_0[TC],0x4b00000000000000
 	.section	".text"
-	
+
 /* float [fp1] truncf (float x [fp1])
    IEEE 1003.1 trunc function.  IEEE specifies "trunc to the integer
-   value, in floating format, nearest to but no larger in magnitude 
+   value, in floating format, nearest to but no larger in magnitude
    then the argument."
    We set "round toward Zero" mode and trunc by adding +-2**23 then
    subtracting +-2**23.  */

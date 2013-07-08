@@ -1,5 +1,5 @@
 /* strcpy/stpcpy implementation for i586.
-   Copyright (C) 1997, 2000, 2003, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,19 +14,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+12	/* space for 3 saved regs */
+#define PARMS	4+12	/* space for 3 saved regs */
 #define RTN	PARMS
-#define DEST	RTN+RTN_SIZE
-#define SRC	DEST+PTR_SIZE
+#define DEST	RTN
+#define SRC	DEST+4
 
 #ifndef USE_AS_STPCPY
 # define STRCPY strcpy
@@ -35,8 +32,7 @@
 #define magic 0xfefefeff
 
 	.text
-ENTRY (BP_SYM (STRCPY))
-	ENTER
+ENTRY (STRCPY)
 
 	pushl	%edi
 	cfi_adjust_cfa_offset (4)
@@ -49,8 +45,6 @@ ENTRY (BP_SYM (STRCPY))
 	cfi_rel_offset (edi, 8)
 	movl	SRC(%esp), %esi
 	cfi_rel_offset (esi, 4)
-	CHECK_BOUNDS_LOW (%edi, DEST(%esp))
-	CHECK_BOUNDS_LOW (%esi, SRC(%esp))
 
 	xorl	%eax, %eax
 	leal	-1(%esi), %ecx
@@ -153,13 +147,11 @@ L(4):	movb	%dl, (%edi)
 L(end):	movb	%ah, (%edi)
 
 L(end2):
-	/* GKM FIXME: check high bounds  */
 #ifdef USE_AS_STPCPY
 	movl	%edi, %eax
 #else
 	movl	DEST(%esp), %eax
 #endif
-	RETURN_BOUNDED_POINTER (DEST(%esp))
 	popl	%ebx
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (ebx)
@@ -170,9 +162,8 @@ L(end2):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
-	RET_PTR
-END (BP_SYM (STRCPY))
+	ret
+END (STRCPY)
 #ifndef USE_AS_STPCPY
 libc_hidden_builtin_def (strcpy)
 #endif

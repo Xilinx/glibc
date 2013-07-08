@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -23,15 +23,10 @@ static char rcsid[] = "$NetBSD: s_copysignf.c,v 1.4 1995/05/10 20:46:59 jtc Exp 
  * with the sign bit of y.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	float __copysignf(float x, float y)
-#else
-	float __copysignf(x,y)
-	float x,y;
-#endif
+float __copysignf(float x, float y)
 {
 	u_int32_t ix,iy;
 	GET_FLOAT_WORD(ix,x);

@@ -1,6 +1,6 @@
 /* strchr (str, ch) -- Return pointer to first occurrence of CH in STR.
    For AMD x86-64.
-   Copyright (C) 2002, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,18 +14,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
 
 	.text
-ENTRY (BP_SYM (strchr))
+ENTRY (strchr)
 
 	/* Before we start with the main loop we process single bytes
 	   until the source pointer is aligned.  This has two reasons:
@@ -285,7 +282,7 @@ ENTRY (BP_SYM (strchr))
 6:
 	nop
 	retq
-END (BP_SYM (strchr))
+END (strchr)
 
-weak_alias (BP_SYM (strchr), BP_SYM (index))
+weak_alias (strchr, index)
 libc_hidden_builtin_def (strchr)

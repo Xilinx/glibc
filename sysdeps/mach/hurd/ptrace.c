@@ -1,5 +1,5 @@
 /* Process tracing interface `ptrace' for GNU Hurd.
-   Copyright (C) 1991, 92, 93, 95, 96, 97 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/ptrace.h>
@@ -161,7 +160,7 @@ ptrace (enum __ptrace_request request, ... )
     case PTRACE_SINGLESTEP:
       /* This is a machine-dependent kernel RPC on
 	 machines that support it.  Punt.  */
-      return EOPNOTSUPP;
+      return __hurd_fail (EOPNOTSUPP);
 
     case PTRACE_ATTACH:
     case PTRACE_DETACH:
@@ -228,7 +227,7 @@ ptrace (enum __ptrace_request request, ... )
     case PTRACE_PEEKUSER:
     case PTRACE_POKEUSER:
       /* U area, what's that?  */
-      return EOPNOTSUPP;
+      return __hurd_fail (EOPNOTSUPP);
 
     case PTRACE_GETREGS:
     case PTRACE_SETREGS:
@@ -249,7 +248,7 @@ ptrace (enum __ptrace_request request, ... )
       return get_regs (MACHINE_THREAD_FLOAT_STATE_FLAVOR,
 		       MACHINE_THREAD_FLOAT_STATE_COUNT);
 #else
-      return EOPNOTSUPP;
+      return __hurd_fail (EOPNOTSUPP);
 #endif
 
     case PTRACE_GETFPAREGS:
@@ -262,7 +261,7 @@ ptrace (enum __ptrace_request request, ... )
       return get_regs (MACHINE_THREAD_FPA_STATE_FLAVOR,
 		       MACHINE_THREAD_FPA_STATE_COUNT);
 #else
-      return EOPNOTSUPP;
+      return __hurd_fail (EOPNOTSUPP);
 #endif
 
     case PTRACE_POKETEXT:

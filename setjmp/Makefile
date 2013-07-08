@@ -1,4 +1,4 @@
-# Copyright (C) 1991, 92, 93, 94, 95, 97, 2009 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for setjmp/longjmp routines
@@ -26,7 +25,15 @@ headers	:= setjmp.h bits/setjmp.h bits/setjmp2.h
 routines	:= setjmp sigjmp bsd-setjmp bsd-_setjmp \
 		   longjmp __longjmp jmp-unwind
 
-tests		:= tst-setjmp jmpbug bug269-setjmp
+tests		:= tst-setjmp jmpbug bug269-setjmp tst-setjmp-fp \
+		   tst-sigsetjmp
 
 
 include ../Rules
+
+ifeq ($(build-shared),yes)
+link-libm = $(common-objpfx)math/libm.so
+else
+link-libm = $(common-objpfx)math/libm.a
+endif
+$(objpfx)tst-setjmp-fp: $(link-libm)

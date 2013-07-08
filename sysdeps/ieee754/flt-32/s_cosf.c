@@ -18,21 +18,18 @@ static char rcsid[] = "$NetBSD: s_cosf.c,v 1.4 1995/05/10 20:47:03 jtc Exp $";
 #endif
 
 #include <errno.h>
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
 static const float one=1.0;
+
+#ifndef COSF
+# define COSF_FUNC __cosf
 #else
-static float one=1.0;
+# define COSF_FUNC COSF
 #endif
 
-#ifdef __STDC__
-	float __cosf(float x)
-#else
-	float __cosf(x)
-	float x;
-#endif
+float COSF_FUNC(float x)
 {
 	float y[2],z=0.0;
 	int32_t n,ix;
@@ -62,4 +59,7 @@ static float one=1.0;
 	    }
 	}
 }
+
+#ifndef COSF
 weak_alias (__cosf, cosf)
+#endif

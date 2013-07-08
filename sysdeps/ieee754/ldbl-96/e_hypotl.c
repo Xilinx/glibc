@@ -46,15 +46,10 @@
  *	than 1 ulps (units in the last place)
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	long double __ieee754_hypotl(long double x, long double y)
-#else
-	long double __ieee754_hypotl(x,y)
-	long double x, y;
-#endif
+long double __ieee754_hypotl(long double x, long double y)
 {
 	long double a,b,t1,t2,y1,y2,w;
 	u_int32_t j,k,ea,eb;
@@ -90,7 +85,7 @@
 		u_int32_t high,low;
 		GET_LDOUBLE_WORDS(exp,high,low,b);
 		if((high|low)==0) return a;
-		SET_LDOUBLE_WORDS(t1, 0x7ffd, 0, 0);	/* t1=2^16382 */
+		SET_LDOUBLE_WORDS(t1, 0x7ffd, 0x80000000, 0); /* t1=2^16382 */
 		b *= t1;
 		a *= t1;
 		k -= 16382;

@@ -1,5 +1,5 @@
 /* longjmp for PowerPC.
-   Copyright (C) 1995-99, 2000, 2003-2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 1 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ASM
@@ -24,22 +23,24 @@
 #else
 # include <jmpbuf-offsets.h>
 #endif
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 	.machine	"altivec"
-ENTRY (BP_SYM (__longjmp))
-	CHECK_BOUNDS_BOTH_WIDE_LIT (r3, r8, r9, JB_SIZE)
+ENTRY (__longjmp)
 #ifndef __NO_VMX__
 # ifdef PIC
 	mflr    r6
 	cfi_register (lr,r6)
-	bcl	20,31,1f
-1:	mflr	r5
-	addis	r5,r5,_GLOBAL_OFFSET_TABLE_-1b@ha
-	addi	r5,r5,_GLOBAL_OFFSET_TABLE_-1b@l
+	SETUP_GOT_ACCESS(r5,got_label)
+	addis	r5,r5,_GLOBAL_OFFSET_TABLE_-got_label@ha
+	addi	r5,r5,_GLOBAL_OFFSET_TABLE_-got_label@l
 #  ifdef SHARED
+#   ifdef IS_IN_rtld
+	/* Inside ld.so we use the local alias to avoid runtime GOT
+	   relocations.  */
+	lwz     r5,_rtld_local_ro@got(r5)
+#   else
 	lwz     r5,_rtld_global_ro@got(r5)
+#   endif
 	mtlr    r6
 	cfi_same_value (lr)
 	lwz     r5,RTLD_GLOBAL_RO_DL_HWCAP_OFFSET+4(r5)
@@ -169,4 +170,4 @@ L(no_vmx):
 	lfd fp31,((JB_FPRS+17*2)*4)(r3)
 	mr r3,r4
 	blr
-END (BP_SYM (__longjmp))
+END (__longjmp)

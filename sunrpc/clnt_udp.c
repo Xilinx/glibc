@@ -42,6 +42,7 @@
 #include <sys/ioctl.h>
 #include <netdb.h>
 #include <errno.h>
+#include <stdint.h>
 #include <rpc/pmap_clnt.h>
 #include <net/if.h>
 #include <ifaddrs.h>
@@ -239,7 +240,7 @@ fooy:
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (__libc_clntudp_bufcreate)
 #else
-libc_hidden_nolink (__libc_clntudp_bufcreate, GLIBC_PRIVATE)
+libc_hidden_nolink_sunrpc (__libc_clntudp_bufcreate, GLIBC_PRIVATE)
 #endif
 
 CLIENT *
@@ -250,7 +251,7 @@ clntudp_bufcreate (struct sockaddr_in *raddr, u_long program, u_long version,
   return __libc_clntudp_bufcreate (raddr, program, version, wait,
 				   sockp, sendsz, recvsz, 0);
 }
-libc_hidden_nolink (clntudp_bufcreate, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (clntudp_bufcreate, GLIBC_2_0)
 
 CLIENT *
 clntudp_create (raddr, program, version, wait, sockp)
@@ -266,7 +267,7 @@ clntudp_create (raddr, program, version, wait, sockp)
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (clntudp_create)
 #else
-libc_hidden_nolink (clntudp_create, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (clntudp_create, GLIBC_2_0)
 #endif
 
 static int
@@ -473,8 +474,7 @@ send_again:
       /* see if reply transaction id matches sent id.
 	Don't do this if we only wait for a replay */
       if (xargs != NULL
-	  && (*((u_int32_t *) (cu->cu_inbuf))
-	      != *((u_int32_t *) (cu->cu_outbuf))))
+	  && memcmp (cu->cu_inbuf, cu->cu_outbuf, sizeof (u_int32_t)) != 0)
 	continue;
       /* we now assume we have the proper reply */
       break;
@@ -548,6 +548,8 @@ static bool_t
 clntudp_control (CLIENT *cl, int request, char *info)
 {
   struct cu_data *cu = (struct cu_data *) cl->cl_private;
+  u_long ul;
+  u_int32_t ui32;
 
   switch (request)
     {
@@ -581,11 +583,15 @@ clntudp_control (CLIENT *cl, int request, char *info)
        * first element in the call structure *.
        * This will get the xid of the PREVIOUS call
        */
-      *(u_long *)info = ntohl(*(u_long *)cu->cu_outbuf);
+      memcpy (&ui32, cu->cu_outbuf, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_XID:
       /* This will set the xid of the NEXT call */
-      *(u_long *)cu->cu_outbuf =  htonl(*(u_long *)info - 1);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul - 1);
+      memcpy (cu->cu_outbuf, &ui32, sizeof (ui32));
       /* decrement by 1 as clntudp_call() increments once */
       break;
     case CLGET_VERS:
@@ -595,12 +601,14 @@ clntudp_control (CLIENT *cl, int request, char *info)
        * begining of the RPC header. MUST be changed if the
        * call_struct is changed
        */
-      *(u_long *)info = ntohl(*(u_long *)(cu->cu_outbuf +
-					  4 * BYTES_PER_XDR_UNIT));
+      memcpy (&ui32, cu->cu_outbuf + 4 * BYTES_PER_XDR_UNIT, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_VERS:
-      *(u_long *)(cu->cu_outbuf + 4 * BYTES_PER_XDR_UNIT)
-	= htonl(*(u_long *)info);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul);
+      memcpy (cu->cu_outbuf + 4 * BYTES_PER_XDR_UNIT, &ui32, sizeof (ui32));
       break;
     case CLGET_PROG:
       /*
@@ -609,12 +617,14 @@ clntudp_control (CLIENT *cl, int request, char *info)
        * begining of the RPC header. MUST be changed if the
        * call_struct is changed
        */
-      *(u_long *)info = ntohl(*(u_long *)(cu->cu_outbuf +
-					  3 * BYTES_PER_XDR_UNIT));
+      memcpy (&ui32, cu->cu_outbuf + 3 * BYTES_PER_XDR_UNIT, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_PROG:
-      *(u_long *)(cu->cu_outbuf + 3 * BYTES_PER_XDR_UNIT)
-	= htonl(*(u_long *)info);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul);
+      memcpy (cu->cu_outbuf + 3 * BYTES_PER_XDR_UNIT, &ui32, sizeof (ui32));
       break;
     /* The following are only possible with TI-RPC */
     case CLGET_SVC_ADDR:

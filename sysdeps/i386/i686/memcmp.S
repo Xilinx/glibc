@@ -1,5 +1,5 @@
 /* Compare two memory blocks for differences in the first COUNT bytes.
-   Copyright (C) 2004, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,48 +13,36 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS		LINKAGE+4	/* Preserve EBX.  */
+#define PARMS		4+4	/* Preserve EBX.  */
 #define BLK1		PARMS
-#define BLK2		BLK1+PTR_SIZE
-#define LEN		BLK2+PTR_SIZE
+#define BLK2		BLK1+4
+#define LEN		BLK2+4
 #define ENTRANCE	pushl %ebx; cfi_adjust_cfa_offset (4); \
-			cfi_rel_offset (ebx, 0); ENTER
+			cfi_rel_offset (ebx, 0)
 #define RETURN		popl %ebx; cfi_adjust_cfa_offset (-4); \
-			cfi_restore (ebx); LEAVE; ret
+			cfi_restore (ebx); ret
 
 /* Load an entry in a jump table into EBX.  TABLE is a jump table
    with relative offsets.  INDEX is a register contains the index
    into the jump table.  */
 #define LOAD_JUMP_TABLE_ENTRY(TABLE, INDEX) \
   /* We first load PC into EBX.  */					      \
-  call	__i686.get_pc_thunk.bx;						      \
+  SETUP_PIC_REG(bx);							      \
   /* Get the address of the jump table.  */				      \
   addl	$(TABLE - .), %ebx;						      \
   /* Get the entry and convert the relative offset to the		      \
      absolute address.  */						      \
   addl	(%ebx,INDEX,4), %ebx
 
-	.section	.gnu.linkonce.t.__i686.get_pc_thunk.bx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.bx
-	.hidden	__i686.get_pc_thunk.bx
-	ALIGN (4)
-	.type	__i686.get_pc_thunk.bx,@function
-__i686.get_pc_thunk.bx:
-	movl	(%esp), %ebx
-	ret
-
         .text
 	ALIGN (4)
-ENTRY (BP_SYM (memcmp))
+ENTRY (memcmp)
 	ENTRANCE
 
 	movl	BLK1(%esp), %eax
@@ -376,7 +364,7 @@ L(set):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (esi)
 	RETURN
-END (BP_SYM (memcmp))
+END (memcmp)
 
 	.section	.rodata
 	ALIGN (2)
@@ -416,5 +404,5 @@ L(table_32bytes) :
 
 
 #undef bcmp
-weak_alias (BP_SYM (memcmp), BP_SYM (bcmp))
-libc_hidden_builtin_def (BP_SYM (memcmp))
+weak_alias (memcmp, bcmp)
+libc_hidden_builtin_def (memcmp)

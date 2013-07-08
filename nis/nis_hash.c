@@ -1,4 +1,4 @@
-/* Copyright (c) 1997, 1998, 1999, 2004 Free Software Foundation, Inc.
+/* Copyright (c) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1997.
 
@@ -13,10 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
+#include <stdint.h>
 #include <rpcsvc/nis.h>
 
 /* This is from libc/db/hash/hash_func.c, hash3 is static there */
@@ -30,11 +30,11 @@
  * OZ's original sdbm hash
  */
 uint32_t
-__nis_hash (const void *keyarg, register size_t len)
+__nis_hash (const void *keyarg, size_t len)
 {
-  register const u_char *key;
-  register size_t loop;
-  register uint32_t h;
+  const u_char *key;
+  size_t loop;
+  uint32_t h;
 
 #define HASHC   h = *key++ + 65599 * h
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,34 +13,22 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 #include <math_private.h>
-
-static const double
-o_threshold=  7.09782712893383973096e+02,  /* 0x40862E42, 0xFEFA39EF */
-u_threshold= -7.45133219101941108420e+02;  /* 0xc0874910, 0xD52D3051 */
-
 
 /* wrapper exp */
 double
 __exp (double x)
 {
-  if (__builtin_expect (x > o_threshold, 0))
-    {
-      if (_LIB_VERSION != _IEEE_)
-	return __kernel_standard_f (x, x, 6);
-    }
-  else if (__builtin_expect (x < u_threshold, 0))
-    {
-      if (_LIB_VERSION != _IEEE_)
-	return __kernel_standard_f (x, x, 7);
-    }
+  double z = __ieee754_exp (x);
+  if (__builtin_expect (!__finite (z) || z == 0, 0)
+      && __finite (x) && _LIB_VERSION != _IEEE_)
+    return __kernel_standard (x, x, 6 + !!__signbit (x));
 
-  return __ieee754_exp (x);
+  return z;
 }
 hidden_def (__exp)
 weak_alias (__exp, exp)

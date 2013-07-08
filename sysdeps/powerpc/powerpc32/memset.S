@@ -1,5 +1,5 @@
 /* Optimized memset implementation for PowerPC.
-   Copyright (C) 1997, 1999, 2000, 2003, 2007 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* __ptr_t [r3] memset (__ptr_t s [r3], int c [r4], size_t n [r5]));
    Returns 's'.
@@ -30,21 +27,14 @@
    takes advantage of the dcbz instruction.  */
 
 	.section	".text"
-EALIGN (BP_SYM (memset), 5, 1)
+EALIGN (memset, 5, 1)
 
 #define rTMP	r0
 #define rRTN	r3	/* initial value of 1st argument */
-#if __BOUNDED_POINTERS__
-# define rMEMP0	r4	/* original value of 1st arg */
-# define rCHR	r5	/* char to set in each byte */
-# define rLEN	r6	/* length of region to set */
-# define rMEMP	r10	/* address at which we are storing */
-#else
-# define rMEMP0	r3	/* original value of 1st arg */
-# define rCHR	r4	/* char to set in each byte */
-# define rLEN	r5	/* length of region to set */
-# define rMEMP	r6	/* address at which we are storing */
-#endif
+#define rMEMP0	r3	/* original value of 1st arg */
+#define rCHR	r4	/* char to set in each byte */
+#define rLEN	r5	/* length of region to set */
+#define rMEMP	r6	/* address at which we are storing */
 #define rALIGN	r7	/* number of bytes we are setting now (when aligning) */
 #define rMEMP2	r8
 
@@ -55,15 +45,6 @@ EALIGN (BP_SYM (memset), 5, 1)
 #define rGOT	r9	/* Address of the Global Offset Table.  */
 #define rCLS	r8	/* Cache line size obtained from static.  */
 #define rCLM	r9	/* Cache line size mask to check for cache alignment.  */
-
-#if __BOUNDED_POINTERS__
-	cmplwi	cr1, rRTN, 0
-	CHECK_BOUNDS_BOTH_WIDE (rMEMP0, rTMP, rTMP2, rLEN)
-	beq	cr1, L(b0)
-	STORE_RETURN_VALUE (rMEMP0)
-	STORE_RETURN_BOUNDS (rTMP, rTMP2)
-L(b0):
-#endif
 
 /* take care of case for size <= 4  */
 	cmplwi	cr1, rLEN, 4
@@ -256,10 +237,9 @@ L(checklinesize):
 	beq	L(medium)
 /* Establishes GOT addressability so we can load __cache_line_size
    from static. This value was set from the aux vector during startup.  */
-	bcl	20,31,1f
-1:	mflr	rGOT
-	addis	rGOT,rGOT,__cache_line_size-1b@ha
-	lwz	rCLS,__cache_line_size-1b@l(rGOT)
+	SETUP_GOT_ACCESS(rGOT,got_label)
+	addis	rGOT,rGOT,__cache_line_size-got_label@ha
+	lwz	rCLS,__cache_line_size-got_label@l(rGOT)
 	mtlr	rTMP
 #else
 /* Load __cache_line_size from static. This value was set from the
@@ -277,7 +257,7 @@ L(checklinesize):
 	beq	cr1,L(nondcbz)
 
 /* If the cache line size is 32 bytes then goto to L(zloopstart),
-   which is coded specificly for 32-byte lines (and 601).  */
+   which is coded specifically for 32-byte lines (and 601).  */
 	cmplwi	cr1,rCLS,32
 	beq	cr1,L(zloopstart)
 
@@ -323,5 +303,5 @@ L(handletail32):
 	clrrwi.	rALIGN, rLEN, 5
 	b	L(nondcbz)
 
-END (BP_SYM (memset))
+END (memset)
 libc_hidden_builtin_def (memset)

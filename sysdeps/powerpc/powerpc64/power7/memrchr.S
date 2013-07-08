@@ -1,5 +1,5 @@
 /* Optimized memrchr implementation for PowerPC64/POWER7 using cmpb insn.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,17 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int [r3] memrchr (char *s [r3], int byte [r4], int size [r5])  */
 	.machine  power7
-ENTRY (BP_SYM (__memrchr))
+ENTRY (__memrchr)
 	CALL_MCOUNT
 	dcbt	0,r3
 	mr	r7,r3
@@ -53,7 +50,7 @@ L(proceed):
 	cmpb	r10,r12,r4    /* Check for BYTE in DWORD1.  */
 	sld	r10,r10,r0
 	srd	r10,r10,r0
-	cmpldi	cr7,r10,0     /* If r10 == 0, no BYTE's have been found.  */
+	cmpldi	cr7,r10,0     /* If r10 == 0, no BYTEs have been found.  */
 	bne	cr7,L(done)
 
 	/* Are we done already?  */
@@ -175,6 +172,6 @@ L(loop_small):
 	ble	L(null)
 	b	L(loop_small)
 
-END (BP_SYM (__memrchr))
-weak_alias (BP_SYM (__memrchr), BP_SYM(memrchr))
+END (__memrchr)
+weak_alias (__memrchr, memrchr)
 libc_hidden_builtin_def (memrchr)

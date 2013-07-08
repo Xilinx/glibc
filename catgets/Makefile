@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2000, 2002, 2003, 2004 Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for catgets.
@@ -22,8 +21,6 @@
 subdir	:= catgets
 
 headers		= nl_types.h
-distribute	= catgetsinfo.h config.h xopen-msg.sed test1.msg test2.msg \
-		  test-gencat.sh sample.SJIS
 routines	= catgets open_catalog
 others		= gencat
 install-bin	= gencat
@@ -53,7 +50,7 @@ generated-dirs = de
 
 tst-catgets-ENV = NLSPATH="$(objpfx)%l/%N.cat" LANG=de
 
-ifneq ($(cross-compiling),yes)
+ifeq ($(run-built-tests),yes)
 tests: $(objpfx)de/libc.cat $(objpfx)test1.cat $(objpfx)test2.cat \
        $(objpfx)test-gencat.out
 # This test just checks whether the program produces any error or not.
@@ -73,12 +70,12 @@ $(objpfx)de/libc.cat: $(objpfx)de.msg $(objpfx)gencat
 $(objpfx)tst-catgets.out: $(objpfx)de/libc.cat
 
 # Generate a non-simple input file.
-$(objpfx)de.msg: $(..)po/de.po
-	LC_ALL=C sed -f xopen-msg.sed $< > $@
+$(objpfx)de.msg: xopen-msg.awk $(..)po/de.po
+	LC_ALL=C $(AWK) -f $^ $< > $@
 
 $(objpfx)test-gencat.out: test-gencat.sh $(objpfx)test-gencat \
 			  $(objpfx)sample.SJIS.cat
-	$(SHELL) -e $< $(common-objpfx) '$(built-program-cmd)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'
 
 $(objpfx)sample.SJIS.cat: sample.SJIS $(objpfx)gencat
 	GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \

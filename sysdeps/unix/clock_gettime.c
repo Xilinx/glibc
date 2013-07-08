@@ -1,5 +1,5 @@
 /* clock_gettime -- Get the current time from a POSIX clockid_t.  Unix version.
-   Copyright (C) 1999-2004, 2005, 2007, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <stdint.h>
@@ -90,7 +89,7 @@ realtime_gettime (struct timespec *tp)
 
 /* Get current value of CLOCK and store it in TP.  */
 int
-clock_gettime (clockid_t clock_id, struct timespec *tp)
+__clock_gettime (clockid_t clock_id, struct timespec *tp)
 {
   int retval = -1;
 
@@ -133,4 +132,5 @@ clock_gettime (clockid_t clock_id, struct timespec *tp)
 
   return retval;
 }
-librt_hidden_def (clock_gettime)
+weak_alias (__clock_gettime, clock_gettime)
+libc_hidden_def (__clock_gettime)

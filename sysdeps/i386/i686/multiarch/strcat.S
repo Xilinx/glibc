@@ -1,5 +1,6 @@
 /* Multiple versions of strcat
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   All versions must be listed in ifunc-impl-list.c.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <init-arch.h>
@@ -46,23 +46,13 @@
 #ifndef NOT_IN_libc
 
 # ifdef SHARED
-	.section	.gnu.linkonce.t.__i686.get_pc_thunk.bx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.bx
-	.hidden	__i686.get_pc_thunk.bx
-	.p2align 4
-	.type	__i686.get_pc_thunk.bx,@function
-__i686.get_pc_thunk.bx:
-	movl	(%esp), %ebx
-	ret
-
 	.text
 ENTRY(STRCAT)
 	.type	STRCAT, @gnu_indirect_function
 	pushl	%ebx
 	cfi_adjust_cfa_offset (4)
 	cfi_rel_offset (ebx, 0)
-	call	__i686.get_pc_thunk.bx
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+	LOAD_PIC_REG(bx)
 	cmpl	$0, KIND_OFFSET+__cpu_features@GOTOFF(%ebx)
 	jne	1f
 	call	__init_cpu_features
@@ -105,6 +95,8 @@ END(STRCAT)
 # define ENTRY(name) \
 	.type STRCAT_IA32, @function; \
 	.align 16; \
+	.globl STRCAT_IA32; \
+	.hidden STRCAT_IA32; \
 	STRCAT_IA32: cfi_startproc; \
 	CALL_MCOUNT
 # undef END

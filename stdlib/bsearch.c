@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,92,97,2000,02 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,38 +12,12 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdlib.h>
 
-
-/* Perform a binary search for KEY in BASE which has NMEMB elements
-   of SIZE bytes each.  The comparisons are done by (*COMPAR)().  */
-void *
-bsearch (const void *key, const void *base, size_t nmemb, size_t size,
-	 int (*compar) (const void *, const void *))
-{
-  size_t l, u, idx;
-  const void *p;
-  int comparison;
-
-  l = 0;
-  u = nmemb;
-  while (l < u)
-    {
-      idx = (l + u) / 2;
-      p = (void *) (((const char *) base) + (idx * size));
-      comparison = (*compar) (key, p);
-      if (comparison < 0)
-	u = idx;
-      else if (comparison > 0)
-	l = idx + 1;
-      else
-	return (void *) p;
-    }
-
-  return NULL;
-}
+#undef  __extern_inline
+#define __extern_inline /* Empty, so we get a normal definition.  */
+#include <bits/stdlib-bsearch.h>
 libc_hidden_def (bsearch)

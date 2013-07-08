@@ -1,5 +1,5 @@
 /* Checking macros for socket functions.
-   Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_SOCKET_H
 # error "Never include <bits/socket2.h> directly; use <sys/socket.h> instead."
@@ -31,7 +30,7 @@ extern ssize_t __REDIRECT (__recv_chk_warn,
      __warnattr ("recv called with bigger length than size of destination "
 		 "buffer");
 
-__extern_always_inline ssize_t
+__fortify_function ssize_t
 recv (int __fd, void *__buf, size_t __n, int __flags)
 {
   if (__bos0 (__buf) != (size_t) -1)
@@ -61,7 +60,7 @@ extern ssize_t __REDIRECT (__recvfrom_chk_warn,
      __warnattr ("recvfrom called with bigger length than size of "
 		 "destination buffer");
 
-__extern_always_inline ssize_t
+__fortify_function ssize_t
 recvfrom (int __fd, void *__restrict __buf, size_t __n, int __flags,
 	  __SOCKADDR_ARG __addr, socklen_t *__restrict __addr_len)
 {

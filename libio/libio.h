@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-1995,1997-2006,2007,2009,2011 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -31,60 +30,33 @@
 
 #include <_G_config.h>
 /* ALL of these should be defined in _G_config.h */
-#define _IO_pos_t _G_fpos_t /* obsolete */
 #define _IO_fpos_t _G_fpos_t
 #define _IO_fpos64_t _G_fpos64_t
-#define _IO_size_t _G_size_t
-#define _IO_ssize_t _G_ssize_t
-#define _IO_off_t _G_off_t
-#define _IO_off64_t _G_off64_t
-#define _IO_pid_t _G_pid_t
-#define _IO_uid_t _G_uid_t
+#define _IO_size_t size_t
+#define _IO_ssize_t __ssize_t
+#define _IO_off_t __off_t
+#define _IO_off64_t __off64_t
+#define _IO_pid_t __pid_t
+#define _IO_uid_t __uid_t
 #define _IO_iconv_t _G_iconv_t
-#define _IO_HAVE_SYS_WAIT _G_HAVE_SYS_WAIT
 #define _IO_HAVE_ST_BLKSIZE _G_HAVE_ST_BLKSIZE
 #define _IO_BUFSIZ _G_BUFSIZ
 #define _IO_va_list _G_va_list
-#define _IO_wint_t _G_wint_t
+#define _IO_wint_t wint_t
 
-#ifdef _G_NEED_STDARG_H
 /* This define avoids name pollution if we're using GNU stdarg.h */
-# define __need___va_list
-# include <stdarg.h>
-# ifdef __GNUC_VA_LIST
-#  undef _IO_va_list
-#  define _IO_va_list __gnuc_va_list
-# endif /* __GNUC_VA_LIST */
-#endif
+#define __need___va_list
+#include <stdarg.h>
+#ifdef __GNUC_VA_LIST
+# undef _IO_va_list
+# define _IO_va_list __gnuc_va_list
+#endif /* __GNUC_VA_LIST */
 
 #ifndef __P
-# if _G_HAVE_SYS_CDEFS
-#  include <sys/cdefs.h>
-# else
-#  ifdef __STDC__
-#   define __P(p) p
-#   define __PMT(p) p
-#  else
-#   define __P(p) ()
-#   define __PMT(p) ()
-#  endif
-# endif
+# include <sys/cdefs.h>
 #endif /*!__P*/
 
-/* For backward compatibility */
-#ifndef _PARAMS
-# define _PARAMS(protos) __P(protos)
-#endif /*!_PARAMS*/
-
-#ifndef __STDC__
-# ifndef const
-#  define const
-# endif
-#endif
 #define _IO_UNIFIED_JUMPTABLES 1
-#ifndef _G_HAVE_PRINTF_FP
-# define _IO_USE_DTOA 1
-#endif
 
 #ifndef EOF
 # define EOF (-1)
@@ -366,12 +338,12 @@ extern _IO_FILE *_IO_stderr attribute_hidden;
 typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
 
 /* Write N bytes pointed to by BUF to COOKIE.  Write all N bytes
-   unless there is an error.  Return number of bytes written, or -1 if
-   there is an error without writing anything.  If the file has been
-   opened for append (__mode.__append set), then set the file pointer
-   to the end of the file and then do the write; if not, just write at
-   the current file pointer.  */
-typedef __ssize_t __io_write_fn (void *__cookie, __const char *__buf,
+   unless there is an error.  Return number of bytes written.  If
+   there is an error, return 0 and do not write anything.  If the file
+   has been opened for append (__mode.__append set), then set the file
+   pointer to the end of the file and then do the write; if not, just
+   write at the current file pointer.  */
+typedef __ssize_t __io_write_fn (void *__cookie, const char *__buf,
 				 size_t __n);
 
 /* Move COOKIE's file position to *POS bytes from the

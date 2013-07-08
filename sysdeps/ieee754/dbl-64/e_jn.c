@@ -36,8 +36,9 @@
  *
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <errno.h>
+#include <math.h>
+#include <math_private.h>
 
 static const double
 invsqrtpi=  5.64189583547756279280e-01, /* 0x3FE20DD7, 0x50429B6D */
@@ -276,6 +277,9 @@ __ieee754_yn(int n, double x)
 		GET_HIGH_WORD(high,b);
 		a = temp;
 	    }
+	    /* If B is +-Inf, set up errno accordingly.  */
+	    if (! __finite (b))
+	      __set_errno (ERANGE);
 	}
 	if(sign>0) return b; else return -b;
 }

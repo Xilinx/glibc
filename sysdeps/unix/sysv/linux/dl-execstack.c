@@ -1,5 +1,5 @@
 /* Stack executability handling for GNU dynamic linker.  Linux version.
-   Copyright (C) 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <ldsodefs.h>
 #include <sys/mman.h>
@@ -47,95 +46,11 @@ _dl_make_stack_executable (void **stack_endp)
       || __builtin_expect (*stack_endp != __libc_stack_end, 0))
     return EPERM;
 
-  /* Newer Linux kernels support a flag to make our job easy.  */
-#if defined  PROT_GROWSDOWN || defined PROT_GROWSUP
-# if __ASSUME_PROT_GROWSUPDOWN == 0
-  static bool no_growsupdown;
-  if (! no_growsupdown)
-# endif
-    {
-      if (__builtin_expect (__mprotect ((void *) page, GLRO(dl_pagesize),
-					__stack_prot) == 0, 1))
-	goto return_success;
-# if __ASSUME_PROT_GROWSUPDOWN == 0
-      if (errno == EINVAL)
-	no_growsupdown = true;
-      else
-# endif
-	{
-	  result = errno;
-	  goto out;
-	}
-    }
-#endif
-
-  /* There is always a hole in the address space below the bottom of the
-     stack.  So when we make an mprotect call that starts below the bottom
-     of the stack, it will include the hole and fail with ENOMEM.
-
-     We start with a random guess at how deep the stack might have gotten
-     so as to have extended the GROWSDOWN mapping to lower pages.  */
-
-#if __ASSUME_PROT_GROWSUPDOWN == 0
-  size_t size = GLRO(dl_pagesize) * 8;
-
-# if _STACK_GROWS_DOWN
-  page = page + GLRO(dl_pagesize) - size;
-  while (1)
-    {
-      if (__mprotect ((void *) page, size,
-		      __stack_prot & ~PROT_GROWSDOWN) == 0)
-	/* We got this chunk changed; loop to do another chunk below.  */
-	page -= size;
-      else
-	{
-	  if (errno != ENOMEM)	/* Unexpected failure mode.  */
-	    {
-	      result = errno;
-	      goto out;
-	    }
-
-	  if (size == GLRO(dl_pagesize))
-	    /* We just tried to mprotect the top hole page and failed.
-	       We are done.  */
-	    break;
-
-	  /* Our mprotect call failed because it started below the lowest
-	     stack page.  Try again on just the top half of that region.  */
-	  size /= 2;
-	  page += size;
-	}
-    }
-
-# elif _STACK_GROWS_UP
-  while (1)
-    {
-      if (__mprotect ((void *) page, size, __stack_prot & ~PROT_GROWSUP) == 0)
-	/* We got this chunk changed; loop to do another chunk below.  */
-	page += size;
-      else
-	{
-	  if (errno != ENOMEM)	/* Unexpected failure mode.  */
-	    {
-	      result = errno;
-	      goto out;
-	    }
-
-	  if (size == GLRO(dl_pagesize))
-	    /* We just tried to mprotect the lowest hole page and failed.
-	       We are done.  */
-	    break;
-
-	  /* Our mprotect call failed because it extended past the highest
-	     stack page.  Try again on just the bottom half of that region.  */
-	  size /= 2;
-	}
-    }
-
-# else
-#  error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
-# endif
-#endif
+  if (__builtin_expect (__mprotect ((void *) page, GLRO(dl_pagesize),
+				    __stack_prot) == 0, 1))
+    goto return_success;
+  result = errno;
+  goto out;
 
  return_success:
   /* Clear the address.  */

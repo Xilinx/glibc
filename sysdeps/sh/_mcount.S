@@ -1,5 +1,5 @@
 /* Machine-specific calling sequence for `mcount' profiling function.  SuperH
-   Copyright (C) 2001, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by NIIBE Yutaka <gniibe@m17n.org>
    This file is part of the GNU C Library.
 
@@ -14,14 +14,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(_mcount)
-	ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(_mcount),function)
+	.globl C_SYMBOL_NAME(_mcount)
+	.type C_SYMBOL_NAME(_mcount),@function
 	cfi_startproc
 	.align	5
 C_LABEL(_mcount)
@@ -59,11 +58,20 @@ C_LABEL(_mcount)
 
 	/* Pop the saved registers.  */
 	lds.l	@r15+,pr
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (pr)
 	mov.l	@r15+,r7
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r7)
 	mov.l	@r15+,r6
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r6)
 	mov.l	@r15+,r5
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r5)
 	rts
 	 mov.l	@r15+,r4
+	/* Omit CFI for restore in delay slot.  */
 
 	.align 2
 #ifdef SHARED

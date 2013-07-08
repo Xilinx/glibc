@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2007, 2008, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -25,6 +24,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/mman.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -420,7 +420,6 @@ __nscd_get_mapping (request_type type, const char *key,
   return result;
 }
 
-
 struct mapped_database *
 __nscd_get_map_ref (request_type type, const char *name,
 		    volatile struct locked_map_ptr *mapptr, int *gc_cyclep)
@@ -429,16 +428,8 @@ __nscd_get_map_ref (request_type type, const char *name,
   if (cur == NO_MAPPING)
     return cur;
 
-  int cnt = 0;
-  while (__builtin_expect (atomic_compare_and_exchange_val_acq (&mapptr->lock,
-								1, 0) != 0, 0))
-    {
-      // XXX Best number of rounds?
-      if (__builtin_expect (++cnt > 5, 0))
-	return NO_MAPPING;
-
-      atomic_delay ();
-    }
+  if (!__nscd_acquire_maplock (mapptr))
+    return NO_MAPPING;
 
   cur = mapptr->mapped;
 

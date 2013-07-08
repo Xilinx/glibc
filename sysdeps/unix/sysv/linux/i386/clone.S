@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2000,02,03,04,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@tamu.edu)
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
@@ -24,20 +23,18 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #include <asm-syntax.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
 	     pid_t *ptid, struct user_desc *tls, pid_t *ctid); */
 
-#define PARMS	LINKAGE		/* no space for saved regs */
+#define PARMS	4		/* no space for saved regs */
 #define FUNC	PARMS
 #define STACK	FUNC+4
-#define FLAGS	STACK+PTR_SIZE
+#define FLAGS	STACK+4
 #define ARG	FLAGS+4
-#define PTID	ARG+PTR_SIZE
-#define TLS	PTID+PTR_SIZE
-#define CTID	TLS+PTR_SIZE
+#define PTID	ARG+4
+#define TLS	PTID+4
+#define CTID	TLS+4
 
 #define __NR_clone 120
 #define SYS_clone 120
@@ -46,7 +43,7 @@
 #define CLONE_THREAD	0x00010000
 
         .text
-ENTRY (BP_SYM (__clone))
+ENTRY (__clone)
 	/* Sanity check arguments.  */
 	movl	$-EINVAL,%eax
 	movl	FUNC(%esp),%ecx		/* no NULL function pointers */
@@ -116,7 +113,6 @@ ENTRY (BP_SYM (__clone))
 	jl	SYSCALL_ERROR_LABEL
 	jz	L(thread_start)
 
-L(pseudo_end):
 	ret
 
 L(thread_start):
@@ -158,6 +154,6 @@ L(nomoregetpid):
 	cfi_endproc;
 
 	cfi_startproc
-PSEUDO_END (BP_SYM (__clone))
+PSEUDO_END (__clone)
 
-weak_alias (BP_SYM (__clone), BP_SYM (clone))
+weak_alias (__clone, clone)

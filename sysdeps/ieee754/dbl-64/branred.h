@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * Written by International Business Machines Corp.
- * Copyright (C) 2001 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /************************************************************************/
 /*  MODULE_NAME: branred.h                                              */
@@ -27,6 +26,7 @@
 #ifndef BRANRED_H
 #define BRANRED_H
 
+#include <dla.h>
 
 #ifdef BIG_ENDI
 static const mynumber
@@ -75,6 +75,6 @@ static const double toverp[75] = { /*  2/ PI base 24*/
   12618859.0,  4703257.0, 12806093.0, 14477321.0,  2786137.0,
   12875403.0,  9837734.0, 14528324.0, 13719321.0,   343717.0 };
 
-static const double split =  134217729.0;
+static const double split =  CN;	/* 2^27 + 1 */
 
 #endif

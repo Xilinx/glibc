@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-1998, 2000, 2005, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -13,8 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
 #include <errno.h>
@@ -40,6 +39,9 @@
 #define HAVE_AF			1
 
 #define __inet_aton inet_aton
+
+/* We are nscd, so we don't want to be talking to ourselves.  */
+#undef	USE_NSCD
 
 #include "../nss/getXXbyYY_r.c"
 

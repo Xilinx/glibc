@@ -1,5 +1,5 @@
 /* More debugging hooks for `malloc'.
-   Copyright (C) 1991-1994,1996-2004, 2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 		 Written April 2, 1991 by John Gilmore of Cygnus Support.
 		 Based on mcheck.c by Mike Haertel.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_MALLOC_INTERNAL
 #define	_MALLOC_INTERNAL
@@ -32,12 +31,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 #include <libc-internal.h>
 
 #include <libio/iolibio.h>
-#define setvbuf(s, b, f, l) INTUSE(_IO_setvbuf) (s, b, f, l)
+#define setvbuf(s, b, f, l) _IO_setvbuf (s, b, f, l)
 #define fwrite(buf, size, count, fp) _IO_fwrite (buf, size, count, fp)
 
 #include <kernel-features.h>
@@ -59,12 +58,11 @@ __ptr_t mallwatch;
 
 /* Old hook values.  */
 static void (*tr_old_free_hook) (__ptr_t ptr, const __ptr_t);
-static __ptr_t (*tr_old_malloc_hook) (__malloc_size_t size, const __ptr_t);
-static __ptr_t (*tr_old_realloc_hook) (__ptr_t ptr, __malloc_size_t size,
+static __ptr_t (*tr_old_malloc_hook) (size_t size, const __ptr_t);
+static __ptr_t (*tr_old_realloc_hook) (__ptr_t ptr, size_t size,
 				       const __ptr_t);
-static __ptr_t (*tr_old_memalign_hook) (__malloc_size_t __alignment,
-					__malloc_size_t __size,
-					__const __ptr_t);
+static __ptr_t (*tr_old_memalign_hook) (size_t __alignment, size_t __size,
+					const __ptr_t);
 
 /* This function is called when the block being alloc'd, realloc'd, or
    freed has an address matching the variable "mallwatch".  In a debugger,
@@ -74,7 +72,7 @@ static __ptr_t (*tr_old_memalign_hook) (__malloc_size_t __alignment,
 extern void tr_break (void) __THROW;
 libc_hidden_proto (tr_break)
 void
-tr_break ()
+tr_break (void)
 {
 }
 libc_hidden_def (tr_break)
@@ -146,10 +144,12 @@ tr_freehook (ptr, caller)
   tr_where (caller, info);
   /* Be sure to print it first.  */
   fprintf (mallstream, "- %p\n", ptr);
-  __libc_lock_unlock (lock);
   if (ptr == mallwatch)
-    tr_break ();
-  __libc_lock_lock (lock);
+    {
+      __libc_lock_unlock (lock);
+      tr_break ();
+      __libc_lock_lock (lock);
+    }
   __free_hook = tr_old_free_hook;
   if (tr_old_free_hook != NULL)
     (*tr_old_free_hook) (ptr, caller);
@@ -159,10 +159,10 @@ tr_freehook (ptr, caller)
   __libc_lock_unlock (lock);
 }
 
-static __ptr_t tr_mallochook (__malloc_size_t, const __ptr_t) __THROW;
+static __ptr_t tr_mallochook (size_t, const __ptr_t) __THROW;
 static __ptr_t
 tr_mallochook (size, caller)
-     __malloc_size_t size;
+     size_t size;
      const __ptr_t caller;
 {
   __ptr_t hdr;
@@ -189,12 +189,12 @@ tr_mallochook (size, caller)
   return hdr;
 }
 
-static __ptr_t tr_reallochook (__ptr_t, __malloc_size_t, const __ptr_t)
+static __ptr_t tr_reallochook (__ptr_t, size_t, const __ptr_t)
      __THROW;
 static __ptr_t
 tr_reallochook (ptr, size, caller)
      __ptr_t ptr;
-     __malloc_size_t size;
+     size_t size;
      const __ptr_t caller;
 {
   __ptr_t hdr;
@@ -218,8 +218,13 @@ tr_reallochook (ptr, size, caller)
 
   tr_where (caller, info);
   if (hdr == NULL)
-    /* Failed realloc.  */
-    fprintf (mallstream, "! %p %#lx\n", ptr, (unsigned long int) size);
+    {
+      if (size != 0)
+	/* Failed realloc.  */
+	fprintf (mallstream, "! %p %#lx\n", ptr, (unsigned long int) size);
+      else
+	fprintf (mallstream, "- %p\n", ptr);
+    }
   else if (ptr == NULL)
     fprintf (mallstream, "+ %p %#lx\n", hdr, (unsigned long int) size);
   else
@@ -237,11 +242,11 @@ tr_reallochook (ptr, size, caller)
   return hdr;
 }
 
-static __ptr_t tr_memalignhook (__malloc_size_t, __malloc_size_t,
+static __ptr_t tr_memalignhook (size_t, size_t,
 				const __ptr_t) __THROW;
 static __ptr_t
 tr_memalignhook (alignment, size, caller)
-     __malloc_size_t alignment, size;
+     size_t alignment, size;
      const __ptr_t caller;
 {
   __ptr_t hdr;
@@ -293,7 +298,7 @@ release_libc_mem (void)
    don't forget to set a breakpoint on tr_break!  */
 
 void
-mtrace ()
+mtrace (void)
 {
 #ifdef _LIBC
   static int added_atexit_handler;
@@ -308,7 +313,7 @@ mtrace ()
   /* When compiling the GNU libc we use the secure getenv function
      which prevents the misuse in case of SUID or SGID enabled
      programs.  */
-  mallfile = __secure_getenv (mallenv);
+  mallfile = __libc_secure_getenv (mallenv);
 #else
   mallfile = getenv (mallenv);
 #endif
@@ -358,16 +363,21 @@ mtrace ()
 }
 
 void
-muntrace ()
+muntrace (void)
 {
   if (mallstream == NULL)
     return;
 
-  fprintf (mallstream, "= End\n");
-  fclose (mallstream);
+  /* Do the reverse of what done in mtrace: first reset the hooks and
+     MALLSTREAM, and only after that write the trailer and close the
+     file.  */
+  FILE *f = mallstream;
   mallstream = NULL;
   __free_hook = tr_old_free_hook;
   __malloc_hook = tr_old_malloc_hook;
   __realloc_hook = tr_old_realloc_hook;
   __memalign_hook = tr_old_memalign_hook;
+
+  fprintf (f, "= End\n");
+  fclose (f);
 }

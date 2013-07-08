@@ -1,5 +1,5 @@
 /* Compute cubic root of long double value.
-   Copyright (C) 1997, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Dirk Alboth <dirka@uni-paderborn.de> and
    Ulrich Drepper <drepper@cygnus.com>, 1997.
@@ -15,48 +15,43 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 
-#ifdef __ELF__
         .section .rodata
-#else
-        .text
-#endif
 
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f8,@object)
+        .type f8,@object
 f8:	.tfloat 0.161617097923756032
 	ASM_SIZE_DIRECTIVE(f8)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f7,@object)
+        .type f7,@object
 f7:	.tfloat -0.988553671195413709
 	ASM_SIZE_DIRECTIVE(f7)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f6,@object)
+        .type f6,@object
 f6:	.tfloat 2.65298938441952296
 	ASM_SIZE_DIRECTIVE(f6)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f5,@object)
+        .type f5,@object
 f5:	.tfloat -4.11151425200350531
 	ASM_SIZE_DIRECTIVE(f5)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f4,@object)
+        .type f4,@object
 f4:	.tfloat 4.09559907378707839
 	ASM_SIZE_DIRECTIVE(f4)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f3,@object)
+        .type f3,@object
 f3:	.tfloat -2.82414939754975962
 	ASM_SIZE_DIRECTIVE(f3)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f2,@object)
+        .type f2,@object
 f2:	.tfloat 1.67595307700780102
 	ASM_SIZE_DIRECTIVE(f2)
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f1,@object)
+        .type f1,@object
 f1:	.tfloat 0.338058687610520237
 	ASM_SIZE_DIRECTIVE(f1)
 
@@ -67,7 +62,7 @@ f1:	.tfloat 0.338058687610520237
 
 	/* We make the entries in the following table all 16 bytes
 	   wide to avoid having to implement a multiplication by 10.  */
-	ASM_TYPE_DIRECTIVE(factor,@object)
+	.type factor,@object
         .align ALIGNARG(4)
 factor:	.tfloat ONE_SQR_CBRT2
 	.byte 0, 0, 0, 0, 0, 0
@@ -80,7 +75,7 @@ factor:	.tfloat ONE_SQR_CBRT2
 	.tfloat SQR_CBRT2
 	ASM_SIZE_DIRECTIVE(factor)
 
-        ASM_TYPE_DIRECTIVE(two64,@object)
+        .type two64,@object
         .align ALIGNARG(4)
 two64:  .byte 0, 0, 0, 0, 0, 0, 0xf0, 0x43
         ASM_SIZE_DIRECTIVE(two64)

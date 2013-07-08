@@ -88,11 +88,12 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
+#include <float.h>
 
 /* 1 / sqrt(pi) */
 static const long double ONEOSQPI = 5.6418958354775628694807945156077258584405E-1L;
@@ -700,6 +701,28 @@ __ieee754_j0l (long double x)
       return p;
     }
 
+  /* X = x - pi/4
+     cos(X) = cos(x) cos(pi/4) + sin(x) sin(pi/4)
+     = 1/sqrt(2) * (cos(x) + sin(x))
+     sin(X) = sin(x) cos(pi/4) - cos(x) sin(pi/4)
+     = 1/sqrt(2) * (sin(x) - cos(x))
+     sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
+     cf. Fdlibm.  */
+  __sincosl (xx, &s, &c);
+  ss = s - c;
+  cc = s + c;
+  if (xx <= LDBL_MAX / 2.0L)
+    {
+      z = -__cosl (xx + xx);
+      if ((s * c) < 0)
+	cc = z / ss;
+      else
+	ss = z / cc;
+    }
+
+  if (xx > 0x1p256L)
+    return ONEOSQPI * cc / __ieee754_sqrtl (xx);
+
   xinv = 1.0L / xx;
   z = xinv * xinv;
   if (xinv <= 0.25)
@@ -761,21 +784,6 @@ __ieee754_j0l (long double x)
   p = 1.0L + z * p;
   q = z * xinv * q;
   q = q - 0.125L * xinv;
-  /* X = x - pi/4
-     cos(X) = cos(x) cos(pi/4) + sin(x) sin(pi/4)
-     = 1/sqrt(2) * (cos(x) + sin(x))
-     sin(X) = sin(x) cos(pi/4) - cos(x) sin(pi/4)
-     = 1/sqrt(2) * (sin(x) - cos(x))
-     sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
-     cf. Fdlibm.  */
-  __sincosl (xx, &s, &c);
-  ss = s - c;
-  cc = s + c;
-  z = -__cosl (xx + xx);
-  if ((s * c) < 0)
-    cc = z / ss;
-  else
-    ss = z / cc;
   z = ONEOSQPI * (p * cc - q * ss) / __ieee754_sqrtl (xx);
   return z;
 }
@@ -809,6 +817,7 @@ static long double Y0_2D[NY0_2D + 1] = {
  /* 1.000000000000000000000000000000000000000E0 */
 };
 
+static const long double U0 = -7.3804295108687225274343927948483016310862e-02L;
 
 /* Bessel function of the second kind, order zero.  */
 
@@ -831,6 +840,8 @@ long double
       return -HUGE_VALL + x;
     }
   xx = fabsl (x);
+  if (xx <= 0x1p-57)
+    return U0 + TWOOPI * __ieee754_logl (x);
   if (xx <= 2.0L)
     {
       /* 0 <= x <= 2 */
@@ -839,6 +850,28 @@ long double
       p = TWOOPI * __ieee754_logl (x) * __ieee754_j0l (x) + p;
       return p;
     }
+
+  /* X = x - pi/4
+     cos(X) = cos(x) cos(pi/4) + sin(x) sin(pi/4)
+     = 1/sqrt(2) * (cos(x) + sin(x))
+     sin(X) = sin(x) cos(pi/4) - cos(x) sin(pi/4)
+     = 1/sqrt(2) * (sin(x) - cos(x))
+     sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
+     cf. Fdlibm.  */
+  __sincosl (x, &s, &c);
+  ss = s - c;
+  cc = s + c;
+  if (xx <= LDBL_MAX / 2.0L)
+    {
+      z = -__cosl (x + x);
+      if ((s * c) < 0)
+	cc = z / ss;
+      else
+	ss = z / cc;
+    }
+
+  if (xx > 0x1p256L)
+    return ONEOSQPI * ss / __ieee754_sqrtl (x);
 
   xinv = 1.0L / xx;
   z = xinv * xinv;
@@ -901,21 +934,6 @@ long double
   p = 1.0L + z * p;
   q = z * xinv * q;
   q = q - 0.125L * xinv;
-  /* X = x - pi/4
-     cos(X) = cos(x) cos(pi/4) + sin(x) sin(pi/4)
-     = 1/sqrt(2) * (cos(x) + sin(x))
-     sin(X) = sin(x) cos(pi/4) - cos(x) sin(pi/4)
-     = 1/sqrt(2) * (sin(x) - cos(x))
-     sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
-     cf. Fdlibm.  */
-  __sincosl (x, &s, &c);
-  ss = s - c;
-  cc = s + c;
-  z = -__cosl (x + x);
-  if ((s * c) < 0)
-    cc = z / ss;
-  else
-    ss = z / cc;
   z = ONEOSQPI * (p * ss + q * cc) / __ieee754_sqrtl (x);
   return z;
 }

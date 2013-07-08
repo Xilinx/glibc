@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1993, 1997, 1998, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <time.h>
@@ -32,7 +31,7 @@ __offtime (t, offset, tp)
      long int offset;
      struct tm *tp;
 {
-  long int days, rem, y;
+  time_t days, rem, y;
   const unsigned short int *ip;
 
   days = *t / SECS_PER_DAY;
@@ -64,7 +63,7 @@ __offtime (t, offset, tp)
   while (days < 0 || days >= (__isleap (y) ? 366 : 365))
     {
       /* Guess a corrected year, assuming 365 days per year.  */
-      long int yg = y + days / 365 - (days % 365 < 0);
+      time_t yg = y + days / 365 - (days % 365 < 0);
 
       /* Adjust DAYS and Y to match the guessed year.  */
       days -= ((yg - y) * 365

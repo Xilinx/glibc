@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2006.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <limits.h>
@@ -68,7 +67,7 @@ do_test (void)
 	      fifo_max + 1);
       return 1;
     }
-  
+
   if (fifo_min > 0
       && pthread_mutexattr_setprioceiling (&ma, fifo_min - 1) != EINVAL)
     {
@@ -246,7 +245,7 @@ do_test (void)
       printf ("unexpected m1 old prioceiling %d != 6\n", prioceiling);
       return 1;
     }
-    
+
   if (pthread_mutex_getprioceiling (&m1, &prioceiling))
     {
       puts ("mutex_getprioceiling m1 failed");

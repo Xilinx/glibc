@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -17,22 +17,13 @@
 static char rcsid[] = "$NetBSD: s_frexpf.c,v 1.5 1995/05/10 20:47:26 jtc Exp $";
 #endif
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
 static const float
-#else
-static float
-#endif
 two25 =  3.3554432000e+07; /* 0x4c000000 */
 
-#ifdef __STDC__
-	float __frexpf(float x, int *eptr)
-#else
-	float __frexpf(x, eptr)
-	float x; int *eptr;
-#endif
+float __frexpf(float x, int *eptr)
 {
 	int32_t hx,ix;
 	GET_FLOAT_WORD(hx,x);

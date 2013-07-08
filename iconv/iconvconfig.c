@@ -1,5 +1,5 @@
 /* Generate fastloading iconv module configuration files.
-   Copyright (C) 2000-2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2000.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <argp.h>
 #include <assert.h>
@@ -124,8 +123,9 @@ static char *more_help (int key, const char *text, void *input);
 #define OPT_NOSTDLIB 301
 static const struct argp_option options[] =
 {
-  { "prefix", OPT_PREFIX, "PATH", 0, N_("Prefix used for all file accesses") },
-  { "output", 'o', "FILE", 0, N_("\
+  { "prefix", OPT_PREFIX, N_("PATH"), 0,
+    N_("Prefix used for all file accesses") },
+  { "output", 'o', N_("FILE"), 0, N_("\
 Put output in FILE instead of installed location\
  (--prefix does not apply to FILE)") },
   { "nostdlib", OPT_NOSTDLIB, NULL, 0,
@@ -248,9 +248,7 @@ static struct
 static const char gconv_module_ext[] = MODULE_EXT;
 
 
-extern void *xmalloc (size_t n) __attribute_malloc__;
-extern void *xcalloc (size_t n, size_t m) __attribute_malloc__;
-extern void *xrealloc (void *p, size_t n);
+#include <programs/xmalloc.h>
 
 
 /* C string table handling.  */
@@ -373,13 +371,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
 static char *
 more_help (int key, const char *text, void *input)
 {
+  char *tp = NULL;
   switch (key)
     {
     case ARGP_KEY_HELP_EXTRA:
       /* We print some extra information.  */
-      return strdup (gettext ("\
+      if (asprintf (&tp, gettext ("\
 For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"));
+%s.\n"), REPORT_BUGS_TO) < 0)
+	return NULL;
+      return tp;
     default:
       break;
     }
@@ -391,12 +392,12 @@ For bug reporting instructions, please see:\n\
 static void
 print_version (FILE *stream, struct argp_state *state)
 {
-  fprintf (stream, "iconvconfig (GNU %s) %s\n", PACKAGE, VERSION);
+  fprintf (stream, "iconvconfig %s%s\n", PKGVERSION, VERSION);
   fprintf (stream, gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2011");
+"), "2013");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 

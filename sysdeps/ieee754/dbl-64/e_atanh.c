@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 /* __ieee754_atanh(x)
@@ -37,8 +36,8 @@
  */
 
 #include <inttypes.h>
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const double huge = 1e300;
 
@@ -47,7 +46,7 @@ __ieee754_atanh (double x)
 {
   double xa = fabs (x);
   double t;
-  if (xa < 0.5)
+  if (isless (xa, 0.5))
     {
       if (__builtin_expect (xa < 0x1.0p-28, 0))
 	{
@@ -58,11 +57,11 @@ __ieee754_atanh (double x)
       t = xa + xa;
       t = 0.5 * __log1p (t + t * xa / (1.0 - xa));
     }
-  else if (__builtin_expect (xa < 1.0, 1))
+  else if (__builtin_expect (isless (xa, 1.0), 1))
     t = 0.5 * __log1p ((xa + xa) / (1.0 - xa));
   else
     {
-      if (xa > 1.0)
+      if (isgreater (xa, 1.0))
 	return (x - x) / (x - x);
 
       return x / 0.0;

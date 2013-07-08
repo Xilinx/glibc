@@ -1,6 +1,5 @@
 /* ix87 specific implementation of pow function.
-   Copyright (C) 1996, 1997, 1998, 1999, 2001, 2004, 2007, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -15,43 +14,45 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 
-#ifdef __ELF__
 	.section .rodata.cst8,"aM",@progbits,8
-#else
-	.text
-#endif
+
 	.p2align 3
-	ASM_TYPE_DIRECTIVE(one,@object)
+	.type one,@object
 one:	.double 1.0
 	ASM_SIZE_DIRECTIVE(one)
-	ASM_TYPE_DIRECTIVE(limit,@object)
-limit:	.double 0.29
-	ASM_SIZE_DIRECTIVE(limit)
-	ASM_TYPE_DIRECTIVE(p63,@object)
+	.type p3,@object
+p3:	.byte 0, 0, 0, 0, 0, 0, 0x20, 0x40
+	ASM_SIZE_DIRECTIVE(p3)
+	.type p63,@object
 p63:	.byte 0, 0, 0, 0, 0, 0, 0xe0, 0x43
 	ASM_SIZE_DIRECTIVE(p63)
+	.type p64,@object
+p64:	.byte 0, 0, 0, 0, 0, 0, 0xf0, 0x43
+	ASM_SIZE_DIRECTIVE(p64)
+	.type p78,@object
+p78:	.byte 0, 0, 0, 0, 0, 0, 0xd0, 0x44
+	ASM_SIZE_DIRECTIVE(p78)
+	.type pm79,@object
+pm79:	.byte 0, 0, 0, 0, 0, 0, 0, 0x3b
+	ASM_SIZE_DIRECTIVE(pm79)
 
-#ifdef __ELF__
 	.section .rodata.cst16,"aM",@progbits,16
-#else
-	.text
-#endif
+
 	.p2align 3
-	ASM_TYPE_DIRECTIVE(infinity,@object)
+	.type infinity,@object
 inf_zero:
 infinity:
 	.byte 0, 0, 0, 0, 0, 0, 0xf0, 0x7f
 	ASM_SIZE_DIRECTIVE(infinity)
-	ASM_TYPE_DIRECTIVE(zero,@object)
+	.type zero,@object
 zero:	.double 0.0
 	ASM_SIZE_DIRECTIVE(zero)
-	ASM_TYPE_DIRECTIVE(minf_mzero,@object)
+	.type minf_mzero,@object
 minf_mzero:
 minfinity:
 	.byte 0, 0, 0, 0, 0, 0, 0xf0, 0xff
@@ -111,9 +112,33 @@ ENTRY(__ieee754_powl)
 	fistpll	-8(%rsp)	// y : x
 	fildll	-8(%rsp)	// int(y) : y : x
 	fucomip	%st(1),%st	// y : x
-	jne	2f
+	je	9f
 
-	/* OK, we have an integer value for y.  */
+	// If y has absolute value at most 0x1p-79, then any finite
+	// nonzero x will result in 1.  Saturate y to those bounds to
+	// avoid underflow in the calculation of y*log2(x).
+	fldl	MO(pm79)	// 0x1p-79 : y : x
+	fld	%st(1)		// y : 0x1p-79 : y : x
+	fabs			// |y| : 0x1p-79 : y : x
+	fcomip	%st(1), %st	// 0x1p-79 : y : x
+	fstp	%st(0)		// y : x
+	jnc	3f
+	fstp	%st(0)		// pop y
+	fldl	MO(pm79)	// 0x1p-79 : x
+	testb	$2, %dl
+	jnz	3f		// y > 0
+	fchs			// -0x1p-79 : x
+	jmp	3f
+
+9:	/* OK, we have an integer value for y.  Unless very small
+	   (we use < 8), use the algorithm for real exponent to avoid
+	   accumulation of errors.  */
+	fldl	MO(p3)		// 8 : y : x
+	fld	%st(1)		// y : 8 : y : x
+	fabs			// |y| : 8 : y : x
+	fcomip	%st(1), %st	// 8 : y : x
+	fstp	%st(0)		// y : x
+	jnc	2f
 	mov	-8(%rsp),%eax
 	mov	-4(%rsp),%edx
 	orl	$0, %edx
@@ -149,44 +174,71 @@ ENTRY(__ieee754_powl)
 	ret
 
 	.align ALIGNARG(4)
-2:	/* y is a real number.  */
+2:	// y is a large integer (absolute value at least 8), but
+	// may be odd unless at least 1L<<64.  So it may be necessary
+	// to adjust the sign of a negative result afterwards.
 	fxch			// x : y
-	fldl	MO(one)		// 1.0 : x : y
-	fldl	MO(limit)	// 0.29 : 1.0 : x : y
-	fld	%st(2)		// x : 0.29 : 1.0 : x : y
-	fsub	%st(2)		// x-1 : 0.29 : 1.0 : x : y
-	fabs			// |x-1| : 0.29 : 1.0 : x : y
-	fucompp			// 1.0 : x : y
-	fnstsw
-	fxch			// x : 1.0 : y
-	test	$0x4500,%eax
-	jz	7f
-	fsub	%st(1)		// x-1 : 1.0 : y
-	fyl2xp1			// log2(x) : y
-	jmp	8f
+	fabs			// |x| : y
+	fxch			// y : |x|
+	// If y has absolute value at least 1L<<78, then any finite
+	// nonzero x will result in 0 (underflow), 1 or infinity (overflow).
+	// Saturate y to those bounds to avoid overflow in the calculation
+	// of y*log2(x).
+	fldl	MO(p78)		// 1L<<78 : y : |x|
+	fld	%st(1)		// y : 1L<<78 : y : |x|
+	fabs			// |y| : 1L<<78 : y : |x|
+	fcomip	%st(1), %st	// 1L<<78 : y : |x|
+	fstp	%st(0)		// y : |x|
+	jc	3f
+	fstp	%st(0)		// pop y
+	fldl	MO(p78)		// 1L<<78 : |x|
+	testb	$2, %dl
+	jz	3f		// y > 0
+	fchs			// -(1L<<78) : |x|
+	.align ALIGNARG(4)
+3:	/* y is a real number.  */
+	subq	$40, %rsp
+	cfi_adjust_cfa_offset (40)
+	fstpt	16(%rsp)	// x
+	fstpt	(%rsp)		// <empty>
+	mov	%edx, 32(%rsp)
+	call	HIDDEN_JUMPTARGET (__powl_helper)	// <result>
+	mov	32(%rsp), %edx
+	addq	$40, %rsp
+	cfi_adjust_cfa_offset (-40)
+	testb	$2, %dh
+	jz	292f
+	// x is negative.  If y is an odd integer, negate the result.
+	fldt	24(%rsp)	// y : abs(result)
+	fldl	MO(p64)		// 1L<<64 : y : abs(result)
+	fld	%st(1)		// y : 1L<<64 : y : abs(result)
+	fabs			// |y| : 1L<<64 : y : abs(result)
+	fcomip	%st(1), %st	// 1L<<64 : y : abs(result)
+	fstp	%st(0)		// y : abs(result)
+	jnc	291f
+	fldl	MO(p63)		// p63 : y : abs(result)
+	fxch			// y : p63 : abs(result)
+	fprem			// y%p63 : p63 : abs(result)
+	fstp	%st(1)		// y%p63 : abs(result)
 
-7:	fyl2x			// log2(x) : y
-8:	fmul	%st(1)		// y*log2(x) : y
-	fxam
-	fnstsw
-	andb	$0x45, %ah
-	cmpb	$0x05, %ah      // is y*log2(x) == ±inf ?
-	je	28f
-	fst	%st(1)		// y*log2(x) : y*log2(x)
-	frndint			// int(y*log2(x)) : y*log2(x)
-	fsubr	%st, %st(1)	// int(y*log2(x)) : fract(y*log2(x))
-	fxch			// fract(y*log2(x)) : int(y*log2(x))
-	f2xm1			// 2^fract(y*log2(x))-1 : int(y*log2(x))
-	faddl	MO(one)		// 2^fract(y*log2(x)) : int(y*log2(x))
-	fscale			// 2^fract(y*log2(x))*2^int(y*log2(x)) : int(y*log2(x))
-	fstp	%st(1)		// 2^fract(y*log2(x))*2^int(y*log2(x))
-	ret
+	// We must find out whether y is an odd integer.
+	fld	%st		// y : y : abs(result)
+	fistpll	-8(%rsp)	// y : abs(result)
+	fildll	-8(%rsp)	// int(y) : y : abs(result)
+	fucomip	%st(1),%st	// y : abs(result)
+	ffreep	%st		// abs(result)
+	jne	292f
 
-28:	fstp	%st(1)		// y*log2(x)
-	fldl	MO(one)		// 1 : y*log2(x)
-	fscale			// 2^(y*log2(x)) : y*log2(x)
-	fstp	%st(1)		// 2^(y*log2(x))
-	ret
+	// OK, the value is an integer, but is it odd?
+	mov	-8(%rsp), %eax
+	mov	-4(%rsp), %edx
+	andb	$1, %al
+	jz	290f		// jump if not odd
+	// It's an odd integer.
+	fchs
+290:	ret
+291:	fstp	%st(0)		// abs(result)
+292:	ret
 
 	// pow(x,±0) = 1
 	.align ALIGNARG(4)
@@ -233,6 +285,19 @@ ENTRY(__ieee754_powl)
 15:	fstp	%st(0)		// y
 	testb	$2, %dh
 	jz	16f		// jump if x == +inf
+
+	// fistpll raises invalid exception for |y| >= 1L<<63, but y
+	// may be odd unless we know |y| >= 1L<<64.
+	fldl	MO(p64)		// 1L<<64 : y
+	fld	%st(1)		// y : 1L<<64 : y
+	fabs			// |y| : 1L<<64 : y
+	fcomip	%st(1), %st	// 1L<<64 : y
+	fstp	%st(0)		// y
+	jnc	16f
+	fldl	MO(p63)		// p63 : y
+	fxch			// y : p63
+	fprem			// y%p63 : p63
+	fstp	%st(1)		// y%p63
 
 	// We must find out whether y is an odd integer.
 	fld	%st		// y : y
@@ -291,6 +356,19 @@ ENTRY(__ieee754_powl)
 	testb	$2, %dh
 	jz	25f
 
+	// fistpll raises invalid exception for |y| >= 1L<<63, but y
+	// may be odd unless we know |y| >= 1L<<64.
+	fldl	MO(p64)		// 1L<<64 : y
+	fld	%st(1)		// y : 1L<<64 : y
+	fabs			// |y| : 1L<<64 : y
+	fcomip	%st(1), %st	// 1L<<64 : y
+	fstp	%st(0)		// y
+	jnc	25f
+	fldl	MO(p63)		// p63 : y
+	fxch			// y : p63
+	fprem			// y%p63 : p63
+	fstp	%st(1)		// y%p63
+
 	fld	%st		// y : y
 	fistpll	-8(%rsp)	// y
 	fildll	-8(%rsp)	// int(y) : y
@@ -321,6 +399,18 @@ ENTRY(__ieee754_powl)
 	// x is ±0 and y is > 0.  We must find out whether y is an odd integer.
 21:	testb	$2, %dh
 	jz	22f
+
+	// fistpll raises invalid exception for |y| >= 1L<<63, but y
+	// may be odd unless we know |y| >= 1L<<64.
+	fldl	MO(p64)		// 1L<<64 : y
+	fxch			// y : 1L<<64
+	fcomi	%st(1), %st	// y : 1L<<64
+	fstp	%st(1)		// y
+	jnc	22f
+	fldl	MO(p63)		// p63 : y
+	fxch			// y : p63
+	fprem			// y%p63 : p63
+	fstp	%st(1)		// y%p63
 
 	fld	%st		// y : y
 	fistpll	-8(%rsp)	// y

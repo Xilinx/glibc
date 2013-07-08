@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * Written by International Business Machines Corp.
- * Copyright (C) 2001 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /************************************************************************/
@@ -31,7 +30,6 @@
 #ifdef BIG_ENDI
 static const mynumber
 
-/**/          NAN = {{0x7ff80000, 0x00000000 }}, /*  NaN                     */
 /**/           s1 = {{0xBFC55555, 0x55555555 }}, /* -0.16666666666666666     */
 /**/           s2 = {{0x3F811111, 0x11110ECE }}, /*  0.0083333333333323288   */
 /**/           s3 = {{0xBF2A01A0, 0x19DB08B8 }}, /* -0.00019841269834414642  */
@@ -54,7 +52,6 @@ static const mynumber
 #ifdef LITTLE_ENDI
 static const mynumber
 
-/**/          NAN = {{0x00000000, 0x7ff80000 }},/*  NaN                     */
 /**/           s1 = {{0x55555555, 0xBFC55555 }},/* -0.16666666666666666     */
 /**/           s2 = {{0x11110ECE, 0x3F811111 }},/*  0.0083333333333323288   */
 /**/           s3 = {{0x19DB08B8, 0xBF2A01A0 }},/* -0.00019841269834414642  */

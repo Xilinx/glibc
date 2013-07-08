@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,96,97,99, 2003, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,8 +13,7 @@
 
    You should have received a copy of the GNU Library General Public
    License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 51 Franklin Street, 
-   Fifth Floor, Boston MA 02110-1301, USA.  */
+   see <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep-cancel.h>
 #include <socketcall.h>

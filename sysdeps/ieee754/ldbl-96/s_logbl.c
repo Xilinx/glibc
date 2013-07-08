@@ -14,34 +14,38 @@
  * ====================================================
  */
 
-#if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: $";
-#endif
-
 /*
  * long double logbl(x)
  * IEEE 754 logb. Included to pass IEEE test suite. Not recommend.
  * Use ilogb instead.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	long double __logbl(long double x)
-#else
-	long double __logbl(x)
-	long double x;
-#endif
+long double
+__logbl (long double x)
 {
-	int32_t es,lx,ix;
-	GET_LDOUBLE_WORDS(es,ix,lx,x);
-	es &= 0x7fff;				/* exponent */
-	if((es|ix|lx)==0) return -1.0/fabs(x);
-	if(es==0x7fff) return x*x;
-	if(es==0) 			/* IEEE 754 logb */
-		return -16382.0;
-	else
-		return (long double) (es-0x3fff);
+  int32_t es, lx, ix;
+
+  GET_LDOUBLE_WORDS (es, ix, lx, x);
+  es &= 0x7fff;			/* exponent */
+  if ((es | ix | lx) == 0)
+    return -1.0 / fabs (x);
+  if (es == 0x7fff)
+    return x * x;
+  if (es == 0)			/* IEEE 754 logb */
+    {
+      /* POSIX specifies that denormal number is treated as
+         though it were normalized.  */
+      int ma;
+      if (ix == 0)
+	ma = __builtin_clz (lx) + 32;
+      else
+	ma = __builtin_clz (ix);
+      es -= ma - 1;
+    }
+  return (long double) (es - 16383);
 }
+
 weak_alias (__logbl, logbl)

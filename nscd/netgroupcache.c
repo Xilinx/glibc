@@ -1,5 +1,5 @@
 /* Cache handling for netgroup lookup.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <assert.h>
@@ -28,9 +27,8 @@
 #include "../inet/netgroup.h"
 #include "nscd.h"
 #include "dbg_log.h"
-#ifdef HAVE_SENDFILE
-# include <kernel-features.h>
-#endif
+
+#include <kernel-features.h>
 
 
 /* This is the standard reply in case the service is disabled.  */
@@ -194,18 +192,26 @@ addgetnetgrentX (struct database_dyn *db, int fd, request_header *req,
 			    const char *nuser = data.val.triple.user;
 			    const char *ndomain = data.val.triple.domain;
 
-			    if (data.val.triple.host > data.val.triple.user
-				|| data.val.triple.user > data.val.triple.domain)
+			    if (nhost == NULL || nuser == NULL || ndomain == NULL
+				|| nhost > nuser || nuser > ndomain)
 			      {
-				const char *last = MAX (nhost,
-							MAX (nuser, ndomain));
-				size_t bufused = (last + strlen (last) + 1
-						  - buffer);
+				const char *last = nhost;
+				if (last == NULL
+				    || (nuser != NULL && nuser > last))
+				  last = nuser;
+				if (last == NULL
+				    || (ndomain != NULL && ndomain > last))
+				  last = ndomain;
+
+				size_t bufused
+				  = (last == NULL
+				     ? buffilled
+				     : last + strlen (last) + 1 - buffer);
 
 				/* We have to make temporary copies.  */
-				size_t hostlen = strlen (nhost) + 1;
-				size_t userlen = strlen (nuser) + 1;
-				size_t domainlen = strlen (ndomain) + 1;
+				size_t hostlen = strlen (nhost ?: "") + 1;
+				size_t userlen = strlen (nuser ?: "") + 1;
+				size_t domainlen = strlen (ndomain ?: "") + 1;
 				size_t needed = hostlen + userlen + domainlen;
 
 				if (buflen - req->key_len - bufused < needed)
@@ -228,11 +234,11 @@ addgetnetgrentX (struct database_dyn *db, int fd, request_header *req,
 				  }
 
 				nhost = memcpy (buffer + bufused,
-						nhost, hostlen);
+						nhost ?: "", hostlen);
 				nuser = memcpy ((char *) nhost + hostlen,
-						nuser, userlen);
+						nuser ?: "", userlen);
 				ndomain = memcpy ((char *) nuser + userlen,
-						  ndomain, domainlen);
+						  ndomain ?: "", domainlen);
 			      }
 
 			    char *wp = buffer + buffilled;

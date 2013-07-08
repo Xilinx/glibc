@@ -1,5 +1,5 @@
 /* Dump registers.
-   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,12 +13,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sys/uio.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* We will print the register dump in this format:
 
@@ -31,15 +30,15 @@ MACL: XXXXXXXX MACH: XXXXXXXX
 
   PC: XXXXXXXX   PR: XXXXXXXX  GBR: XXXXXXXX   SR: XXXXXXXX
 
- FR0: XXXXXXXX  FR1: XXXXXXXX  FR2: XXXXXXXX  FR3: XXXXXXXX 
- FR4: XXXXXXXX  FR5: XXXXXXXX  FR6: XXXXXXXX  FR7: XXXXXXXX 
- FR8: XXXXXXXX  FR9: XXXXXXXX FR10: XXXXXXXX FR11: XXXXXXXX 
-FR12: XXXXXXXX FR13: XXXXXXXX FR14: XXXXXXXX FR15: XXXXXXXX 
+ FR0: XXXXXXXX  FR1: XXXXXXXX  FR2: XXXXXXXX  FR3: XXXXXXXX
+ FR4: XXXXXXXX  FR5: XXXXXXXX  FR6: XXXXXXXX  FR7: XXXXXXXX
+ FR8: XXXXXXXX  FR9: XXXXXXXX FR10: XXXXXXXX FR11: XXXXXXXX
+FR12: XXXXXXXX FR13: XXXXXXXX FR14: XXXXXXXX FR15: XXXXXXXX
 
- XR0: XXXXXXXX  XR1: XXXXXXXX  XR2: XXXXXXXX  XR3: XXXXXXXX 
- XR4: XXXXXXXX  XR5: XXXXXXXX  XR6: XXXXXXXX  XR7: XXXXXXXX 
- XR8: XXXXXXXX  XR9: XXXXXXXX XR10: XXXXXXXX XR11: XXXXXXXX 
-XR12: XXXXXXXX XR13: XXXXXXXX XR14: XXXXXXXX XR15: XXXXXXXX 
+ XR0: XXXXXXXX  XR1: XXXXXXXX  XR2: XXXXXXXX  XR3: XXXXXXXX
+ XR4: XXXXXXXX  XR5: XXXXXXXX  XR6: XXXXXXXX  XR7: XXXXXXXX
+ XR8: XXXXXXXX  XR9: XXXXXXXX XR10: XXXXXXXX XR11: XXXXXXXX
+XR12: XXXXXXXX XR13: XXXXXXXX XR14: XXXXXXXX XR15: XXXXXXXX
 
 FPSCR: XXXXXXXX FPUL: XXXXXXXX
 

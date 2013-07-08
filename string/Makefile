@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2002, 2005-2010, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for string portion of library.
@@ -22,8 +21,8 @@
 subdir	:= string
 
 headers	:= string.h strings.h memory.h endian.h bits/endian.h \
-	   argz.h envz.h byteswap.h bits/byteswap.h bits/string.h \
-	   bits/string2.h bits/string3.h
+	   argz.h envz.h byteswap.h bits/byteswap.h bits/byteswap-16.h \
+	   bits/string.h bits/string2.h bits/string3.h
 
 routines	:= strcat strchr strcmp strcoll strcpy strcspn		\
 		   strverscmp strdup strndup				\
@@ -42,25 +41,21 @@ routines	:= strcat strchr strcmp strcoll strcpy strcspn		\
 		   strcoll_l strxfrm_l string-inlines memrchr		\
 		   xpg-strerror strerror_l
 
-# Gcc internally generates calls to unbounded memcpy and memset
-# for -fbounded-pointer compiles.  Glibc uses memchr for explicit checks.
-o-objects.ob	:= memcpy.o memset.o memchr.o
-
 strop-tests	:= memchr memcmp memcpy memmove mempcpy memset memccpy	\
 		   stpcpy stpncpy strcat strchr strcmp strcpy strcspn	\
 		   strlen strncmp strncpy strpbrk strrchr strspn memmem	\
 		   strstr strcasestr strnlen strcasecmp strncasecmp	\
-		   strncat rawmemchr strchrnul
+		   strncat rawmemchr strchrnul bcopy bzero
 tests		:= tester inl-tester noinl-tester testcopy test-ffs	\
 		   tst-strlen stratcliff tst-svc tst-inlcall		\
 		   bug-strncat1 bug-strspn1 bug-strpbrk1 tst-bswap	\
 		   tst-strtok tst-strxfrm bug-strcoll1 tst-strfry	\
 		   bug-strtok1 $(addprefix test-,$(strop-tests))	\
 		   bug-envz1 tst-strxfrm2 tst-endian tst-svc2		\
-		   bug-strstr1 bug-strchr1
-distribute	:= memcopy.h pagecopy.h tst-svc.expect test-string.h	\
-		   str-two-way.h
+		   tst-strtok_r
 
+tests-ifunc := $(strop-tests:%=test-%-ifunc)
+tests += $(tests-ifunc)
 
 include ../Rules
 
@@ -76,12 +71,11 @@ CFLAGS-tst-strlen.c = -fno-builtin
 CFLAGS-stratcliff.c = -fno-builtin
 CFLAGS-test-ffs.c = -fno-builtin
 CFLAGS-tst-inlcall.c = -fno-builtin
-CFLAGS-bug-strstr1.c = -fno-builtin
 
-ifeq ($(cross-compiling),no)
+ifeq ($(run-built-tests),yes)
 tests: $(objpfx)tst-svc.out
 $(objpfx)tst-svc.out: tst-svc.input $(objpfx)tst-svc
 	GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
-	  $(built-program-cmd) < $(word 1,$^) > $@
+	  $(test-program-cmd) < $(word 1,$^) > $@
 	@cmp tst-svc.expect $(objpfx)tst-svc.out
 endif

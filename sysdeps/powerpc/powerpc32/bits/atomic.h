@@ -1,5 +1,5 @@
 /* Atomic operations.  PowerPC32 version.
-   Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Paul Mackerras <paulus@au.ibm.com>, 2003.
 
@@ -14,18 +14,17 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*  POWER6 adds a "Mutex Hint" to the Load and Reserve instruction.
     This is a hint to the hardware to expect additional updates adjacent
     to the lock word or not.  If we are acquiring a Mutex, the hint
     should be true. Otherwise we releasing a Mutex or doing a simple
-    atomic operation.  In that case we don't expect addtional updates
+    atomic operation.  In that case we don't expect additional updates
     adjacent to the lock word after the Store Conditional and the hint
     should be false.  */
-    
+
 #if defined _ARCH_PWR6 || defined _ARCH_PWR6X
 # define MUTEX_HINT_ACQ	",1"
 # define MUTEX_HINT_REL	",0"
@@ -36,7 +35,7 @@
 
 /*
  * The 32-bit exchange_bool is different on powerpc64 because the subf
- * does signed 64-bit arthmatic while the lwarx is 32-bit unsigned
+ * does signed 64-bit arithmetic while the lwarx is 32-bit unsigned
  * (a load word and zero (high 32) form).  So powerpc64 has a slightly
  * different version in sysdeps/powerpc/powerpc64/bits/atomic.h.
  */

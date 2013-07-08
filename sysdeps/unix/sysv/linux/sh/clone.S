@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2000, 2003, 2004, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
@@ -57,7 +56,7 @@ ENTRY(__clone)
 	not	r1, r1			// r1=0 means r0 = -1 to -4095
 	tst	r1, r1			// i.e. error in linux
 	bf	.Lclone_end
-.Lsyscall_error:	
+.Lsyscall_error:
 	SYSCALL_ERROR_HANDLER
 .Lclone_end:
 	tst	r0, r0
@@ -85,10 +84,10 @@ ENTRY(__clone)
 	stc	gbr, r1
 	mov.w	.Lpidoff, r2
 	add	r1, r2
-	mov.l	r0, @r2	
+	mov.l	r0, @r2
 	mov.w	.Ltidoff, r2
 	add	r1, r2
-	mov.l	r0, @r2	
+	mov.l	r0, @r2
 4:
 #endif
 	/* thread starts */

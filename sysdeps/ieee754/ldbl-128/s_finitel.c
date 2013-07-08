@@ -22,15 +22,10 @@ static char rcsid[] = "$NetBSD: $";
  * no branching!
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	int __finitel(long double x)
-#else
-	int __finitel(x)
-	long double x;
-#endif
+int __finitel(long double x)
 {
 	int64_t hx;
 	GET_LDOUBLE_MSW64(hx,x);

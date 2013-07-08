@@ -1,5 +1,5 @@
 /* Copy SIZE bytes from SRC to DEST.  For SUN4V Niagara.
-   Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller (davem@davemloft.net)
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -44,13 +43,19 @@
 
 	.text
 
+ENTRY(__mempcpy_niagara1)
+	ba,pt		%XCC, 101f
+	 add		%o0, %o2, %g5
+END(__mempcpy_niagara1)
+
 	.align		32
 ENTRY(__memcpy_niagara1)
+100:	/* %o0=dst, %o1=src, %o2=len */
+	mov		%o0, %g5
+101:
 # ifndef USE_BPR
 	srl		%o2, 0, %o2
 # endif
-100:	/* %o0=dst, %o1=src, %o2=len */
-	mov		%o0, %g5
 	cmp		%o2, 0
 	be,pn		%XCC, 85f
 218:	 or		%o0, %o1, %o3

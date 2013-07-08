@@ -1,5 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009, 2010
-   Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <pthread-errnos.h>
@@ -167,6 +165,8 @@ __lll_lock_wait_private:
 	bf	1b
 
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	rts
 	 mov	r2, r0
 	cfi_endproc
@@ -210,7 +210,11 @@ __lll_lock_wait:
 	bf	1b
 
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r9
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r9)
 	ret
 	 mov	r2, r0
 	cfi_endproc
@@ -243,6 +247,12 @@ __lll_timedlock_wait:
 	tst	r0, r0
 	bt	.Lreltmo
 # endif
+
+	/* if (timeout->tv_sec < 0) return ETIMEDOUT; */
+	mov.l	@r6, r1
+	cmp/pz	r1
+	bf/s	5f
+	 mov	#ETIMEDOUT, r0
 
 	mov	r4, r2
 	mov	r5, r4
@@ -279,8 +289,10 @@ __lll_timedlock_wait:
 	neg	r0, r3
 3:
 	mov	r3, r0
+5:
 	rts
 	 mov.l	@r15+, r12
+	/* Omit CFI for restore in delay slot.  */
 
 # ifndef __ASSUME_FUTEX_CLOCK_REALTIME
 	.align	2
@@ -300,6 +312,8 @@ __lll_timedlock_wait:
 	mov.l	.L1g, r0
 	cmp/hs	r0, r1
 	bt	3f
+
+	cfi_remember_state
 
 	mov.l	r11, @-r15
 	cfi_adjust_cfa_offset(4)
@@ -381,17 +395,32 @@ __lll_timedlock_wait:
 2:	mov	#ETIMEDOUT, r3
 
 6:
-	mov	r3, r0
 	add	#8, r15
+	cfi_adjust_cfa_offset (-8)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r9
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r9)
 	mov.l	@r15+, r10
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r10)
 	mov.l	@r15+, r11
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r11)
+	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	rts
-	 mov.l	@r15+, r12
+	 mov	r3, r0
+
+	cfi_restore_state
 
 3:
 	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	rts
 	 mov	#EINVAL, r0
 # endif
@@ -516,10 +545,16 @@ __lll_timedwait_tid:
 4:
 	mov	#0, r0
 3:
+	cfi_remember_state
 	add	#8, r15
+	cfi_adjust_cfa_offset (-8)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	rts
 	 mov.l	@r15+, r9
+	/* Omit CFI for restore in delay slot.  */
+	cfi_restore_state
 1:
 	/* Check whether the time expired.  */
 	mov	#-ETIMEDOUT, r1

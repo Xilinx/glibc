@@ -1,6 +1,5 @@
 /* Open a stdio stream on an anonymous temporary file.  Generic/POSIX version.
-   Copyright (C) 1991,1993,1996-2000,2002,2003,2007,2009,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,16 +13,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #include <iolibio.h>
-#define __fdopen INTUSE(_IO_fdopen)
+#define __fdopen _IO_fdopen
 #ifndef tmpfile
 # define tmpfile __new_tmpfile
 #endif
@@ -59,6 +57,10 @@ tmpfile (void)
 
   return f;
 }
+
+#if !defined O_LARGEFILE || O_LARGEFILE == 0
+weak_alias (__new_tmpfile, tmpfile64)
+#endif
 
 #ifndef FLAGS /* Not for tmpfile64.  */
 # undef tmpfile

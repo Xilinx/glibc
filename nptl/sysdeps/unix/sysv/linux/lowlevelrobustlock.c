@@ -1,4 +1,4 @@
-/* Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2006.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sysdep.h>
@@ -71,8 +70,15 @@ __lll_robust_timedlock_wait (int *futex, const struct timespec *abstime,
   if (oldval == 0)
     goto try;
 
+  /* Work around the fact that the kernel rejects negative timeout values
+     despite them being valid.  */
+  if (__builtin_expect (abstime->tv_sec < 0, 0))
+    return ETIMEDOUT;
+
   do
     {
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
       struct timeval tv;
       struct timespec rt;
 
@@ -91,6 +97,7 @@ __lll_robust_timedlock_wait (int *futex, const struct timespec *abstime,
       /* Already timed out?  */
       if (rt.tv_sec < 0)
 	return ETIMEDOUT;
+#endif
 
       /* Wait.  */
       if (__builtin_expect (oldval & FUTEX_OWNER_DIED, 0))
@@ -101,7 +108,13 @@ __lll_robust_timedlock_wait (int *futex, const struct timespec *abstime,
 	  && atomic_compare_and_exchange_bool_acq (futex, newval, oldval))
 	continue;
 
+#if (!defined __ASSUME_FUTEX_CLOCK_REALTIME \
+     || !defined lll_futex_timed_wait_bitset)
       lll_futex_timed_wait (futex, newval, &rt, private);
+#else
+      lll_futex_timed_wait_bitset (futex, newval, abstime,
+				   FUTEX_CLOCK_REALTIME, private);
+#endif
 
     try:
       ;

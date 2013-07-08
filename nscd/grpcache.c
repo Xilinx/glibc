@@ -1,5 +1,5 @@
 /* Cache handling for group lookup.
-   Copyright (C) 1998-2008, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <assert.h>
@@ -76,8 +75,8 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	     const void *key, struct group *grp, uid_t owner,
 	     struct hashentry *const he, struct datahead *dh, int errval)
 {
+  bool all_written = true;
   ssize_t total;
-  ssize_t written;
   time_t t = time (NULL);
 
   /* We allocate all data in one memory block: the iov vector,
@@ -106,7 +105,7 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	  /* Reload with the same time-to-live value.  */
 	  timeout = dh->timeout = t + db->postimeout;
 
-	  written = total = 0;
+	  total = 0;
 	}
       else
 	{
@@ -114,14 +113,14 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	     case.  */
 	  total = sizeof (notfound);
 
-	  if (fd != -1)
-	    written = TEMP_FAILURE_RETRY (send (fd, &notfound, total,
-						MSG_NOSIGNAL));
-	  else
-	    written = total;
+	  if (fd != -1
+	      && TEMP_FAILURE_RETRY (send (fd, &notfound, total,
+					   MSG_NOSIGNAL)) != total)
+	    all_written = false;
 
-	  /* If we cannot permanently store the result, so be it.  */
-	  if (db->negtimeout == 0)
+	  /* If we have a transient error or cannot permanently store
+	     the result, so be it.  */
+	  if (errno == EAGAIN || __builtin_expect (db->negtimeout == 0, 0))
 	    {
 	      /* Mark the old entry as obsolete.  */
 	      if (dh != NULL)
@@ -177,7 +176,8 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
       char *cp;
       const size_t key_len = strlen (key);
       const size_t buf_len = 3 * sizeof (grp->gr_gid) + key_len + 1;
-      char *buf = alloca (buf_len);
+      size_t alloca_used = 0;
+      char *buf = alloca_account (buf_len, alloca_used);
       ssize_t n;
       size_t cnt;
 
@@ -189,22 +189,23 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
       /* Determine the length of all members.  */
       while (grp->gr_mem[gr_mem_cnt])
 	++gr_mem_cnt;
-      gr_mem_len = (uint32_t *) alloca (gr_mem_cnt * sizeof (uint32_t));
+      gr_mem_len = alloca_account (gr_mem_cnt * sizeof (uint32_t), alloca_used);
       for (gr_mem_cnt = 0; grp->gr_mem[gr_mem_cnt]; ++gr_mem_cnt)
 	{
 	  gr_mem_len[gr_mem_cnt] = strlen (grp->gr_mem[gr_mem_cnt]) + 1;
 	  gr_mem_len_total += gr_mem_len[gr_mem_cnt];
 	}
 
-      written = total = (offsetof (struct dataset, strdata)
-			 + gr_mem_cnt * sizeof (uint32_t)
-			 + gr_name_len + gr_passwd_len + gr_mem_len_total);
+      total = (offsetof (struct dataset, strdata)
+	       + gr_mem_cnt * sizeof (uint32_t)
+	       + gr_name_len + gr_passwd_len + gr_mem_len_total);
 
       /* If we refill the cache, first assume the reconrd did not
 	 change.  Allocate memory on the cache since it is likely
 	 discarded anyway.  If it turns out to be necessary to have a
 	 new record we can still allocate real memory.  */
-      bool alloca_used = false;
+      bool dataset_temporary = false;
+      bool dataset_malloced = false;
       dataset = NULL;
 
       if (he == NULL)
@@ -215,10 +216,20 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	  /* We cannot permanently add the result in the moment.  But
 	     we can provide the result as is.  Store the data in some
 	     temporary memory.  */
-	  dataset = (struct dataset *) alloca (total + n);
+	  if (! __libc_use_alloca (alloca_used + total + n))
+	    {
+	      dataset = malloc (total + n);
+	      /* Perhaps we should log a message that we were unable
+		 to allocate memory for a large request.  */
+	      if (dataset == NULL)
+		goto out;
+	      dataset_malloced = true;
+	    }
+	  else
+	    dataset = alloca_account (total + n, alloca_used);
 
 	  /* We cannot add this record to the permanent database.  */
-	  alloca_used = true;
+	  dataset_temporary = true;
 	}
 
       dataset->head.allocsize = total + n;
@@ -272,6 +283,11 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 		 allocated on the stack and need not be freed.  */
 	      dh->timeout = dataset->head.timeout;
 	      ++dh->nreloads;
+
+	      /* If the new record was allocated via malloc, then we must free
+		 it here.  */
+	      if (dataset_malloced)
+		free (dataset);
 	    }
 	  else
 	    {
@@ -287,7 +303,7 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 		  key_copy = (char *) newp + (key_copy - (char *) dataset);
 
 		  dataset = memcpy (newp, dataset, total + n);
-		  alloca_used = false;
+		  dataset_temporary = false;
 		}
 
 	      /* Mark the old record as obsolete.  */
@@ -302,7 +318,7 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	  assert (fd != -1);
 
 #ifdef HAVE_SENDFILE
-	  if (__builtin_expect (db->mmap_used, 1) && !alloca_used)
+	  if (__builtin_expect (db->mmap_used, 1) && ! dataset_temporary)
 	    {
 	      assert (db->wr_fd != -1);
 	      assert ((char *) &dataset->resp > (char *) db->data);
@@ -311,25 +327,32 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 		      <= (sizeof (struct database_pers_head)
 			  + db->head->module * sizeof (ref_t)
 			  + db->head->data_size));
-	      written = sendfileall (fd, db->wr_fd,
-				     (char *) &dataset->resp
-				     - (char *) db->head, dataset->head.recsize);
+	      ssize_t written = sendfileall (fd, db->wr_fd,
+					     (char *) &dataset->resp
+					     - (char *) db->head,
+					     dataset->head.recsize);
+	      if (written != dataset->head.recsize)
+		{
 # ifndef __ASSUME_SENDFILE
-	      if (written == -1 && errno == ENOSYS)
-		goto use_write;
+		  if (written == -1 && errno == ENOSYS)
+		    goto use_write;
 # endif
+		  all_written = false;
+		}
 	    }
 	  else
 # ifndef __ASSUME_SENDFILE
 	  use_write:
 # endif
 #endif
-	    written = writeall (fd, &dataset->resp, dataset->head.recsize);
+	    if (writeall (fd, &dataset->resp, dataset->head.recsize)
+		!= dataset->head.recsize)
+	      all_written = false;
 	}
 
       /* Add the record to the database.  But only if it has not been
 	 stored on the stack.  */
-      if (! alloca_used)
+      if (! dataset_temporary)
 	{
 	  /* If necessary, we also propagate the data to disk.  */
 	  if (db->persistent)
@@ -384,7 +407,7 @@ cache_addgr (struct database_dyn *db, int fd, request_header *req,
 	}
     }
 
-  if (__builtin_expect (written != total, 0) && debug_level > 0)
+  if (__builtin_expect (!all_written, 0) && debug_level > 0)
     {
       char buf[256];
       dbg_log (_("short write in %s: %s"),  __FUNCTION__,

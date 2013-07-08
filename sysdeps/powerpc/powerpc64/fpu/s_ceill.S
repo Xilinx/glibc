@@ -1,5 +1,5 @@
 /* s_ceill.S IBM extended format long double version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -32,7 +31,7 @@
    PowerPC64 long double uses the IBM extended format which is
    represented two 64-floating point double values. The values are
    non-overlapping giving an effective precision of 106 bits. The first
-   double contains the high order bits of mantisa and is always ceiled
+   double contains the high order bits of mantissa and is always ceiled
    to represent a normal ceiling of long double to double. Since the
    long double value is sum of the high and low values, the low double
    normally has the opposite sign to compensate for the this ceiling.
@@ -41,7 +40,7 @@
    1) |x| < 2**52, all the integer bits are in the high double.
       ceil the high double and set the low double to -0.0.
    2) |x| >= 2**52, ceiling involves both doubles.
-      See the comment before lable .L2 for details.
+      See the comment before label .L2 for details.
    */
 
 ENTRY (__ceill)
@@ -70,7 +69,7 @@ ENTRY (__ceill)
 	mtfsf	0x01,fp11	/* restore previous rounding mode.  */
 	fnabs	fp1,fp1		/* if (x == 0.0)  */
 	blr			/* x = -0.0; */
-	
+
 /* The high double is > TWO52 so we need to round the low double and
    perhaps the high double.  In this case we have to round the low
    double and handle any adjustment to the high double that may be
@@ -94,7 +93,7 @@ ENTRY (__ceill)
 	beqlr-  cr0
 	mtfsfi	7,2		/* Set rounding mode toward +inf.  */
 	fdiv	fp8,fp1,fp13	/* x_high/TWO52  */
-	
+
 	bng-	cr6,.L6		/* if (x > 0.0)  */
 	fctidz	fp0,fp8
 	fcfid	fp8,fp0		/* tau = floor(x_high/TWO52);  */
@@ -111,7 +110,7 @@ ENTRY (__ceill)
 	b	.L9
 .L6:				/* if (x < 0.0)  */
 	fctidz	fp0,fp8
-	fcfid	fp8,fp0		/* tau = floor(x_high/TWO52);  */	
+	fcfid	fp8,fp0		/* tau = floor(x_high/TWO52);  */
 	bnl	cr5,.L7		/* if (x_low < 0.0)  */
 	fmr	fp3,fp1
 	fmr	fp4,fp2

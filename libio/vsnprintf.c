@@ -1,4 +1,4 @@
-/* Copyright (C) 1994,1997,1999-2004,2006,2009 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -49,8 +48,8 @@ _IO_strn_overflow (fp, c)
 	 a size to make this possible.  */
       *fp->_IO_write_ptr = '\0';
 
-      INTUSE(_IO_setb) (fp, snf->overflow_buf,
-			snf->overflow_buf + sizeof (snf->overflow_buf), 0);
+      _IO_setb (fp, snf->overflow_buf,
+		snf->overflow_buf + sizeof (snf->overflow_buf), 0);
 
       fp->_IO_write_base = snf->overflow_buf;
       fp->_IO_read_base = snf->overflow_buf;
@@ -72,16 +71,16 @@ const struct _IO_jump_t _IO_strn_jumps attribute_hidden =
   JUMP_INIT_DUMMY,
   JUMP_INIT(finish, _IO_str_finish),
   JUMP_INIT(overflow, _IO_strn_overflow),
-  JUMP_INIT(underflow, INTUSE(_IO_str_underflow)),
-  JUMP_INIT(uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT(pbackfail, INTUSE(_IO_str_pbackfail)),
-  JUMP_INIT(xsputn, INTUSE(_IO_default_xsputn)),
-  JUMP_INIT(xsgetn, INTUSE(_IO_default_xsgetn)),
-  JUMP_INIT(seekoff, INTUSE(_IO_str_seekoff)),
+  JUMP_INIT(underflow, _IO_str_underflow),
+  JUMP_INIT(uflow, _IO_default_uflow),
+  JUMP_INIT(pbackfail, _IO_str_pbackfail),
+  JUMP_INIT(xsputn, _IO_default_xsputn),
+  JUMP_INIT(xsgetn, _IO_default_xsgetn),
+  JUMP_INIT(seekoff, _IO_str_seekoff),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, _IO_default_setbuf),
   JUMP_INIT(sync, _IO_default_sync),
-  JUMP_INIT(doallocate, INTUSE(_IO_default_doallocate)),
+  JUMP_INIT(doallocate, _IO_default_doallocate),
   JUMP_INIT(read, _IO_default_read),
   JUMP_INIT(write, _IO_default_write),
   JUMP_INIT(seek, _IO_default_seek),
@@ -117,7 +116,7 @@ _IO_vsnprintf (string, maxlen, format, args)
   _IO_JUMPS (&sf.f._sbf) = &_IO_strn_jumps;
   string[0] = '\0';
   _IO_str_init_static_internal (&sf.f, string, maxlen - 1, string);
-  ret = INTUSE(_IO_vfprintf) (&sf.f._sbf._f, format, args);
+  ret = _IO_vfprintf (&sf.f._sbf._f, format, args);
 
   if (sf.f._sbf._f._IO_buf_base != sf.overflow_buf)
     *sf.f._sbf._f._IO_write_ptr = '\0';

@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2009, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,21 +12,21 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for stdlib routines
 #
 subdir	:= stdlib
 
-headers	:= stdlib.h bits/stdlib.h bits/stdlib-ldbl.h			      \
+headers	:= stdlib.h bits/stdlib.h bits/stdlib-ldbl.h bits/stdlib-float.h      \
 	   monetary.h bits/monetary-ldbl.h				      \
 	   inttypes.h stdint.h bits/wordsize.h				      \
 	   errno.h sys/errno.h bits/errno.h				      \
 	   ucontext.h sys/ucontext.h					      \
-	   alloca.h fmtmsg.h
+	   alloca.h fmtmsg.h						      \
+	   bits/stdlib-bsearch.h
 
 routines	:=							      \
 	atof atoi atol atoll						      \
@@ -34,7 +34,7 @@ routines	:=							      \
 	bsearch qsort msort						      \
 	getenv putenv setenv secure-getenv				      \
 	exit on_exit atexit cxa_atexit cxa_finalize old_atexit		      \
-	quick_exit at_quick_exit cxa_at_quick_exit			      \
+	quick_exit at_quick_exit cxa_at_quick_exit cxa_thread_atexit_impl     \
 	abs labs llabs							      \
 	div ldiv lldiv							      \
 	mblen mbstowcs mbtowc wcstombs wctomb				      \
@@ -60,8 +60,6 @@ aux =	grouping groupingwc tens_in_limb
 # linked against when the shared library will be used.
 static-only-routines = atexit at_quick_exit
 
-distribute	:= exit.h grouping.h abort-instr.h isomac.c tst-fmtmsg.sh   \
-		   allocalim.h
 test-srcs	:= tst-fmtmsg
 tests		:= tst-strtol tst-strtod testmb testrand testsort testdiv   \
 		   test-canon test-canon2 tst-strtoll tst-environ	    \
@@ -71,7 +69,12 @@ tests		:= tst-strtol tst-strtod testmb testrand testsort testdiv   \
 		   tst-atof1 tst-atof2 tst-strtod2 tst-strtod3 tst-rand48-2 \
 		   tst-makecontext tst-strtod4 tst-strtod5 tst-qsort2	    \
 		   tst-makecontext2 tst-strtod6 tst-unsetenv1		    \
-		   tst-makecontext3 bug-getcontext
+		   tst-makecontext3 bug-getcontext bug-fmtmsg1		    \
+		   tst-secure-getenv tst-strtod-overflow tst-strtod-round   \
+		   tst-tininess tst-strtod-underflow tst-tls-atexit
+tests-static	:= tst-secure-getenv
+
+modules-names	= tst-tls-atexit-lib
 
 include ../Makeconfig
 
@@ -88,7 +91,6 @@ routines := $(strip $(routines) $(mpn-routines))	\
 	    dbl2mpn ldbl2mpn				\
 	    mpn2flt mpn2dbl mpn2ldbl
 aux += fpioconst mp_clz_tab
-distribute := $(distribute) $(mpn-headers) fpioconst.h tst-putenvmod.c
 
 tests-extras += tst-putenvmod
 extra-test-objs += tst-putenvmod.os
@@ -102,10 +104,8 @@ CFLAGS-system.c = -fexceptions
 CFLAGS-system.os = -fomit-frame-pointer
 CFLAGS-fmtmsg.c = -fexceptions
 
-ifneq (,$(filter %REENTRANT, $(defines)))
-CFLAGS-strfmon.c = -D_IO_MTSAFE_IO
-CFLAGS-strfmon_l.c = -D_IO_MTSAFE_IO
-endif
+CFLAGS-strfmon.c = $(libio-mtsafe)
+CFLAGS-strfmon_l.c = $(libio-mtsafe)
 
 CFLAGS-tst-bsearch.c = $(stack-align-test-flags)
 CFLAGS-tst-qsort.c = $(stack-align-test-flags)
@@ -121,11 +121,12 @@ tst-strtod3-ENV = LOCPATH=$(common-objpfx)localedata
 tst-strtod4-ENV = LOCPATH=$(common-objpfx)localedata
 tst-strtod5-ENV = LOCPATH=$(common-objpfx)localedata
 testmb2-ENV = LOCPATH=$(common-objpfx)localedata
+bug-fmtmsg1-ENV = SEV_LEVEL=foo,11,newsev
 
 # Run a test on the header files we use.
 tests: $(objpfx)isomac.out
 
-ifeq (no,$(cross-compiling))
+ifeq ($(run-built-tests),yes)
 tests: $(objpfx)tst-fmtmsg.out
 endif
 
@@ -138,11 +139,12 @@ $(objpfx)isomac: isomac.c
 	$(native-compile)
 
 $(objpfx)tst-fmtmsg.out: tst-fmtmsg.sh $(objpfx)tst-fmtmsg
-	$(SHELL) -e $< $(common-objpfx) '$(run-program-prefix)' $(common-objpfx)stdlib/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)stdlib/
 
 $(objpfx)tst-putenv: $(objpfx)tst-putenvmod.so
+LDFLAGS-tst-putenv = $(no-as-needed)
 
-$(objpfx)tst-putenvmod.so: $(objpfx)tst-putenvmod.os
+$(objpfx)tst-putenvmod.so: $(objpfx)tst-putenvmod.os $(link-libc-deps)
 	$(build-module)
 CFLAGS-tst-putenvmod.c = -DNOT_IN_libc=1
 
@@ -152,3 +154,13 @@ else
 link-libm = $(common-objpfx)math/libm.a
 endif
 $(objpfx)bug-getcontext: $(link-libm)
+$(objpfx)tst-strtod-round: $(link-libm)
+$(objpfx)tst-tininess: $(link-libm)
+$(objpfx)tst-strtod-underflow: $(link-libm)
+$(objpfx)tst-strtod6: $(link-libm)
+
+tst-tls-atexit-lib.so-no-z-defs = yes
+
+LDFLAGS-tst-tls-atexit = $(common-objpfx)nptl/libpthread.so \
+			 $(common-objpfx)dlfcn/libdl.so
+$(objpfx)tst-tls-atexit.out: $(objpfx)tst-tls-atexit-lib.so

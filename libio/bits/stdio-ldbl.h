@@ -1,5 +1,5 @@
 /* -mlong-double-64 compatibility mode for stdio functions.
-   Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _STDIO_H
 # error "Never include <bits/stdio-ldbl.h> directly; use <stdio.h> instead."
@@ -63,9 +62,12 @@ __LDBL_REDIR_DECL (vscanf)
 __END_NAMESPACE_C99
 #endif
 
-#ifdef __USE_GNU
+#ifdef __USE_XOPEN2K8
 __LDBL_REDIR_DECL (vdprintf)
 __LDBL_REDIR_DECL (dprintf)
+#endif
+
+#ifdef __USE_GNU
 __LDBL_REDIR_DECL (vasprintf)
 __LDBL_REDIR_DECL (__asprintf)
 __LDBL_REDIR_DECL (asprintf)
@@ -73,7 +75,7 @@ __LDBL_REDIR_DECL (obstack_printf)
 __LDBL_REDIR_DECL (obstack_vprintf)
 #endif
 
-#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
 __LDBL_REDIR_DECL (__sprintf_chk)
 __LDBL_REDIR_DECL (__vsprintf_chk)
 # if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
@@ -85,11 +87,13 @@ __LDBL_REDIR_DECL (__fprintf_chk)
 __LDBL_REDIR_DECL (__printf_chk)
 __LDBL_REDIR_DECL (__vfprintf_chk)
 __LDBL_REDIR_DECL (__vprintf_chk)
+#  ifdef __USE_XOPEN2K8
+__LDBL_REDIR_DECL (__dprintf_chk)
+__LDBL_REDIR_DECL (__vdprintf_chk)
+#  endif
 #  ifdef __USE_GNU
 __LDBL_REDIR_DECL (__asprintf_chk)
 __LDBL_REDIR_DECL (__vasprintf_chk)
-__LDBL_REDIR_DECL (__dprintf_chk)
-__LDBL_REDIR_DECL (__vdprintf_chk)
 __LDBL_REDIR_DECL (__obstack_printf_chk)
 __LDBL_REDIR_DECL (__obstack_vprintf_chk)
 #  endif

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -32,24 +31,41 @@
 	.globl	__pthread_cond_timedwait
 	.type	__pthread_cond_timedwait, @function
 	.align	5
+	cfi_startproc
 __pthread_cond_timedwait:
 .LSTARTCODE:
+#ifdef SHARED
+	cfi_personality(DW_EH_PE_pcrel | DW_EH_PE_sdata4 | DW_EH_PE_indirect,
+			DW.ref.__gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_pcrel | DW_EH_PE_sdata4, .LexceptSTART)
+#else
+	cfi_personality(DW_EH_PE_absptr, __gcc_personality_v0)
+	cfi_lsda(DW_EH_PE_absptr, .LexceptSTART)
+#endif
 	mov.l	r8, @-r15
-.Lpush_r8:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r8, 0)
 	mov.l	r9, @-r15
-.Lpush_r9:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r9, 0)
 	mov.l	r10, @-r15
-.Lpush_r10:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r10, 0)
 	mov.l	r11, @-r15
-.Lpush_r11:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r11, 0)
 	mov.l	r12, @-r15
-.Lpush_r12:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r12, 0)
 	mov.l	r13, @-r15
-.Lpush_r13:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r13, 0)
 	sts.l	pr, @-r15
-.Lpush_pr:
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (pr, 0)
 	add	#-64, r15
-.Lalloc:
+	cfi_adjust_cfa_offset (64)
+
 	mov	r4, r8
 	mov	r5, r9
 	mov	r6, r13
@@ -91,7 +107,7 @@ __pthread_cond_timedwait:
 	bt	17f
 	mov.l	r9, @(dep_mutex,r8)
 
-17:	
+17:
 	/* Unlock the mutex.  */
 	mov.l	.Lmunlock1, r1
 	mov	#0, r5
@@ -121,14 +137,14 @@ __pthread_cond_timedwait:
 	mov.l	@(cond_nwaiters,r8), r0
 	add	r2, r0
 	mov.l	r0, @(cond_nwaiters,r8)
-	
+
 	/* Get and store current wakeup_seq value.  */
 	mov.l	@(wakeup_seq,r8), r10
 	mov.l	@(wakeup_seq+4,r8), r11
 	mov.l	@(broadcast_seq,r8), r0
 	mov.l	r0, @(4,r15)
 
-8:	
+8:
 	/* Get current time.  */
 #ifdef __NR_clock_gettime
 	/* Get the clock number.	 */
@@ -142,10 +158,6 @@ __pthread_cond_timedwait:
 	mov.w	.L__NR_clock_gettime, r3
 	trapa	#0x12
 	SYSCALL_INST_PAD
-# ifndef __ASSUME_POSIX_TIMERS
-	cmp/eq	#-ENOSYS, r0
-	bt	19f
-# endif
 
 	/* Compute relative timeout.  */
 	mov.l	@r13, r2
@@ -156,25 +168,7 @@ __pthread_cond_timedwait:
 .L__NR_clock_gettime:
 	.word	__NR_clock_gettime
 
-# ifndef __ASSUME_POSIX_TIMERS
-19:	
-	mov	r15, r4
-	add	#16, r4
-	mov	#0, r5
-	mov	#__NR_gettimeofday, r3
-	trapa	#0x12
-	SYSCALL_INST_PAD
-
-	/* Compute relative timeout.  */
-	mov.l	@(20,r15), r0
-	mov.w	.L1k, r1
-	dmulu.l	r0, r1		/* Micro seconds to nano seconds.  */
-	mov.l	@r13, r2
-	mov.l	@(4,r13), r3
-	mov.l	@(16,r15), r0
-	sts	macl, r1
-#endif
-0:	
+0:
 #else
 	mov	r15, r4
 	add	#16, r4
@@ -246,7 +240,7 @@ __pthread_cond_timedwait:
 	mov	#FUTEX_WAIT, r0
 	or	r0, r5
 #endif
-99:	
+99:
 	mov.l	@(8,r15), r6
 	mov	r8, r4
 	add	#cond_futex, r4
@@ -370,15 +364,15 @@ __pthread_cond_timedwait:
 	mov	#FUTEX_WAKE, r0
 	or	r0, r5
 #endif
-99:	
+99:
 	mov	#1, r6
 	mov	#0, r7
 	mov	#SYS_futex, r3
 	extu.b	r3, r3
 	trapa	#0x14
 	SYSCALL_INST_PAD
-	
-25:	
+
+25:
 #if cond_lock != 0
 	DEC (@(cond_lock,r8), r2)
 #else
@@ -399,16 +393,32 @@ __pthread_cond_timedwait:
 	bf	18f
 	mov.l	@(24,r15), r0
 
-18:	
+18:
+	cfi_remember_state
 	add	#64, r15
+	cfi_adjust_cfa_offset (-64)
 	lds.l	@r15+, pr
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (pr)
 	mov.l	@r15+, r13
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r13)
 	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	mov.l	@r15+, r11
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r11)
 	mov.l	@r15+, r10
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r10)
 	mov.l	@r15+, r9
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r9)
 	rts
 	 mov.l	@r15+, r8
+	/* Omit CFI for restore in delay slot.  */
+	cfi_restore_state
 
 #ifndef __ASSUME_PRIVATE_FUTEX
 .Lpfoff:
@@ -439,7 +449,7 @@ __pthread_cond_timedwait:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r6
 	mov	#LLL_SHARED, r6
-99:	
+99:
 	extu.b	r6, r6
 	mov.l	.Lwait2, r1
 	bsrf	r1
@@ -459,7 +469,7 @@ __pthread_cond_timedwait:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r5
 	mov	#LLL_SHARED, r5
-99:	
+99:
 	mov.l	.Lmwait2, r1
 	bsrf	r1
 	 extu.b	r5, r5
@@ -478,7 +488,7 @@ __pthread_cond_timedwait:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r6
 	mov	#LLL_SHARED, r6
-99:	
+99:
 	extu.b	r6, r6
 	mov.l	.Lwait3, r1
 	bsrf	r1
@@ -498,7 +508,7 @@ __pthread_cond_timedwait:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r5
 	mov	#LLL_SHARED, r5
-99:	
+99:
 	mov.l	.Lmwait3, r1
 	bsrf	r1
 	 extu.b	r5, r5
@@ -526,7 +536,7 @@ __pthread_cond_timedwait:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r5
 	mov	#LLL_SHARED, r5
-99:	
+99:
 	mov.l	.Lmwait4, r1
 	bsrf	r1
 	 extu.b	r5, r5
@@ -575,7 +585,7 @@ __condvar_tw_cleanup:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r6
 	mov	#LLL_SHARED, r6
-99:	
+99:
 	extu.b	r6, r6
 	mov.l	.Lwait5, r1
 	bsrf	r1
@@ -675,7 +685,7 @@ __condvar_tw_cleanup:
 	bf/s	99f
 	 mov	#LLL_PRIVATE, r5
 	mov	#LLL_SHARED, r5
-99:	
+99:
 	mov.l	.Lmwait5, r1
 	bsrf	r1
 	 extu.b	r5, r5
@@ -725,15 +735,15 @@ __condvar_tw_cleanup:
 	.long	_Unwind_Resume
 #endif
 .LENDCODE:
+	cfi_endproc
 	.size	__condvar_tw_cleanup, .-__condvar_tw_cleanup
 
 
 	.section .gcc_except_table,"a",@progbits
 .LexceptSTART:
-	.byte	0xff				! @LPStart format (omit)
-	.byte	0xff				! @TType format (omit)
-	.byte	0x0b				! call-site format
-						! DW_EH_PE_sdata4
+	.byte	DW_EH_PE_omit			! @LPStart format (omit)
+	.byte	DW_EH_PE_omit			! @TType format (omit)
+	.byte	DW_EH_PE_sdata4			! call-site format
 	.uleb128 .Lcstend-.Lcstbegin
 .Lcstbegin:
 	.ualong	.LcleanupSTART-.LSTARTCODE
@@ -746,109 +756,6 @@ __condvar_tw_cleanup:
 	.uleb128  0
 .Lcstend:
 
-	.section .eh_frame,"a",@progbits
-.LSTARTFRAME:
-	.ualong	.LENDCIE-.LSTARTCIE		! Length of the CIE.
-.LSTARTCIE:
-	.ualong	0				! CIE ID.
-	.byte	1				! Version number.
-#ifdef SHARED
-	.string	"zPLR"				! NUL-terminated augmentation
-						! string.
-#else
-	.string	"zPL"				! NUL-terminated augmentation
-						! string.
-#endif
-	.uleb128 1				! Code alignment factor.
-	.sleb128 -4				! Data alignment factor.
-	.byte	0x11				! Return address register
-						! column.
-#ifdef SHARED
-	.uleb128 7				! Augmentation value length.
-	.byte	0x9b				! Personality: DW_EH_PE_pcrel
-						! + DW_EH_PE_sdata4
-						! + DW_EH_PE_indirect
-	.ualong	DW.ref.__gcc_personality_v0-.
-	.byte	0x1b				! LSDA Encoding: DW_EH_PE_pcrel
-						! + DW_EH_PE_sdata4.
-	.byte	0x1b				! FDE Encoding: DW_EH_PE_pcrel
-						! + DW_EH_PE_sdata4.
-#else
-	.uleb128 6				! Augmentation value length.
-	.byte	0x0				! Personality: absolute
-	.ualong	__gcc_personality_v0
-	.byte	0x0				! LSDA Encoding: absolute
-#endif
-	.byte 0x0c				! DW_CFA_def_cfa
-	.uleb128 0xf
-	.uleb128 0
-	.align 2
-.LENDCIE:
-
-	.ualong	.LENDFDE-.LSTARTFDE		! Length of the FDE.
-.LSTARTFDE:
-	.ualong	.LSTARTFDE-.LSTARTFRAME		! CIE pointer.
-#ifdef SHARED
-	.ualong	.LSTARTCODE-.			! PC-relative start address
-						! of the code.
-#else
-	.ualong	.LSTARTCODE			! Start address of the code.
-#endif
-	.ualong	.LENDCODE-.LSTARTCODE		! Length of the code.
-	.uleb128 4				! Augmentation size
-#ifdef SHARED
-	.ualong	.LexceptSTART-.
-#else
-	.ualong	.LexceptSTART
-#endif
-	.byte	0x4
-	.ualong	.Lpush_r8-.LSTARTCODE
-	.byte	0xe
-	.uleb128 4
-	.byte	0x88
-	.uleb128 1
-	.byte	0x4
-	.ualong	.Lpush_r9-.Lpush_r8
-	.byte	0xe
-	.uleb128 8
-	.byte	0x89
-	.uleb128 2
-	.byte	0x4
-	.ualong	.Lpush_r10-.Lpush_r9
-	.byte	0xe
-	.uleb128 12
-	.byte	0x8a
-	.uleb128 3
-	.byte	0x4
-	.ualong	.Lpush_r11-.Lpush_r10
-	.byte	0xe
-	.uleb128 16
-	.byte	0x8b
-	.uleb128 4
-	.byte	0x4
-	.ualong	.Lpush_r12-.Lpush_r11
-	.byte	0xe
-	.uleb128 20
-	.byte	0x8c
-	.uleb128 5
-	.byte	0x4
-	.ualong	.Lpush_r13-.Lpush_r12
-	.byte	0xe
-	.uleb128 24
-	.byte	0x8d
-	.uleb128 6
-	.byte	0x4
-	.ualong	.Lpush_pr-.Lpush_r13
-	.byte	0xe
-	.uleb128 28
-	.byte	0x91
-	.uleb128 7
-	.byte	0x4
-	.ualong	.Lalloc-.Lpush_pr
-	.byte	0xe
-	.uleb128 92
-	.align	2
-.LENDFDE:
 
 #ifdef SHARED
 	.hidden DW.ref.__gcc_personality_v0

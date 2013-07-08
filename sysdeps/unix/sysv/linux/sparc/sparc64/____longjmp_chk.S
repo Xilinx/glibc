@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* longjmp is implemented in terms of the setcontext trap on Linux/Sparc64.  */
 
@@ -63,16 +62,14 @@ ENTRY (____longjmp_chk)
 	 nop
 
 .Lfail:
-#ifdef PIC
-1:	call	2f
-	sethi	%hi(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7
-2:	or	%l7, %lo(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7
-	add	%l7, %o7, %l7
-#endif
+#ifndef PIC
 	sethi	%hi(longjmp_msg), %o0
 	or	%o0, %lo(longjmp_msg), %o0
-#ifdef PIC
-	ldx	[%l7 + %o0], %o0
+#else
+	SETUP_PIC_REG(l7)
+	sethi	%gdop_hix22(longjmp_msg), %o0
+	xor	%o0, %gdop_lox10(longjmp_msg), %o0
+	ldx	[%l7 + %o0], %o0, %gdop(longjmp_msg)
 #endif
 	call	HIDDEN_JUMPTARGET(__fortify_fail)
 	 nop

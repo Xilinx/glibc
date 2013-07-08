@@ -1,6 +1,6 @@
 /* Add two limb vectors of the same length > 0 and store sum in a third
    limb vector.
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU MP Library.
 
@@ -15,9 +15,8 @@
    License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA. */
+   along with the GNU MP Library; see the file COPYING.LIB.  If not,
+   see <http://www.gnu.org/licenses/>.  */
 
 /*
    INPUT PARAMETERS

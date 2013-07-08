@@ -1,5 +1,5 @@
 /* Convert text in given files from the specified from-set to the to-set.
-   Copyright (C) 1998-2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <argp.h>
 #include <assert.h>
@@ -58,13 +57,13 @@ void (*argp_program_version_hook) (FILE *, struct argp_state *) = print_version;
 static const struct argp_option options[] =
 {
   { NULL, 0, NULL, 0, N_("Input/Output format specification:") },
-  { "from-code", 'f', "NAME", 0, N_("encoding of original text") },
-  { "to-code", 't', "NAME", 0, N_("encoding for output") },
+  { "from-code", 'f', N_("NAME"), 0, N_("encoding of original text") },
+  { "to-code", 't', N_("NAME"), 0, N_("encoding for output") },
   { NULL, 0, NULL, 0, N_("Information:") },
   { "list", 'l', NULL, 0, N_("list all known coded character sets") },
   { NULL, 0, NULL, 0, N_("Output control:") },
   { NULL, 'c', NULL, 0, N_("omit invalid characters from output") },
-  { "output", 'o', "FILE", 0, N_("output file") },
+  { "output", 'o', N_("FILE"), 0, N_("output file") },
   { "silent", 's', NULL, 0, N_("suppress warnings") },
   { "verbose", OPT_VERBOSE, NULL, 0, N_("print progress information") },
   { NULL, 0, NULL, 0, NULL }
@@ -156,7 +155,7 @@ main (int argc, char *argv[])
       if (*errhand == '/')
 	{
 	  --nslash;
-	  errhand = strchrnul (errhand, '/');
+	  errhand = strchrnul (errhand + 1, '/');
 
 	  if (*errhand == '/')
 	    {
@@ -276,7 +275,7 @@ conversions from `%s' and to `%s' are not supported"),
 	do
 	  {
 #ifdef _POSIX_MAPPED_FILES
-	    struct stat st;
+	    struct stat64 st;
 	    char *addr;
 #endif
 	    int fd, ret;
@@ -301,7 +300,7 @@ conversions from `%s' and to `%s' are not supported"),
 #ifdef _POSIX_MAPPED_FILES
 	    /* We have possibilities for reading the input file.  First try
 	       to mmap() it since this will provide the fastest solution.  */
-	    if (fstat (fd, &st) == 0
+	    if (fstat64 (fd, &st) == 0
 		&& ((addr = mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE,
 				  fd, 0)) != MAP_FAILED))
 	      {
@@ -401,13 +400,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
 static char *
 more_help (int key, const char *text, void *input)
 {
+  char *tp = NULL;
   switch (key)
     {
     case ARGP_KEY_HELP_EXTRA:
       /* We print some extra information.  */
-      return strdup (gettext ("\
+      if (asprintf (&tp, gettext ("\
 For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"));
+%s.\n"), REPORT_BUGS_TO) < 0)
+	return NULL;
+      return tp;
     default:
       break;
     }
@@ -419,12 +421,12 @@ For bug reporting instructions, please see:\n\
 static void
 print_version (FILE *stream, struct argp_state *state)
 {
-  fprintf (stream, "iconv (GNU %s) %s\n", PACKAGE, VERSION);
+  fprintf (stream, "iconv %s%s\n", PKGVERSION, VERSION);
   fprintf (stream, gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2011");
+"), "2013");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 
@@ -719,9 +721,8 @@ add_known_names (struct gconv_module *node)
     add_known_names (node->right);
   do
     {
-      if (strcmp (node->from_string, "INTERNAL"))
-	tsearch (node->from_string, &printlist,
-		 (__compar_fn_t) strverscmp);
+      if (strcmp (node->from_string, "INTERNAL") != 0)
+	tsearch (node->from_string, &printlist, (__compar_fn_t) strverscmp);
       if (strcmp (node->to_string, "INTERNAL") != 0)
 	tsearch (node->to_string, &printlist, (__compar_fn_t) strverscmp);
 

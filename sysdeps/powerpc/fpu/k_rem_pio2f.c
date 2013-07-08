@@ -1,5 +1,5 @@
 /* k_rem_pio2f.c -- float version of e_rem_pio2.c
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Adhemerval Zanella <azanella@br.ibm.com>, 2011
 
@@ -14,13 +14,12 @@
    Library General Public License for more details.
 
    You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 
-#include "math_private.h"
+#include <math_private.h>
 #include "s_float_bitwise.h"
 
 
@@ -154,7 +153,7 @@ recompute:
       ih = iq[jz - 1] >> (7 - q0);
     }
   else if (q0 == 0)
-    ih = iq[jz - 1] >> 8;
+    ih = iq[jz - 1] >> 7;
   else if (z >= 0.5)
     ih = 2;
 

@@ -2,7 +2,7 @@
    null-terminated string from SRC to DST.  If SRC does not cover all of
    COUNT, the balance is zeroed.
    For SPARC v9.
-   Copyright (C) 1998, 1999, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jan Vondrak <jvon4518@ss1000.ms.mff.cuni.cz> and
                   Jakub Jelinek <jj@ultra.linux.cz>.
@@ -18,9 +18,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <asm/asi.h>
@@ -228,7 +227,7 @@ ENTRY(strncpy)
 	subcc		%o2, 1, %o2			/* IEU1				*/
 	be,pn		%XCC, 19f			/* CTI				*/
 	 srlx		%o3, 16, %g5			/* IEU0		Group		*/
-	
+
 	andcc		%g5, 0xff, %g0			/* IEU1		Group		*/
 	be,pn		%icc, 20f			/* CTI				*/
 	 stb		%g5, [%o0]			/* Store			*/
@@ -237,7 +236,7 @@ ENTRY(strncpy)
 	subcc		%o2, 1, %o2			/* IEU1				*/
 	be,pn		%XCC, 19f			/* CTI				*/
 	 srlx		%o3, 8, %g5			/* IEU0		Group		*/
-	stb		%g5, [%o0]			/* Store			*/ 
+	stb		%g5, [%o0]			/* Store			*/
 
 19:	retl						/* CTI+IEU1	Group		*/
 	 mov		%g6, %o0			/* IEU0				*/

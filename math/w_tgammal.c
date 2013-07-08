@@ -27,14 +27,15 @@ __tgammal(long double x)
 	int local_signgam;
 	long double y = __ieee754_gammal_r(x,&local_signgam);
 
-	if(__builtin_expect(!__finitel(y), 0) && __finitel(x)
+	if(__builtin_expect(!__finitel(y), 0)
+	   && (__finitel (x) || __isinfl (x) < 0)
 	   && _LIB_VERSION != _IEEE_) {
 	  if(x==0.0)
-	    return __kernel_standard(x,x,250); /* tgamma pole */
+	    return __kernel_standard_l(x,x,250); /* tgamma pole */
 	  else if(__floorl(x)==x&&x<0.0L)
-	    return __kernel_standard(x,x,241); /* tgamma domain */
+	    return __kernel_standard_l(x,x,241); /* tgamma domain */
 	  else
-	    return __kernel_standard(x,x,240); /* tgamma overflow */
+	    return __kernel_standard_l(x,x,240); /* tgamma overflow */
 	}
 	return local_signgam < 0 ? - y : y;
 }

@@ -1,6 +1,6 @@
 /* rawmemchr (str, ch) -- Return pointer to first occurrence of CH in STR.
    For SPARC v9.
-   Copyright (C) 1999, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>.
    This version is developed using the same algorithm as the fast C
@@ -22,9 +22,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <asm/asi.h>
@@ -58,7 +57,7 @@ ENTRY(__rawmemchr)
 	sethi		%hi(0x01010101), %g1		/* IEU1				*/
 	ldub		[%o0], %o3			/* Load				*/
 	sll		%o1, 8, %o4			/* IEU0		Group		*/
-	
+
 	or		%g1, %lo(0x01010101), %g1	/* IEU1				*/
 	sllx		%g1, 32, %g2			/* IEU0		Group		*/
 	or		%o4, %o1, %o4			/* IEU1				*/

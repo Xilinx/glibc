@@ -1,5 +1,5 @@
 /* memcpy with SSSE3
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -98,9 +97,9 @@ L(80bytesormore):
 	sub	%rcx, %rsi
 
 #ifdef SHARED_CACHE_SIZE_HALF
-	mov	$SHARED_CACHE_SIZE_HALF, %rcx
+	mov	$SHARED_CACHE_SIZE_HALF, %RCX_LP
 #else
-	mov	__x86_64_shared_cache_size_half(%rip), %rcx
+	mov	__x86_shared_cache_size_half(%rip), %RCX_LP
 #endif
 	cmp	%rcx, %rdx
 	mov	%rsi, %r9
@@ -108,9 +107,9 @@ L(80bytesormore):
 	and	$0xf, %r9
 	jz	L(shl_0)
 #ifdef DATA_CACHE_SIZE_HALF
-	mov	$DATA_CACHE_SIZE_HALF, %rcx
+	mov	$DATA_CACHE_SIZE_HALF, %RCX_LP
 #else
-	mov	__x86_64_data_cache_size_half(%rip), %rcx
+	mov	__x86_data_cache_size_half(%rip), %RCX_LP
 #endif
 	BRANCH_TO_JMPTBL_ENTRY (L(shl_table), %r9, 4)
 
@@ -128,9 +127,9 @@ L(copy_backward):
 	sub	%rcx, %rsi
 
 #ifdef SHARED_CACHE_SIZE_HALF
-	mov	$SHARED_CACHE_SIZE_HALF, %rcx
+	mov	$SHARED_CACHE_SIZE_HALF, %RCX_LP
 #else
-	mov	__x86_64_shared_cache_size_half(%rip), %rcx
+	mov	__x86_shared_cache_size_half(%rip), %RCX_LP
 #endif
 
 	cmp	%rcx, %rdx
@@ -139,9 +138,9 @@ L(copy_backward):
 	and	$0xf, %r9
 	jz	L(shl_0_bwd)
 #ifdef DATA_CACHE_SIZE_HALF
-	mov	$DATA_CACHE_SIZE_HALF, %rcx
+	mov	$DATA_CACHE_SIZE_HALF, %RCX_LP
 #else
-	mov	__x86_64_data_cache_size_half(%rip), %rcx
+	mov	__x86_data_cache_size_half(%rip), %RCX_LP
 #endif
 	BRANCH_TO_JMPTBL_ENTRY (L(shl_table_bwd), %r9, 4)
 
@@ -176,9 +175,9 @@ L(shl_0_less_64bytes):
 	ALIGN (4)
 L(shl_0_gobble):
 #ifdef DATA_CACHE_SIZE_HALF
-	cmp	$DATA_CACHE_SIZE_HALF, %rdx
+	cmp	$DATA_CACHE_SIZE_HALF, %RDX_LP
 #else
-	cmp	__x86_64_data_cache_size_half(%rip), %rdx
+	cmp	__x86_data_cache_size_half(%rip), %RDX_LP
 #endif
 	lea	-128(%rdx), %rdx
 	jae	L(shl_0_gobble_mem_loop)
@@ -317,9 +316,9 @@ L(shl_0_less_64bytes_bwd):
 	ALIGN (4)
 L(shl_0_gobble_bwd):
 #ifdef DATA_CACHE_SIZE_HALF
-	cmp	$DATA_CACHE_SIZE_HALF, %rdx
+	cmp	$DATA_CACHE_SIZE_HALF, %RDX_LP
 #else
-	cmp	__x86_64_data_cache_size_half(%rip), %rdx
+	cmp	__x86_data_cache_size_half(%rip), %RDX_LP
 #endif
 	lea	-128(%rdx), %rdx
 	jae	L(shl_0_gobble_mem_bwd_loop)

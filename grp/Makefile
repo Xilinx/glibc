@@ -1,4 +1,4 @@
-# Copyright (C) 1991,1992,1996-2000,2003,2004 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,17 +12,14 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for grp portion of the library.
 #
 subdir	:= grp
 headers := grp.h
-
-distribute := tst_fgetgrent.c tst_fgetgrent.sh compat-initgroups.c
 
 routines := fgetgrent initgroups setgroups \
 	    getgrent getgrgid getgrnam putgrent \
@@ -39,33 +36,26 @@ endif
 
 include ../Rules
 
-ifeq (yes,$(build-static-nss))
-otherlibs += $(nssobjdir)/libnss_files.a $(resolvobjdir)/libnss_dns.a \
-	     $(resolvobjdir)/libresolv.a
-endif
-
-
 ifeq ($(have-thread-library),yes)
 
-CFLAGS-getgrgid_r.c = -DUSE_NSCD=1 -fexceptions
-CFLAGS-getgrnam_r.c = -DUSE_NSCD=1 -fexceptions
+CFLAGS-getgrgid_r.c = -fexceptions
+CFLAGS-getgrnam_r.c = -fexceptions
 CFLAGS-getgrent_r.c = -fexceptions
 CFLAGS-getgrent.c = -fexceptions
 CFLAGS-fgetgrent.c = -fexceptions
-CFLAGS-fgetgrent_r.c = -fexceptions -D_IO_MTSAFE_IO
-CFLAGS-putgrent.c = -fexceptions -D_IO_MTSAFE_IO
-CFLAGS-initgroups.c = -DUSE_NSCD=1 -fexceptions
+CFLAGS-fgetgrent_r.c = -fexceptions $(libio-mtsafe)
+CFLAGS-putgrent.c = -fexceptions $(libio-mtsafe)
+CFLAGS-initgroups.c = -fexceptions
 CFLAGS-getgrgid.c = -fexceptions
 
 endif
 
-ifeq (no,$(cross-compiling))
+ifeq ($(run-built-tests),yes)
 # tst_fgetgrent currently only works with shared libraries
 ifeq (yes,$(build-shared))
 tests: $(objpfx)tst_fgetgrent.out
 $(objpfx)tst_fgetgrent.out: tst_fgetgrent.sh $(objpfx)tst_fgetgrent
-	$(SHELL) -e tst_fgetgrent.sh $(common-objpfx) $(elf-objpfx) \
-		 $(rtld-installed-name)
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
 
 endif
 endif

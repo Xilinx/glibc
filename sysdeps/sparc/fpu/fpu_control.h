@@ -1,5 +1,5 @@
 /* FPU control word bits.  SPARC version.
-   Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Miguel de Icaza
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H	1
@@ -60,11 +59,11 @@
 typedef unsigned long int fpu_control_t;
 
 #if __WORDSIZE == 64
-# define _FPU_GETCW(cw) __asm__ ("stx %%fsr,%0" : "=m" (*&cw))
-# define _FPU_SETCW(cw) __asm__ ("ldx %0,%%fsr" : : "m" (*&cw))
+# define _FPU_GETCW(cw) __asm__ __volatile__ ("stx %%fsr,%0" : "=m" (*&cw))
+# define _FPU_SETCW(cw) __asm__ __volatile__ ("ldx %0,%%fsr" : : "m" (*&cw))
 #else
-# define _FPU_GETCW(cw) __asm__ ("st %%fsr,%0" : "=m" (*&cw))
-# define _FPU_SETCW(cw) __asm__ ("ld %0,%%fsr" : : "m" (*&cw))
+# define _FPU_GETCW(cw) __asm__ __volatile__ ("st %%fsr,%0" : "=m" (*&cw))
+# define _FPU_SETCW(cw) __asm__ __volatile__ ("ld %0,%%fsr" : : "m" (*&cw))
 #endif
 
 /* Default control word set at startup.  */

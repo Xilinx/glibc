@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for PowerPC32 on POWER6.
-   Copyright (C) 2003, 2006, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,18 +13,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
    Returns 'dst'.
 
-   Memcpy handles short copies (< 32-bytes) using a binary move blocks 
+   Memcpy handles short copies (< 32-bytes) using a binary move blocks
    (no loops) of lwz/stw.  The tail (remaining 1-3) bytes is handled
    with the appropriate combination of byte and halfword load/stores.
    There is minimal effort to optimize the alignment of short moves.
@@ -35,7 +32,7 @@
    Each case has an optimized unrolled loop.   */
 
 	.machine power6
-EALIGN (BP_SYM (memcpy), 5, 0)
+EALIGN (memcpy, 5, 0)
 	CALL_MCOUNT
 
     stwu   1,-32(1)
@@ -412,31 +409,31 @@ L(wdu):
      not.  For power4, power5 and power6 machines there is penalty for
      unaligned loads (src) that cross 32-byte, cacheline, or page
      boundaries. So we want to use simple (unaligned) loads where
-     posible but avoid them where we know the load would span a 32-byte
+     possible but avoid them where we know the load would span a 32-byte
      boundary.
 
      At this point we know we have at least 29 (32-3) bytes to copy
      the src is unaligned. and we may cross at least one 32-byte
-     boundary. Also we have the following regester values:
+     boundary. Also we have the following register values:
      r3 == adjusted dst, word aligned
      r4 == unadjusted src
      r5 == unadjusted len
      r9 == adjusted Word length
      r10 == src alignment (1-3)
-     r12 == adjuested src, not aligned
+     r12 == adjusted src, not aligned
      r31 == adjusted len
 
-     First we need to copy word upto but not crossing the next 32-byte
+     First we need to copy word up to but not crossing the next 32-byte
      boundary. Then perform aligned loads just before and just after
-     the boundary and use shifts and or to gernerate the next aligned
+     the boundary and use shifts and or to generate the next aligned
      word for dst. If more then 32 bytes remain we copy (unaligned src)
      the next 7 words and repeat the loop until less then 32-bytes
-     remaim.
+     remain.
 
      Then if more then 4 bytes remain we again use aligned loads,
      shifts and or to generate the next dst word. We then process the
      remaining words using unaligned loads as needed. Finally we check
-     if there more then 0 bytes (1-3) bytes remainting and use
+     if there more then 0 bytes (1-3) bytes remaining and use
      halfword and or byte load/stores to complete the copy.
 */
     mr      4,12      /* restore unaligned adjusted src ptr */
@@ -513,7 +510,7 @@ L(wdu_h32_4):
     addi  3,3,4
     .align  4
 L(wdu_h32_0):
-/*  set up for 32-byte boundry crossing word move and possibly 32-byte
+/*  set up for 32-byte boundary crossing word move and possibly 32-byte
     move loop.  */
     clrrwi  12,4,2
     cmplwi  cr5,31,32
@@ -838,6 +835,6 @@ L(wdus_0):
     lwz  31,24(1)
     addi 1,1,32
     blr
-END (BP_SYM (memcpy))
+END (memcpy)
 
 libc_hidden_builtin_def (memcpy)

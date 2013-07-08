@@ -1,5 +1,5 @@
 /* Data for s390 version of processor capability information.
-   Copyright (C) 2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2006.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This information must be kept in sync with the _DL_HWCAP_COUNT and
    _DL_PLATFORM_COUNT definitions in procinfo.h.
@@ -47,11 +46,11 @@
 #if !defined PROCINFO_DECL && defined SHARED
   ._dl_s390_cap_flags
 #else
-PROCINFO_CLASS const char _dl_s390_cap_flags[10][8]
+PROCINFO_CLASS const char _dl_s390_cap_flags[11][9]
 #endif
 #ifndef PROCINFO_DECL
 = {
-     "esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp", "hpage", "etf3enh", "highgprs"
+     "esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp", "edat", "etf3eh", "highgprs", "te"
   }
 #endif
 #if !defined SHARED || defined PROCINFO_DECL
@@ -63,11 +62,11 @@ PROCINFO_CLASS const char _dl_s390_cap_flags[10][8]
 #if !defined PROCINFO_DECL && defined SHARED
   ._dl_s390_platforms
 #else
-PROCINFO_CLASS const char _dl_s390_platforms[5][7]
+PROCINFO_CLASS const char _dl_s390_platforms[7][7]
 #endif
 #ifndef PROCINFO_DECL
 = {
-    "g5", "z900", "z990", "z9-109", "z10"
+    "g5", "z900", "z990", "z9-109", "z10", "z196", "zEC12"
   }
 #endif
 #if !defined SHARED || defined PROCINFO_DECL

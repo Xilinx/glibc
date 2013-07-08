@@ -1,4 +1,4 @@
-# Copyright (C) 1994-2004, 2005, 2006, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1994-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for sunrpc portion of the library.
@@ -61,6 +60,10 @@ generated-dirs := rpcsvc
 
 include ../Makeconfig
 
+ifeq ($(link-obsolete-rpc),yes)
+headers += $(headers-in-tirpc) $(headers-not-in-tirpc)
+endif
+
 ifeq ($(versioning),yes)
 need-export-routines := auth_des auth_unix clnt_gen clnt_perr clnt_tcp \
 			clnt_udp get_myaddr key_call netname pm_getport \
@@ -74,8 +77,10 @@ routines := auth_none authuxprot bindrsvprt clnt_raw clnt_simp \
 	    svc_simple xdr_float xdr_rec publickey authdes_prot \
 	    des_crypt des_impl des_soft key_prot openchild rtime svcauth_des \
 	    clnt_unix svc_unix create_xid $(need-export-routines)
+ifneq ($(link-obsolete-rpc),yes)
 # We only add the RPC for compatibility to libc.so.
 shared-only-routines = $(routines)
+endif
 endif
 
 # We do not build rpcinfo anymore.  It is not needed for a bootstrap
@@ -86,12 +91,8 @@ install-bin := rpcgen
 rpcgen-objs = rpc_main.o rpc_hout.o rpc_cout.o rpc_parse.o \
 	      rpc_scan.o rpc_util.o rpc_svcout.o rpc_clntout.o \
 	      rpc_tblout.o rpc_sample.o
-# These headers are part of rpcgen.
-distribute := proto.h rpc_util.h rpc_parse.h rpc_scan.h \
-	      $(headers-in-tirpc) $(headers-not-in-tirpc) \
-	      $(rpcgen-objs:.o=.c) etc.rpc \
-	      errqueue.h
-extra-objs = $(rpcgen-objs)
+extra-objs = $(rpcgen-objs) $(addprefix cross-,$(rpcgen-objs))
+others += rpcgen
 
 all: # Make this the default target; it will be defined in Rules.
 
@@ -101,29 +102,24 @@ xtests := tst-getmyaddr
 ifeq ($(have-thread-library),yes)
 xtests += thrsvc
 endif
-distribute += thrsvc.c
 
-ifeq (yes,$(build-static-nss))
-otherlibs += $(nssobjdir)/libnss_files.a $(resolvobjdir)/libnss_dns.a \
-	     $(resolvobjdir)/libresolv.a
-endif
-
-ifeq (no,$(cross-compiling))
-# We can only build this library if we can run the rpcgen we build.
 headers += $(rpcsvc:%.x=rpcsvc/%.h)
 extra-libs := librpcsvc
 extra-libs-others := librpcsvc # Make it in `others' pass, not `lib' pass.
 librpcsvc-routines = $(rpcsvc:%.x=x%)
 librpcsvc-inhibit-o = .os # Build no shared rpcsvc library.
 omit-deps = $(librpcsvc-routines)
-endif
-
-include ../Rules
 
 ifeq (yes,$(build-shared))
 rpc-compat-routines = $(addprefix compat-,$(need-export-routines))
 rpc-compat-routines.os = $(addprefix $(objpfx), \
 				     $(addsuffix .os,$(rpc-compat-routines)))
+extra-objs += $(addsuffix .os,$(rpc-compat-routines))
+endif
+
+include ../Rules
+
+ifeq (yes,$(build-shared))
 subdir_lib: $(objpfx)librpc_compat_pic.a
 $(objpfx)librpc_compat_pic.a: $(rpc-compat-routines.os)
 	$(AR) cr$(verbose) $@ $^
@@ -150,7 +146,9 @@ CFLAGS-pmap_rmt.c = -fexceptions
 CFLAGS-clnt_perr.c = -fexceptions
 CFLAGS-openchild.c = -fexceptions
 
-CPPFLAGS += -D_RPC_THREAD_SAFE_
+sunrpc-CPPFLAGS = -D_RPC_THREAD_SAFE_
+CPPFLAGS += $(sunrpc-CPPFLAGS)
+BUILD_CPPFLAGS += $(sunrpc-CPPFLAGS)
 
 CFLAGS-clnt_tcp.c += -fno-strict-aliasing
 CFLAGS-clnt_udp.c += -fno-strict-aliasing
@@ -160,18 +158,30 @@ $(objpfx)tst-getmyaddr: $(common-objpfx)linkobj/libc.so
 $(objpfx)tst-xdrmem: $(common-objpfx)linkobj/libc.so
 $(objpfx)tst-xdrmem2: $(common-objpfx)linkobj/libc.so
 
-$(objpfx)rpcgen: $(addprefix $(objpfx),$(rpcgen-objs)) \
-  $(sort $(filter $(common-objpfx)libc%,$(link-libc))) \
-  $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
-	$(+link)
+$(objpfx)rpcgen: $(addprefix $(objpfx),$(rpcgen-objs))
+
+cross-rpcgen-objs := $(addprefix $(objpfx)cross-,$(rpcgen-objs))
+
+# When generic makefile support for build system programs is
+# available, it should replace this code.  See
+# <http://sourceware.org/bugzilla/show_bug.cgi?id=14087>.
+$(cross-rpcgen-objs): $(objpfx)cross-%.o: %.c $(before-compile)
+	$(BUILD_CC) $($(basename $(<F))-CFLAGS) $(ALL_BUILD_CFLAGS) $< \
+		$(OUTPUT_OPTION) $(native-compile-mkdep-flags) -c
+
+$(objpfx)cross-rpcgen: $(cross-rpcgen-objs)
+	$(BUILD_CC) $^ $(BUILD_LDFLAGS) -o $@
 
 # This makes sure -DNOT_IN_libc is passed for all these modules.
 cpp-srcs-left := $(rpcgen-objs:.o=.c)
 lib := nonlib
 include $(patsubst %,$(..)cppflags-iterator.mk,$(cpp-srcs-left))
 
-# Tell rpcgen where to find the C preprocessor.
-rpcgen-cmd = CPP='$(CC) -E -x c-header' $(built-program-cmd) -Y ../scripts
+# How we run rpcgen to generate sources and headers in the rules below.
+# Setting CPP tells it how to run the C preprocessor correctly.  Note
+# that $(built-program-file) requires that the just-built cross-rpcgen
+# binary be the second dependency listed in each rule using rpcgen-cmd.
+rpcgen-cmd = CPP='$(CC) -E -x c-header' $(built-program-file) -Y ../scripts
 
 # Install the rpc data base file.
 $(inst_sysconfdir)/rpc: etc.rpc $(+force)
@@ -182,7 +192,7 @@ $(inst_sysconfdir)/rpc: etc.rpc $(+force)
 # relinked.
 $(rpcsvc:%.x=$(objpfx)rpcsvc/%.h): $(objpfx)rpcsvc/%.h: $(objpfx)rpcsvc/%.stmp
 	@:
-$(objpfx)rpcsvc/%.stmp: rpcsvc/%.x $(objpfx)rpcgen
+$(objpfx)rpcsvc/%.stmp: rpcsvc/%.x $(objpfx)cross-rpcgen
 	$(make-target-directory)
 	-@rm -f ${@:stmp=T} $@
 	$(rpcgen-cmd) -h $< -o ${@:stmp=T}
@@ -192,7 +202,7 @@ $(objpfx)rpcsvc/%.stmp: rpcsvc/%.x $(objpfx)rpcgen
 # Generate the rpcsvc XDR functions with rpcgen.
 $(rpcsvc:%.x=$(objpfx)x%.c): $(objpfx)x%.c: $(objpfx)x%.stmp
 	@:
-$(objpfx)x%.stmp: rpcsvc/%.x $(objpfx)rpcgen
+$(objpfx)x%.stmp: rpcsvc/%.x $(objpfx)cross-rpcgen
 	-@rm -f ${@:stmp=T} $@
 	$(rpcgen-cmd) -c $< -o ${@:stmp=T}
 	$(move-if-change) $(@:stmp=T) $(@:stmp=c)

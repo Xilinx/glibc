@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <unwindbuf.h>
 #include <sysdep.h>
@@ -73,7 +72,7 @@ __pthread_once:
 	add	r12, r2
 #endif
 	mov.l	@r2, r3
-	or	r3, r0	
+	or	r3, r0
 	or	#1, r0
 	mov	r0, r3
 	mov	r1, r5
@@ -120,10 +119,10 @@ __pthread_once:
 .Lgot:
 	.long	_GLOBAL_OFFSET_TABLE_
 #ifdef PIC
-.Lfgen:	
+.Lfgen:
 	.long	__fork_generation@GOTOFF
 #else
-.Lfgen:	
+.Lfgen:
 	.long	__fork_generation
 #endif
 
@@ -254,8 +253,5 @@ __pthread_once:
 	.long	HIDDEN_JUMPTARGET(__pthread_unwind_next)-.Lunext0
 	.size	__pthread_once,.-__pthread_once
 
-	.globl	__pthread_once_internal
-__pthread_once_internal = __pthread_once
-
-	.globl	pthread_once
-pthread_once = __pthread_once
+hidden_def (__pthread_once)
+strong_alias (__pthread_once, pthread_once)

@@ -1,7 +1,6 @@
 /* Definitions of constants and data structure for POSIX 1003.1b-1993
    scheduling interface.
-   Copyright (C) 1996-1999,2001-2003,2005,2006,2007,2008,2009,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef __need_schedparam
 
@@ -102,7 +100,7 @@ typedef struct
   (__extension__							      \
    ({ size_t __cpu = (cpu);						      \
       __cpu < 8 * (setsize)						      \
-      ? ((((__const __cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]      \
+      ? ((((const __cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]      \
 	  & __CPUMASK (__cpu))) != 0					      \
       : 0; }))
 
@@ -115,8 +113,8 @@ typedef struct
 # else
 #  define __CPU_EQUAL_S(setsize, cpusetp1, cpusetp2) \
   (__extension__							      \
-   ({ __const __cpu_mask *__arr1 = (cpusetp1)->__bits;			      \
-      __const __cpu_mask *__arr2 = (cpusetp2)->__bits;			      \
+   ({ const __cpu_mask *__arr1 = (cpusetp1)->__bits;			      \
+      const __cpu_mask *__arr2 = (cpusetp2)->__bits;			      \
       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
       size_t __i;							      \
       for (__i = 0; __i < __imax; ++__i)				      \
@@ -128,8 +126,8 @@ typedef struct
 # define __CPU_OP_S(setsize, destset, srcset1, srcset2, op) \
   (__extension__							      \
    ({ cpu_set_t *__dest = (destset);					      \
-      __const __cpu_mask *__arr1 = (srcset1)->__bits;			      \
-      __const __cpu_mask *__arr2 = (srcset2)->__bits;			      \
+      const __cpu_mask *__arr1 = (srcset1)->__bits;			      \
+      const __cpu_mask *__arr2 = (srcset2)->__bits;			      \
       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
       size_t __i;							      \
       for (__i = 0; __i < __imax; ++__i)				      \

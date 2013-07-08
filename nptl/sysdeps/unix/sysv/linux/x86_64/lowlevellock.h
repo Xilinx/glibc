@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2004, 2006-2008, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LOWLEVELLOCK_H
 #define _LOWLEVELLOCK_H	1
@@ -46,7 +45,7 @@
 # endif
 #endif
 
-#define SYS_futex		202
+#define SYS_futex		__NR_futex
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_CMP_REQUEUE	4
@@ -122,7 +121,7 @@
 	".byte	0x12	# DW_CFA_def_cfa_sf\n\t" 		\
 	".uleb128 0x7\n\t" 					\
 	".sleb128 16\n\t" 					\
-	".align 8\n" 						\
+	".align " LP_SIZE "\n" 					\
 "9:\t"	".long	23f-10f	# FDE Length\n" 			\
 "10:\t"	".long	10b-7b	# FDE CIE offset\n\t" 			\
 	".long	1b-.	# FDE initial location\n\t" 		\
@@ -169,7 +168,7 @@
 	".uleb128 22f-21f\n" 					\
 "21:\t"	".byte	0x80	# DW_OP_breg16\n\t" 			\
 	".sleb128 4b-5b\n" 					\
-"22:\t"	".align 8\n" 						\
+"22:\t"	".align " LP_SIZE "\n" 					\
 "23:\t"	".previous\n"
 
 /* Unwind info for
@@ -226,17 +225,18 @@ LLL_STUB_UNWIND_INFO_END
 
 
 #define lll_futex_wake(futex, nr, private) \
-  do {									      \
-    int __ignore;							      \
+  ({									      \
+    int __status;							      \
     register __typeof (nr) _nr __asm ("edx") = (nr);			      \
     LIBC_PROBE (lll_futex_wake, 3, futex, nr, private);                       \
     __asm __volatile ("syscall"						      \
-		      : "=a" (__ignore)					      \
+		      : "=a" (__status)					      \
 		      : "0" (SYS_futex), "D" (futex),			      \
 			"S" (__lll_private_flag (FUTEX_WAKE, private)),	      \
 			"d" (_nr)					      \
 		      : "memory", "cc", "r10", "r11", "cx");		      \
-  } while (0)
+    __status;								      \
+  })
 
 
 /* NB: in the lll_trylock macro we simply return the value in %eax
@@ -289,7 +289,7 @@ LLL_STUB_UNWIND_INFO_END
 			      "je 0f\n\t"				      \
 			      "lock; cmpxchgl %4, %2\n\t"		      \
 			      "jnz 1f\n\t"				      \
-		  	      "jmp 24f\n"				      \
+			      "jmp 24f\n"				      \
 			      "0:\tcmpxchgl %4, %2\n\t"			      \
 			      "jnz 1f\n\t"
 #endif
@@ -302,10 +302,10 @@ LLL_STUB_UNWIND_INFO_END
 			   ".subsection 1\n\t"				      \
 			   ".type _L_lock_%=, @function\n"		      \
 			   "_L_lock_%=:\n"				      \
-			   "1:\tleaq %2, %%rdi\n"			      \
-			   "2:\tsubq $128, %%rsp\n"			      \
+			   "1:\tlea %2, %%" RDI_LP "\n"			      \
+			   "2:\tsub $128, %%" RSP_LP "\n"		      \
 			   "3:\tcallq __lll_lock_wait_private\n"	      \
-			   "4:\taddq $128, %%rsp\n"			      \
+			   "4:\tadd $128, %%" RSP_LP "\n"		      \
 			   "5:\tjmp 24f\n"				      \
 			   "6:\t.size _L_lock_%=, 6b-1b\n\t"		      \
 			   ".previous\n"				      \
@@ -320,10 +320,10 @@ LLL_STUB_UNWIND_INFO_END
 			   ".subsection 1\n\t"				      \
 			   ".type _L_lock_%=, @function\n"		      \
 			   "_L_lock_%=:\n"				      \
-			   "1:\tleaq %2, %%rdi\n"			      \
-			   "2:\tsubq $128, %%rsp\n"			      \
+			   "1:\tlea %2, %%" RDI_LP "\n"			      \
+			   "2:\tsub $128, %%" RSP_LP "\n"		      \
 			   "3:\tcallq __lll_lock_wait\n"		      \
-			   "4:\taddq $128, %%rsp\n"			      \
+			   "4:\tadd $128, %%" RSP_LP "\n"		      \
 			   "5:\tjmp 24f\n"				      \
 			   "6:\t.size _L_lock_%=, 6b-1b\n\t"		      \
 			   ".previous\n"				      \
@@ -342,10 +342,10 @@ LLL_STUB_UNWIND_INFO_END
 		      ".subsection 1\n\t"				      \
 		      ".type _L_robust_lock_%=, @function\n"		      \
 		      "_L_robust_lock_%=:\n"				      \
-		      "1:\tleaq %2, %%rdi\n"				      \
-		      "2:\tsubq $128, %%rsp\n"				      \
+		      "1:\tlea %2, %%" RDI_LP "\n"			      \
+		      "2:\tsub $128, %%" RSP_LP "\n"			      \
 		      "3:\tcallq __lll_robust_lock_wait\n"		      \
-		      "4:\taddq $128, %%rsp\n"				      \
+		      "4:\tadd $128, %%" RSP_LP "\n"			      \
 		      "5:\tjmp 24f\n"					      \
 		      "6:\t.size _L_robust_lock_%=, 6b-1b\n\t"		      \
 		      ".previous\n"					      \
@@ -365,10 +365,10 @@ LLL_STUB_UNWIND_INFO_END
 			 ".subsection 1\n\t"				      \
 			 ".type _L_cond_lock_%=, @function\n"		      \
 			 "_L_cond_lock_%=:\n"				      \
-			 "1:\tleaq %2, %%rdi\n"				      \
-			 "2:\tsubq $128, %%rsp\n"			      \
+			 "1:\tlea %2, %%" RDI_LP "\n"			      \
+			 "2:\tsub $128, %%" RSP_LP "\n"			      \
 			 "3:\tcallq __lll_lock_wait\n"			      \
-			 "4:\taddq $128, %%rsp\n"			      \
+			 "4:\tadd $128, %%" RSP_LP "\n"			      \
 			 "5:\tjmp 24f\n"				      \
 			 "6:\t.size _L_cond_lock_%=, 6b-1b\n\t"		      \
 			 ".previous\n"					      \
@@ -387,10 +387,10 @@ LLL_STUB_UNWIND_INFO_END
 		      ".subsection 1\n\t"				      \
 		      ".type _L_robust_cond_lock_%=, @function\n"	      \
 		      "_L_robust_cond_lock_%=:\n"			      \
-		      "1:\tleaq %2, %%rdi\n"				      \
-		      "2:\tsubq $128, %%rsp\n"				      \
+		      "1:\tlea %2, %%" RDI_LP "\n"			      \
+		      "2:\tsub $128, %%" RSP_LP "\n"			      \
 		      "3:\tcallq __lll_robust_lock_wait\n"		      \
-		      "4:\taddq $128, %%rsp\n"				      \
+		      "4:\tadd $128, %%" RSP_LP "\n"			      \
 		      "5:\tjmp 24f\n"					      \
 		      "6:\t.size _L_robust_cond_lock_%=, 6b-1b\n\t"	      \
 		      ".previous\n"					      \
@@ -410,11 +410,11 @@ LLL_STUB_UNWIND_INFO_END
 		       ".subsection 1\n\t"				      \
 		       ".type _L_timedlock_%=, @function\n"		      \
 		       "_L_timedlock_%=:\n"				      \
-		       "1:\tleaq %4, %%rdi\n"				      \
-		       "0:\tmovq %8, %%rdx\n"				      \
-		       "2:\tsubq $128, %%rsp\n"				      \
+		       "1:\tlea %4, %%" RDI_LP "\n"			      \
+		       "0:\tmov %8, %%" RDX_LP "\n"			      \
+		       "2:\tsub $128, %%" RSP_LP "\n"			      \
 		       "3:\tcallq __lll_timedlock_wait\n"		      \
-		       "4:\taddq $128, %%rsp\n"				      \
+		       "4:\tadd $128, %%" RSP_LP "\n"			      \
 		       "5:\tjmp 24f\n"					      \
 		       "6:\t.size _L_timedlock_%=, 6b-1b\n\t"		      \
 		       ".previous\n"					      \
@@ -427,6 +427,13 @@ LLL_STUB_UNWIND_INFO_END
 		       : "memory", "cx", "cc", "r10", "r11");		      \
      result; })
 
+extern int __lll_timedlock_elision (int *futex, short *adapt_count,
+					 const struct timespec *timeout,
+					 int private) attribute_hidden;
+
+#define lll_timedlock_elision(futex, adapt_count, timeout, private)	\
+  __lll_timedlock_elision(&(futex), &(adapt_count), timeout, private)
+
 #define lll_robust_timedlock(futex, timeout, id, private) \
   ({ int result, ignore1, ignore2, ignore3;				      \
      __asm __volatile (LOCK_INSTR "cmpxchgl %1, %4\n\t"			      \
@@ -434,11 +441,11 @@ LLL_STUB_UNWIND_INFO_END
 		       ".subsection 1\n\t"				      \
 		       ".type _L_robust_timedlock_%=, @function\n"	      \
 		       "_L_robust_timedlock_%=:\n"			      \
-		       "1:\tleaq %4, %%rdi\n"				      \
-		       "0:\tmovq %8, %%rdx\n"				      \
-		       "2:\tsubq $128, %%rsp\n"				      \
+		       "1:\tlea %4, %%" RDI_LP "\n"			      \
+		       "0:\tmov %8, %%" RDX_LP "\n"			      \
+		       "2:\tsub $128, %%" RSP_LP "\n"			      \
 		       "3:\tcallq __lll_robust_timedlock_wait\n"	      \
-		       "4:\taddq $128, %%rsp\n"				      \
+		       "4:\tadd $128, %%" RSP_LP "\n"			      \
 		       "5:\tjmp 24f\n"					      \
 		       "6:\t.size _L_robust_timedlock_%=, 6b-1b\n\t"	      \
 		       ".previous\n"					      \
@@ -472,10 +479,10 @@ LLL_STUB_UNWIND_INFO_END
 			   ".subsection 1\n\t"				      \
 			   ".type _L_unlock_%=, @function\n"		      \
 			   "_L_unlock_%=:\n"				      \
-			   "1:\tleaq %0, %%rdi\n"			      \
-			   "2:\tsubq $128, %%rsp\n"			      \
+			   "1:\tlea %0, %%" RDI_LP "\n"			      \
+			   "2:\tsub $128, %%" RSP_LP "\n"		      \
 			   "3:\tcallq __lll_unlock_wake_private\n"	      \
-			   "4:\taddq $128, %%rsp\n"			      \
+			   "4:\tadd $128, %%" RSP_LP "\n"		      \
 			   "5:\tjmp 24f\n"				      \
 			   "6:\t.size _L_unlock_%=, 6b-1b\n\t"		      \
 			   ".previous\n"				      \
@@ -489,10 +496,10 @@ LLL_STUB_UNWIND_INFO_END
 			   ".subsection 1\n\t"				      \
 			   ".type _L_unlock_%=, @function\n"		      \
 			   "_L_unlock_%=:\n"				      \
-			   "1:\tleaq %0, %%rdi\n"			      \
-			   "2:\tsubq $128, %%rsp\n"			      \
+			   "1:\tlea %0, %%" RDI_LP "\n"			      \
+			   "2:\tsub $128, %%" RSP_LP "\n"		      \
 			   "3:\tcallq __lll_unlock_wake\n"		      \
-			   "4:\taddq $128, %%rsp\n"			      \
+			   "4:\tadd $128, %%" RSP_LP "\n"		      \
 			   "5:\tjmp 24f\n"				      \
 			   "6:\t.size _L_unlock_%=, 6b-1b\n\t"		      \
 			   ".previous\n"				      \
@@ -512,10 +519,10 @@ LLL_STUB_UNWIND_INFO_END
 			".subsection 1\n\t"				      \
 			".type _L_robust_unlock_%=, @function\n"	      \
 			"_L_robust_unlock_%=:\n"			      \
-			"1:\tleaq %0, %%rdi\n"				      \
-			"2:\tsubq $128, %%rsp\n"			      \
+			"1:\tlea %0, %%" RDI_LP "\n"			      \
+			"2:\tsub $128, %%" RSP_LP "\n"			      \
 			"3:\tcallq __lll_unlock_wake\n"			      \
-			"4:\taddq $128, %%rsp\n"			      \
+			"4:\tadd $128, %%" RSP_LP "\n"			      \
 			"5:\tjmp 24f\n"					      \
 			"6:\t.size _L_robust_unlock_%=, 6b-1b\n\t"	      \
 			".previous\n"					      \
@@ -561,7 +568,7 @@ LLL_STUB_UNWIND_INFO_END
   (futex != LLL_LOCK_INITIALIZER)
 
 
-/* The kernel notifies a process with uses CLONE_CLEARTID via futex
+/* The kernel notifies a process which uses CLONE_CHILD_CLEARTID via futex
    wakeup when the clone terminates.  The memory location contains the
    thread ID while the clone is running and is reset to zero
    afterwards.
@@ -596,6 +603,22 @@ extern int __lll_timedwait_tid (int *tid, const struct timespec *abstime)
 	  __result = __lll_timedwait_tid (&tid, abstime);		      \
       }									      \
     __result; })
+
+extern int __lll_lock_elision (int *futex, short *adapt_count, int private)
+  attribute_hidden;
+
+extern int __lll_unlock_elision (int *lock, int private)
+  attribute_hidden;
+
+extern int __lll_trylock_elision (int *lock, short *adapt_count)
+  attribute_hidden;
+
+#define lll_lock_elision(futex, adapt_count, private) \
+  __lll_lock_elision (&(futex), &(adapt_count), private)
+#define lll_unlock_elision(futex, private) \
+  __lll_unlock_elision (&(futex), private)
+#define lll_trylock_elision(futex, adapt_count) \
+  __lll_trylock_elision (&(futex), &(adapt_count))
 
 #endif  /* !__ASSEMBLER__ */
 

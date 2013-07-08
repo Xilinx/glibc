@@ -1,6 +1,5 @@
 /* Software floating-point emulation.
-   Copyright (C) 1997,1998,1999,2000,2002,2003,2005,2006,2007
-	Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz),
@@ -27,9 +26,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef SOFT_FP_H
 #define SOFT_FP_H
@@ -85,6 +83,16 @@
 #define FP_EX_DENORM		0
 #endif
 
+/* _FP_STRUCT_LAYOUT may be defined as an attribute to determine the
+   struct layout variant used for structures where bit-fields are used
+   to access specific parts of binary floating-point numbers.  This is
+   required for systems where the default ABI uses struct layout with
+   differences in how consecutive bit-fields are laid out from the
+   default expected by soft-fp.  */
+#ifndef _FP_STRUCT_LAYOUT
+#define _FP_STRUCT_LAYOUT
+#endif
+
 #ifdef _FP_DECL_EX
 #define FP_DECL_EX					\
   int _fex = 0;						\
@@ -119,6 +127,13 @@
 #define FP_CLEAR_EXCEPTIONS				\
   _fex = 0
 
+#define FP_CUR_EXCEPTIONS				\
+  (_fex)
+
+#ifndef FP_TRAPPING_EXCEPTIONS
+#define FP_TRAPPING_EXCEPTIONS 0
+#endif
+
 #define _FP_ROUND_NEAREST(wc, X)			\
 do {							\
     if ((_FP_FRAC_LOW_##wc(X) & 15) != _FP_WORK_ROUND)	\
@@ -142,22 +157,24 @@ do {							\
 #define _FP_ROUND(wc, X)			\
 do {						\
 	if (_FP_FRAC_LOW_##wc(X) & 7)		\
-	  FP_SET_EXCEPTION(FP_EX_INEXACT);	\
-	switch (FP_ROUNDMODE)			\
-	{					\
-	  case FP_RND_NEAREST:			\
-	    _FP_ROUND_NEAREST(wc,X);		\
-	    break;				\
-	  case FP_RND_ZERO:			\
-	    _FP_ROUND_ZERO(wc,X);		\
-	    break;				\
-	  case FP_RND_PINF:			\
-	    _FP_ROUND_PINF(wc,X);		\
-	    break;				\
-	  case FP_RND_MINF:			\
-	    _FP_ROUND_MINF(wc,X);		\
-	    break;				\
-	}					\
+	  {					\
+	    FP_SET_EXCEPTION(FP_EX_INEXACT);	\
+	    switch (FP_ROUNDMODE)		\
+	      {					\
+	      case FP_RND_NEAREST:		\
+		_FP_ROUND_NEAREST(wc,X);	\
+		break;				\
+	      case FP_RND_ZERO:			\
+		_FP_ROUND_ZERO(wc,X);		\
+		break;				\
+	      case FP_RND_PINF:			\
+		_FP_ROUND_PINF(wc,X);		\
+		break;				\
+	      case FP_RND_MINF:			\
+		_FP_ROUND_MINF(wc,X);		\
+		break;				\
+	      }					\
+	  }					\
 } while (0)
 
 #define FP_CLS_NORMAL		0

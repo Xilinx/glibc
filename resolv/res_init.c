@@ -77,6 +77,7 @@ static const char rcsid[] = "$BINDId: res_init.c,v 8.16 2000/05/09 07:10:12 vixi
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <arpa/inet.h>
 #include <arpa/nameser.h>
 #include <net/if.h>
@@ -148,9 +149,9 @@ libc_hidden_def (__res_ninit)
 /* This function has to be reachable by res_data.c but not publically. */
 int
 __res_vinit(res_state statp, int preinit) {
-	register FILE *fp;
-	register char *cp, **pp;
-	register int n;
+	FILE *fp;
+	char *cp, **pp;
+	int n;
 	char buf[BUFSIZ];
 	int nserv = 0;    /* number of nameserver records read from file */
 #ifdef _LIBC
@@ -233,7 +234,7 @@ __res_vinit(res_state statp, int preinit) {
 	(line[sizeof(name) - 1] == ' ' || \
 	 line[sizeof(name) - 1] == '\t'))
 
-	if ((fp = fopen(_PATH_RESCONF, "rc")) != NULL) {
+	if ((fp = fopen(_PATH_RESCONF, "rce")) != NULL) {
 	    /* No threads use this stream.  */
 	    __fsetlocking (fp, FSETLOCKING_BYCALLER);
 	    /* read the config file */
@@ -570,7 +571,7 @@ static u_int32_t
 net_mask(in)		/* XXX - should really use system's version of this */
 	struct in_addr in;
 {
-	register u_int32_t i = ntohl(in.s_addr);
+	u_int32_t i = ntohl(in.s_addr);
 
 	if (IN_CLASSA(i))
 		return (htonl(IN_CLASSA_NET));

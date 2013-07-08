@@ -1,6 +1,6 @@
 #! /bin/sh
 # rellns-sh - Simplified ln program to generate relative symbolic link.
-# Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # Written by Ulrich Drepper <drepper@cygnus.com>, October 1996
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,11 +14,19 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
 
+# With -p, instead of creating the link print the computed relative link
+# name.
+do_print=false
+case $1 in
+  -p)
+    do_print=true
+    shift
+    ;;
+esac
 if test $# -ne 2; then
-  echo "Usage: rellns SOURCE DEST" >&2
+  echo "Usage: rellns [-p] SOURCE DEST" >&2
   exit 1
 fi
 
@@ -71,4 +79,8 @@ while test -n "$from"; do
   from=`echo $from | sed 's%^[^/]*/*%%'`
 done
 
-ln -s $rfrom$to $2
+if $do_print; then
+  echo "$rfrom$to"
+else
+  ln -s $rfrom$to $2
+fi

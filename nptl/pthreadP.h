@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007, 2009, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _PTHREADP_H
 #define _PTHREADP_H	1
@@ -32,7 +31,7 @@
 #include <pthread-functions.h>
 #include <atomic.h>
 #include <kernel-features.h>
-
+#include <errno.h>
 
 /* Atomic operations on TLS memory.  */
 #ifndef THREAD_ATOMIC_CMPXCHG_VAL
@@ -62,6 +61,10 @@
 enum
 {
   PTHREAD_MUTEX_KIND_MASK_NP = 3,
+
+  PTHREAD_MUTEX_ELISION_NP    = 256,
+  PTHREAD_MUTEX_NO_ELISION_NP = 512,
+
   PTHREAD_MUTEX_ROBUST_NORMAL_NP = 16,
   PTHREAD_MUTEX_ROBUST_RECURSIVE_NP
   = PTHREAD_MUTEX_ROBUST_NORMAL_NP | PTHREAD_MUTEX_RECURSIVE_NP,
@@ -94,12 +97,23 @@ enum
   PTHREAD_MUTEX_PP_ERRORCHECK_NP
   = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_ERRORCHECK_NP,
   PTHREAD_MUTEX_PP_ADAPTIVE_NP
-  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_ADAPTIVE_NP
+  = PTHREAD_MUTEX_PRIO_PROTECT_NP | PTHREAD_MUTEX_ADAPTIVE_NP,
+  PTHREAD_MUTEX_ELISION_FLAGS_NP
+  = PTHREAD_MUTEX_ELISION_NP | PTHREAD_MUTEX_NO_ELISION_NP,
+
+  PTHREAD_MUTEX_TIMED_ELISION_NP =
+	  PTHREAD_MUTEX_TIMED_NP | PTHREAD_MUTEX_ELISION_NP,
+  PTHREAD_MUTEX_TIMED_NO_ELISION_NP =
+	  PTHREAD_MUTEX_TIMED_NP | PTHREAD_MUTEX_NO_ELISION_NP,
 };
 #define PTHREAD_MUTEX_PSHARED_BIT 128
 
 #define PTHREAD_MUTEX_TYPE(m) \
   ((m)->__data.__kind & 127)
+/* Don't include NO_ELISION, as that type is always the same
+   as the underlying lock type.  */
+#define PTHREAD_MUTEX_TYPE_ELISION(m) \
+  ((m)->__data.__kind & (127|PTHREAD_MUTEX_ELISION_NP))
 
 #if LLL_PRIVATE == 0 && LLL_SHARED == 128
 # define PTHREAD_MUTEX_PSHARED(m) \
@@ -148,8 +162,9 @@ enum
 /* Internal variables.  */
 
 
-/* Default stack size.  */
-extern size_t __default_stacksize attribute_hidden;
+/* Default pthread attributes.  */
+extern struct pthread_attr __default_pthread_attr attribute_hidden;
+extern int __default_pthread_attr_lock attribute_hidden;
 
 /* Size and alignment of static TLS block.  */
 extern size_t __static_tls_size attribute_hidden;
@@ -379,7 +394,9 @@ extern int *__libc_pthread_init (unsigned long int *ptr,
 				 const struct pthread_functions *functions)
      internal_function;
 
-/* Variable set to a nonzero value if more than one thread runs or ran.  */
+/* Variable set to a nonzero value either if more than one thread runs or ran,
+   or if a single-threaded process is trying to cancel itself.  See
+   nptl/descr.h for more context on the single-threaded process case.  */
 extern int __pthread_multiple_threads attribute_hidden;
 /* Pointer to the corresponding variable in libc.  */
 extern int *__libc_multiple_threads_ptr attribute_hidden;
@@ -397,6 +414,7 @@ weak_function;
 
 extern void __pthread_init_static_tls (struct link_map *) attribute_hidden;
 
+extern size_t __pthread_get_minstack (const pthread_attr_t *attr);
 
 /* Namespace save aliases.  */
 extern int __pthread_getschedparam (pthread_t thread_id, int *policy,
@@ -405,24 +423,15 @@ extern int __pthread_setschedparam (pthread_t thread_id, int policy,
 				    const struct sched_param *param);
 extern int __pthread_setcancelstate (int state, int *oldstate);
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
-				 __const pthread_mutexattr_t *__mutexattr);
-extern int __pthread_mutex_init_internal (pthread_mutex_t *__mutex,
-					  __const pthread_mutexattr_t *__mutexattr)
-     attribute_hidden;
+				 const pthread_mutexattr_t *__mutexattr);
 extern int __pthread_mutex_destroy (pthread_mutex_t *__mutex);
-extern int __pthread_mutex_destroy_internal (pthread_mutex_t *__mutex)
-     attribute_hidden;
 extern int __pthread_mutex_trylock (pthread_mutex_t *_mutex);
 extern int __pthread_mutex_lock (pthread_mutex_t *__mutex);
-extern int __pthread_mutex_lock_internal (pthread_mutex_t *__mutex)
-     attribute_hidden;
 extern int __pthread_mutex_cond_lock (pthread_mutex_t *__mutex)
      attribute_hidden internal_function;
 extern void __pthread_mutex_cond_lock_adjust (pthread_mutex_t *__mutex)
      attribute_hidden internal_function;
 extern int __pthread_mutex_unlock (pthread_mutex_t *__mutex);
-extern int __pthread_mutex_unlock_internal (pthread_mutex_t *__mutex)
-     attribute_hidden;
 extern int __pthread_mutex_unlock_usercnt (pthread_mutex_t *__mutex,
 					   int __decr)
      attribute_hidden internal_function;
@@ -446,32 +455,29 @@ extern int __pthread_attr_getschedpolicy (const pthread_attr_t *attr,
 extern int __pthread_attr_setschedpolicy (pthread_attr_t *attr, int policy);
 extern int __pthread_attr_getscope (const pthread_attr_t *attr, int *scope);
 extern int __pthread_attr_setscope (pthread_attr_t *attr, int scope);
-extern int __pthread_attr_getstackaddr (__const pthread_attr_t *__restrict
+extern int __pthread_attr_getstackaddr (const pthread_attr_t *__restrict
 					__attr, void **__restrict __stackaddr);
 extern int __pthread_attr_setstackaddr (pthread_attr_t *__attr,
 					void *__stackaddr);
-extern int __pthread_attr_getstacksize (__const pthread_attr_t *__restrict
+extern int __pthread_attr_getstacksize (const pthread_attr_t *__restrict
 					__attr,
 					size_t *__restrict __stacksize);
 extern int __pthread_attr_setstacksize (pthread_attr_t *__attr,
 					size_t __stacksize);
-extern int __pthread_attr_getstack (__const pthread_attr_t *__restrict __attr,
+extern int __pthread_attr_getstack (const pthread_attr_t *__restrict __attr,
 				    void **__restrict __stackaddr,
 				    size_t *__restrict __stacksize);
 extern int __pthread_attr_setstack (pthread_attr_t *__attr, void *__stackaddr,
 				    size_t __stacksize);
 extern int __pthread_rwlock_init (pthread_rwlock_t *__restrict __rwlock,
-				  __const pthread_rwlockattr_t *__restrict
+				  const pthread_rwlockattr_t *__restrict
 				  __attr);
 extern int __pthread_rwlock_destroy (pthread_rwlock_t *__rwlock);
 extern int __pthread_rwlock_rdlock (pthread_rwlock_t *__rwlock);
-extern int __pthread_rwlock_rdlock_internal (pthread_rwlock_t *__rwlock);
 extern int __pthread_rwlock_tryrdlock (pthread_rwlock_t *__rwlock);
 extern int __pthread_rwlock_wrlock (pthread_rwlock_t *__rwlock);
-extern int __pthread_rwlock_wrlock_internal (pthread_rwlock_t *__rwlock);
 extern int __pthread_rwlock_trywrlock (pthread_rwlock_t *__rwlock);
 extern int __pthread_rwlock_unlock (pthread_rwlock_t *__rwlock);
-extern int __pthread_rwlock_unlock_internal (pthread_rwlock_t *__rwlock);
 extern int __pthread_cond_broadcast (pthread_cond_t *cond);
 extern int __pthread_cond_destroy (pthread_cond_t *cond);
 extern int __pthread_cond_init (pthread_cond_t *cond,
@@ -484,27 +490,34 @@ extern int __pthread_cond_timedwait (pthread_cond_t *cond,
 extern int __pthread_condattr_destroy (pthread_condattr_t *attr);
 extern int __pthread_condattr_init (pthread_condattr_t *attr);
 extern int __pthread_key_create (pthread_key_t *key, void (*destr) (void *));
-extern int __pthread_key_create_internal (pthread_key_t *key,
-					  void (*destr) (void *));
 extern void *__pthread_getspecific (pthread_key_t key);
-extern void *__pthread_getspecific_internal (pthread_key_t key);
 extern int __pthread_setspecific (pthread_key_t key, const void *value);
-extern int __pthread_setspecific_internal (pthread_key_t key,
-					   const void *value);
 extern int __pthread_once (pthread_once_t *once_control,
 			   void (*init_routine) (void));
-extern int __pthread_once_internal (pthread_once_t *once_control,
-				    void (*init_routine) (void));
 extern int __pthread_atfork (void (*prepare) (void), void (*parent) (void),
 			     void (*child) (void));
 extern pthread_t __pthread_self (void);
 extern int __pthread_equal (pthread_t thread1, pthread_t thread2);
 extern int __pthread_kill (pthread_t threadid, int signo);
-extern void __pthread_exit (void *value);
+extern void __pthread_exit (void *value) __attribute__ ((__noreturn__));
 extern int __pthread_setcanceltype (int type, int *oldtype);
 extern int __pthread_enable_asynccancel (void) attribute_hidden;
 extern void __pthread_disable_asynccancel (int oldtype)
      internal_function attribute_hidden;
+
+#if defined NOT_IN_libc && defined IS_IN_libpthread
+hidden_proto (__pthread_mutex_init)
+hidden_proto (__pthread_mutex_destroy)
+hidden_proto (__pthread_mutex_lock)
+hidden_proto (__pthread_mutex_unlock)
+hidden_proto (__pthread_rwlock_rdlock)
+hidden_proto (__pthread_rwlock_wrlock)
+hidden_proto (__pthread_rwlock_unlock)
+hidden_proto (__pthread_key_create)
+hidden_proto (__pthread_getspecific)
+hidden_proto (__pthread_setspecific)
+hidden_proto (__pthread_once)
+#endif
 
 extern int __pthread_cond_broadcast_2_0 (pthread_cond_2_0_t *cond);
 extern int __pthread_cond_destroy_2_0 (pthread_cond_2_0_t *cond);
@@ -580,15 +593,78 @@ extern void __wait_lookup_done (void) attribute_hidden;
 # define PTHREAD_STATIC_FN_REQUIRE(name) __asm (".globl " #name);
 #endif
 
-
-#ifndef __NR_set_robust_list
-/* XXX For the time being...  Once we can rely on the kernel headers
-   having the definition remove these lines.  */
-# if defined __i386__
-#  define __NR_set_robust_list  311
-# elif defined __x86_64__
-#  define __NR_set_robust_list  273
-# endif
+/* Test if the mutex is suitable for the FUTEX_WAIT_REQUEUE_PI operation.  */
+#if (defined lll_futex_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+# define USE_REQUEUE_PI(mut) \
+   ((mut) && (mut) != (void *) ~0l \
+    && (((mut)->__data.__kind \
+	 & (PTHREAD_MUTEX_PRIO_INHERIT_NP | PTHREAD_MUTEX_ROBUST_NORMAL_NP)) \
+	== PTHREAD_MUTEX_PRIO_INHERIT_NP))
+#else
+# define USE_REQUEUE_PI(mut) 0
 #endif
+
+/* Returns 0 if POL is a valid scheduling policy.  */
+static inline int
+check_sched_policy_attr (int pol)
+{
+  if (pol == SCHED_OTHER || pol == SCHED_FIFO || pol == SCHED_RR)
+    return 0;
+
+  return EINVAL;
+}
+
+/* Returns 0 if PR is within the accepted range of priority values for
+   the scheduling policy POL or EINVAL otherwise.  */
+static inline int
+check_sched_priority_attr (int pr, int pol)
+{
+  int min = __sched_get_priority_min (pol);
+  int max = __sched_get_priority_max (pol);
+
+  if (min >= 0 && max >= 0 && pr >= min && pr <= max)
+    return 0;
+
+  return EINVAL;
+}
+
+/* Returns 0 if ST is a valid stack size for a thread stack and EINVAL
+   otherwise.  */
+static inline int
+check_stacksize_attr (size_t st)
+{
+  if (st >= PTHREAD_STACK_MIN)
+    return 0;
+
+  return EINVAL;
+}
+
+/* Defined in pthread_setaffinity.c.  */
+extern size_t __kernel_cpumask_size attribute_hidden;
+extern int __determine_cpumask_size (pid_t tid);
+
+/* Returns 0 if CS and SZ are valid values for the cpuset and cpuset size
+   respectively.  Otherwise it returns an error number.  */
+static inline int
+check_cpuset_attr (const cpu_set_t *cs, const size_t sz)
+{
+  if (__kernel_cpumask_size == 0)
+    {
+      int res = __determine_cpumask_size (THREAD_SELF->tid);
+      if (res)
+	return res;
+    }
+
+  /* Check whether the new bitmask has any bit set beyond the
+     last one the kernel accepts.  */
+  for (size_t cnt = __kernel_cpumask_size; cnt < sz; ++cnt)
+    if (((char *) cs)[cnt] != '\0')
+      /* Found a nonzero byte.  This means the user request cannot be
+	 fulfilled.  */
+      return EINVAL;
+
+  return 0;
+}
 
 #endif	/* pthreadP.h */

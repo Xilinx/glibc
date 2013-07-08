@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1999, 2000, 2001, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by H.J. Lu <hjl@gnu.ai.mit.edu>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -47,7 +46,10 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
     {
       if (h_errnop)
 	*h_errnop = NETDB_INTERNAL;
-      *result = NULL;
+      if (buffer_size == NULL)
+	*status = NSS_STATUS_TRYAGAIN;
+      else
+	*result = NULL;
       return -1;
     }
 
@@ -84,14 +86,16 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 	}
 
       size_needed = (sizeof (*host_addr)
-		     + sizeof (*h_addr_ptrs) + strlen (name) + 1);
+		     + sizeof (*h_addr_ptrs)
+		     + sizeof (*h_alias_ptr) + strlen (name) + 1);
 
       if (buffer_size == NULL)
         {
 	  if (buflen < size_needed)
 	    {
+	      *status = NSS_STATUS_TRYAGAIN;
 	      if (h_errnop != NULL)
-		*h_errnop = TRY_AGAIN;
+		*h_errnop = NETDB_INTERNAL;
 	      __set_errno (ERANGE);
 	      goto done;
 	    }
@@ -110,7 +114,7 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 	      *buffer_size = 0;
 	      __set_errno (save);
 	      if (h_errnop != NULL)
-		*h_errnop = TRY_AGAIN;
+		*h_errnop = NETDB_INTERNAL;
 	      *result = NULL;
 	      goto done;
 	    }
@@ -150,7 +154,9 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 		  if (! ok)
 		    {
 		      *h_errnop = HOST_NOT_FOUND;
-		      if (buffer_size)
+		      if (buffer_size == NULL)
+			*status = NSS_STATUS_NOTFOUND;
+		      else
 			*result = NULL;
 		      goto done;
 		    }
@@ -191,7 +197,7 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 		  if (buffer_size == NULL)
 		    *status = NSS_STATUS_SUCCESS;
 		  else
-		   *result = resbuf;
+		    *result = resbuf;
 		  goto done;
 		}
 
@@ -202,15 +208,6 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 
       if ((isxdigit (name[0]) && strchr (name, ':') != NULL) || name[0] == ':')
 	{
-	  const char *cp;
-	  char *hostname;
-	  typedef unsigned char host_addr_t[16];
-	  host_addr_t *host_addr;
-	  typedef char *host_addr_list_t[2];
-	  host_addr_list_t *h_addr_ptrs;
-	  size_t size_needed;
-	  int addr_size;
-
 	  switch (af)
 	    {
 	    default:
@@ -226,49 +223,16 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 	      /* This is not possible.  We cannot represent an IPv6 address
 		 in an `struct in_addr' variable.  */
 	      *h_errnop = HOST_NOT_FOUND;
-	      *result = NULL;
+	      if (buffer_size == NULL)
+		*status = NSS_STATUS_NOTFOUND;
+	      else
+		*result = NULL;
 	      goto done;
 
 	    case AF_INET6:
 	      addr_size = IN6ADDRSZ;
 	      break;
 	    }
-
-	  size_needed = (sizeof (*host_addr)
-			 + sizeof (*h_addr_ptrs) + strlen (name) + 1);
-
-	  if (buffer_size == NULL && buflen < size_needed)
-	    {
-	      if (h_errnop != NULL)
-		*h_errnop = TRY_AGAIN;
-	      __set_errno (ERANGE);
-	      goto done;
-	    }
-	  else if (buffer_size != NULL && *buffer_size < size_needed)
-	    {
-	      char *new_buf;
-	      *buffer_size = size_needed;
-	      new_buf = realloc (*buffer, *buffer_size);
-
-	      if (new_buf == NULL)
-		{
-		  save = errno;
-		  free (*buffer);
-		  __set_errno (save);
-		  *buffer = NULL;
-		  *buffer_size = 0;
-		  *result = NULL;
-		  goto done;
-		}
-	      *buffer = new_buf;
-	    }
-
-	  memset (*buffer, '\0', size_needed);
-
-	  host_addr = (host_addr_t *) *buffer;
-	  h_addr_ptrs = (host_addr_list_t *)
-	    ((char *) host_addr + sizeof (*host_addr));
-	  hostname = (char *) h_addr_ptrs + sizeof (*h_addr_ptrs);
 
 	  for (cp = name;; ++cp)
 	    {
@@ -282,7 +246,9 @@ __nss_hostname_digits_dots (const char *name, struct hostent *resbuf,
 		  if (inet_pton (AF_INET6, name, host_addr) <= 0)
 		    {
 		      *h_errnop = HOST_NOT_FOUND;
-		      if (buffer_size)
+		      if (buffer_size == NULL)
+			*status = NSS_STATUS_NOTFOUND;
+		      else
 			*result = NULL;
 		      goto done;
 		    }

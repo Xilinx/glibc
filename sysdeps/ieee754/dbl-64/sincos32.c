@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001, 2011 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /****************************************************************/
 /*  MODULE_NAME: sincos32.c                                     */
@@ -43,7 +42,7 @@
 #include "endian.h"
 #include "mpa.h"
 #include "sincos32.h"
-#include "math_private.h"
+#include <math_private.h>
 
 #ifndef SECTION
 # define SECTION
@@ -58,17 +57,10 @@ SECTION
 ss32(mp_no *x, mp_no *y, int p) {
   int i;
   double a;
-#if 0
-  double b;
-  static const mp_no mpone = {1,{1.0,1.0}};
-#endif
   mp_no mpt1,x2,gor,sum ,mpk={1,{1.0}};
-#if 0
-  mp_no mpt2;
-#endif
   for (i=1;i<=p;i++) mpk.d[i]=0;
 
-  __mul(x,x,&x2,p);
+  __sqr(x,&x2,p);
   __cpy(&oofac27,&gor,p);
   __cpy(&gor,&sum,p);
   for (a=27.0;a>1.0;a-=2.0) {
@@ -90,17 +82,10 @@ SECTION
 cc32(mp_no *x, mp_no *y, int p) {
   int i;
   double a;
-#if 0
-  double b;
-  static const mp_no mpone = {1,{1.0,1.0}};
-#endif
   mp_no mpt1,x2,gor,sum ,mpk={1,{1.0}};
-#if 0
-  mp_no mpt2;
-#endif
   for (i=1;i<=p;i++) mpk.d[i]=0;
 
-  __mul(x,x,&x2,p);
+  __sqr(x,&x2,p);
   mpk.d[1]=27.0;
   __mul(&oofac27,&mpk,&gor,p);
   __cpy(&gor,&sum,p);
@@ -120,7 +105,6 @@ cc32(mp_no *x, mp_no *y, int p) {
 void
 SECTION
 __c32(mp_no *x, mp_no *y, mp_no *z, int p) {
-  static const mp_no mpt={1,{1.0,2.0}}, one={1,{1.0,1.0}};
   mp_no u,t,t1,t2,c,s;
   int i;
   __cpy(x,&u,p);
@@ -131,11 +115,11 @@ __c32(mp_no *x, mp_no *y, mp_no *z, int p) {
     __mul(&c,&s,&t,p);
     __sub(&s,&t,&t1,p);
     __add(&t1,&t1,&s,p);
-    __sub(&mpt,&c,&t1,p);
+    __sub(&mptwo,&c,&t1,p);
     __mul(&t1,&c,&t2,p);
     __add(&t2,&t2,&c,p);
   }
-  __sub(&one,&c,y,p);
+  __sub(&mpone,&c,y,p);
   __cpy(&s,z,p);
 }
 
@@ -252,7 +236,6 @@ __mpranred(double x, mp_no *y, int p)
   number v;
   double t,xn;
   int i,k,n;
-  static const mp_no one = {1,{1.0,1.0}};
   mp_no a,b,c;
 
   if (ABS(x) < 2.8e14) {
@@ -279,9 +262,9 @@ __mpranred(double x, mp_no *y, int p)
     for (i=1;i<=p-c.e;i++) c.d[i]=c.d[i+c.e];
     for (i=p+1-c.e;i<=p;i++) c.d[i]=0;
     c.e=0;
-    if (c.d[1] >=  8388608.0)
+    if (c.d[1] >= HALFRAD)
     { t +=1.0;
-      __sub(&c,&one,&b,p);
+      __sub(&c,&mpone,&b,p);
       __mul(&b,&hp,y,p);
     }
     else __mul(&c,&hp,y,p);

@@ -1,5 +1,4 @@
-/* Copyright (C) 1995,1997,1998,2000,2003,2004,2006
-	Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <stdarg.h>
@@ -35,10 +33,10 @@ struct __old_semid_ds
   struct __old_ipc_perm sem_perm;	/* operation permission struct */
   __time_t sem_otime;			/* last semop() time */
   __time_t sem_ctime;			/* last time changed by semctl() */
-  struct sem *__unbounded __sembase;	/* ptr to first semaphore in array */
-  struct sem_queue *__unbounded __sem_pending; /* pending operations */
-  struct sem_queue *__unbounded __sem_pending_last; /* last pending operation */
-  struct sem_undo *__unbounded __undo;	/* ondo requests on this array */
+  struct sem *__sembase;		/* ptr to first semaphore in array */
+  struct sem_queue *__sem_pending;	/* pending operations */
+  struct sem_queue *__sem_pending_last; /* last pending operation */
+  struct sem_undo *__undo;		/* ondo requests on this array */
   unsigned short int sem_nsems;		/* number of semaphores in set */
 };
 
@@ -51,9 +49,6 @@ union semun
   struct seminfo *__buf;	/* buffer for IPC_INFO */
   struct __old_semid_ds *__old_buf;
 };
-
-#include <bp-checks.h>
-#include <bp-semctl.h>		/* definition of CHECK_SEMCTL needs union semum */
 
 /* Return identifier for array of NSEMS semaphores associated with
    KEY.  */
@@ -93,7 +88,7 @@ __old_semctl (int semid, int semnum, int cmd, ...)
   va_end (ap);
 
   return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			 CHECK_SEMCTL (&arg, semid, cmd));
+			 &arg);
 }
 compat_symbol (libc, __old_semctl, semctl, GLIBC_2_0);
 #endif
@@ -128,7 +123,7 @@ __new_semctl (int semid, int semnum, int cmd, ...)
 
 #if __ASSUME_IPC64 > 0
   return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
-			 CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
+			 &arg);
 #else
   switch (cmd)
     {
@@ -138,7 +133,7 @@ __new_semctl (int semid, int semnum, int cmd, ...)
       break;
     default:
       return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			     CHECK_SEMCTL (&arg, semid, cmd));
+			     &arg);
     }
 
   {
@@ -149,7 +144,7 @@ __new_semctl (int semid, int semnum, int cmd, ...)
     /* Unfortunately there is no way how to find out for sure whether
        we should use old or new semctl.  */
     result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd | __IPC_64,
-			     CHECK_SEMCTL (&arg, semid, cmd | __IPC_64));
+			     &arg);
     if (result != -1 || errno != EINVAL)
       return result;
 
@@ -169,7 +164,7 @@ __new_semctl (int semid, int semnum, int cmd, ...)
 	  }
       }
     result = INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			     CHECK_SEMCTL (&arg, semid, cmd));
+			     &arg);
     if (result != -1 && cmd != IPC_SET)
       {
 	memset(buf, 0, sizeof(*buf));

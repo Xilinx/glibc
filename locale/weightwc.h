@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2001,2003,2004,2005,2007 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper, <drepper@cygnus.com>.
 
@@ -13,14 +13,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Find index of weight.  */
 auto inline int32_t
 __attribute ((always_inline))
-findidx (const wint_t **cpp)
+findidx (const wint_t **cpp, size_t len)
 {
   wint_t ch = *(*cpp)++;
   int32_t i = __collidx_table_lookup ((const char *) table, ch);
@@ -32,6 +31,7 @@ findidx (const wint_t **cpp)
   /* Oh well, more than one sequence starting with this byte.
      Search for the correct one.  */
   const int32_t *cp = (const int32_t *) &extra[-i];
+  --len;
   while (1)
     {
       size_t nhere;
@@ -54,7 +54,7 @@ findidx (const wint_t **cpp)
 	     already.  */
 	  size_t cnt;
 
-	  for (cnt = 0; cnt < nhere; ++cnt)
+	  for (cnt = 0; cnt < nhere && cnt < len; ++cnt)
 	    if (cp[cnt] != usrc[cnt])
 	      break;
 
@@ -75,7 +75,7 @@ findidx (const wint_t **cpp)
 	  size_t cnt;
 	  size_t offset;
 
-	  for (cnt = 0; cnt < nhere - 1; ++cnt)
+	  for (cnt = 0; cnt < nhere - 1 && cnt < len; ++cnt)
 	    if (cp[cnt] != usrc[cnt])
 	      break;
 

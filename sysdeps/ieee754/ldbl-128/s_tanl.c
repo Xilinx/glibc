@@ -1,7 +1,7 @@
 /* s_tanl.c -- long double version of s_tan.c.
  * Conversion to IEEE quad long double by Jakub Jelinek, jj@ultra.linux.cz.
  */
-  
+
 /* @(#)s_tan.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -45,15 +45,10 @@
  */
 
 #include <errno.h>
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	long double __tanl(long double x)
-#else
-	long double __tanl(x)
-	long double x;
-#endif
+long double __tanl(long double x)
 {
 	long double y[2],z=0.0L;
 	int64_t n, ix;

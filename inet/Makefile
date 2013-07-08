@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2006, 2007, 2009 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for inet portion of the library.
@@ -25,8 +24,6 @@ headers	:= netinet/ether.h netinet/in.h netinet/in_systm.h \
 	   netinet/if_ether.h netinet/igmp.h \
 	   netinet/tcp.h netinet/ip.h $(wildcard arpa/*.h protocols/*.h) \
 	   aliases.h ifaddrs.h netinet/ip6.h netinet/icmp6.h bits/in.h
-
-distribute := netgroup.h
 
 routines := htonl htons		\
 	    inet_lnaof inet_mkadr	\
@@ -53,7 +50,7 @@ aux := check_pf check_native ifreq
 
 tests := htontest test_ifindex tst-ntoa tst-ether_aton tst-network \
 	 tst-gethnm test-ifaddrs bug-if1 test-inet6_opt tst-ether_line \
-	 tst-getni1 tst-getni2 tst-inet6_rth
+	 tst-getni1 tst-getni2 tst-inet6_rth tst-checks
 
 include ../Rules
 
@@ -61,11 +58,11 @@ CFLAGS-tst-inet6_rth.c += -fno-strict-aliasing
 
 ifeq ($(have-thread-library),yes)
 
-CFLAGS-gethstbyad_r.c = -DUSE_NSCD=1 -fexceptions
+CFLAGS-gethstbyad_r.c = -fexceptions
 CFLAGS-gethstbyad.c = -fexceptions
-CFLAGS-gethstbynm_r.c = -DUSE_NSCD=1 -fexceptions
+CFLAGS-gethstbynm_r.c = -fexceptions
 CFLAGS-gethstbynm.c = -fexceptions
-CFLAGS-gethstbynm2_r.c = -DUSE_NSCD=1 -fexceptions
+CFLAGS-gethstbynm2_r.c = -fexceptions
 CFLAGS-gethstbynm2.c = -fexceptions
 CFLAGS-gethstent_r.c = -fexceptions
 CFLAGS-gethstent.c = -fexceptions
@@ -82,8 +79,6 @@ CFLAGS-getrpcent_r.c = -fexceptions
 CFLAGS-getrpcent.c = -fexceptions
 CFLAGS-getservent_r.c = -fexceptions
 CFLAGS-getservent.c = -fexceptions
-CFLAGS-getsrvbynm_r.c = -DUSE_NSCD=1
-CFLAGS-getsrvbypt_r.c = -DUSE_NSCD=1
 CFLAGS-getprtent_r.c = -fexceptions
 CFLAGS-getprtent.c = -fexceptions
 CFLAGS-either_ntoh.c = -fexceptions
@@ -95,9 +90,4 @@ endif
 
 ifeq ($(build-static-nss),yes)
 CFLAGS += -DSTATIC_NSS
-endif
-
-ifeq (yes,$(build-static-nss))
-otherlibs += $(nssobjdir)/libnss_files.a $(resolvobjdir)/libnss_dns.a \
-             $(resolvobjdir)/libresolv.a
 endif

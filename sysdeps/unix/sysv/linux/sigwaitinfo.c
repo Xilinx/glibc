@@ -1,4 +1,4 @@
-/* Copyright (C) 1997,1998,2000,2002,2003,2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <signal.h>
@@ -24,7 +23,6 @@
 
 #include <sysdep-cancel.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 #ifdef __NR_rt_sigtimedwait
 
@@ -53,8 +51,8 @@ do_sigwaitinfo (const sigset_t *set, siginfo_t *info)
 
   /* XXX The size argument hopefully will have to be changed to the
      real size of the user-level sigset_t.  */
-  int result = INLINE_SYSCALL (rt_sigtimedwait, 4, CHECK_SIGSET (set),
-			       CHECK_1 (info), NULL, _NSIG / 8);
+  int result = INLINE_SYSCALL (rt_sigtimedwait, 4, set,
+			       info, NULL, _NSIG / 8);
 
   /* The kernel generates a SI_TKILL code in si_code in case tkill is
      used.  tkill is transparently used in raise().  Since having

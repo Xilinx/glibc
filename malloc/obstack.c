@@ -1,6 +1,5 @@
 /* obstack.c - subroutines used implicitly by object stack macros
-   Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1996, 1997, 1998,
-   1999, 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1988-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -117,7 +115,7 @@ int obstack_exit_failure = EXIT_FAILURE;
 /* A looong time ago (before 1994, anyway; we're not sure) this global variable
    was used by non-GNU-C macros to avoid multiple evaluation.  The GNU C
    library still exports it because somebody might use it.  */
-struct obstack *_obstack_compat;
+struct obstack *_obstack_compat = 0;
 compat_symbol (libc, _obstack_compat, _obstack, GLIBC_2_0);
 #  endif
 # endif
@@ -156,7 +154,7 @@ _obstack_begin (struct obstack *h,
 		void *(*chunkfun) (long),
 		void (*freefun) (void *))
 {
-  register struct _obstack_chunk *chunk; /* points to new chunk */
+  struct _obstack_chunk *chunk; /* points to new chunk */
 
   if (alignment == 0)
     alignment = DEFAULT_ALIGNMENT;
@@ -203,7 +201,7 @@ _obstack_begin_1 (struct obstack *h, int size, int alignment,
 		  void (*freefun) (void *, void *),
 		  void *arg)
 {
-  register struct _obstack_chunk *chunk; /* points to new chunk */
+  struct _obstack_chunk *chunk; /* points to new chunk */
 
   if (alignment == 0)
     alignment = DEFAULT_ALIGNMENT;
@@ -254,11 +252,11 @@ _obstack_begin_1 (struct obstack *h, int size, int alignment,
 void
 _obstack_newchunk (struct obstack *h, int length)
 {
-  register struct _obstack_chunk *old_chunk = h->chunk;
-  register struct _obstack_chunk *new_chunk;
-  register long	new_size;
-  register long obj_size = h->next_free - h->object_base;
-  register long i;
+  struct _obstack_chunk *old_chunk = h->chunk;
+  struct _obstack_chunk *new_chunk;
+  long	new_size;
+  long obj_size = h->next_free - h->object_base;
+  long i;
   long already;
   char *object_base;
 
@@ -331,8 +329,8 @@ int _obstack_allocated_p (struct obstack *h, void *obj);
 int
 _obstack_allocated_p (struct obstack *h, void *obj)
 {
-  register struct _obstack_chunk *lp;	/* below addr of any objects in this chunk */
-  register struct _obstack_chunk *plp;	/* point to previous chunk if any */
+  struct _obstack_chunk *lp;	/* below addr of any objects in this chunk */
+  struct _obstack_chunk *plp;	/* point to previous chunk if any */
 
   lp = (h)->chunk;
   /* We use >= rather than > since the object cannot be exactly at
@@ -354,8 +352,8 @@ _obstack_allocated_p (struct obstack *h, void *obj)
 void
 obstack_free (struct obstack *h, void *obj)
 {
-  register struct _obstack_chunk *lp;	/* below addr of any objects in this chunk */
-  register struct _obstack_chunk *plp;	/* point to previous chunk if any */
+  struct _obstack_chunk *lp;	/* below addr of any objects in this chunk */
+  struct _obstack_chunk *plp;	/* point to previous chunk if any */
 
   lp = h->chunk;
   /* We use >= because there cannot be an object at the beginning of a chunk.
@@ -390,8 +388,8 @@ strong_alias (obstack_free, _obstack_free)
 int
 _obstack_memory_used (struct obstack *h)
 {
-  register struct _obstack_chunk* lp;
-  register int nbytes = 0;
+  struct _obstack_chunk* lp;
+  int nbytes = 0;
 
   for (lp = h->chunk; lp != 0; lp = lp->prev)
     {

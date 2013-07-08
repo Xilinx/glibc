@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Definitions for IEEE Extended Precision.
-   Copyright (C) 1999,2006,2007 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek (jj@ultra.linux.cz).
 
@@ -24,9 +24,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if _FP_W_TYPE_SIZE < 32
 #error "Here's a nickel, kid. Go buy yourself a real computer."
@@ -34,8 +33,10 @@
 
 #if _FP_W_TYPE_SIZE < 64
 #define _FP_FRACTBITS_E         (4*_FP_W_TYPE_SIZE)
+#define _FP_FRACTBITS_DW_E	(8*_FP_W_TYPE_SIZE)
 #else
 #define _FP_FRACTBITS_E		(2*_FP_W_TYPE_SIZE)
+#define _FP_FRACTBITS_DW_E	(4*_FP_W_TYPE_SIZE)
 #endif
 
 #define _FP_FRACBITS_E		64
@@ -57,6 +58,11 @@
 #define _FP_OVERFLOW_E		\
 	((_FP_W_TYPE)1 << (_FP_WFRACBITS_E % _FP_W_TYPE_SIZE))
 
+#define _FP_WFRACBITS_DW_E	(2 * _FP_WFRACBITS_E)
+#define _FP_WFRACXBITS_DW_E	(_FP_FRACTBITS_DW_E - _FP_WFRACBITS_DW_E)
+#define _FP_HIGHBIT_DW_E	\
+  ((_FP_W_TYPE)1 << (_FP_WFRACBITS_DW_E - 1) % _FP_W_TYPE_SIZE)
+
 typedef float XFtype __attribute__((mode(XF)));
 
 #if _FP_W_TYPE_SIZE < 64
@@ -64,7 +70,7 @@ typedef float XFtype __attribute__((mode(XF)));
 union _FP_UNION_E
 {
    XFtype flt;
-   struct 
+   struct _FP_STRUCT_LAYOUT
    {
 #if __BYTE_ORDER == __BIG_ENDIAN
       unsigned long pad1 : _FP_W_TYPE_SIZE;
@@ -193,6 +199,7 @@ union _FP_UNION_E
 #define FP_MUL_E(R,X,Y)		_FP_MUL(E,4,R,X,Y)
 #define FP_DIV_E(R,X,Y)		_FP_DIV(E,4,R,X,Y)
 #define FP_SQRT_E(R,X)		_FP_SQRT(E,4,R,X)
+#define FP_FMA_E(R,X,Y,Z)	_FP_FMA(E,4,8,R,X,Y,Z)
 
 /*
  * Square root algorithms:
@@ -204,7 +211,7 @@ union _FP_UNION_E
  * anyway, we optimize it by doing most of the calculations
  * in two UWtype registers instead of four.
  */
- 
+
 #define _FP_SQRT_MEAT_E(R, S, T, X, q)			\
   do {							\
     q = (_FP_W_TYPE)1 << (_FP_W_TYPE_SIZE - 1);		\
@@ -259,11 +266,13 @@ union _FP_UNION_E
 #define _FP_FRAC_HIGH_E(X)	(X##_f[2])
 #define _FP_FRAC_HIGH_RAW_E(X)	(X##_f[1])
 
+#define _FP_FRAC_HIGH_DW_E(X)	(X##_f[4])
+
 #else   /* not _FP_W_TYPE_SIZE < 64 */
 union _FP_UNION_E
 {
   XFtype flt;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
 #if __BYTE_ORDER == __BIG_ENDIAN
     _FP_W_TYPE pad  : (_FP_W_TYPE_SIZE - 1 - _FP_EXPBITS_E);
     unsigned sign   : 1;
@@ -384,6 +393,7 @@ union _FP_UNION_E
 #define FP_MUL_E(R,X,Y)		_FP_MUL(E,2,R,X,Y)
 #define FP_DIV_E(R,X,Y)		_FP_DIV(E,2,R,X,Y)
 #define FP_SQRT_E(R,X)		_FP_SQRT(E,2,R,X)
+#define FP_FMA_E(R,X,Y,Z)	_FP_FMA(E,2,4,R,X,Y,Z)
 
 /*
  * Square root algorithms:
@@ -417,7 +427,7 @@ union _FP_UNION_E
 	R##_f0 |= _FP_WORK_STICKY;			\
       }							\
   } while (0)
- 
+
 #define FP_CMP_E(r,X,Y,un)	_FP_CMP(E,2,r,X,Y,un)
 #define FP_CMP_EQ_E(r,X,Y)	_FP_CMP_EQ(E,2,r,X,Y)
 #define FP_CMP_UNORD_E(r,X,Y)	_FP_CMP_UNORD(E,2,r,X,Y)
@@ -427,5 +437,7 @@ union _FP_UNION_E
 
 #define _FP_FRAC_HIGH_E(X)	(X##_f1)
 #define _FP_FRAC_HIGH_RAW_E(X)	(X##_f0)
+
+#define _FP_FRAC_HIGH_DW_E(X)	(X##_f[2])
 
 #endif /* not _FP_W_TYPE_SIZE < 64 */

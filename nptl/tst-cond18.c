@@ -1,4 +1,4 @@
-/* Copyright (C) 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2004.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -88,10 +87,16 @@ do_test (void)
   count *= 8;
 
   pthread_t th[count + 1];
-  int i, ret;
+  pthread_attr_t attr;
+  int i, ret, sz;
+  pthread_attr_init (&attr);
+  sz = __getpagesize ();
+  if (sz < PTHREAD_STACK_MIN)
+	  sz = PTHREAD_STACK_MIN;
+  pthread_attr_setstacksize (&attr, sz);
 
   for (i = 0; i <= count; ++i)
-    if ((ret = pthread_create (&th[i], NULL, tf, (void *) (long) i)) != 0)
+    if ((ret = pthread_create (&th[i], &attr, tf, (void *) (long) i)) != 0)
       {
 	errno = ret;
 	printf ("pthread_create %d failed: %m\n", i);

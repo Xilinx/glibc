@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2000.
 
@@ -13,23 +13,36 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LINUX_SPARC_SYSDEP_H
 #define _LINUX_SPARC_SYSDEP_H 1
 
+#include <sysdeps/unix/sysdep.h>
+#include <sysdeps/sparc/sysdep.h>
+
+#ifdef __ASSEMBLER__
+
+#define	ret		retl; nop
+#define	ret_NOERRNO	retl; nop
+#define	ret_ERRVAL	retl; nop
+#define	r0		%o0
+#define	r1		%o1
+#define	MOVE(x,y)	mov x, y
+
+#else	/* __ASSEMBLER__ */
+
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...) 				\
 ({	INTERNAL_SYSCALL_DECL(err);  					\
-	unsigned int resultvar = INTERNAL_SYSCALL(name, err, nr, args);	\
-	if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, err), 0)) \
+	unsigned long resultvar = INTERNAL_SYSCALL(name, err, nr, args);\
+	if (INTERNAL_SYSCALL_ERROR_P (resultvar, err))			\
 	  {		     			       		   	\
 	    __set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, err));	\
-	    resultvar = 0xffffffff;			    		\
+	    resultvar = (unsigned long) -1;				\
 	  } 	      							\
-	(int) resultvar;						\
+	(long) resultvar;						\
 })
 
 #undef INTERNAL_SYSCALL_DECL
@@ -45,7 +58,8 @@
   inline_syscall##nr(__SYSCALL_STRING, err, name, args)
 
 #undef INTERNAL_SYSCALL_ERROR_P
-#define INTERNAL_SYSCALL_ERROR_P(val, err) ((err) != 0)
+#define INTERNAL_SYSCALL_ERROR_P(val, err) \
+  ((void) (val), __builtin_expect((err) != 0, 0))
 
 #undef INTERNAL_SYSCALL_ERRNO
 #define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
@@ -153,7 +167,7 @@
 			  "0" (__g1), "1" (__o0), "2" (__o1),		\
 			  "r" (__o2), "r" (__o3), "r" (__o4) :		\
 			  __SYSCALL_CLOBBERS);				\
-	if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (__o0, __g1), 0)) \
+	if (INTERNAL_SYSCALL_ERROR_P (__o0, __g1))			\
 	  {		     			       		   	\
 	    __set_errno (INTERNAL_SYSCALL_ERRNO (__o0, __g1));		\
 	    __o0 = -1L;			    				\
@@ -165,9 +179,6 @@
 	__o0;								\
 })
 
-
-#ifdef __ASSEMBLER__
-# define JUMPTARGET(sym) sym
-#endif
+#endif	/* __ASSEMBLER__ */
 
 #endif /* _LINUX_SPARC_SYSDEP_H */

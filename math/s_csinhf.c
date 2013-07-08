@@ -1,5 +1,5 @@
 /* Complex sine hyperbole function for float.
-   Copyright (C) 1997, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,16 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <complex.h>
 #include <fenv.h>
 #include <math.h>
-
 #include <math_private.h>
-
+#include <float.h>
 
 __complex__ float
 __csinhf (__complex__ float x)
@@ -41,17 +39,68 @@ __csinhf (__complex__ float x)
       if (__builtin_expect (icls >= FP_ZERO, 1))
 	{
 	  /* Imaginary part is finite.  */
-	  float sinh_val = __ieee754_sinhf (__real__ x);
-	  float cosh_val = __ieee754_coshf (__real__ x);
+	  const int t = (int) ((FLT_MAX_EXP - 1) * M_LN2);
 	  float sinix, cosix;
 
-	  __sincosf (__imag__ x, &sinix, &cosix);
+	  if (__builtin_expect (icls != FP_SUBNORMAL, 1))
+	    {
+	      __sincosf (__imag__ x, &sinix, &cosix);
+	    }
+	  else
+	    {
+	      sinix = __imag__ x;
+	      cosix = 1.0f;
+	    }
 
-	  __real__ retval = sinh_val * cosix;
-	  __imag__ retval = cosh_val * sinix;
+	  if (fabsf (__real__ x) > t)
+	    {
+	      float exp_t = __ieee754_expf (t);
+	      float rx = fabsf (__real__ x);
+	      if (signbit (__real__ x))
+		cosix = -cosix;
+	      rx -= t;
+	      sinix *= exp_t / 2.0f;
+	      cosix *= exp_t / 2.0f;
+	      if (rx > t)
+		{
+		  rx -= t;
+		  sinix *= exp_t;
+		  cosix *= exp_t;
+		}
+	      if (rx > t)
+		{
+		  /* Overflow (original real part of x > 3t).  */
+		  __real__ retval = FLT_MAX * cosix;
+		  __imag__ retval = FLT_MAX * sinix;
+		}
+	      else
+		{
+		  float exp_val = __ieee754_expf (rx);
+		  __real__ retval = exp_val * cosix;
+		  __imag__ retval = exp_val * sinix;
+		}
+	    }
+	  else
+	    {
+	      __real__ retval = __ieee754_sinhf (__real__ x) * cosix;
+	      __imag__ retval = __ieee754_coshf (__real__ x) * sinix;
+	    }
 
 	  if (negate)
 	    __real__ retval = -__real__ retval;
+
+	  if (fabsf (__real__ retval) < FLT_MIN)
+	    {
+	      volatile float force_underflow
+		= __real__ retval * __real__ retval;
+	      (void) force_underflow;
+	    }
+	  if (fabsf (__imag__ retval) < FLT_MIN)
+	    {
+	      volatile float force_underflow
+		= __imag__ retval * __imag__ retval;
+	      (void) force_underflow;
+	    }
 	}
       else
 	{
@@ -81,7 +130,15 @@ __csinhf (__complex__ float x)
 	  /* Imaginary part is finite.  */
 	  float sinix, cosix;
 
-	  __sincosf (__imag__ x, &sinix, &cosix);
+	  if (__builtin_expect (icls != FP_SUBNORMAL, 1))
+	    {
+	      __sincosf (__imag__ x, &sinix, &cosix);
+	    }
+	  else
+	    {
+	      sinix = __imag__ x;
+	      cosix = 1.0f;
+	    }
 
 	  __real__ retval = __copysignf (HUGE_VALF, cosix);
 	  __imag__ retval = __copysignf (HUGE_VALF, sinix);

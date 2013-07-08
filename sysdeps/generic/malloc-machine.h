@@ -1,6 +1,6 @@
 /* Basic platform-independent macro definitions for mutexes,
    thread-specific data and parameters for malloc.
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _GENERIC_MALLOC_MACHINE_H
 #define _GENERIC_MALLOC_MACHINE_H
@@ -35,10 +34,11 @@
    be based on atomic test-and-set operations, for example. */
 typedef int mutex_t;
 
-# define mutex_init(m)              (*(m) = 0)
-# define mutex_lock(m)              ((*(m) = 1), 0)
-# define mutex_trylock(m)           (*(m) ? 1 : ((*(m) = 1), 0))
-# define mutex_unlock(m)            (*(m) = 0)
+# define mutex_init(m)          (*(m) = 0)
+# define mutex_lock(m)          ((*(m) = 1), 0)
+# define mutex_trylock(m)       (*(m) ? 1 : ((*(m) = 1), 0))
+# define mutex_unlock(m)        (*(m) = 0)
+# define MUTEX_INITIALIZER      (0)
 
 typedef void *tsd_key_t;
 # define tsd_key_create(key, destr) do {} while(0)

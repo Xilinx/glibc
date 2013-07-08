@@ -1,6 +1,7 @@
 # File name	Caller	Syscall name	Args	Strong name	Weak names
 
 adjtimex	adjtime	adjtimex	i:p	__adjtimex	adjtimex ntp_adjtime __adjtimex_internal
+alarm		-	alarm		i:i	alarm
 bdflush		EXTRA	bdflush		i:ii	bdflush
 capget		EXTRA	capget		i:pp	capget
 capset		EXTRA	capset		i:pp	capset
@@ -24,6 +25,7 @@ getpmsg		-	getpmsg		i:ipppp	getpmsg
 getppid		-	getppid		Ei:	__getppid	getppid
 getresuid	-	getresuid	i:ppp	getresuid
 getresgid	-	getresgid	i:ppp	getresgid
+getrlimit	-	ugetrlimit	i:ip	__new_getrlimit __getrlimit getrlimit@@GLIBC_2.2
 getsid		-	getsid		i:i	getsid
 init_module	EXTRA	init_module	5	init_module
 inotify_add_watch	EXTRA	inotify_add_watch	i:isi	inotify_add_watch
@@ -34,11 +36,9 @@ ioperm		-	ioperm		i:iii	ioperm
 iopl		-	iopl		i:i	iopl
 klogctl		EXTRA	syslog		i:isi	klogctl
 lchown		-	lchown		i:sii	__lchown	lchown
-madvise		-	madvise		i:pii	madvise
 mincore		-	mincore		i:anV	mincore
 mlock		-	mlock		i:bn	mlock
 mlockall	-	mlockall	i:i	mlockall
-mmap		-	mmap		b:aniiii	__mmap		mmap
 mount		EXTRA	mount		i:sssip	__mount	mount
 mremap		EXTRA	mremap		b:ainip	__mremap	mremap
 munlock		-	munlock		i:ai	munlock
@@ -50,6 +50,7 @@ personality	EXTRA	personality	i:i	__personality	personality
 pipe		-	pipe		i:f	__pipe		pipe
 pipe2		-	pipe2		i:fi	__pipe2		pipe2
 pivot_root	EXTRA	pivot_root	i:ss	pivot_root
+poll		-	poll		Ci:pii	__libc_poll	__poll poll
 prctl		EXTRA	prctl		i:iiiii	__prctl		prctl
 putpmsg		-	putpmsg		i:ippii	putpmsg
 query_module	EXTRA	query_module	i:sipip	query_module
@@ -71,12 +72,14 @@ setfsuid	EXTRA	setfsuid	i:i	setfsuid
 setpgid		-	setpgid		i:ii	__setpgid	setpgid
 sigaltstack	-	sigaltstack	i:PP	__sigaltstack	sigaltstack
 splice		EXTRA	splice		Ci:iPiPii	splice
+stime		-	stime		i:p	stime
 sysinfo		EXTRA	sysinfo		i:p	sysinfo
 swapon		-	swapon		i:si	__swapon	swapon
 swapoff		-	swapoff		i:s	__swapoff	swapoff
 tee		EXTRA	tee		Ci:iiii	tee
 unshare		EXTRA	unshare		i:i	unshare
 uselib		EXTRA	uselib		i:s	uselib
+utime		-	utime		i:sP	utime
 vmsplice	EXTRA	vmsplice	Ci:iPii	vmsplice
 wait4		-	wait4		i:iWiP	__wait4		wait4
 

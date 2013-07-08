@@ -1,5 +1,5 @@
 /* Complex sine function for long double.
-   Copyright (C) 1997, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,16 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <complex.h>
 #include <fenv.h>
 #include <math.h>
-
 #include <math_private.h>
-
+#include <float.h>
 
 __complex__ long double
 __csinl (__complex__ long double x)
@@ -41,17 +39,68 @@ __csinl (__complex__ long double x)
       if (__builtin_expect (rcls >= FP_ZERO, 1))
 	{
 	  /* Real part is finite.  */
-	  long double sinh_val = __ieee754_sinhl (__imag__ x);
-	  long double cosh_val = __ieee754_coshl (__imag__ x);
+	  const int t = (int) ((LDBL_MAX_EXP - 1) * M_LN2l);
 	  long double sinix, cosix;
 
-	  __sincosl (__real__ x, &sinix, &cosix);
+	  if (__builtin_expect (rcls != FP_SUBNORMAL, 1))
+	    {
+	      __sincosl (__real__ x, &sinix, &cosix);
+	    }
+	  else
+	    {
+	      sinix = __real__ x;
+	      cosix = 1.0;
+	    }
 
-	  __real__ retval = cosh_val * sinix;
-	  __imag__ retval = sinh_val * cosix;
+	  if (fabsl (__imag__ x) > t)
+	    {
+	      long double exp_t = __ieee754_expl (t);
+	      long double ix = fabsl (__imag__ x);
+	      if (signbit (__imag__ x))
+		cosix = -cosix;
+	      ix -= t;
+	      sinix *= exp_t / 2.0L;
+	      cosix *= exp_t / 2.0L;
+	      if (ix > t)
+		{
+		  ix -= t;
+		  sinix *= exp_t;
+		  cosix *= exp_t;
+		}
+	      if (ix > t)
+		{
+		  /* Overflow (original imaginary part of x > 3t).  */
+		  __real__ retval = LDBL_MAX * sinix;
+		  __imag__ retval = LDBL_MAX * cosix;
+		}
+	      else
+		{
+		  long double exp_val = __ieee754_expl (ix);
+		  __real__ retval = exp_val * sinix;
+		  __imag__ retval = exp_val * cosix;
+		}
+	    }
+	  else
+	    {
+	      __real__ retval = __ieee754_coshl (__imag__ x) * sinix;
+	      __imag__ retval = __ieee754_sinhl (__imag__ x) * cosix;
+	    }
 
 	  if (negate)
 	    __real__ retval = -__real__ retval;
+
+	  if (fabsl (__real__ retval) < LDBL_MIN)
+	    {
+	      volatile long double force_underflow
+		= __real__ retval * __real__ retval;
+	      (void) force_underflow;
+	    }
+	  if (fabsl (__imag__ retval) < LDBL_MIN)
+	    {
+	      volatile long double force_underflow
+		= __imag__ retval * __imag__ retval;
+	      (void) force_underflow;
+	    }
 	}
       else
 	{
@@ -87,7 +136,15 @@ __csinl (__complex__ long double x)
 	  /* Real part is finite.  */
 	  long double sinix, cosix;
 
-	  __sincosl (__real__ x, &sinix, &cosix);
+	  if (__builtin_expect (rcls != FP_SUBNORMAL, 1))
+	    {
+	      __sincosl (__real__ x, &sinix, &cosix);
+	    }
+	  else
+	    {
+	      sinix = __real__ x;
+	      cosix = 1.0;
+	    }
 
 	  __real__ retval = __copysignl (HUGE_VALL, sinix);
 	  __imag__ retval = __copysignl (HUGE_VALL, cosix);

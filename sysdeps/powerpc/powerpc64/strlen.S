@@ -1,5 +1,5 @@
 /* Optimized strlen implementation for PowerPC64.
-   Copyright (C) 1997, 1999, 2000, 2002, 2003, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* The algorithm here uses the following techniques:
 
@@ -60,11 +57,11 @@
    2) How popular are bytes with the high bit set? If they are very rare,
    on some processors it might be useful to use the simpler expression
    ~((x - 0x01010101) | 0x7f7f7f7f) (that is, on processors with only one
-   ALU), but this fails when any character has its high bit set.  
-   
+   ALU), but this fails when any character has its high bit set.
+
    Answer:
-   1) Added a Data Cache Block Touch early to prefetch the first 128 
-   byte cache line. Adding dcbt instructions to the loop would not be 
+   1) Added a Data Cache Block Touch early to prefetch the first 128
+   byte cache line. Adding dcbt instructions to the loop would not be
    effective since most strings will be shorter than the cache line.*/
 
 /* Some notes on register usage: Under the SVR4 ABI, we can use registers
@@ -78,7 +75,7 @@
 
 /* int [r3] strlen (char *s [r3])  */
 
-ENTRY (BP_SYM (strlen))
+ENTRY (strlen)
 	CALL_MCOUNT 1
 
 #define rTMP1	r0
@@ -95,13 +92,6 @@ ENTRY (BP_SYM (strlen))
 #define rTMP3	r11
 #define rTMP4	r12
 
-/* Note:  The Bounded pointer support in this code is broken.  This code
-   was inherited from PPC32 and that support was never completed.
-   Current PPC gcc does not support -fbounds-check or -fbounded-pointers.
-   These artifacts are left in the code as a reminder in case we need
-   bounded pointer support in the future.  */
-	CHECK_BOUNDS_LOW (rRTN, rTMP1, rTMP2)
-
 	dcbt	0,rRTN
 	clrrdi	rSTR, rRTN, 3
 	lis	r7F7F, 0x7f7f
@@ -111,7 +101,7 @@ ENTRY (BP_SYM (strlen))
 	li	rMASK, -1
 	insrdi	r7F7F, r7F7F, 32, 0
 /* That's the setup done, now do the first pair of doublewords.
-   We make an exception and use method (2) on the first two doublewords, 
+   We make an exception and use method (2) on the first two doublewords,
    to reduce overhead.  */
 	srd	rMASK, rMASK, rPADN
 	and	rTMP1, r7F7F, rWORD1
@@ -169,7 +159,6 @@ L(done0):
 	subf	rTMP1, rRTN, rSTR
 	srdi	rTMP3, rTMP3, 3
 	add	rRTN, rTMP1, rTMP3
-	/* GKM FIXME: check high bound.  */
 	blr
-END (BP_SYM (strlen))
+END (strlen)
 libc_hidden_builtin_def (strlen)

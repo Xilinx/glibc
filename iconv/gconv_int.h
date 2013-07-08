@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2005, 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _GCONV_INT_H
 #define _GCONV_INT_H	1
@@ -267,9 +266,9 @@ extern int __gconv_translit_find (struct trans_struct *trans)
 extern int __gconv_transliterate (struct __gconv_step *step,
 				  struct __gconv_step_data *step_data,
 				  void *trans_data,
-				  __const unsigned char *inbufstart,
-				  __const unsigned char **inbufp,
-				  __const unsigned char *inbufend,
+				  const unsigned char *inbufstart,
+				  const unsigned char **inbufp,
+				  const unsigned char *inbufend,
 				  unsigned char **outbufstart,
 				  size_t *irreversible) attribute_hidden;
 

@@ -1,6 +1,6 @@
 /* Thread-local storage descriptor handling in the ELF dynamic linker.
    x86_64 version.
-   Copyright (C) 2005, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,30 +14,35 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <stdint.h>
 
 #ifndef _X86_64_DL_TLSDESC_H
 # define _X86_64_DL_TLSDESC_H 1
 
-/* Use this to access DT_TLSDESC_PLT and DT_TLSDESC_GOT.  */
-#ifndef ADDRIDX
-# define ADDRIDX(tag) (DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGNUM \
-		       + DT_EXTRANUM + DT_VALNUM + DT_ADDRTAGIDX (tag))
-#endif
-
 /* Type used to represent a TLS descriptor in the GOT.  */
 struct tlsdesc
 {
-  ptrdiff_t (*entry)(struct tlsdesc *on_rax);
-  void *arg;
+  /* Anonymous union is used here to ensure that GOT entry slot is always
+     8 bytes for both x32 and x86-64.  */
+  union
+    {
+      ptrdiff_t (*entry) (struct tlsdesc *on_rax);
+      uint64_t entry_slot;
+    };
+  union
+    {
+      void *arg;
+      uint64_t arg_slot;
+    };
 };
 
 typedef struct dl_tls_index
 {
-  unsigned long int ti_module;
-  unsigned long int ti_offset;
+  uint64_t ti_module;
+  uint64_t ti_offset;
 } tls_index;
 
 /* Type used as the argument in a TLS descriptor for a symbol that

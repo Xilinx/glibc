@@ -34,8 +34,9 @@ This chapter looks at program startup from the execee's point of view.  To
 see the event from the execor's point of view, see @ref{Executing a File}.
 
 @menu
-* Program Arguments::           Parsing your program's command-line arguments.
+* Program Arguments::           Parsing your program's command-line arguments
 * Environment Variables::       Less direct parameters affecting your program
+* Auxiliary Vector::            Least direct parameters affecting your program
 * System Calls::                Requesting service from the system
 * Program Termination::         Telling the system you're done; return status
 @end menu
@@ -135,8 +136,8 @@ other words, the whitespace separating them is optional.)  Thus,
 @item
 Options typically precede other non-option arguments.
 
-The implementations of @code{getopt} and @code{argp_parse} in the GNU C
-library normally make it appear as if all the option arguments were
+The implementations of @code{getopt} and @code{argp_parse} in @theglibc{}
+normally make it appear as if all the option arguments were
 specified before all the non-option arguments for the purposes of
 parsing, even if the user of your program intermixed option and
 non-option arguments.  They do this by reordering the elements of the
@@ -169,7 +170,7 @@ To specify an argument for a long option, write
 @samp{--@var{name}=@var{value}}.  This syntax enables a long option to
 accept an argument that is itself optional.
 
-Eventually, the GNU system will provide completion for long option names
+Eventually, @gnusystems{} will provide completion for long option names
 in the shell.
 
 @node Parsing Program Arguments, , Argument Syntax, Program Arguments
@@ -219,7 +220,7 @@ programming of code like this the function @code{getsubopt} is
 available.
 
 @comment stdlib.h
-@deftypefun int getsubopt (char **@var{optionp}, const char* const *@var{tokens}, char **@var{valuep})
+@deftypefun int getsubopt (char **@var{optionp}, char *const *@var{tokens}, char **@var{valuep})
 
 The @var{optionp} parameter must be a pointer to a variable containing
 the address of the string to process.  When the function returns the
@@ -309,20 +310,36 @@ character, since this is assumed to terminate the string.
 
 The value of an environment variable can be accessed with the
 @code{getenv} function.  This is declared in the header file
-@file{stdlib.h}.  Modifications of enviroment variables are not
-allowed in Multi-threaded programs.  The @code{getenv} function
-can be safely used in multi-threaded programs
+@file{stdlib.h}.
 @pindex stdlib.h
+
+Libraries should use @code{secure_getenv} instead of @code{getenv}, so
+that they do not accidentally use untrusted environment variables.
+Modifications of environment variables are not allowed in
+multi-threaded programs.  The @code{getenv} and @code{secure_getenv}
+functions can be safely used in multi-threaded programs.
 
 @comment stdlib.h
 @comment ISO
 @deftypefun {char *} getenv (const char *@var{name})
 This function returns a string that is the value of the environment
 variable @var{name}.  You must not modify this string.  In some non-Unix
-systems not using the GNU library, it might be overwritten by subsequent
+systems not using @theglibc{}, it might be overwritten by subsequent
 calls to @code{getenv} (but not by any other library function).  If the
 environment variable @var{name} is not defined, the value is a null
 pointer.
+@end deftypefun
+
+@comment stdlib.h
+@comment GNU
+@deftypefun {char *} secure_getenv (const char *@var{name})
+This function is similar to @code{getenv}, but it returns a null
+pointer if the environment is untrusted.  This happens when the
+program file has SUID or SGID bits set.  General-purpose libraries
+should always prefer this function over @code{getenv} to avoid
+vulnerabilities if the library is referenced from a SUID/SGID program.
+
+This function is a GNU extension.
 @end deftypefun
 
 
@@ -334,6 +351,9 @@ If the @var{string} is of the form @samp{@var{name}=@var{value}}, the
 definition is added to the environment.  Otherwise, the @var{string} is
 interpreted as the name of an environment variable, and any definition
 for this variable in the environment is removed.
+
+If the function is successful it returns @code{0}.  Otherwise the return
+value is nonzero and @code{errno} is set to indicate the error.
 
 The difference to the @code{setenv} function is that the exact string
 given as the parameter @var{string} is put into the environment.  If the
@@ -363,6 +383,10 @@ controls the action.  If replace is zero, nothing happens.  Otherwise
 the old entry is replaced by the new one.
 
 Please note that you cannot remove an entry completely using this function.
+
+If the function is successful it returns @code{0}.  Otherwise the
+environment is unchanged and the return value is @code{-1} and
+@code{errno} is set.
 
 This function was originally part of the BSD library but is now part of
 the Unix standard.
@@ -423,7 +447,7 @@ If you just want to get the value of an environment variable, use
 @code{getenv}.
 @end deftypevar
 
-Unix systems, and the GNU system, pass the initial value of
+Unix systems, and @gnusystems{}, pass the initial value of
 @code{environ} as the third argument to @code{main}.
 @xref{Program Arguments}.
 
@@ -583,6 +607,33 @@ reordering of command line arguments by @code{getopt} and
 @c !!! GNU also has COREFILE, CORESERVER, EXECSERVERS
 @end table
 
+@node Auxiliary Vector
+@section Auxiliary Vector
+@cindex auxiliary vector
+
+When a program is executed, it receives information from the operating
+system about the environment in which it is operating.  The form of this
+information is a table of key-value pairs, where the keys are from the
+set of @samp{AT_} values in @file{elf.h}.  Some of the data is provided
+by the kernel for libc consumption, and may be obtained by ordinary
+interfaces, such as @code{sysconf}.  However, on a platform-by-platform
+basis there may be information that is not available any other way.
+
+@subsection Definition of @code{getauxval}
+@comment sys/auxv.h
+@deftypefun {unsigned long int} getauxval (unsigned long int @var{type})
+This function is used to inquire about the entries in the auxiliary
+vector.  The @var{type} argument should be one of the @samp{AT_} symbols
+defined in @file{elf.h}.  If a matching entry is found, the value is
+returned; if the entry is not found, zero is returned.
+@end deftypefun
+
+For some platforms, the key @code{AT_HWCAP} is the easiest way to inquire
+about any instruction set extensions available at runtime.  In this case,
+there will (of necessity) be a platform-specific set of @samp{HWCAP_}
+values masked together that describe the capabilities of the cpu on which
+the program is being executed.
+
 @node System Calls
 @section System Calls
 
@@ -591,30 +642,30 @@ A system call is a request for service that a program makes of the
 kernel.  The service is generally something that only the kernel has
 the privilege to do, such as doing I/O.  Programmers don't normally
 need to be concerned with system calls because there are functions in
-the GNU C library to do virtually everything that system calls do.
+@theglibc{} to do virtually everything that system calls do.
 These functions work by making system calls themselves.  For example,
 there is a system call that changes the permissions of a file, but
-you don't need to know about it because you can just use the GNU C
-library's @code{chmod} function.
+you don't need to know about it because you can just use @theglibc{}'s
+@code{chmod} function.
 
 @cindex kernel call
 System calls are sometimes called kernel calls.
 
 However, there are times when you want to make a system call explicitly,
-and for that, the GNU C library provides the @code{syscall} function.
+and for that, @theglibc{} provides the @code{syscall} function.
 @code{syscall} is harder to use and less portable than functions like
 @code{chmod}, but easier and more portable than coding the system call
 in assembler instructions.
 
 @code{syscall} is most useful when you are working with a system call
-which is special to your system or is newer than the GNU C library you
+which is special to your system or is newer than @theglibc{} you
 are using.  @code{syscall} is implemented in an entirely generic way;
 the function does not know anything about what a particular system
 call does or even if it is valid.
 
 The description of @code{syscall} in this section assumes a certain
-protocol for system calls on the various platforms on which the GNU C
-library runs.  That protocol is not defined by any strong authority, but
+protocol for system calls on the various platforms on which @theglibc{}
+runs.  That protocol is not defined by any strong authority, but
 we won't describe it here either because anyone who is coding
 @code{syscall} probably won't accept anything less than kernel and C
 library source code as a specification of the interface between them
@@ -625,7 +676,7 @@ anyway.
 
 @comment unistd.h
 @comment ???
-@deftypefun {long int} syscall (long int @var{sysno}, ...)
+@deftypefun {long int} syscall (long int @var{sysno}, @dots{})
 
 @code{syscall} performs a generic system call.
 
@@ -828,7 +879,7 @@ mean that there was difficulty in opening the files.
 @end deftypevr
 
 Don't confuse a program's exit status with a process' termination status.
-There are lots of ways a process can terminate besides having it's program
+There are lots of ways a process can terminate besides having its program
 finish.  In the event that the process termination @emph{is} caused by program
 termination (i.e., @code{exit}), though, the program's exit status becomes
 part of the process' termination status.
@@ -864,7 +915,7 @@ pointer @var{arg}.  At normal program termination, the @var{function} is
 called with two arguments:  the @var{status} value passed to @code{exit},
 and the @var{arg}.
 
-This function is included in the GNU C library only for compatibility
+This function is included in @theglibc{} only for compatibility
 for SunOS, and may not be supported by other implementations.
 @end deftypefun
 

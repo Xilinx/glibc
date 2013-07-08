@@ -1,5 +1,5 @@
 /* Machine-specific declarations for dynamic linker interface.  PowerPC version
-   Copyright (C) 2004, 2005, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_LINK_H
 # error "Never include <bits/link.h> directly; use <link.h> instead."
@@ -84,7 +83,7 @@ typedef struct La_ppc64_retval
   uint64_t lrv_r3;
   uint64_t lrv_r4;
   double lrv_fp[4];	/* f1-f4, float - complex long double.  */
-  uint32_t lrv_v2[4];	/* v2.  */ 
+  uint32_t lrv_v2[4];	/* v2.  */
 } La_ppc64_retval;
 
 

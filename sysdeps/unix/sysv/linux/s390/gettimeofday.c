@@ -1,4 +1,4 @@
-/* Copyright (C) 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,18 +12,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-checks.h>
 #include <stddef.h>
 #include <sys/time.h>
 #include <time.h>
 #include <hp-timing.h>
 
-#undef __gettimeofday
 #include <bits/libc-vdso.h>
 
 /* Get the current time of day and timezone information,
@@ -35,8 +32,8 @@ __gettimeofday (tv, tz)
      struct timeval *tv;
      struct timezone *tz;
 {
-  return INLINE_VSYSCALL (gettimeofday, 2, CHECK_1 (tv), CHECK_1 (tz));
+  return INLINE_VSYSCALL (gettimeofday, 2, tv, tz);
 }
-
-INTDEF (__gettimeofday)
+libc_hidden_def (__gettimeofday)
 weak_alias (__gettimeofday, gettimeofday)
+libc_hidden_weak (gettimeofday)

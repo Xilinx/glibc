@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,14 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <pthreadP.h>
 
 #ifndef NOT_IN_libc
 # ifndef TLS_MULTIPLE_THREADS_IN_TCB
+/* Variable set to a nonzero value either if more than one thread runs or ran,
+   or if a single-threaded process is trying to cancel itself.  See
+   nptl/descr.h for more context on the single-threaded process case.  */
 int __libc_multiple_threads attribute_hidden;
 # endif
 #endif

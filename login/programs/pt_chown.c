@@ -1,5 +1,5 @@
 /* pt_chmod - helper program for `grantpt'.
-   Copyright (C) 1998, 1999, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by C. Scott Ananian <cananian@alumni.princeton.edu>, 1998.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <argp.h>
 #include <errno.h>
@@ -60,18 +59,19 @@ static struct argp argp =
 static void
 print_version (FILE *stream, struct argp_state *state)
 {
-  fprintf (stream, "pt_chown (GNU %s) %s\n", PACKAGE, VERSION);
+  fprintf (stream, "pt_chown %s%s\n", PKGVERSION, VERSION);
   fprintf (stream, gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2011");
+"), "2013");
 }
 
 static char *
 more_help (int key, const char *text, void *input)
 {
   char *cp;
+  char *tp;
 
   switch (key)
     {
@@ -86,13 +86,19 @@ Set the owner, group and access permission of the slave pseudo\
       return cp;
     case ARGP_KEY_HELP_EXTRA:
       /* We print some extra information.  */
-      asprintf (&cp, gettext ("\
+      if (asprintf (&tp, gettext ("\
+For bug reporting instructions, please see:\n\
+%s.\n"), REPORT_BUGS_TO) < 0)
+	return NULL;
+      if (asprintf (&cp, gettext ("\
 The owner is set to the current user, the group is set to `%s',\
  and the access permission is set to `%o'.\n\n\
 %s"),
-		TTY_GROUP, S_IRUSR|S_IWUSR|S_IWGRP, gettext ("\
-For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"));
+		    TTY_GROUP, S_IRUSR|S_IWUSR|S_IWGRP, tp) < 0)
+	{
+	  free (tp);
+	  return NULL;
+	}
       return cp;
     default:
       break;

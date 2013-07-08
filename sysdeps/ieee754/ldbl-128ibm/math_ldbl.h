@@ -4,22 +4,23 @@
 
 #include <sysdeps/ieee754/ldbl-128/math_ldbl.h>
 #include <ieee754.h>
-  
+#include <stdint.h>
+
 static inline void
-ldbl_extract_mantissa (int64_t *hi64, u_int64_t *lo64, int *exp, long double x)
+ldbl_extract_mantissa (int64_t *hi64, uint64_t *lo64, int *exp, long double x)
 {
   /* We have 105 bits of mantissa plus one implicit digit.  Since
      106 bits are representable we use the first implicit digit for
      the number before the decimal point and the second implicit bit
      as bit 53 of the mantissa.  */
-  unsigned long long hi, lo;
+  uint64_t hi, lo;
   int ediff;
   union ibm_extended_long_double eldbl;
   eldbl.d = x;
   *exp = eldbl.ieee.exponent - IBM_EXTENDED_LONG_DOUBLE_BIAS;
 
-  lo = ((long long)eldbl.ieee.mantissa2 << 32) | eldbl.ieee.mantissa3;
-  hi = ((long long)eldbl.ieee.mantissa0 << 32) | eldbl.ieee.mantissa1;
+  lo = ((int64_t)eldbl.ieee.mantissa2 << 32) | eldbl.ieee.mantissa3;
+  hi = ((int64_t)eldbl.ieee.mantissa0 << 32) | eldbl.ieee.mantissa1;
   /* If the lower double is not a denomal or zero then set the hidden
      53rd bit.  */
   if (eldbl.ieee.exponent2 > 0x001)
@@ -31,9 +32,9 @@ ldbl_extract_mantissa (int64_t *hi64, u_int64_t *lo64, int *exp, long double x)
       ediff = eldbl.ieee.exponent - eldbl.ieee.exponent2;
       if (ediff > 53)
 	lo = lo >> (ediff-53);
+      hi |= (1ULL << 52);
     }
-  hi |= (1ULL << 52);
-  
+
   if ((eldbl.ieee.negative != eldbl.ieee.negative2)
       && ((eldbl.ieee.exponent2 != 0) && (lo != 0LL)))
     {
@@ -63,7 +64,7 @@ ldbl_insert_mantissa (int sign, int exp, int64_t hi64, u_int64_t lo64)
   u.ieee.exponent = exp + IBM_EXTENDED_LONG_DOUBLE_BIAS;
   u.ieee.exponent2 = exp-53 + IBM_EXTENDED_LONG_DOUBLE_BIAS;
   /* Expect 113 bits (112 bits + hidden) right justified in two longs.
-     The low order 53 bits (52 + hidden) go into the lower double */ 
+     The low order 53 bits (52 + hidden) go into the lower double */
   lo = (lo64 >> 7)& ((1ULL << 53) - 1);
   hidden2 = (lo64 >> 59) &  1ULL;
   /* The high order 53 bits (52 + hidden) go into the upper double */
@@ -83,7 +84,7 @@ ldbl_insert_mantissa (int sign, int exp, int64_t hi64, u_int64_t lo64)
 	}
       /* The hidden bit of the lo mantissa is zero so we need to
 	 normalize the it for the low double.  Shift it left until the
-	 hidden bit is '1' then adjust the 2nd exponent accordingly.  */ 
+	 hidden bit is '1' then adjust the 2nd exponent accordingly.  */
 
       if (sizeof (lo) == sizeof (long))
 	lzcount = __builtin_clzl (lo);
@@ -121,11 +122,11 @@ ldbl_insert_mantissa (int sign, int exp, int64_t hi64, u_int64_t lo64)
   u.ieee.mantissa0 = (hi >> 32) & ((1ULL << 20) - 1);
   return u.d;
 }
-  
+
 /* Handy utility functions to pack/unpack/cononicalize and find the nearbyint
    of long double implemented as double double.  */
 static inline long double
-ldbl_pack (double a, double aa)
+default_ldbl_pack (double a, double aa)
 {
   union ibm_extended_long_double u;
   u.dd[0] = a;
@@ -134,7 +135,7 @@ ldbl_pack (double a, double aa)
 }
 
 static inline void
-ldbl_unpack (long double l, double *a, double *aa)
+default_ldbl_unpack (long double l, double *a, double *aa)
 {
   union ibm_extended_long_double u;
   u.d = l;
@@ -142,6 +143,12 @@ ldbl_unpack (long double l, double *a, double *aa)
   *aa = u.dd[1];
 }
 
+#ifndef ldbl_pack
+# define ldbl_pack   default_ldbl_pack
+#endif
+#ifndef ldbl_unpack
+# define ldbl_unpack default_ldbl_unpack
+#endif
 
 /* Convert a finite long double to canonical form.
    Does not handle +/-Inf properly.  */

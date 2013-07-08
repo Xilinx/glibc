@@ -1,5 +1,5 @@
 /* Compute x * y + z as ternary operation.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David Flaherty <flaherty@linux.vnet.ibm.com>.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 #include <math_ldbl_opt.h>
@@ -29,6 +28,12 @@ __fmal (long double x, long double y, long double z)
 	 * (double) cast to avoid any data movement.   */
        if ((finite ((double)x) && finite ((double)y)) && isinf ((double)z))
                return (z);
+
+       /* If z is zero and x are y are nonzero, compute the result
+	  as x * y to avoid the wrong sign of a zero result if x * y
+	  underflows to 0.  */
+       if (z == 0 && x != 0 && y != 0)
+	 return x * y;
 
        return (x * y) + z;
 }

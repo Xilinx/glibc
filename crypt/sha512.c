@@ -1,6 +1,6 @@
 /* Functions to compute SHA512 message digest of files or memory blocks.
    according to the definition of SHA512 in FIPS 180-2.
-   Copyright (C) 2007, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Written by Ulrich Drepper <drepper@redhat.com>, 2007.  */
 
@@ -27,6 +26,7 @@
 #include <endian.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/types.h>
 
 #include "sha512.h"
@@ -101,110 +101,8 @@ static const uint64_t K[80] =
     UINT64_C (0x5fcb6fab3ad6faec), UINT64_C (0x6c44198c4a475817)
   };
 
-
-/* Process LEN bytes of BUFFER, accumulating context into CTX.
-   It is assumed that LEN % 128 == 0.  */
-static void
-sha512_process_block (const void *buffer, size_t len, struct sha512_ctx *ctx)
-{
-  const uint64_t *words = buffer;
-  size_t nwords = len / sizeof (uint64_t);
-  uint64_t a = ctx->H[0];
-  uint64_t b = ctx->H[1];
-  uint64_t c = ctx->H[2];
-  uint64_t d = ctx->H[3];
-  uint64_t e = ctx->H[4];
-  uint64_t f = ctx->H[5];
-  uint64_t g = ctx->H[6];
-  uint64_t h = ctx->H[7];
-
-  /* First increment the byte count.  FIPS 180-2 specifies the possible
-     length of the file up to 2^128 bits.  Here we only compute the
-     number of bytes.  Do a double word increment.  */
-#ifdef USE_TOTAL128
-  ctx->total128 += len;
-#else
-  ctx->total[TOTAL128_low] += len;
-  if (ctx->total[TOTAL128_low] < len)
-    ++ctx->total[TOTAL128_high];
-#endif
-
-  /* Process all bytes in the buffer with 128 bytes in each round of
-     the loop.  */
-  while (nwords > 0)
-    {
-      uint64_t W[80];
-      uint64_t a_save = a;
-      uint64_t b_save = b;
-      uint64_t c_save = c;
-      uint64_t d_save = d;
-      uint64_t e_save = e;
-      uint64_t f_save = f;
-      uint64_t g_save = g;
-      uint64_t h_save = h;
-
-      /* Operators defined in FIPS 180-2:4.1.2.  */
-#define Ch(x, y, z) ((x & y) ^ (~x & z))
-#define Maj(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
-#define S0(x) (CYCLIC (x, 28) ^ CYCLIC (x, 34) ^ CYCLIC (x, 39))
-#define S1(x) (CYCLIC (x, 14) ^ CYCLIC (x, 18) ^ CYCLIC (x, 41))
-#define R0(x) (CYCLIC (x, 1) ^ CYCLIC (x, 8) ^ (x >> 7))
-#define R1(x) (CYCLIC (x, 19) ^ CYCLIC (x, 61) ^ (x >> 6))
-
-      /* It is unfortunate that C does not provide an operator for
-	 cyclic rotation.  Hope the C compiler is smart enough.  */
-#define CYCLIC(w, s) ((w >> s) | (w << (64 - s)))
-
-      /* Compute the message schedule according to FIPS 180-2:6.3.2 step 2.  */
-      for (unsigned int t = 0; t < 16; ++t)
-	{
-	  W[t] = SWAP (*words);
-	  ++words;
-	}
-      for (unsigned int t = 16; t < 80; ++t)
-	W[t] = R1 (W[t - 2]) + W[t - 7] + R0 (W[t - 15]) + W[t - 16];
-
-      /* The actual computation according to FIPS 180-2:6.3.2 step 3.  */
-      for (unsigned int t = 0; t < 80; ++t)
-	{
-	  uint64_t T1 = h + S1 (e) + Ch (e, f, g) + K[t] + W[t];
-	  uint64_t T2 = S0 (a) + Maj (a, b, c);
-	  h = g;
-	  g = f;
-	  f = e;
-	  e = d + T1;
-	  d = c;
-	  c = b;
-	  b = a;
-	  a = T1 + T2;
-	}
-
-      /* Add the starting values of the context according to FIPS 180-2:6.3.2
-	 step 4.  */
-      a += a_save;
-      b += b_save;
-      c += c_save;
-      d += d_save;
-      e += e_save;
-      f += f_save;
-      g += g_save;
-      h += h_save;
-
-      /* Prepare for the next round.  */
-      nwords -= 16;
-    }
-
-  /* Put checksum in context given as argument.  */
-  ctx->H[0] = a;
-  ctx->H[1] = b;
-  ctx->H[2] = c;
-  ctx->H[3] = d;
-  ctx->H[4] = e;
-  ctx->H[5] = f;
-  ctx->H[6] = g;
-  ctx->H[7] = h;
-}
-
+void
+sha512_process_block (const void *buffer, size_t len, struct sha512_ctx *ctx);
 
 /* Initialize structure containing state of computation.
    (FIPS 180-2:5.3.3)  */
@@ -342,3 +240,5 @@ __sha512_process_bytes (buffer, len, ctx)
       ctx->buflen = left_over;
     }
 }
+
+#include <sha512-block.c>

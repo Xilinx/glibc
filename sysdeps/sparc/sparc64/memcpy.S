@@ -1,6 +1,6 @@
 /* Copy SIZE bytes from SRC to DEST.
    For UltraSPARC.
-   Copyright (C) 1996, 97, 98, 99, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller (davem@caip.rutgers.edu) and
 		  Jakub Jelinek (jakub@redhat.com).
@@ -16,9 +16,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <asm/asi.h>
@@ -80,7 +79,7 @@
 #define UNEVEN_VISCHUNK(dest, f0, f1, left)			\
 	subcc		%left, 8, %left;			\
 	bl,pn		%xcc, 205f;				\
-	 fsrc1		%f0, %f1;				\
+	 fsrc2		%f0, %f1;				\
 	ba,a,pt		%xcc, 204f;
 
 	/* Macros for non-VIS memcpy code. */
@@ -163,7 +162,7 @@ ENTRY(__memcpy_large)
 3:	andcc		%o0, 0x38, %g5			/* IEU1		Group		*/
 201:	be,pt		%icc, 202f			/* CTI				*/
 	 mov		64, %g1				/* IEU0				*/
-	fmovd		%f0, %f2			/* FPU				*/
+	fsrc2		%f0, %f2			/* FPU				*/
 	sub		%g1, %g5, %g5			/* IEU0		Group		*/
 	alignaddr	%o1, %g0, %g1			/* GRU		Group		*/
 	ldd		[%g1], %f4			/* Load		Group		*/
@@ -194,7 +193,7 @@ ENTRY(__memcpy_large)
 	andn		%o1, (0x40 - 1), %o1		/* IEU1				*/
 	and		%g2, 7, %g2			/* IEU0		Group		*/
 	andncc		%g3, 0x7, %g3			/* IEU1				*/
-	fmovd		%f0, %f2			/* FPU				*/
+	fsrc2		%f0, %f2			/* FPU				*/
 	sub		%g3, 0x10, %g3			/* IEU0		Group		*/
 	sub		%o2, %g6, %o2			/* IEU1				*/
 	alignaddr	%g1, %g0, %g0			/* GRU		Group		*/
@@ -375,19 +374,24 @@ ENTRY(__memcpy_large)
 	 mov		%g4, %o0
 END(__memcpy_large)
 
+ENTRY(__mempcpy)
+	ba,pt		%xcc, 210f
+	 add		%o0, %o2, %g4
+END(__mempcpy)
+
 	.align		32
 ENTRY(memcpy)
+	 mov		%o0, %g4			/* IEU0		Group		*/
 210:
 #ifndef USE_BPR
-	srl		%o2, 0, %o2			/* IEU1		Group		*/
-#endif	
+	srl		%o2, 0, %o2			/* IEU1				*/
+#endif
 	brz,pn		%o2, 209b			/* CTI		Group		*/
-	 mov		%o0, %g4			/* IEU0				*/
-218:	cmp		%o2, 15				/* IEU1		Group		*/
-	bleu,pn		%xcc, 208b			/* CTI				*/
-	 cmp		%o2, (64 * 6)			/* IEU1		Group		*/
-	bgeu,pn		%xcc, 200b			/* CTI				*/
-	 andcc		%o0, 7, %g2			/* IEU1		Group		*/
+218:	 cmp		%o2, 15				/* IEU1				*/
+	bleu,pn		%xcc, 208b			/* CTI		Group		*/
+	 cmp		%o2, (64 * 6)			/* IEU1				*/
+	bgeu,pn		%xcc, 200b			/* CTI		Group		*/
+	 andcc		%o0, 7, %g2			/* IEU1				*/
 	sub		%o0, %o1, %g5			/* IEU0				*/
 	andcc		%g5, 3, %o5			/* IEU1		Group		*/
 	bne,pn		%xcc, 212f			/* CTI				*/
@@ -537,7 +541,7 @@ ENTRY(memcpy)
 	 stb		%g5, [%o0 - 1]			/* Store			*/
 2:	andn		%o2, 7, %g5 			/* IEU0		Group		*/
 	and		%o2, 7, %o2			/* IEU1				*/
-	fmovd		%f0, %f2			/* FPU				*/
+	fsrc2		%f0, %f2			/* FPU				*/
 	alignaddr	%o1, %g0, %g1			/* GRU		Group		*/
 	ldd		[%g1], %f4			/* Load		Group		*/
 1:	ldd		[%g1 + 0x8], %f6		/* Load		Group		*/
@@ -570,3 +574,7 @@ ENTRY(memcpy)
 END(memcpy)
 
 libc_hidden_builtin_def (memcpy)
+
+libc_hidden_def (__mempcpy)
+weak_alias (__mempcpy, mempcpy)
+libc_hidden_builtin_def (mempcpy)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -27,7 +26,6 @@
 #include <sysdep.h>
 #include <kernel-features.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 
 /* Create a device file named PATH relative to FD, with permission and
@@ -93,8 +91,7 @@ __xmknodat (int vers, int fd, const char *file, mode_t mode, dev_t *dev)
       file = buf;
     }
 
-  return INLINE_SYSCALL (mknod, 3, CHECK_STRING (file), mode,
-			 (unsigned int) k_dev);
+  return INLINE_SYSCALL (mknod, 3, file, mode, (unsigned int) k_dev);
 #endif
 }
 

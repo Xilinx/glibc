@@ -1,5 +1,4 @@
-/* Copyright (C) 1991,1996,1997,2000-2004,2009,2010 Free
-   Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stddef.h>
 #include <errno.h>
@@ -36,6 +34,10 @@ confstr (name, buf, len)
   const char *string = "";
   size_t string_len = 1;
 
+  /* Note that this buffer must be large enough for the longest strings
+     used below.  */
+  char restenvs[4 * sizeof "POSIX_V7_LPBIG_OFFBIG"];
+
   switch (name)
     {
     case _CS_PATH:
@@ -46,194 +48,53 @@ confstr (name, buf, len)
       }
       break;
 
-    case _CS_V7_WIDTH_RESTRICTED_ENVS:
-      /* We have to return a newline-separated list of named of
-	 programming environements in which the widths of blksize_t,
+      /* For _CS_V7_WIDTH_RESTRICTED_ENVS, _CS_V6_WIDTH_RESTRICTED_ENVS
+	 and _CS_V5_WIDTH_RESTRICTED_ENVS:
+
+	 We have to return a newline-separated list of names of
+	 programming environments in which the widths of blksize_t,
 	 cc_t, mode_t, nfds_t, pid_t, ptrdiff_t, size_t, speed_t,
 	 ssize_t, suseconds_t, tcflag_t, useconds_t, wchar_t, and
 	 wint_t types are no greater than the width of type long.
 
-	 Currently this means all environment which the system allows.  */
-      {
-	char restenvs[4 * sizeof "POSIX_V7_LPBIG_OFFBIG"];
+	 Currently this means all environments that the system allows.  */
 
-	string_len = 0;
-#ifndef _POSIX_V7_ILP32_OFF32
-	if (__sysconf (_SC_V7_ILP32_OFF32) > 0)
-#endif
-#if !defined _POSIX_V7_ILP32_OFF32 || _POSIX_V7_ILP32_OFF32 > 0
-	  {
-	    memcpy (restenvs + string_len, "POSIX_V7_ILP32_OFF32",
-		    sizeof "POSIX_V7_ILP32_OFF32" - 1);
-	    string_len += sizeof "POSIX_V7_ILP32_OFF32" - 1;
-	  }
-#endif
-#ifndef _POSIX_V7_ILP32_OFFBIG
-	if (__sysconf (_SC_V7_ILP32_OFFBIG) > 0)
-#endif
-#if !defined _POSIX_V7_ILP32_OFFBIG || _POSIX_V7_ILP32_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V7_ILP32_OFFBIG",
-		    sizeof "POSIX_V7_ILP32_OFFBIG" - 1);
-	    string_len += sizeof "POSIX_V7_ILP32_OFFBIG" - 1;
-	  }
-#endif
-#ifndef _POSIX_V7_LP64_OFF64
-	if (__sysconf (_SC_V7_LP64_OFF64) > 0)
-#endif
-#if !defined _POSIX_V7_LP64_OFF64 || _POSIX_V7_LP64_OFF64 > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V7_LP64_OFF64",
-		    sizeof "POSIX_V7_LP64_OFF64" - 1);
-	    string_len += sizeof "POSIX_V7_LP64_OFF64" - 1;
-	  }
-#endif
-#ifndef _POSIX_V7_LPBIG_OFFBIG
-	if (__sysconf (_SC_V7_LPBIG_OFFBIG) > 0)
-#endif
-#if !defined _POSIX_V7_LPBIG_OFFBIG || _POSIX_V7_LPBIG_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V7_LPBIG_OFFBIG",
-		    sizeof "POSIX_V7_LPBIG_OFFBIG" - 1);
-	    string_len += sizeof "POSIX_V7_LPBIG_OFFBIG" - 1;
-	  }
-#endif
-	restenvs[string_len++] = '\0';
-	string = restenvs;
-      }
+#define START_ENV_GROUP(VERSION)		\
+    case _CS_##VERSION##_WIDTH_RESTRICTED_ENVS:	\
+      string_len = 0;
+
+#define END_ENV_GROUP(VERSION)			\
+      restenvs[string_len++] = '\0';		\
+      string = restenvs;			\
       break;
 
-    case _CS_V6_WIDTH_RESTRICTED_ENVS:
-      /* We have to return a newline-separated list of named of
-	 programming environements in which the widths of blksize_t,
-	 cc_t, mode_t, nfds_t, pid_t, ptrdiff_t, size_t, speed_t,
-	 ssize_t, suseconds_t, tcflag_t, useconds_t, wchar_t, and
-	 wint_t types are no greater than the width of type long.
+#define KNOWN_ABSENT_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+      /* Empty.  */
 
-	 Currently this means all environment which the system allows.  */
-      {
-	char restenvs[4 * sizeof "POSIX_V6_LPBIG_OFFBIG"];
+#define KNOWN_PRESENT_ENV_STRING(STR)		\
+      if (string_len > 0)			\
+	restenvs[string_len++] = '\n';		\
+      memcpy (restenvs + string_len, STR,	\
+	      sizeof STR - 1);			\
+      string_len += sizeof STR - 1;
 
-	string_len = 0;
-#ifndef _POSIX_V6_ILP32_OFF32
-	if (__sysconf (_SC_V6_ILP32_OFF32) > 0)
-#endif
-#if !defined _POSIX_V6_ILP32_OFF32 || _POSIX_V6_ILP32_OFF32 > 0
-	  {
-	    memcpy (restenvs + string_len, "POSIX_V6_ILP32_OFF32",
-		    sizeof "POSIX_V6_ILP32_OFF32" - 1);
-	    string_len += sizeof "POSIX_V6_ILP32_OFF32" - 1;
-	  }
-#endif
-#ifndef _POSIX_V6_ILP32_OFFBIG
-	if (__sysconf (_SC_V6_ILP32_OFFBIG) > 0)
-#endif
-#if !defined _POSIX_V6_ILP32_OFFBIG || _POSIX_V6_ILP32_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V6_ILP32_OFFBIG",
-		    sizeof "POSIX_V6_ILP32_OFFBIG" - 1);
-	    string_len += sizeof "POSIX_V6_ILP32_OFFBIG" - 1;
-	  }
-#endif
-#ifndef _POSIX_V6_LP64_OFF64
-	if (__sysconf (_SC_V6_LP64_OFF64) > 0)
-#endif
-#if !defined _POSIX_V6_LP64_OFF64 || _POSIX_V6_LP64_OFF64 > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V6_LP64_OFF64",
-		    sizeof "POSIX_V6_LP64_OFF64" - 1);
-	    string_len += sizeof "POSIX_V6_LP64_OFF64" - 1;
-	  }
-#endif
-#ifndef _POSIX_V6_LPBIG_OFFBIG
-	if (__sysconf (_SC_V6_LPBIG_OFFBIG) > 0)
-#endif
-#if !defined _POSIX_V6_LPBIG_OFFBIG || _POSIX_V6_LPBIG_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "POSIX_V6_LPBIG_OFFBIG",
-		    sizeof "POSIX_V6_LPBIG_OFFBIG" - 1);
-	    string_len += sizeof "POSIX_V6_LPBIG_OFFBIG" - 1;
-	  }
-#endif
-	restenvs[string_len++] = '\0';
-	string = restenvs;
-      }
-      break;
+#define KNOWN_PRESENT_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+      KNOWN_PRESENT_ENV_STRING (#ENV_PREFIX "_" #SUFFIX)
 
-    case _CS_V5_WIDTH_RESTRICTED_ENVS:
-      /* We have to return a newline-separated list of named of
-	 programming environements in which the widths of blksize_t,
-	 cc_t, mode_t, nfds_t, pid_t, ptrdiff_t, size_t, speed_t,
-	 ssize_t, suseconds_t, tcflag_t, useconds_t, wchar_t, and
-	 wint_t types are no greater than the width of type long.
+#define UNKNOWN_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)		\
+      if (__sysconf (_SC_##SC_PREFIX##_##SUFFIX) > 0)			\
+	{								\
+	  KNOWN_PRESENT_ENVIRONMENT (SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+	}
 
-	 Currently this means all environment which the system allows.  */
-      {
-	char restenvs[4 * sizeof "XBS5_LPBIG_OFFBIG"];
+#include "posix-envs.def"
 
-	string_len = 0;
-#ifndef _XBS5_ILP32_OFF32
-	if (__sysconf (_SC_XBS5_ILP32_OFF32) > 0)
-#endif
-#if !defined _XBS5_ILP32_OFF32 || _XBS5_ILP32_OFF32 > 0
-	  {
-	    memcpy (restenvs + string_len, "XBS5_ILP32_OFF32",
-		    sizeof "XBS5_ILP32_OFF32" - 1);
-	    string_len += sizeof "XBS5_ILP32_OFF32" - 1;
-	  }
-#endif
-#ifndef _XBS5_ILP32_OFFBIG
-	if (__sysconf (_SC_XBS5_ILP32_OFFBIG) > 0)
-#endif
-#if !defined _XBS5_ILP32_OFFBIG || _XBS5_ILP32_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "XBS5_ILP32_OFFBIG",
-		    sizeof "XBS5_ILP32_OFFBIG" - 1);
-	    string_len += sizeof "XBS5_ILP32_OFFBIG" - 1;
-	  }
-#endif
-#ifndef _XBS5_LP64_OFF64
-	if (__sysconf (_SC_XBS5_LP64_OFF64) > 0)
-#endif
-#if !defined _XBS5_LP64_OFF64 || _XBS5_LP64_OFF64 > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "XBS5_LP64_OFF64",
-		    sizeof "XBS5_LP64_OFF64" - 1);
-	    string_len += sizeof "XBS5_LP64_OFF64" - 1;
-	  }
-#endif
-#ifndef _XBS5_LPBIG_OFFBIG
-	if (__sysconf (_SC_XBS5_LPBIG_OFFBIG) > 0)
-#endif
-#if !defined _XBS5_LPBIG_OFFBIG || _XBS5_LPBIG_OFFBIG > 0
-	  {
-	    if (string_len)
-	      restenvs[string_len++] = '\n';
-	    memcpy (restenvs + string_len, "XBS5_LPBIG_OFFBIG",
-		    sizeof "XBS5_LPBIG_OFFBIG" - 1);
-	    string_len += sizeof "XBS5_LPBIG_OFFBIG" - 1;
-	  }
-#endif
-	restenvs[string_len++] = '\0';
-	string = restenvs;
-      }
-      break;
+#undef START_ENV_GROUP
+#undef END_ENV_GROUP
+#undef KNOWN_ABSENT_ENVIRONMENT
+#undef KNOWN_PRESENT_ENV_STRING
+#undef KNOWN_PRESENT_ENVIRONMENT
+#undef UNKNOWN_ENVIRONMENT
 
     case _CS_XBS5_ILP32_OFF32_CFLAGS:
     case _CS_POSIX_V6_ILP32_OFF32_CFLAGS:

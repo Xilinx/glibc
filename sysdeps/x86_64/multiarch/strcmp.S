@@ -1,5 +1,5 @@
-/* strcmp with SSE4.2
-   Copyright (C) 2009, 2010, 2011 Free Software Foundation, Inc.
+/* Multiple versions of strcmp
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <init-arch.h>
@@ -84,63 +83,72 @@
 	.text
 ENTRY(STRCMP)
 	.type	STRCMP, @gnu_indirect_function
+	/* Manually inlined call to __get_cpu_features.  */
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
 1:
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	STRCMP_SSE42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	STRCMP_SSSE3(%rip), %rax
+	jnz	3f
+2:	leaq	STRCMP_SSSE3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	STRCMP_SSE2(%rip), %rax
-2:	ret
+3:	ret
 END(STRCMP)
 
 # ifdef USE_AS_STRCASECMP_L
 ENTRY(__strcasecmp)
 	.type	__strcasecmp, @gnu_indirect_function
+	/* Manually inlined call to __get_cpu_features.  */
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
 1:
 #  ifdef HAVE_AVX_SUPPORT
 	leaq	__strcasecmp_avx(%rip), %rax
-	testl	$bit_AVX, __cpu_features+CPUID_OFFSET+index_AVX(%rip)
-	jnz	2f
+	testl	$bit_AVX_Usable, __cpu_features+FEATURE_OFFSET+index_AVX_Usable(%rip)
+	jnz	3f
 #  endif
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	__strcasecmp_sse42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	__strcasecmp_ssse3(%rip), %rax
+	jnz	3f
+2:	leaq	__strcasecmp_ssse3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	__strcasecmp_sse2(%rip), %rax
-2:	ret
+3:	ret
 END(__strcasecmp)
 weak_alias (__strcasecmp, strcasecmp)
 # endif
 # ifdef USE_AS_STRNCASECMP_L
 ENTRY(__strncasecmp)
 	.type	__strncasecmp, @gnu_indirect_function
+	/* Manually inlined call to __get_cpu_features.  */
 	cmpl	$0, __cpu_features+KIND_OFFSET(%rip)
 	jne	1f
 	call	__init_cpu_features
 1:
 #  ifdef HAVE_AVX_SUPPORT
 	leaq	__strncasecmp_avx(%rip), %rax
-	testl	$bit_AVX, __cpu_features+CPUID_OFFSET+index_AVX(%rip)
-	jnz	2f
+	testl	$bit_AVX_Usable, __cpu_features+FEATURE_OFFSET+index_AVX_Usable(%rip)
+	jnz	3f
 #  endif
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	__strncasecmp_sse42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	__strncasecmp_ssse3(%rip), %rax
+	jnz	3f
+2:	leaq	__strncasecmp_ssse3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	__strncasecmp_sse2(%rip), %rax
-2:	ret
+3:	ret
 END(__strncasecmp)
 weak_alias (__strncasecmp, strncasecmp)
 # endif
@@ -169,6 +177,8 @@ weak_alias (__strncasecmp, strncasecmp)
 # define ENTRY(name) \
 	.type STRCMP_SSE2, @function; \
 	.align 16; \
+	.globl STRCMP_SSE2; \
+	.hidden STRCMP_SSE2; \
 	STRCMP_SSE2: cfi_startproc; \
 	CALL_MCOUNT
 # undef END
@@ -179,6 +189,8 @@ weak_alias (__strncasecmp, strncasecmp)
 #  define ENTRY2(name) \
 	.type __strcasecmp_sse2, @function; \
 	.align 16; \
+	.globl __strcasecmp_sse2; \
+	.hidden __strcasecmp_sse2; \
 	__strcasecmp_sse2: cfi_startproc; \
 	CALL_MCOUNT
 #  define END2(name) \
@@ -189,6 +201,8 @@ weak_alias (__strncasecmp, strncasecmp)
 #  define ENTRY2(name) \
 	.type __strncasecmp_sse2, @function; \
 	.align 16; \
+	.globl __strncasecmp_sse2; \
+	.hidden __strncasecmp_sse2; \
 	__strncasecmp_sse2: cfi_startproc; \
 	CALL_MCOUNT
 #  define END2(name) \

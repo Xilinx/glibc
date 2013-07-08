@@ -1,3 +1,20 @@
+/* Example of Local-Namespace Sockets
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, if not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stddef.h>
 #include <stdio.h>
 #include <errno.h>
@@ -28,13 +45,12 @@ make_named_socket (const char *filename)
 
   /* The size of the address is
      the offset of the start of the filename,
-     plus its length,
-     plus one for the terminating null byte.
+     plus its length (not including the terminating null byte).
      Alternatively you can just do:
      size = SUN_LEN (&name);
   */
   size = (offsetof (struct sockaddr_un, sun_path)
-	  + strlen (name.sun_path) + 1);
+	  + strlen (name.sun_path));
 
   if (bind (sock, (struct sockaddr *) &name, size) < 0)
     {

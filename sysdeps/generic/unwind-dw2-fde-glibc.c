@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
    This file is part of the GNU C Library.
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Locate the FDE entry for a given address, using PT_GNU_EH_FRAME ELF
    segment and dl_iterate_phdr to avoid register/deregister calls at
@@ -86,7 +85,8 @@ static int
 _Unwind_IteratePhdrCallback (struct dl_phdr_info *info, size_t size, void *ptr)
 {
   struct unw_eh_callback_data *data = (struct unw_eh_callback_data *) ptr;
-  const ElfW(Phdr) *phdr, *p_eh_frame_hdr, *p_dynamic;
+  const ElfW(Phdr) *phdr, *p_eh_frame_hdr;
+  const ElfW(Phdr) *p_dynamic __attribute__ ((unused));
   long n, match;
   _Unwind_Ptr load_base;
   const unsigned char *p;

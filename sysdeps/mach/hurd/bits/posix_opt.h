@@ -1,5 +1,5 @@
 /* Define POSIX options for GNU/Hurd.
-   Copyright (C) 1998,2000,2001,2002,2006,2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _UNISTD_H
 #error "Never include this file directly; use <unistd.h> instead."
@@ -30,6 +29,9 @@
 
 /* Processes have a saved set-user-ID and a saved set-group-ID.  */
 #define	_POSIX_SAVED_IDS	1
+
+/* Priority scheduling is not supported.  */
+#undef	_POSIX_PRIORITY_SCHEDULING
 
 /* Synchronizing file data is supported, but msync is missing.  */
 #undef _POSIX_SYNCHRONIZED_IO
@@ -60,6 +62,14 @@
 #undef _POSIX_NO_TRUNC		/* Overlong file names get error?  */
 #undef _POSIX_SYNC_IO		/* File supports O_SYNC et al?  */
 
+/* X/Open realtime support is not supported.  */
+#undef _XOPEN_REALTIME
+
+/* X/Open thread realtime support is not supported.  */
+#undef _XOPEN_REALTIME_THREADS
+
+/* XPG4.2 shared memory is not supported.  */
+#undef	_XOPEN_SHM
 
 /* We do not have the POSIX threads interface.  */
 #define _POSIX_THREADS	-1
@@ -72,6 +82,12 @@
 #define _POSIX_THREAD_PRIORITY_SCHEDULING	-1
 #define _POSIX_THREAD_ATTR_STACKSIZE		-1
 #define _POSIX_THREAD_ATTR_STACKADDR		-1
+#define _POSIX_THREAD_PRIO_INHERIT		-1
+#define _POSIX_THREAD_PRIO_PROTECT		-1
+#ifdef __USE_XOPEN2K8
+# define _POSIX_THREAD_ROBUST_PRIO_INHERIT	-1
+# define _POSIX_THREAD_ROBUST_PRIO_PROTECT	-1
+#endif
 #define _POSIX_SEMAPHORES			-1
 
 /* Real-time signals are not yet supported.  */
@@ -79,8 +95,11 @@
 
 /* Asynchronous I/O might supported with the existing ABI.  */
 #define _POSIX_ASYNCHRONOUS_IO	0
+#undef _POSIX_ASYNC_IO
 /* Alternative name for Unix98.  */
 #define _LFS_ASYNCHRONOUS_IO	_POSIX_ASYNCHRONOUS_IO
+/* Support for prioritization is not available.  */
+#undef _POSIX_PRIORITIZED_IO
 
 /* The LFS support in asynchronous I/O is also available.  */
 #define _LFS64_ASYNCHRONOUS_IO	_POSIX_ASYNCHRONOUS_IO
@@ -110,6 +129,9 @@
 
 /* We cannot support the Timeouts option without _POSIX_THREADS.  */
 #define _POSIX_TIMEOUTS	-1
+
+/* We do not support spinlocks.  */
+#define _POSIX_SPIN_LOCKS	-1
 
 /* The `spawn' function family is supported.  */
 #define _POSIX_SPAWN	200809L
@@ -156,10 +178,5 @@
 
 /* Typed memory objects are not available.  */
 #define _POSIX_TYPED_MEMORY_OBJECTS	-1
-
-/* No support for priority inheritance or protection so far.  */
-#define _POSIX_THREAD_PRIO_INHERIT	-1
-#define _POSIX_THREAD_PRIO_PROTECT	-1
-
 
 #endif /* bits/posix_opt.h */

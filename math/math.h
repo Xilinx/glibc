@@ -1,6 +1,5 @@
 /* Declarations for math functions.
-   Copyright (C) 1991-1993, 1995-1999, 2001, 2002, 2004, 2006, 2009, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*
  *	ISO C99 Standard: 7.12 Mathematics	<math.h>
@@ -84,11 +82,7 @@ __BEGIN_DECLS
 #  define _Mfloat_		float
 # endif
 # define _Mdouble_		_Mfloat_
-# ifdef __STDC__
-#  define __MATH_PRECNAME(name,r) name##f##r
-# else
-#  define __MATH_PRECNAME(name,r) name/**/f/**/r
-# endif
+# define __MATH_PRECNAME(name,r) name##f##r
 # define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
 # define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 # include <bits/mathcalls.h>
@@ -97,9 +91,8 @@ __BEGIN_DECLS
 # undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
 
-# if (__STDC__ - 0 || __GNUC__ - 0) \
-     && (!(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
-	 || defined __LDBL_COMPAT)
+# if !(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
+     || defined __LDBL_COMPAT
 #  ifdef __LDBL_COMPAT
 
 #   ifdef __USE_ISOC99
@@ -132,11 +125,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #   define _Mlong_double_	long double
 #  endif
 #  define _Mdouble_		_Mlong_double_
-#  ifdef __STDC__
-#   define __MATH_PRECNAME(name,r) name##l##r
-#  else
-#   define __MATH_PRECNAME(name,r) name/**/l/**/r
-#  endif
+#  define __MATH_PRECNAME(name,r) name##l##r
 #  define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
 #  define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 #  define __MATH_DECLARE_LDOUBLE   1
@@ -146,7 +135,7 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
 
-# endif /* __STDC__ || __GNUC__ */
+# endif /* !(__NO_LONG_DOUBLE_MATH && _LIBC) || __LDBL_COMPAT */
 
 #endif	/* Use misc or ISO C99.  */
 #undef	__MATHDECL_1
@@ -199,16 +188,21 @@ extern int signgam;
 /* All floating-point numbers can be put in one of these categories.  */
 enum
   {
-    FP_NAN,
-# define FP_NAN FP_NAN
-    FP_INFINITE,
-# define FP_INFINITE FP_INFINITE
-    FP_ZERO,
-# define FP_ZERO FP_ZERO
-    FP_SUBNORMAL,
-# define FP_SUBNORMAL FP_SUBNORMAL
-    FP_NORMAL
-# define FP_NORMAL FP_NORMAL
+    FP_NAN =
+# define FP_NAN 0
+      FP_NAN,
+    FP_INFINITE =
+# define FP_INFINITE 1
+      FP_INFINITE,
+    FP_ZERO =
+# define FP_ZERO 2
+      FP_ZERO,
+    FP_SUBNORMAL =
+# define FP_SUBNORMAL 3
+      FP_SUBNORMAL,
+    FP_NORMAL =
+# define FP_NORMAL 4
+      FP_NORMAL
   };
 
 /* Return number of classification appropriate for X.  */
@@ -287,6 +281,20 @@ enum
 # endif
 
 #endif /* Use ISO C99.  */
+
+#ifdef __USE_GNU
+/* Return nonzero value if X is a signaling NaN.  */
+# ifdef __NO_LONG_DOUBLE_MATH
+#  define issignaling(x) \
+     (sizeof (x) == sizeof (float) ? __issignalingf (x) : __issignaling (x))
+# else
+#  define issignaling(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __issignalingf (x)						      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __issignaling (x) : __issignalingl (x))
+# endif
+#endif /* Use GNU.  */
 
 #ifdef	__USE_MISC
 /* Support for various different standard error handling behaviors.  */
@@ -375,19 +383,19 @@ extern int matherr (struct exception *__exc);
    Therefore we provide as an extension constants with similar names as a
    GNU extension.  Provide enough digits for the 128-bit IEEE quad.  */
 #ifdef __USE_GNU
-# define M_El		2.7182818284590452353602874713526625L  /* e */
-# define M_LOG2El	1.4426950408889634073599246810018921L  /* log_2 e */
-# define M_LOG10El	0.4342944819032518276511289189166051L  /* log_10 e */
-# define M_LN2l		0.6931471805599453094172321214581766L  /* log_e 2 */
-# define M_LN10l	2.3025850929940456840179914546843642L  /* log_e 10 */
-# define M_PIl		3.1415926535897932384626433832795029L  /* pi */
-# define M_PI_2l	1.5707963267948966192313216916397514L  /* pi/2 */
-# define M_PI_4l	0.7853981633974483096156608458198757L  /* pi/4 */
-# define M_1_PIl	0.3183098861837906715377675267450287L  /* 1/pi */
-# define M_2_PIl	0.6366197723675813430755350534900574L  /* 2/pi */
-# define M_2_SQRTPIl	1.1283791670955125738961589031215452L  /* 2/sqrt(pi) */
-# define M_SQRT2l	1.4142135623730950488016887242096981L  /* sqrt(2) */
-# define M_SQRT1_2l	0.7071067811865475244008443621048490L  /* 1/sqrt(2) */
+# define M_El		2.718281828459045235360287471352662498L /* e */
+# define M_LOG2El	1.442695040888963407359924681001892137L /* log_2 e */
+# define M_LOG10El	0.434294481903251827651128918916605082L /* log_10 e */
+# define M_LN2l		0.693147180559945309417232121458176568L /* log_e 2 */
+# define M_LN10l	2.302585092994045684017991454684364208L /* log_e 10 */
+# define M_PIl		3.141592653589793238462643383279502884L /* pi */
+# define M_PI_2l	1.570796326794896619231321691639751442L /* pi/2 */
+# define M_PI_4l	0.785398163397448309615660845819875721L /* pi/4 */
+# define M_1_PIl	0.318309886183790671537767526745028724L /* 1/pi */
+# define M_2_PIl	0.636619772367581343075535053490057448L /* 2/pi */
+# define M_2_SQRTPIl	1.128379167095512573896158903121545172L /* 2/sqrt(pi) */
+# define M_SQRT2l	1.414213562373095048801688724209698079L /* sqrt(2) */
+# define M_SQRT1_2l	0.707106781186547524400844362104849039L /* 1/sqrt(2) */
 #endif
 
 

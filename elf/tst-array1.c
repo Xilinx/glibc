@@ -1,6 +1,7 @@
 #include <unistd.h>
 
-static void init (void) __attribute__ ((constructor));
+/* Give init non-default priority so that it runs before init_array.  */
+static void init (void) __attribute__ ((constructor (1000)));
 
 static void
 init (void)
@@ -8,7 +9,8 @@ init (void)
   write (STDOUT_FILENO, "init\n", 5);
 }
 
-static void fini (void) __attribute__ ((destructor));
+/* Give fini the same priority as init.  */
+static void fini (void) __attribute__ ((destructor (1000)));
 
 static void
 fini (void)
@@ -60,7 +62,7 @@ init_2 (void)
   write (STDOUT_FILENO, "init array 2\n", 13);
 }
 
-void (*const init_array []) (void)
+void (*init_array []) (void)
      __attribute__ ((section (".init_array"), aligned (sizeof (void *)))) =
 {
   &init_0,
@@ -86,7 +88,7 @@ fini_2 (void)
   write (STDOUT_FILENO, "fini array 2\n", 13);
 }
 
-void (*const fini_array []) (void)
+void (*fini_array []) (void)
      __attribute__ ((section (".fini_array"), aligned (sizeof (void *)))) =
 {
   &fini_0,

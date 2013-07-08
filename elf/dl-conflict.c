@@ -1,5 +1,5 @@
 /* Resolve conflicts against already prelinked libraries.
-   Copyright (C) 2001, 2002, 2003, 2004, 2005, 2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2001.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <libintl.h>
@@ -34,8 +33,7 @@ _dl_resolve_conflicts (struct link_map *l, ElfW(Rela) *conflict,
 {
 #if ! ELF_MACHINE_NO_RELA
   if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_RELOC, 0))
-    _dl_debug_printf ("\nconflict processing: %s\n",
-		      l->l_name[0] ? l->l_name : rtld_progname);
+    _dl_debug_printf ("\nconflict processing: %s\n", DSO_FILENAME (l->l_name));
 
   {
     /* Do the conflict relocation of the object and library GOT and other

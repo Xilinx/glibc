@@ -1,4 +1,4 @@
-/* Copyright (C) 1994,1996-1998,2001,2003,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -25,12 +24,11 @@
    This exception applies to code released by its copyright holders
    in files containing the exception.  */
 
-#ifdef __STDC__
 #include <stdlib.h>
-#endif
 #include "libioP.h"
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 
 /* Read up to (and including) a TERMINATOR from FP into *LINEPTR
    (and null-terminate it).  *LINEPTR is a pointer returned from malloc (or
@@ -91,7 +89,7 @@ _IO_getdelim (lineptr, n, delimiter, fp)
       t = (char *) memchr ((void *) fp->_IO_read_ptr, delimiter, len);
       if (t != NULL)
 	len = (t - fp->_IO_read_ptr) + 1;
-      if (__builtin_expect (cur_len + len + 1 < 0, 0))
+      if (__builtin_expect (len >= SSIZE_MAX - cur_len, 0))
 	{
 	  __set_errno (EOVERFLOW);
 	  result = -1;

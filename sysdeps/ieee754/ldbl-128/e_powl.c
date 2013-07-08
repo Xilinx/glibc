@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* __ieee754_powl(x,y) return x**y
  *
@@ -64,8 +64,8 @@
  *
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double bp[] = {
   1.0L,
@@ -149,7 +149,7 @@ __ieee754_powl (long double x, long double y)
 {
   long double z, ax, z_h, z_l, p_h, p_l;
   long double y1, t1, t2, r, s, t, u, v, w;
-  long double s2, s_h, s_l, t_h, t_l;
+  long double s2, s_h, s_l, t_h, t_l, ay;
   int32_t i, j, k, yisint, n;
   u_int32_t ix, iy;
   int32_t hx, hy;
@@ -281,6 +281,10 @@ __ieee754_powl (long double x, long double y)
       if (ix > 0x3fff0000)
 	return (hy > 0) ? huge * huge : tiny * tiny;
     }
+
+  ay = y > 0 ? y : -y;
+  if (ay < 0x1p-128)
+    y = y < 0 ? -0x1p-128 : 0x1p-128;
 
   n = 0;
   /* take care subnormal number */

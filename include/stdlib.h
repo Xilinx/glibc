@@ -4,14 +4,14 @@
 #define __Need_M_And_C
 #endif
 
-#include <stddef.h>
+#ifndef _ISOMAC
+# include <stddef.h>
+#endif
 #include <stdlib/stdlib.h>
 
 /* Now define the internal interfaces.  */
-#ifndef __Need_M_And_C
-# ifndef _ISOMAC
-#  include <sys/stat.h>
-# endif
+#if !defined __Need_M_And_C && !defined _ISOMAC
+# include <sys/stat.h>
 
 __BEGIN_DECLS
 
@@ -33,12 +33,13 @@ libc_hidden_proto (__strtold_l)
 libc_hidden_proto (exit)
 libc_hidden_proto (abort)
 libc_hidden_proto (getenv)
+extern __typeof (secure_getenv) __libc_secure_getenv;
+libc_hidden_proto (__libc_secure_getenv)
 libc_hidden_proto (bsearch)
 libc_hidden_proto (qsort)
 libc_hidden_proto (qsort_r)
 libc_hidden_proto (lrand48_r)
 libc_hidden_proto (wctomb)
-libc_hidden_proto (__secure_getenv)
 
 extern long int __random (void);
 extern void __srandom (unsigned int __seed);
@@ -73,12 +74,12 @@ extern int __drand48_iterate (unsigned short int __xsubi[3],
 /* Global state for non-reentrant functions.  Defined in drand48-iter.c.  */
 extern struct drand48_data __libc_drand48_data attribute_hidden;
 
-extern int __setenv (__const char *__name, __const char *__value,
-		     int __replace);
-extern int __unsetenv (__const char *__name);
+extern int __setenv (const char *__name, const char *__value, int __replace);
+extern int __unsetenv (const char *__name);
 extern int __clearenv (void);
-extern char *__canonicalize_file_name (__const char *__name);
-extern char *__realpath (__const char *__name, char *__resolved);
+extern char *__mktemp (char *__template) __THROW __nonnull ((1));
+extern char *__canonicalize_file_name (const char *__name);
+extern char *__realpath (const char *__name, char *__resolved);
 extern int __ptsname_r (int __fd, char *__buf, size_t __buflen);
 # ifndef _ISOMAC
 extern int __ptsname_internal (int fd, char *buf, size_t buflen,
@@ -99,6 +100,15 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 extern int __cxa_atexit_internal (void (*func) (void *), void *arg, void *d)
      attribute_hidden;
 
+extern int __cxa_thread_atexit_impl (void (*func) (void *), void *arg,
+				     void *d);
+extern void __call_tls_dtors (void)
+#ifndef SHARED
+  __attribute__ ((weak))
+#endif
+  ;
+libc_hidden_proto (__call_tls_dtors)
+
 extern void __cxa_finalize (void *d);
 
 extern int __posix_memalign (void **memptr, size_t alignment, size_t size);
@@ -109,31 +119,31 @@ extern void *__libc_memalign (size_t alignment, size_t size)
 extern int __libc_system (const char *line);
 
 
-extern double __strtod_internal (__const char *__restrict __nptr,
+extern double __strtod_internal (const char *__restrict __nptr,
 				 char **__restrict __endptr, int __group)
      __THROW __nonnull ((1)) __wur;
-extern float __strtof_internal (__const char *__restrict __nptr,
+extern float __strtof_internal (const char *__restrict __nptr,
 				char **__restrict __endptr, int __group)
      __THROW __nonnull ((1)) __wur;
-extern long double __strtold_internal (__const char *__restrict __nptr,
+extern long double __strtold_internal (const char *__restrict __nptr,
 				       char **__restrict __endptr,
 				       int __group)
      __THROW __nonnull ((1)) __wur;
-extern long int __strtol_internal (__const char *__restrict __nptr,
+extern long int __strtol_internal (const char *__restrict __nptr,
 				   char **__restrict __endptr,
 				   int __base, int __group)
      __THROW __nonnull ((1)) __wur;
-extern unsigned long int __strtoul_internal (__const char *__restrict __nptr,
+extern unsigned long int __strtoul_internal (const char *__restrict __nptr,
 					     char **__restrict __endptr,
 					     int __base, int __group)
      __THROW __nonnull ((1)) __wur;
 __extension__
-extern long long int __strtoll_internal (__const char *__restrict __nptr,
+extern long long int __strtoll_internal (const char *__restrict __nptr,
 					 char **__restrict __endptr,
 					 int __base, int __group)
      __THROW __nonnull ((1)) __wur;
 __extension__
-extern unsigned long long int __strtoull_internal (__const char *
+extern unsigned long long int __strtoull_internal (const char *
 						   __restrict __nptr,
 						   char **__restrict __endptr,
 						   int __base, int __group)
@@ -146,31 +156,31 @@ libc_hidden_proto (__strtoll_internal)
 libc_hidden_proto (__strtoul_internal)
 libc_hidden_proto (__strtoull_internal)
 
-extern double ____strtod_l_internal (__const char *__restrict __nptr,
+extern double ____strtod_l_internal (const char *__restrict __nptr,
 				     char **__restrict __endptr, int __group,
 				     __locale_t __loc);
-extern float ____strtof_l_internal (__const char *__restrict __nptr,
+extern float ____strtof_l_internal (const char *__restrict __nptr,
 				    char **__restrict __endptr, int __group,
 				    __locale_t __loc);
-extern long double ____strtold_l_internal (__const char *__restrict __nptr,
+extern long double ____strtold_l_internal (const char *__restrict __nptr,
 					   char **__restrict __endptr,
 					   int __group, __locale_t __loc);
-extern long int ____strtol_l_internal (__const char *__restrict __nptr,
+extern long int ____strtol_l_internal (const char *__restrict __nptr,
 				       char **__restrict __endptr,
 				       int __base, int __group,
 				       __locale_t __loc);
-extern unsigned long int ____strtoul_l_internal (__const char *
+extern unsigned long int ____strtoul_l_internal (const char *
 						 __restrict __nptr,
 						 char **__restrict __endptr,
 						 int __base, int __group,
 						 __locale_t __loc);
 __extension__
-extern long long int ____strtoll_l_internal (__const char *__restrict __nptr,
+extern long long int ____strtoll_l_internal (const char *__restrict __nptr,
 					     char **__restrict __endptr,
 					     int __base, int __group,
 					     __locale_t __loc);
 __extension__
-extern unsigned long long int ____strtoull_l_internal (__const char *
+extern unsigned long long int ____strtoull_l_internal (const char *
 						       __restrict __nptr,
 						       char **
 						       __restrict __endptr,

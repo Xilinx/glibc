@@ -1,5 +1,5 @@
 /* Conversion module for Unicode
-   Copyright (C) 1999, 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <byteswap.h>
 #include <dlfcn.h>
@@ -57,7 +56,7 @@
 	    *inptrp = inptr += 2;					      \
 	  else if (get16u (inptr) == BOM_OE)				      \
 	    {								      \
-	      ((struct unicode_data *) step->__data)->swap = 1;		      \
+	      data->__flags |= __GCONV_SWAP;				      \
 	      *inptrp = inptr += 2;					      \
 	    }								      \
 	}								      \
@@ -71,7 +70,7 @@
       put16u (outbuf, BOM);						      \
       outbuf += 2;							      \
     }									      \
-  swap = ((struct unicode_data *) step->__data)->swap;
+  swap = data->__flags & __GCONV_SWAP;
 #define EXTRA_LOOP_ARGS		, swap
 
 
@@ -86,7 +85,6 @@ enum direction
 struct unicode_data
 {
   enum direction dir;
-  int swap;
 };
 
 
@@ -110,7 +108,6 @@ gconv_init (struct __gconv_step *step)
   if (new_data != NULL)
     {
       new_data->dir = dir;
-      new_data->swap = 0;
       step->__data = new_data;
 
       if (dir == from_unicode)

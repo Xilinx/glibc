@@ -1,5 +1,5 @@
 /* Return arc hyperbole cosine for float value.
-   Copyright (C) 1997, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <complex.h>
 #include <math.h>
@@ -67,38 +66,23 @@ __cacoshf (__complex__ float x)
     }
   else
     {
-#if 1
       __complex__ float y;
 
-      __real__ y = (__real__ x - __imag__ x) * (__real__ x + __imag__ x) - 1.0;
-      __imag__ y = 2.0 * __real__ x * __imag__ x;
+      __real__ y = -__imag__ x;
+      __imag__ y = __real__ x;
 
-      y = __csqrtf (y);
+      y = __kernel_casinhf (y, 1);
 
-      if (__real__ x < 0.0)
-	y = -y;
-
-      __real__ y += __real__ x;
-      __imag__ y += __imag__ x;
-
-      res = __clogf (y);
-#else
-      float re2 = __real__ x * __real__ x;
-      float im2 = __imag__ x * __imag__ x;
-      float sq = re2 - im2 - 1.0;
-      float ro = __ieee754_sqrtf (sq * sq + 4 * re2 * im2);
-      float a = __ieee754_sqrtf ((sq + ro) / 2.0);
-      float b = __ieee754_sqrtf ((-sq + ro) / 2.0);
-
-      __real__ res = 0.5 * __ieee754_logf (re2 + __real__ x * 2 * a
-					   + im2 + __imag__ x * 2 * b
-					   + ro);
-      __imag__ res = __ieee754_atan2f (__imag__ x + b, __real__ x + a);
-#endif
-
-      /* We have to use the positive branch.  */
-      if (__real__ res < 0.0)
-	res = -res;
+      if (signbit (__imag__ x))
+	{
+	  __real__ res = __real__ y;
+	  __imag__ res = -__imag__ y;
+	}
+      else
+	{
+	  __real__ res = -__real__ y;
+	  __imag__ res = __imag__ y;
+	}
     }
 
   return res;

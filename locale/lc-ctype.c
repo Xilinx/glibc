@@ -1,6 +1,5 @@
 /* Define current locale data for LC_CTYPE category.
-   Copyright (C) 1995,1996,1997,1998,1999,2000,2002,2003,2005,2008
-	Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include "localeinfo.h"
 #include <ctype.h>
@@ -79,9 +77,9 @@ _nl_postload_ctype (void)
   /* We must use the exported names to access these so we are sure to
      be accessing the main executable's copy if it has COPY relocs.  */
 
-  extern __const unsigned short int *__ctype_b; /* Characteristics.  */
-  extern __const __int32_t *__ctype_tolower; /* Case conversions.  */
-  extern __const __int32_t *__ctype_toupper; /* Case conversions.  */
+  extern const unsigned short int *__ctype_b; /* Characteristics.  */
+  extern const __int32_t *__ctype_tolower; /* Case conversions.  */
+  extern const __int32_t *__ctype_toupper; /* Case conversions.  */
 
   extern const uint32_t *__ctype32_b;
   extern const uint32_t *__ctype32_toupper;

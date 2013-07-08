@@ -1,8 +1,7 @@
-
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /************************************************************************/
 /*                                                                      */
@@ -38,35 +36,30 @@
 #include "endian.h"
 #include "mpa.h"
 
-void __mpexp(mp_no *, mp_no *, int);
+void
+__mplog (mp_no *x, mp_no *y, int p)
+{
+  int i, m;
+  static const int mp[33] =
+    {
+      0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+    };
+  mp_no mpt1, mpt2;
 
-void __mplog(mp_no *x, mp_no *y, int p) {
-#include "mplog.h"
-  int i,m;
-#if 0
-  int j,k,m1,m2,n;
-  double a,b;
-#endif
-  static const int mp[33] = {0,0,0,0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
-                             4,4,4,4,4,4,4,4,4,4,4,4,4,4};
-  mp_no mpone = {0,{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-                    0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-                    0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}};
-  mp_no mpt1,mpt2;
+  /* Choose m.  */
+  m = mp[p];
 
-  /* Choose m and initiate mpone */
-  m = mp[p];  mpone.e = 1;  mpone.d[0]=mpone.d[1]=ONE;
-
-  /* Perform m newton iterations to solve for y: exp(y)-x=0.     */
-  /* The iterations formula is:  y(n+1)=y(n)+(x*exp(-y(n))-1).   */
-  __cpy(y,&mpt1,p);
-  for (i=0; i<m; i++) {
-    mpt1.d[0]=-mpt1.d[0];
-    __mpexp(&mpt1,&mpt2,p);
-    __mul(x,&mpt2,&mpt1,p);
-    __sub(&mpt1,&mpone,&mpt2,p);
-    __add(y,&mpt2,&mpt1,p);
-    __cpy(&mpt1,y,p);
-  }
-  return;
+  /* Perform m newton iterations to solve for y: exp(y) - x = 0.  The
+     iterations formula is:  y(n + 1) = y(n) + (x * exp(-y(n)) - 1).   */
+  __cpy (y, &mpt1, p);
+  for (i = 0; i < m; i++)
+    {
+      mpt1.d[0] = -mpt1.d[0];
+      __mpexp (&mpt1, &mpt2, p);
+      __mul (x, &mpt2, &mpt1, p);
+      __sub (&mpt1, &mpone, &mpt2, p);
+      __add (y, &mpt2, &mpt1, p);
+      __cpy (&mpt1, y, p);
+    }
 }

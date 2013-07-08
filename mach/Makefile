@@ -1,5 +1,4 @@
-# Copyright (C) 1991,92,93,94,95,96,97,98,2001,02
-#	Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 subdir := mach
 
@@ -28,7 +26,6 @@ include ../Makeconfig
 headers = mach_init.h mach.h mach_error.h mach-shortcuts.h mach/mach_traps.h \
 	  $(interface-headers) mach/mach.h mach/mig_support.h mach/error.h \
 	  $(lock-headers) machine-sp.h
-distribute = thread_state.h
 lock = spin-solid spin-lock mutex-init mutex-solid
 lock-headers = lock-intern.h machine-lock.h spin-lock.h
 routines = $(mach-syscalls) $(mach-shortcuts) \
@@ -53,16 +50,10 @@ mach/memory_object_user.defs = mach/memory_object.defs
 
 user-interfaces := $(addprefix mach/,$(mach-interface-list)	\
 			       	     mach_port mach_host exc	\
-	            )\
+		    )\
 		   $(addprefix device/,device device_request)
 
 server-interfaces := mach/exc
-
-# It is important that we do not use the wildcard function to expand
-# `err_*.sub'.  Leaving the wildcard allows Make-dist to find all matching
-# files in all sysdep directories.
-distribute += Machrules syscalls.awk shortcut.awk \
-	      errorlib.h err_*.sub errsystems.awk
 
 # Clear any environment	value.
 generated =

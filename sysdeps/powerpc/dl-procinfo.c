@@ -1,5 +1,5 @@
 /* Data for processor capability information.  PowerPC version.
-   Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This information must be kept in sync with the _DL_HWCAP_COUNT and
    _DL_PLATFORM_COUNT definitions in procinfo.h.
@@ -46,17 +45,25 @@
 #if !defined PROCINFO_DECL && defined SHARED
   ._dl_powerpc_cap_flags
 #else
-PROCINFO_CLASS const char _dl_powerpc_cap_flags[25][10]
+PROCINFO_CLASS const char _dl_powerpc_cap_flags[57][10]
 #endif
 #ifndef PROCINFO_DECL
 = {
-    "vsx", 
+    "vsx",
     "arch_2_06", "power6x", "dfp", "pa6t",
     "arch_2_05", "ic_snoop", "smt", "booke",
     "cellbe", "power5+", "power5", "power4",
     "notb", "efpdouble", "efpsingle", "spe",
     "ucache", "4xxmac", "mmu", "fpu",
     "altivec", "ppc601", "ppc64", "ppc32",
+    "", "", "", "",
+    "", "", "", "",
+    "", "", "", "",
+    "", "", "", "",
+    "", "", "", "",
+    "", "", "", "",
+    "", "", "tar", "isel",
+    "ebb", "dscr", "htm", "arch_2_07",
   }
 #endif
 #if !defined SHARED || defined PROCINFO_DECL
@@ -68,7 +75,7 @@ PROCINFO_CLASS const char _dl_powerpc_cap_flags[25][10]
 #if !defined PROCINFO_DECL && defined SHARED
   ._dl_powerpc_platforms
 #else
-PROCINFO_CLASS const char _dl_powerpc_platforms[9][12]
+PROCINFO_CLASS const char _dl_powerpc_platforms[14][12]
 #endif
 #ifndef PROCINFO_DECL
 = {
@@ -80,7 +87,12 @@ PROCINFO_CLASS const char _dl_powerpc_platforms[9][12]
     [PPC_PLATFORM_CELL_BE] = "ppc-cell-be",
     [PPC_PLATFORM_POWER6X] = "power6x",
     [PPC_PLATFORM_POWER7] = "power7",
-    [PPC_PLATFORM_PPCA2] = "ppca2"
+    [PPC_PLATFORM_PPCA2] = "ppca2",
+    [PPC_PLATFORM_PPC405] = "ppc405",
+    [PPC_PLATFORM_PPC440] = "ppc440",
+    [PPC_PLATFORM_PPC464] = "ppc464",
+    [PPC_PLATFORM_PPC476] = "ppc476",
+    [PPC_PLATFORM_POWER8] = "power8",
   }
 #endif
 #if !defined SHARED || defined PROCINFO_DECL

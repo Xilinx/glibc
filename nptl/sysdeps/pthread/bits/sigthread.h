@@ -1,5 +1,5 @@
 /* Signal handling function for threaded programs.
-   Copyright (C) 1998, 1999, 2000, 2002, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef _BITS_SIGTHREAD_H
 #define _BITS_SIGTHREAD_H	1
@@ -29,7 +28,7 @@
 /* Modify the signal mask for the calling thread.  The arguments have
    the same meaning as for sigprocmask(2). */
 extern int pthread_sigmask (int __how,
-			    __const __sigset_t *__restrict __newmask,
+			    const __sigset_t *__restrict __newmask,
 			    __sigset_t *__restrict __oldmask)__THROW;
 
 /* Send signal SIGNO to the given thread. */

@@ -1,5 +1,5 @@
 /* memcopy.h -- definitions for memory copy functions.  Generic C version.
-   Copyright (C) 1991, 1992, 1993, 1997, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund (tege@sics.se).
 
@@ -14,9 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#ifndef _MEMCOPY_H
+#define _MEMCOPY_H	1
 
 /* The strategy of the memory functions is:
 
@@ -61,9 +63,6 @@
 
 /* Type to use for unaligned operations.  */
 typedef unsigned char byte;
-
-/* Optimal type for storing bytes in registers.  */
-#define	reg_char	char
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define MERGE(w0, sh_1, w1, sh_2) (((w0) >> (sh_1)) | ((w1) << (sh_2)))
@@ -148,3 +147,5 @@ extern void _wordcopy_bwd_dest_aligned (long int, long int, size_t) __THROW;
 
 /* Threshold value for when to enter the unrolled loops.  */
 #define	OP_T_THRES	16
+
+#endif /* memcopy.h */

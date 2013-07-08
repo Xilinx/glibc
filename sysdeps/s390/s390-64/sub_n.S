@@ -1,6 +1,6 @@
 /* __mpn_sub_n -- Add two limb vectors of the same length > 0 and store
    sum in a third limb vector.  64 bit S/390 version.
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU MP Library.
 
@@ -16,15 +16,14 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   see <http://www.gnu.org/licenses/>.  */
 
 /* INPUT PARAMETERS
      %r2 = res_ptr
      %r3 = s1_ptr
      %r4 = s2_ptr
      %r5 = size.  */
-	
+
 #include "sysdep.h"
 #include "asm-syntax.h"
 

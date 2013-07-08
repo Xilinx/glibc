@@ -1,6 +1,6 @@
 /* Initialize CPU feature data.
    This file is part of the GNU C Library.
-   Copyright (C) 2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2008-2013 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@redhat.com>.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <atomic.h>
 #include <cpuid.h>
@@ -59,11 +58,6 @@ __init_cpu_features (void)
 
       get_common_indeces (&family, &model);
 
-      /* Intel processors prefer SSE instruction for memory/string
-	 routines if they are available.  */
-      __cpu_features.feature[index_Prefer_SSE_for_memop]
-	|= bit_Prefer_SSE_for_memop;
-
       unsigned int eax = __cpu_features.cpuid[COMMON_CPUID_INDEX_1].eax;
       unsigned int extended_family = (eax >> 20) & 0xff;
       unsigned int extended_model = (eax >> 12) & 0xf0;
@@ -82,6 +76,21 @@ __init_cpu_features (void)
 	    case 0x26:
 	      /* BSF is slow on Atom.  */
 	      __cpu_features.feature[index_Slow_BSF] |= bit_Slow_BSF;
+	      break;
+
+	    case 0x37:
+	      /* Unaligned load versions are faster than SSSE3
+		 on Silvermont.  */
+#if index_Fast_Unaligned_Load != index_Prefer_PMINUB_for_stringop
+# error index_Fast_Unaligned_Load != index_Prefer_PMINUB_for_stringop
+#endif
+#if index_Fast_Unaligned_Load != index_Slow_SSE4_2
+# error index_Fast_Unaligned_Load != index_Slow_SSE4_2
+#endif
+	      __cpu_features.feature[index_Fast_Unaligned_Load]
+		|= (bit_Fast_Unaligned_Load
+		    | bit_Prefer_PMINUB_for_stringop
+		    | bit_Slow_SSE4_2);
 	      break;
 
 	    default:
@@ -126,12 +135,6 @@ __init_cpu_features (void)
 
       ecx = __cpu_features.cpuid[COMMON_CPUID_INDEX_1].ecx;
 
-      /* AMD processors prefer SSE instructions for memory/string routines
-	 if they are available, otherwise they prefer integer instructions.  */
-      if ((ecx & 0x200))
-	__cpu_features.feature[index_Prefer_SSE_for_memop]
-	  |= bit_Prefer_SSE_for_memop;
-
       unsigned int eax;
       __cpuid (0x80000000, eax, ebx, ecx, edx);
       if (eax >= 0x80000001)
@@ -143,6 +146,35 @@ __init_cpu_features (void)
     }
   else
     kind = arch_kind_other;
+
+  if (__cpu_features.max_cpuid >= 7)
+    __cpuid_count (7, 0,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].eax,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ebx,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].ecx,
+		   __cpu_features.cpuid[COMMON_CPUID_INDEX_7].edx);
+
+  /* Can we call xgetbv?  */
+  if (CPUID_OSXSAVE)
+    {
+      unsigned int xcrlow;
+      unsigned int xcrhigh;
+      asm ("xgetbv" : "=a" (xcrlow), "=d" (xcrhigh) : "c" (0));
+      /* Is YMM and XMM state usable?  */
+      if ((xcrlow & (bit_YMM_state | bit_XMM_state)) ==
+	  (bit_YMM_state | bit_XMM_state))
+	{
+	  /* Determine if AVX is usable.  */
+	  if (CPUID_AVX)
+	    __cpu_features.feature[index_AVX_Usable] |= bit_AVX_Usable;
+	  /* Determine if FMA is usable.  */
+	  if (CPUID_FMA)
+	    __cpu_features.feature[index_FMA_Usable] |= bit_FMA_Usable;
+	  /* Determine if FMA4 is usable.  */
+	  if (CPUID_FMA4)
+	    __cpu_features.feature[index_FMA4_Usable] |= bit_FMA4_Usable;
+	}
+    }
 
   __cpu_features.family = family;
   __cpu_features.model = model;

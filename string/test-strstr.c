@@ -1,5 +1,5 @@
 /* Test and measure strstr functions.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@redhat.com>, 2010.
 
@@ -14,11 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#define TEST_NAME "strstr"
 #include "test-string.h"
 
 
@@ -56,8 +56,9 @@ IMPL (simple_strstr, 0)
 IMPL (strstr, 1)
 
 
-static void
-do_one_test (impl_t *impl, const char *s1, const char *s2, char *exp_result)
+static int
+check_result (impl_t *impl, const char *s1, const char *s2,
+	      char *exp_result)
 {
   char *result = CALL (impl, s1, s2);
   if (result != exp_result)
@@ -65,26 +66,17 @@ do_one_test (impl_t *impl, const char *s1, const char *s2, char *exp_result)
       error (0, 0, "Wrong result in function %s %s %s", impl->name,
 	     result, exp_result);
       ret = 1;
-      return;
+      return -1;
     }
 
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~(hp_timing_t) 0;
-      size_t i;
+  return 0;
+}
 
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, s1, s2);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
-    }
+static void
+do_one_test (impl_t *impl, const char *s1, const char *s2, char *exp_result)
+{
+  if (check_result (impl, s1, s2, exp_result) < 0)
+    return;
 }
 
 
@@ -123,22 +115,47 @@ do_test (size_t align1, size_t align2, size_t len1, size_t len2,
     }
   s1[len1] = '\0';
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd/%zd, alignment %2zd/%2zd, %s:",
-	    len1, len2, align1, align2, fail ? "fail" : "found");
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, s1, s2, fail ? NULL : s1 + len1 - len2);
 
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
+static void
+check1 (void)
+{
+  const char s1[] =
+    "F_BD_CE_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_C3_88_20_EF_BF_BD_EF_BF_BD_EF_BF_BD_C3_A7_20_EF_BF_BD";
+  const char s2[] = "_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD";
+  char *exp_result;
+
+  exp_result = stupid_strstr (s1, s2);
+  FOR_EACH_IMPL (impl, 0)
+    check_result (impl, s1, s2, exp_result);
+}
+
+static void
+check2 (void)
+{
+  const char s1[] = ", enable_static, \0, enable_shared, ";
+  char *exp_result;
+  char *s2 = (void *) buf1 + page_size - 18;
+
+  strcpy (s2, s1);
+  exp_result = stupid_strstr (s1, s1 + 18);
+  FOR_EACH_IMPL (impl, 0)
+    {
+      check_result (impl, s1, s1 + 18, exp_result);
+      check_result (impl, s2, s1 + 18, exp_result);
+    }
+}
 
 static int
 test_main (void)
 {
   test_init ();
+
+  check1 ();
+  check2 ();
 
   printf ("%23s", "");
   FOR_EACH_IMPL (impl, 0)

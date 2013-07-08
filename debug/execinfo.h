@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 1999, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _EXECINFO_H
 #define _EXECINFO_H 1
@@ -30,13 +29,13 @@ extern int backtrace (void **__array, int __size) __nonnull ((1));
 
 /* Return names of functions from the backtrace list in ARRAY in a newly
    malloc()ed memory block.  */
-extern char **backtrace_symbols (void *__const *__array, int __size)
+extern char **backtrace_symbols (void *const *__array, int __size)
      __THROW __nonnull ((1));
 
 
 /* This function is similar to backtrace_symbols() but it writes the result
    immediately to a file.  */
-extern void backtrace_symbols_fd (void *__const *__array, int __size, int __fd)
+extern void backtrace_symbols_fd (void *const *__array, int __size, int __fd)
      __THROW __nonnull ((1));
 
 __END_DECLS

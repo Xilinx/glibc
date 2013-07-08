@@ -1,5 +1,5 @@
 /* Quad-precision floating point sine and cosine on <-pi/4,pi/4>.
-   Copyright (C) 1999,2004,2006 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>
 
@@ -14,12 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double c[] = {
 #define ONE c[0]
@@ -147,12 +146,16 @@ __kernel_sincosl(long double x, long double y, long double *sinx, long double *c
 /*
     The following should work for double but generates the wrong index.
     For now the code above converts double to ieee extended to compute
-    the index back to double for the h value. 
-    
+    the index back to double for the h value.
+
 
       index = 0x3fe - (tix >> 20);
       hix = (tix + (0x2000 << index)) & (0xffffc000 << index);
-      x = fabsl (x);
+      if (signbit (x))
+	{
+	  x = -x;
+	  y = -y;
+	}
       switch (index)
 	{
 	case 0: index = ((45 << 14) + hix - 0x3fe00000) >> 12; break;

@@ -1,6 +1,5 @@
 #! /bin/sh
-# Copyright (C) 1998,1999,2001,2003,2004,2006,2007,2008,2009,2010,2011
-# Free Software Foundation, Inc.
+# Copyright (C) 1998-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -15,9 +14,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 if test $# -eq 0; then
   echo "$0: missing program name" >&2
@@ -34,13 +32,15 @@ if test $# -eq 0; then
       echo 'Usage: catchsegv PROGRAM ARGS...'
       echo '  --help      print this help, then exit'
       echo '  --version   print version number, then exit'
-      echo "For bug reporting instructions, please see:"
-      echo "<http://www.gnu.org/software/libc/bugs.html>."
+      echo 'For bug reporting instructions, please see:'
+      cat <<\EOF
+@REPORT_BUGS_TO@.
+EOF
       exit 0
       ;;
     --v | --ve | --ver | --vers | --versi | --versio | --version)
-      echo 'catchsegv (GNU libc) @VERSION@'
-      echo 'Copyright (C) 2011 Free Software Foundation, Inc.
+      echo 'catchsegv @PKGVERSION@@VERSION@'
+      echo 'Copyright (C) 2013 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 Written by Ulrich Drepper.'

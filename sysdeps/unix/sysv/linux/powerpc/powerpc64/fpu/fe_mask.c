@@ -1,5 +1,5 @@
 /* Procedure definition for FE_MASK_ENV for Linux/ppc64.
-   Copyright (C) 2007 Free Software Foundation, Inc.
+   Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <errno.h>
@@ -31,11 +30,6 @@ __fe_mask_env (void)
   int result;
   INTERNAL_SYSCALL_DECL (err);
   result = INTERNAL_SYSCALL (prctl, err, 2, PR_SET_FPEXC, PR_FP_EXC_DISABLED);
-# ifndef __ASSUME_NEW_PRCTL_SYSCALL
-  if (INTERNAL_SYSCALL_ERROR_P (result, err)
-      && INTERNAL_SYSCALL_ERRNO (result, err) == EINVAL)
-    __set_errno (ENOSYS);
-# endif
 #else
   __set_errno (ENOSYS);
 #endif

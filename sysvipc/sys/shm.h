@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-1999, 2000, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_SHM_H
 #define _SYS_SHM_H	1
@@ -54,11 +53,11 @@ extern int shmctl (int __shmid, int __cmd, struct shmid_ds *__buf) __THROW;
 extern int shmget (key_t __key, size_t __size, int __shmflg) __THROW;
 
 /* Attach shared memory segment.  */
-extern void *shmat (int __shmid, __const void *__shmaddr, int __shmflg)
+extern void *shmat (int __shmid, const void *__shmaddr, int __shmflg)
      __THROW;
 
 /* Detach shared memory segment.  */
-extern int shmdt (__const void *__shmaddr) __THROW;
+extern int shmdt (const void *__shmaddr) __THROW;
 
 __END_DECLS
 

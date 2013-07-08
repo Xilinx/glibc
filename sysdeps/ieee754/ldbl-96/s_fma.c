@@ -1,5 +1,5 @@
 /* Compute x * y + z as ternary operation.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2010.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <float.h>
 #include <math.h>
@@ -39,6 +38,14 @@ __fma (double x, double y, double z)
       return (x * y) + z;
     }
 
+  /* Ensure correct sign of exact 0 + 0.  */
+  if (__builtin_expect ((x == 0 || y == 0) && z == 0, 0))
+    return x * y + z;
+
+  fenv_t env;
+  feholdexcept (&env);
+  fesetround (FE_TONEAREST);
+
   /* Multiplication m1 + m2 = x * y using Dekker's algorithm.  */
 #define C ((1ULL << (LDBL_MANT_DIG + 1) / 2) + 1)
   long double x1 = (long double) x * C;
@@ -57,9 +64,19 @@ __fma (double x, double y, double z)
   t1 = m1 - t1;
   t2 = z - t2;
   long double a2 = t1 + t2;
+  feclearexcept (FE_INEXACT);
 
-  fenv_t env;
-  feholdexcept (&env);
+  /* If the result is an exact zero, ensure it has the correct
+     sign.  */
+  if (a1 == 0 && m2 == 0)
+    {
+      feupdateenv (&env);
+      /* Ensure that round-to-nearest value of z + m1 is not
+	 reused.  */
+      asm volatile ("" : "=m" (z) : "m" (z));
+      return z + m1;
+    }
+
   fesetround (FE_TOWARDZERO);
   /* Perform m2 + a2 addition with round to odd.  */
   a2 = a2 + m2;

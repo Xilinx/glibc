@@ -1,4 +1,4 @@
-/* Copyright (C) 2002,2004,2005,2007,2008,2010,2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -73,7 +72,7 @@ localtime_r (t, tp)
   do {									      \
     int __n = n;							      \
     val = 0;								      \
-    while (*rp == ' ')							      \
+    while (ISSPACE (*rp))						      \
       ++rp;								      \
     if (*rp < '0' || *rp > '9')						      \
       return NULL;							      \
@@ -753,7 +752,7 @@ __strptime_internal (rp, fmt, tmp, statep LOCALE_PARAM)
 	     also specified.  */
 	  {
 	    val = 0;
-	    while (*rp == ' ')
+	    while (ISSPACE (*rp))
 	      ++rp;
 	    if (*rp != '+' && *rp != '-')
 	      return NULL;
@@ -1181,8 +1180,8 @@ __strptime_internal (rp, fmt, tmp, statep LOCALE_PARAM)
 
       if (!s.have_yday)
 	tm->tm_yday = ((7 - (tm->tm_wday - w_offset)) % 7
-		       + (s.week_no - 1) *7
-		       + save_wday - w_offset);
+		       + (s.week_no - 1) * 7
+		       + (save_wday - w_offset + 7) % 7);
 
       if (!s.have_mday || !s.have_mon)
 	{

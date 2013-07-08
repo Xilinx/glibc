@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -26,9 +25,6 @@
 #include <shlib-compat.h>
 
 
-/* Defined in pthread_setaffinity.c.  */
-extern size_t __kernel_cpumask_size attribute_hidden;
-extern int __determine_cpumask_size (pid_t tid);
 
 
 int
@@ -48,21 +44,10 @@ __pthread_attr_setaffinity_new (pthread_attr_t *attr, size_t cpusetsize,
     }
   else
     {
-      if (__kernel_cpumask_size == 0)
-	{
-	  int res = __determine_cpumask_size (THREAD_SELF->tid);
-	  if (res != 0)
-	    /* Some serious problem.  */
-	    return res;
-	}
+      int ret = check_cpuset_attr (cpuset, cpusetsize);
 
-      /* Check whether the new bitmask has any bit set beyond the
-	 last one the kernel accepts.  */
-      for (size_t cnt = __kernel_cpumask_size; cnt < cpusetsize; ++cnt)
-	if (((char *) cpuset)[cnt] != '\0')
-	  /* Found a nonzero byte.  This means the user request cannot be
-	     fulfilled.  */
-	  return EINVAL;
+      if (ret)
+        return ret;
 
       if (iattr->cpusetsize != cpusetsize)
 	{

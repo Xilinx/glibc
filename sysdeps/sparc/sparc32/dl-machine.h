@@ -1,6 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  SPARC version.
-   Copyright (C) 1996-2003, 2004, 2005, 2006, 2007, 2010, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -29,11 +27,6 @@
 #include <sysdep.h>
 #include <tls.h>
 #include <dl-plt.h>
-
-#ifndef VALIDX
-# define VALIDX(tag) (DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGNUM \
-		      + DT_EXTRANUM + DT_VALTAGIDX (tag))
-#endif
 
 /* Return nonzero iff ELF header is compatible with the running host.  */
 static inline int
@@ -205,9 +198,6 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 /* The SPARC never uses Elf32_Rel relocations.  */
 #define ELF_MACHINE_NO_REL 1
 
-/* The SPARC overlaps DT_RELA and DT_PLTREL.  */
-#define ELF_MACHINE_PLTREL_OVERLAP 1
-
 /* Undo the sub %sp, 6*4, %sp; add %sp, 22*4, %o0 below to get at the
    value we want in __libc_stack_end.  */
 #define DL_STACK_END(cookie) \
@@ -216,6 +206,11 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 /* Initial entry point code for the dynamic linker.
    The C function `_dl_start' is the real entry point;
    its return value is the user program's entry point.  */
+
+#define RTLD_GOT_ADDRESS(pic_reg, reg, symbol)	\
+	"sethi	%gdop_hix22(" #symbol "), " #reg "\n\t" \
+	"xor	" #reg ", %gdop_lox10(" #symbol "), " #reg "\n\t" \
+	"ld	[" #pic_reg " + " #reg "], " #reg ", %gdop(" #symbol ")"
 
 #define RTLD_START __asm__ ("\
 	.text\n\
@@ -241,17 +236,13 @@ _dl_start_user:\n\
 	mov	%o0, %l0\n\
   /* See if we were run as a command with the executable file name as an\n\
      extra leading argument.  If so, adjust the contents of the stack.  */\n\
-	sethi	%hi(_dl_skip_args), %g2\n\
-	or	%g2, %lo(_dl_skip_args), %g2\n\
-	ld	[%l7+%g2], %i0\n\
-	ld	[%i0], %i0\n\
+	" RTLD_GOT_ADDRESS(%l7, %g2, _dl_skip_args) "\n\
+	ld	[%g2], %i0\n\
 	tst	%i0\n\
 	beq	3f\n\
 	 ld	[%sp+22*4], %i5		/* load argc */\n\
 	/* Find out how far to shift.  */\n\
-	sethi	%hi(_dl_argv), %l3\n\
-	or	%l3, %lo(_dl_argv), %l3\n\
-	ld	[%l7+%l3], %l3\n\
+	" RTLD_GOT_ADDRESS(%l7, %l3, _dl_argv) "\n\
 	sub	%i5, %i0, %i5\n\
 	ld	[%l3], %l4\n\
 	sll	%i0, 2, %i2\n\
@@ -284,20 +275,16 @@ _dl_start_user:\n\
 	bne	23b\n\
 	 add	%i1, 8, %i1\n\
   /* %o0 = _dl_loaded, %o1 = argc, %o2 = argv, %o3 = envp.  */\n\
-3:	sethi	%hi(_rtld_local), %o0\n\
+3:	" RTLD_GOT_ADDRESS(%l7, %o0, _rtld_local) "\n\
 	add	%sp, 23*4, %o2\n\
-	orcc	%o0, %lo(_rtld_local), %o0\n\
 	sll	%i5, 2, %o3\n\
-	ld	[%l7+%o0], %o0\n\
 	add	%o3, 4, %o3\n\
 	mov	%i5, %o1\n\
 	add	%o2, %o3, %o3\n\
 	call	_dl_init_internal\n\
 	 ld	[%o0], %o0\n\
   /* Pass our finalizer function to the user in %g1.  */\n\
-	sethi	%hi(_dl_fini), %g1\n\
-	or	%g1, %lo(_dl_fini), %g1\n\
-	ld	[%l7+%g1], %g1\n\
+	" RTLD_GOT_ADDRESS(%l7, %g1, _dl_fini) "\n\
   /* Jump to the user's entry point and deallocate the extra stack we got.  */\n\
 	jmp	%l0\n\
 	 add	%sp, 6*4, %sp\n\
@@ -345,10 +332,14 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 		  void *const reloc_addr_arg, int skip_ifunc)
 {
   Elf32_Addr *const reloc_addr = reloc_addr_arg;
+#if !defined RTLD_BOOTSTRAP && !defined RESOLVE_CONFLICT_FIND_MAP
   const Elf32_Sym *const refsym = sym;
+#endif
   Elf32_Addr value;
   const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
+#if !defined RESOLVE_CONFLICT_FIND_MAP
   struct link_map *sym_map = NULL;
+#endif
 
 #if !defined RTLD_BOOTSTRAP && !defined HAVE_Z_COMBRELOC
   /* This is defined in rtld.c, but nowhere in the static libc.a; make the
@@ -361,6 +352,12 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 
   if (__builtin_expect (r_type == R_SPARC_NONE, 0))
     return;
+
+  if (__builtin_expect (r_type == R_SPARC_SIZE32, 0))
+    {
+      *reloc_addr = sym->st_size + reloc->r_addend;
+      return;
+    }
 
 #if !defined RTLD_BOOTSTRAP || !defined HAVE_Z_COMBRELOC
   if (__builtin_expect (r_type == R_SPARC_RELATIVE, 0))
@@ -414,8 +411,7 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 	  strtab = (const void *) D_PTR (map, l_info[DT_STRTAB]);
 	  _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-			    rtld_progname ?: "<program name unknown>",
-			    strtab + refsym->st_name);
+			    RTLD_PROGNAME, strtab + refsym->st_name);
 	}
       memcpy (reloc_addr_arg, (void *) value,
 	      MIN (sym->st_size, refsym->st_size));

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2004, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -31,11 +30,10 @@ __pthread_attr_setschedparam (attr, param)
   assert (sizeof (*attr) >= sizeof (struct pthread_attr));
   struct pthread_attr *iattr = (struct pthread_attr *) attr;
 
-  int min = sched_get_priority_min (iattr->schedpolicy);
-  int max = sched_get_priority_max (iattr->schedpolicy);
-  if (min == -1 || max == -1
-      || param->sched_priority > max || param->sched_priority < min)
-    return EINVAL;
+  int ret = check_sched_priority_attr (param->sched_priority,
+				       iattr->schedpolicy);
+  if (ret)
+    return ret;
 
   /* Copy the new values.  */
   memcpy (&iattr->schedparam, param, sizeof (struct sched_param));

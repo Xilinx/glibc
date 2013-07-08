@@ -1,5 +1,5 @@
 /* Conversion from and to CP1258.
-   Copyright (C) 1998, 2001, 2002, 2004, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998,
    and Bruno Haible <haible@clisp.cons.org>, 2001.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <dlfcn.h>
 #include <stdint.h>
@@ -197,8 +196,7 @@ static const struct
     { 0x0077, 0x1E83 },
     { 0x0079, 0x00FD },
     { 0x007A, 0x017A },
-    /* { 0x00A5, 0x0385 }, Wrong, A5 is Yen sign */
-    { 0x00A8, 0x1FEE },
+    { 0x00A8, 0x0385 }, /* prefer U+0385 over U+1FEE */
     { 0x00C2, 0x1EA4 },
     { 0x00C5, 0x01FA },
     { 0x00C6, 0x01FC },

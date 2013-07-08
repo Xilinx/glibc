@@ -12,12 +12,13 @@ CFLAGS-malloc.c += -DMORECORE_CLEARS=2
 endif
 
 ifeq ($(subdir),socket)
-sysdep_routines += internal_accept4 recvmmsg internal_recvmmsg sendmmsg \
-		   internal_sendmmsg
+sysdep_routines += internal_accept4 internal_recvmmsg internal_sendmmsg
 endif
 
 ifeq ($(subdir),misc)
-sysdep_routines += sysctl clone llseek umount umount2 readahead \
+include $(firstword $(wildcard $(sysdirs:=/sysctl.mk)))
+
+sysdep_routines += clone llseek umount umount2 readahead \
 		   setfsuid setfsgid makedev epoll_pwait signalfd \
 		   eventfd eventfd_read eventfd_write prlimit
 
@@ -32,16 +33,25 @@ sysdep_headers += sys/mount.h sys/acct.h sys/sysctl.h \
 		  scsi/sg.h scsi/scsi.h scsi/scsi_ioctl.h sys/pci.h \
 		  sys/ultrasound.h sys/raw.h sys/personality.h sys/epoll.h \
 		  bits/a.out.h sys/inotify.h sys/signalfd.h sys/eventfd.h \
-		  sys/timerfd.h sys/fanotify.h
-
-install-others += $(inst_includedir)/bits/syscall.h
+		  sys/timerfd.h sys/fanotify.h bits/eventfd.h bits/inotify.h \
+		  bits/signalfd.h bits/timerfd.h bits/epoll.h \
+		  bits/socket_type.h bits/syscall.h bits/sysctl.h \
+		  bits/mman-linux.h
 
 tests += tst-clone
 
 # Generate the list of SYS_* macros for the system calls (__NR_* macros).
-# For bi-arch platforms, the CPU/Makefile defines {32,64}bit-predefine and
-# we generate a file that uses <bits/wordsize.h>.
-$(objpfx)syscall-%.h $(objpfx)syscall-%.d: ../sysdeps/unix/sysv/linux/sys/syscall.h
+
+# If there is more than one syscall list for different architecture
+# variants, the CPU/Makefile defines abi-variants to be a list of names
+# for those variants (e.g. 32 64), and, for each variant, defines
+# abi-$(variant)-options to be compiler options to cause <asm/unistd.h>
+# to define the desired list of syscalls and abi-$(variant)-condition to
+# be the condition for those options to use in a C #if condition.
+# abi-includes may be defined to a list of headers to include
+# in the generated header, if the default does not suffice.
+
+$(objpfx)bits/syscall%h $(objpfx)bits/syscall%d: ../sysdeps/unix/sysv/linux/sys/syscall.h
 	$(make-target-directory)
 	{ \
 	 echo '/* Generated at libc build time from kernel syscall list.  */';\
@@ -50,50 +60,47 @@ $(objpfx)syscall-%.h $(objpfx)syscall-%.d: ../sysdeps/unix/sysv/linux/sys/syscal
 	 echo '# error "Never use <bits/syscall.h> directly; include <sys/syscall.h> instead."'; \
 	 echo '#endif'; \
 	 echo ''; \
-	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t1 -MT '$(@:.d=.h) $(@:.h=.d)' \
-	       -x c $(sysincludes) $< $(addprefix -U,$(64bit-predefine)) \
-	       $(addprefix -D,$(32bit-predefine)) -D_LIBC -dM | \
+	 $(foreach h,$(abi-includes), echo '#include <$(h)>';) \
+	 echo ''; \
+	 $(if $(abi-variants), \
+	 $(foreach v,$(abi-variants),\
+	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
+	       -x c $(sysincludes) $< $(abi-$(v)-options) \
+	       -D_LIBC -dM | \
 	 sed -n 's@^#define __NR_\([^ ]*\) .*$$@#define SYS_\1 __NR_\1@p' | \
-	 LC_ALL=C sort > $(@:.d=.h).new32; \
-	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t2 -MT '$(@:.d=.h) $(@:.h=.d)' \
-	       -x c $(sysincludes) $< $(addprefix -U,$(32bit-predefine)) \
-	       $(addprefix -D,$(64bit-predefine)) -D_LIBC -dM | \
+	 LC_ALL=C sort > $(@:.d=.h).new$(v); \
+	 $(if $(abi-$(v)-condition),\
+	 echo '#if $(abi-$(v)-condition)';) \
+	 cat $(@:.d=.h).new$(v); \
+	 $(if $(abi-$(v)-condition),echo '#endif';) \
+	 rm -f $(@:.d=.h).new$(v); \
+	 ), \
+	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
+	       -x c $(sysincludes) $< \
+	       -D_LIBC -dM | \
 	 sed -n 's@^#define __NR_\([^ ]*\) .*$$@#define SYS_\1 __NR_\1@p' | \
-	 LC_ALL=C sort > $(@:.d=.h).new64; \
-	 if cmp -s $(@:.d=.h).new32 $(@:.d=.h).new64; then \
-	   cat $(@:.d=.h).new32; \
-	 else \
-	   echo '#include <bits/wordsize.h>'; \
-	   echo ''; \
-	   LC_ALL=C comm -12 $(@:.d=.h).new32 $(@:.d=.h).new64; \
-	   echo '#if __WORDSIZE == 64'; \
-	   LC_ALL=C comm -13 $(@:.d=.h).new32 $(@:.d=.h).new64; \
-	   echo '#else'; \
-	   LC_ALL=C comm -23 $(@:.d=.h).new32 $(@:.d=.h).new64; \
-	   echo '#endif'; \
-	 fi; \
-	 rm -f $(@:.d=.h).new32 $(@:.d=.h).new64; \
+	 LC_ALL=C sort;) \
 	} > $(@:.d=.h).new
 	mv -f $(@:.d=.h).new $(@:.d=.h)
+ifdef abi-variants
 ifneq (,$(objpfx))
-	sed $(sed-remove-objpfx) $(@:.h=.d)-t1 $(@:.h=.d)-t2 > $(@:.h=.d)-t3
+	sed $(sed-remove-objpfx) \
+	 $(foreach v,$(abi-variants),$(@:.h=.d)-t$(v)) > $(@:.h=.d)-t3
 else
-	cat $(@:.h=.d)-t1 $(@:.h=.d)-t2 > $(@:.h=.d)-t3
+	cat $(foreach v,$(abi-variants),$(@:.h=.d)-t$(v)) \
+	 > $(@:.h=.d)-t3
 endif
-	rm -f $(@:.h=.d)-t1 $(@:.h=.d)-t2
+	rm -f $(foreach v,$(abi-variants),$(@:.h=.d)-t$(v))
 	mv -f $(@:.h=.d)-t3 $(@:.h=.d)
-
-$(inst_includedir)/bits/syscall.h: $(objpfx)syscall-list.h $(+force)
-	$(make-target-directory)
-	if test -r $@ && cmp -s $< $@; \
-	then echo 'bits/syscall.h unchanged'; \
-	else $(INSTALL_DATA) $< $@; fi
+else
+	mv -f $(@:.h=.d)-t $(@:.h=.d)
+endif
 
 ifndef no_deps
 # Get the generated list of dependencies (probably /usr/include/asm/unistd.h).
--include $(objpfx)syscall-list.d
+-include $(objpfx)bits/syscall.d
 endif
-generated += syscall-list.h syscall-list.d
+generated += bits/syscall.h bits/syscall.d
 endif
 
 ifeq ($(subdir),time)
@@ -145,7 +152,8 @@ endif
 
 ifeq ($(subdir),io)
 sysdep_routines += xstatconv internal_statvfs internal_statvfs64 \
-		   sync_file_range open_2 open64_2 fallocate fallocate64
+		   sync_file_range fallocate fallocate64
+sysdep_headers += bits/fcntl-linux.h
 endif
 
 ifeq ($(subdir),elf)

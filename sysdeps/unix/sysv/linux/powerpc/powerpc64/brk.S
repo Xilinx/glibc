@@ -1,5 +1,5 @@
 /* brk system call for Linux.  PowerPC64 version.
-   Copyright (C) 1995,96,97,99, 2000,02, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,24 +13,20 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 	.comm	__curbrk,8,8
 	.section	".toc","aw"
 .LC__curbrk:
 	.tc __curbrk[TC],__curbrk
 	.section ".text"
-ENTRY (BP_SYM (__brk))
+ENTRY (__brk)
 	CALL_MCOUNT 1
-	DISCARD_BOUNDS (r3)	/* the bounds are meaningless, so toss 'em.  */
 
 	std	r3,48(r1)
 	DO_CALL(SYS_ify(brk))
@@ -42,6 +38,6 @@ ENTRY (BP_SYM (__brk))
 	blelr+
 	li      r3,ENOMEM
 	TAIL_CALL_SYSCALL_ERROR
-END (BP_SYM (__brk))
+END (__brk)
 
-weak_alias (BP_SYM (__brk), BP_SYM (brk))
+weak_alias (__brk, brk)

@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001, 2011 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /******************************************************************/
 /*  MODULE_NAME: mpatan2.c                                        */
@@ -33,43 +32,36 @@
 /*                                                                */
 /******************************************************************/
 
-
-
 #include "mpa.h"
 
 #ifndef SECTION
 # define SECTION
 #endif
 
-void __mpsqrt(mp_no *, mp_no *, int);
-void __mpatan(mp_no *, mp_no *, int);
-
-/* Multi-Precision Atan2(y,x) function subroutine, for p >= 4.    */
-/* y=0 is not permitted if x<=0. No error messages are given.     */
+/* Multi-Precision Atan2 (y, x) function subroutine, for p >= 4.
+   y = 0 is not permitted if x <= 0. No error messages are given.  */
 void
 SECTION
-__mpatan2(mp_no *y, mp_no *x, mp_no *z, int p) {
+__mpatan2 (mp_no *y, mp_no *x, mp_no *z, int p)
+{
+  mp_no mpt1, mpt2, mpt3;
 
-  static const double ZERO = 0.0, ONE = 1.0;
-
-  mp_no mpone = {0,{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-		    0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-		    0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}};
-  mp_no mpt1,mpt2,mpt3;
-
-
-  if (X[0] <= ZERO) {
-    mpone.e = 1;                 mpone.d[0] = mpone.d[1] = ONE;
-    __dvd(x,y,&mpt1,p);          __mul(&mpt1,&mpt1,&mpt2,p);
-    if (mpt1.d[0] != ZERO)       mpt1.d[0] = ONE;
-    __add(&mpt2,&mpone,&mpt3,p); __mpsqrt(&mpt3,&mpt2,p);
-    __add(&mpt1,&mpt2,&mpt3,p);  mpt3.d[0]=Y[0];
-    __mpatan(&mpt3,&mpt1,p);     __add(&mpt1,&mpt1,z,p);
-  }
+  if (X[0] <= 0)
+    {
+      __dvd (x, y, &mpt1, p);
+      __mul (&mpt1, &mpt1, &mpt2, p);
+      if (mpt1.d[0] != 0)
+	mpt1.d[0] = 1;
+      __add (&mpt2, &mpone, &mpt3, p);
+      __mpsqrt (&mpt3, &mpt2, p);
+      __add (&mpt1, &mpt2, &mpt3, p);
+      mpt3.d[0] = Y[0];
+      __mpatan (&mpt3, &mpt1, p);
+      __add (&mpt1, &mpt1, z, p);
+    }
   else
-  { __dvd(y,x,&mpt1,p);
-    __mpatan(&mpt1,z,p);
-  }
-
-  return;
+    {
+      __dvd (y, x, &mpt1, p);
+      __mpatan (&mpt1, z, p);
+    }
 }

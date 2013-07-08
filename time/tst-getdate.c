@@ -1,5 +1,5 @@
 /* Test for getdate.
-   Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 2000.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +31,10 @@ static const struct
 } tests [] =
 {
   {"21:01:10 1999-1-31", "Universal", 0, {10, 1, 21, 31, 0, 99, 0, 0, 0}},
+  {"21:01:10    1999-1-31", "Universal", 0, {10, 1, 21, 31, 0, 99, 0, 0, 0}},
+  {"   21:01:10 1999-1-31", "Universal", 0, {10, 1, 21, 31, 0, 99, 0, 0, 0}},
+  {"21:01:10 1999-1-31   ", "Universal", 0, {10, 1, 21, 31, 0, 99, 0, 0, 0}},
+  {"    21:01:10 1999-1-31   ", "Universal", 0, {10, 1, 21, 31, 0, 99, 0, 0, 0}},
   {"21:01:10 1999-2-28", "Universal", 0, {10, 1, 21, 28, 1, 99, 0, 0, 0}},
   {"16:30:46 2000-2-29", "Universal", 0, {46, 30,16, 29, 1, 100, 0, 0, 0}},
   {"01-08-2000 05:06:07", "Europe/Berlin", 0, {7, 6, 5, 1, 7, 100, 0, 0, 0}}

@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    frexpl(x, exp)
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek (jj@ultra.linux.cz).
 
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*
  * for non-zero x
@@ -27,7 +26,7 @@
  *      arg = x*2^exp.
  * If arg is inf, 0.0, or NaN, then frexpl(arg,&exp) returns arg
  * with *exp=0.
- */       
+ */
 
 #include "soft-fp.h"
 #include "quad.h"

@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
@@ -23,8 +22,6 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #include <asm-syntax.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #define CLONE_VM	0x00000100
 #define CLONE_THREAD	0x00010000
@@ -53,7 +50,7 @@
 
 
         .text
-ENTRY (BP_SYM (__clone))
+ENTRY (__clone)
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
 	testq	%rdi,%rdi		/* no NULL function pointers */
@@ -73,7 +70,7 @@ ENTRY (BP_SYM (__clone))
 	movq	%rdx, %rdi
 	movq	%r8, %rdx
 	movq	%r9, %r8
-	movq	8(%rsp), %r10
+	mov	8(%rsp), %R10_LP
 	movl	$SYS_ify(clone),%eax
 
 	/* End FDE now, because in the child the unwind info will be
@@ -85,7 +82,6 @@ ENTRY (BP_SYM (__clone))
 	jl	SYSCALL_ERROR_LABEL
 	jz	L(thread_start)
 
-L(pseudo_end):
 	ret
 
 L(thread_start):
@@ -119,6 +115,6 @@ L(thread_start):
 	cfi_endproc;
 
 	cfi_startproc;
-PSEUDO_END (BP_SYM (__clone))
+PSEUDO_END (__clone)
 
-weak_alias (BP_SYM (__clone), BP_SYM (clone))
+weak_alias (__clone, clone)

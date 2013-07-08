@@ -1,6 +1,5 @@
 /* Get file-specific information about a file.  Linux version.
-   Copyright (C) 1991,1995,1996,1998-2003,2008,2010,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <mntent.h>
@@ -41,8 +39,6 @@ long int
 __pathconf (const char *file, int name)
 {
   struct statfs fsbuf;
-  int fd;
-  int flags;
 
   switch (name)
     {
@@ -57,21 +53,6 @@ __pathconf (const char *file, int name)
 
     case _PC_CHOWN_RESTRICTED:
       return __statfs_chown_restricted (__statfs (file, &fsbuf), &fsbuf);
-
-    case _PC_PIPE_BUF:
-      flags = O_RDONLY|O_NONBLOCK|O_NOCTTY;
-#ifdef O_CLOEXEC
-      flags |= O_CLOEXEC;
-#endif
-      fd = open_not_cancel_2 (file, flags);
-      if (fd >= 0)
-	{
-	  long int r = __fcntl (fd, F_GETPIPE_SZ);
-	  close_not_cancel_no_status (fd);
-	  if (r > 0)
-	    return r;
-	}
-      /* FALLTHROUGH */
 
     default:
       return posix_pathconf (file, name);
@@ -170,6 +151,9 @@ __statfs_link_max (int result, const struct statfs *fsbuf, const char *file,
 	 the hard way.  */
       return distinguish_extX (fsbuf, file, fd);
 
+    case F2FS_SUPER_MAGIC:
+      return F2FS_LINK_MAX;
+
     case MINIX_SUPER_MAGIC:
     case MINIX_SUPER_MAGIC2:
       return MINIX_LINK_MAX;
@@ -223,6 +207,9 @@ __statfs_filesize_max (int result, const struct statfs *fsbuf)
 
   switch (fsbuf->f_type)
     {
+    case F2FS_SUPER_MAGIC:
+      return 256;
+
     case BTRFS_SUPER_MAGIC:
       return 255;
 
@@ -302,11 +289,16 @@ __statfs_chown_restricted (int result, const struct statfs *fsbuf)
       return -1;
     }
 
+#if __ASSUME_XFS_RESTRICTED_CHOWN
+  return 1;
+#else
   int fd;
+  int save_errno;
   long int retval = 1;
   switch (fsbuf->f_type)
     {
     case XFS_SUPER_MAGIC:
+      save_errno = errno;
       /* Read the value from /proc/sys/fs/xfs/restrict_chown.  If we cannot
 	 read it default to assume the restriction is in place.  */
       fd = open_not_cancel_2 ("/proc/sys/fs/xfs/restrict_chown", O_RDONLY);
@@ -319,6 +311,7 @@ __statfs_chown_restricted (int result, const struct statfs *fsbuf)
 
 	  close_not_cancel_no_status (fd);
 	}
+      __set_errno (save_errno);
       break;
 
     default:
@@ -326,4 +319,5 @@ __statfs_chown_restricted (int result, const struct statfs *fsbuf)
     }
 
   return retval;
+#endif
 }

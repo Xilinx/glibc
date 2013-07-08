@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * Written by International Business Machines Corp.
- * Copyright (C) 2001, 2011 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /***********************************************************************/
@@ -35,7 +34,8 @@
 /* IEEE double.                                                        */
 /***********************************************************************/
 
-/* CN = 1+2**27 = '41a0000002000000' IEEE double format */
+/* CN = 1+2**27 = '41a0000002000000' IEEE double format.  Use it to split a
+   double for better accuracy.  */
 #define  CN   134217729.0
 
 

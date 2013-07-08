@@ -1,4 +1,4 @@
-/* Copyright (C) 1995 Free Software Foundation
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -11,9 +11,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*
  * This is derived from the Berkeley source:
@@ -25,7 +24,7 @@
 /*
    Copyright (C) 1983 Regents of the University of California.
    All rights reserved.
- 
+
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
@@ -38,7 +37,7 @@
    4. Neither the name of the University nor the names of its contributors
       may be used to endorse or promote products derived from this software
       without specific prior written permission.
-   
+
    THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -235,16 +234,17 @@ __initstate (seed, arg_state, n)
      size_t n;
 {
   int32_t *ostate;
+  int ret;
 
   __libc_lock_lock (lock);
 
   ostate = &unsafe_state.state[-1];
 
-  __initstate_r (seed, arg_state, n, &unsafe_state);
+  ret = __initstate_r (seed, arg_state, n, &unsafe_state);
 
   __libc_lock_unlock (lock);
 
-  return (char *) ostate;
+  return ret == -1 ? NULL : (char *) ostate;
 }
 
 weak_alias (__initstate, initstate)
@@ -289,7 +289,7 @@ weak_alias (__setstate, setstate)
    pointer if the front one has wrapped.  Returns a 31-bit random number.  */
 
 long int
-__random ()
+__random (void)
 {
   int32_t retval;
 

@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <netinet/in.h>
@@ -568,7 +569,9 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	     IPv6 scope ids, nor retrieving the canonical name.  */
 	  if (req->ai_family == AF_INET && (req->ai_flags & AI_CANONNAME) == 0)
 	    {
-	      size_t tmpbuflen = 512;
+	      /* Allocate additional room for struct host_data.  */
+	      size_t tmpbuflen = (512 + MAX_NR_ALIASES * sizeof(char*)
+				  + 16 * sizeof(char));
 	      assert (tmpbuf == NULL);
 	      tmpbuf = alloca_account (tmpbuflen, alloca_used);
 	      int rc;
@@ -811,7 +814,7 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	  old_res_options = _res.options;
 	  _res.options &= ~RES_USE_INET6;
 
-	  size_t tmpbuflen = 1024;
+	  size_t tmpbuflen = 1024 + sizeof(struct gaih_addrtuple);
 	  malloc_tmpbuf = !__libc_use_alloca (alloca_used + tmpbuflen);
 	  assert (tmpbuf == NULL);
 	  if (!malloc_tmpbuf)
@@ -830,8 +833,13 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	  while (!no_more)
 	    {
 	      no_data = 0;
-	      nss_gethostbyname4_r fct4
-		= __nss_lookup_function (nip, "gethostbyname4_r");
+	      nss_gethostbyname4_r fct4 = NULL;
+
+	      /* gethostbyname4_r sends out parallel A and AAAA queries and
+		 is thus only suitable for PF_UNSPEC.  */
+	      if (req->ai_family == PF_UNSPEC)
+		fct4 = __nss_lookup_function (nip, "gethostbyname4_r");
+
 	      if (fct4 != NULL)
 		{
 		  int herrno;
@@ -1028,7 +1036,15 @@ gaih_inet (const char *name, const struct gaih_service *service,
 			}
 		    }
 		  else
-		    status = NSS_STATUS_UNAVAIL;
+		    {
+		      status = NSS_STATUS_UNAVAIL;
+		      /* Could not load any of the lookup functions.  Indicate
+		         an internal error if the failure was due to a system
+			 error other than the file not being found.  We use the
+			 errno from the last failed callback.  */
+		      if (errno != 0 && errno != ENOENT)
+			__set_h_errno (NETDB_INTERNAL);
+		    }
 		}
 
 	      if (nss_next_action (nip, status) == NSS_ACTION_RETURN)
@@ -1041,6 +1057,12 @@ gaih_inet (const char *name, const struct gaih_service *service,
 	    }
 
 	  _res.options |= old_res_options & RES_USE_INET6;
+
+	  if (h_errno == NETDB_INTERNAL)
+	    {
+	      result = GAIH_OKIFUNSPEC | -EAI_SYSTEM;
+	      goto free_and_return;
+	    }
 
 	  if (no_data != 0 && no_inet6_data != 0)
 	    {
@@ -1293,12 +1315,6 @@ static const struct scopeentry
     /* Link-local addresses: scope 2.  */
     { { { 169, 254, 0, 0 } }, htonl_c (0xffff0000), 2 },
     { { { 127, 0, 0, 0 } }, htonl_c (0xff000000), 2 },
-#if 0
-    /* Site-local addresses: scope 5.  */
-    { { { 10, 0, 0, 0 } }, htonl_c (0xff000000), 5 },
-    { { { 172, 16, 0, 0 } }, htonl_c (0xfff00000), 5 },
-    { { { 192, 168, 0, 0 } }, htonl_c (0xffff0000), 5 },
-#endif
     /* Default: scope 14.  */
     { { { 0, 0, 0, 0 } }, htonl_c (0x00000000), 14 }
   };
@@ -1786,7 +1802,40 @@ static int gaiconf_reload_flag;
 static int gaiconf_reload_flag_ever_set;
 
 /* Last modification time.  */
+#ifdef _STATBUF_ST_NSEC
+
 static struct timespec gaiconf_mtime;
+
+static inline void
+save_gaiconf_mtime (const struct stat64 *st)
+{
+  gaiconf_mtime = st->st_mtim;
+}
+
+static inline bool
+check_gaiconf_mtime (const struct stat64 *st)
+{
+  return (st->st_mtim.tv_sec == gaiconf_mtime.tv_sec
+          && st->st_mtim.tv_nsec == gaiconf_mtime.tv_nsec);
+}
+
+#else
+
+static time_t gaiconf_mtime;
+
+static inline void
+save_gaiconf_mtime (const struct stat64 *st)
+{
+  gaiconf_mtime = st->st_mtime;
+}
+
+static inline bool
+check_gaiconf_mtime (const struct stat64 *st)
+{
+  return st->st_mtime == gaiconf_mtime;
+}
+
+#endif
 
 
 libc_freeres_fn(fini)
@@ -2229,7 +2278,7 @@ gaiconf_init (void)
       if (oldscope != default_scopes)
 	free ((void *) oldscope);
 
-      gaiconf_mtime = st.st_mtim;
+      save_gaiconf_mtime (&st);
     }
   else
     {
@@ -2251,7 +2300,7 @@ gaiconf_reload (void)
 {
   struct stat64 st;
   if (__xstat64 (_STAT_VER, GAICONF_FNAME, &st) != 0
-      || memcmp (&st.st_mtim, &gaiconf_mtime, sizeof (gaiconf_mtime)) != 0)
+      || !check_gaiconf_mtime (&st))
     gaiconf_init ();
 }
 
@@ -2380,11 +2429,28 @@ getaddrinfo (const char *name, const char *service,
       __typeof (once) old_once = once;
       __libc_once (once, gaiconf_init);
       /* Sort results according to RFC 3484.  */
-      struct sort_result results[nresults];
-      size_t order[nresults];
+      struct sort_result *results;
+      size_t *order;
       struct addrinfo *q;
       struct addrinfo *last = NULL;
       char *canonname = NULL;
+      bool malloc_results;
+      size_t alloc_size = nresults * (sizeof (*results) + sizeof (size_t));
+
+      malloc_results
+	= !__libc_use_alloca (alloc_size);
+      if (malloc_results)
+	{
+	  results = malloc (alloc_size);
+	  if (results == NULL)
+	    {
+	      __free_in6ai (in6ai);
+	      return EAI_MEMORY;
+	    }
+	}
+      else
+	results = alloca (alloc_size);
+      order = (size_t *) (results + nresults);
 
       /* Now we definitely need the interface information.  */
       if (! check_pf_called)
@@ -2539,7 +2605,7 @@ getaddrinfo (const char *name, const char *service,
 	  __libc_lock_define_initialized (static, lock);
 
 	  __libc_lock_lock (lock);
-	  if (old_once && gaiconf_reload_flag)
+	  if (__libc_once_get (old_once) && gaiconf_reload_flag)
 	    gaiconf_reload ();
 	  qsort_r (order, nresults, sizeof (order[0]), rfc3484_sort, &src);
 	  __libc_lock_unlock (lock);
@@ -2555,6 +2621,9 @@ getaddrinfo (const char *name, const char *service,
 
       /* Fill in the canonical name into the new first entry.  */
       p->ai_canonname = canonname;
+
+      if (malloc_results)
+	free (results);
     }
 
   __free_in6ai (in6ai);
@@ -2569,7 +2638,7 @@ getaddrinfo (const char *name, const char *service,
 }
 libc_hidden_def (getaddrinfo)
 
-static_link_warning (getaddrinfo)
+nss_interface_function (getaddrinfo)
 
 void
 freeaddrinfo (struct addrinfo *ai)

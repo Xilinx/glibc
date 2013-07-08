@@ -1,5 +1,5 @@
 /* i386-specific implemetation of profiling support.
-   Copyright (C) 1997, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -27,8 +26,8 @@
      - the ELF `fixup' function uses GCC's regparm feature
      - some (future) systems might want to pass parameters in registers.  */
 
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(_mcount)
-	ASM_TYPE_DIRECTIVE(C_SYMBOL_NAME(_mcount), @function)
+	.globl C_SYMBOL_NAME(_mcount)
+	.type C_SYMBOL_NAME(_mcount), @function
 	.align ALIGNARG(4)
 C_LABEL(_mcount)
 	/* Save the caller-clobbered registers.  */
@@ -55,8 +54,8 @@ C_LABEL(_mcount)
 weak_alias (_mcount, mcount)
 
 	/* Same as above, but doesn't require a frame pointer */
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(__fentry__)
-	ASM_TYPE_DIRECTIVE(C_SYMBOL_NAME(__fentry__), @function)
+	.globl C_SYMBOL_NAME(__fentry__)
+	.type C_SYMBOL_NAME(__fentry__), @function
 	.align ALIGNARG(4)
 C_LABEL(__fentry__)
 	/* Save the caller-clobbered registers.  */

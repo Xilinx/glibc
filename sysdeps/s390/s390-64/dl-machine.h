@@ -1,6 +1,6 @@
 /* Machine-dependent ELF dynamic relocation inline functions.
    64 bit S/390 Version.
-   Copyright (C) 2001-2005, 2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU C Library.
 
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -27,6 +26,9 @@
 #include <sys/param.h>
 #include <string.h>
 #include <link.h>
+#include <dl-irel.h>
+
+#define ELF_MACHINE_IRELATIVE       R_390_IRELATIVE
 
 /* This is an older, now obsolete value.  */
 #define EM_S390_OLD	0xA390
@@ -281,8 +283,21 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
       struct link_map *sym_map = RESOLVE_MAP (&sym, version, r_type);
       Elf64_Addr value = sym == NULL ? 0 : sym_map->l_addr + sym->st_value;
 
+      if (sym != NULL
+	  && __builtin_expect (ELFW(ST_TYPE) (sym->st_info) == STT_GNU_IFUNC,
+			       0)
+	  && __builtin_expect (sym->st_shndx != SHN_UNDEF, 1)
+	  && __builtin_expect (!skip_ifunc, 1))
+	value = elf_ifunc_invoke (value);
+
       switch (r_type)
 	{
+	case R_390_IRELATIVE:
+	  value = map->l_addr + reloc->r_addend;
+	  if (__builtin_expect (!skip_ifunc, 1))
+	    value = elf_ifunc_invoke (value);
+	  *reloc_addr = value;
+	  break;
 	case R_390_GLOB_DAT:
 	case R_390_JMP_SLOT:
 	  *reloc_addr = value + reloc->r_addend;
@@ -346,8 +361,7 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
 	      strtab = (const char *) D_PTR (map,l_info[DT_STRTAB]);
 	      _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-				rtld_progname ?: "<program name unknown>",
-				strtab + refsym->st_name);
+				RTLD_PROGNAME, strtab + refsym->st_name);
 	    }
 	  memcpy (reloc_addr_arg, (void *) value,
 		  MIN (sym->st_size, refsym->st_size));
@@ -426,6 +440,13 @@ elf_machine_lazy_rel (struct link_map *map,
 	*reloc_addr =
 	  map->l_mach.plt
 	  + (((Elf64_Addr) reloc_addr) - map->l_mach.gotplt) * 4;
+    }
+  else if (__builtin_expect (r_type == R_390_IRELATIVE, 1))
+    {
+      Elf64_Addr value = map->l_addr + reloc->r_addend;
+      if (__builtin_expect (!skip_ifunc, 1))
+	value = elf_ifunc_invoke (value);
+      *reloc_addr = value;
     }
   else
     _dl_reloc_bad_type (map, r_type, 1);

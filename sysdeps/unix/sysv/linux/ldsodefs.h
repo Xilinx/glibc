@@ -1,5 +1,5 @@
 /* Run-time dynamic linker data structures for loaded ELF shared objects.
-   Copyright (C) 2001, 2002, 2003, 2006, 2009, 2010 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_LDSODEFS_H
 
@@ -30,29 +29,17 @@
 /* We have the auxiliary vector.  */
 #define HAVE_AUX_VECTOR
 
-/* Used by static binaries to check the auxiliary vector.  */
-extern void _dl_aux_init (ElfW(auxv_t) *av) internal_function;
-
-/* Initialization which is normally done by the dynamic linker.  */
-extern void _dl_non_dynamic_init (void) internal_function;
-
 /* We can assume that the kernel always provides the AT_UID, AT_EUID,
    AT_GID, and AT_EGID values in the auxiliary vector from 2.4.0 or so on.  */
-#if __ASSUME_AT_XID
-# define HAVE_AUX_XID
-#endif
+#define HAVE_AUX_XID
 
 /* We can assume that the kernel always provides the AT_SECURE value
    in the auxiliary vector from 2.5.74 or so on.  */
-#if __ASSUME_AT_SECURE
-# define HAVE_AUX_SECURE
-#endif
+#define HAVE_AUX_SECURE
 
 /* Starting with one of the 2.4.0 pre-releases the Linux kernel passes
    up the page size information.  */
-#if __ASSUME_AT_PAGESIZE
-# define HAVE_AUX_PAGESIZE
-#endif
+#define HAVE_AUX_PAGESIZE
 
 /* Accept binaries which identify the binary as using Linux extensions.  */
 #define VALID_ELF_HEADER(hdr,exp,size)	(memcmp (hdr, exp, size) == 0	\

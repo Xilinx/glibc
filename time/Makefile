@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2003, 2004, 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for time routines
@@ -29,14 +28,14 @@ routines := offtime asctime clock ctime ctime_r difftime \
 	    tzfile getitimer setitimer			 \
 	    stime dysize timegm ftime			 \
 	    getdate strptime strptime_l			 \
-	    strftime wcsftime strftime_l wcsftime_l
+	    strftime wcsftime strftime_l wcsftime_l	 \
+	    timespec_get
 aux :=	    era alt_digit lc-time-cleanup
-distribute := datemsk
 
 tests	:= test_time clocktest tst-posixtz tst-strptime tst_wcsftime \
 	   tst-getdate tst-mktime tst-mktime2 tst-ftime_l tst-strftime \
 	   tst-mktime3 tst-strptime2 bug-asctime bug-asctime_r bug-mktime1 \
-	   tst-strptime3 bug-getdate1
+	   tst-strptime3 bug-getdate1 tst-strptime-whitespace
 
 include ../Rules
 

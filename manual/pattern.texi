@@ -2,7 +2,7 @@
 @c %MENU% Matching shell ``globs'' and regular expressions
 @chapter Pattern Matching
 
-The GNU C Library provides pattern matching facilities for two kinds of
+@Theglibc{} provides pattern matching facilities for two kinds of
 patterns: regular expressions and file-name wildcards.  The library also
 provides a facility for expanding variable and command references and
 parsing text into words in the way the shell does.
@@ -36,7 +36,7 @@ returns the nonzero value @code{FNM_NOMATCH}.  The arguments
 The argument @var{flags} is a combination of flag bits that alter the
 details of matching.  See below for a list of the defined flags.
 
-In the GNU C Library, @code{fnmatch} cannot experience an ``error''---it
+In @theglibc{}, @code{fnmatch} cannot experience an ``error''---it
 always returns an answer for whether the match succeeds.  However, other
 implementations of @code{fnmatch} might sometimes report ``errors''.
 They would do so by returning nonzero values that are not equal to
@@ -234,6 +234,12 @@ is set in the flag parameter.  The type of this field is @code{@w{int
 (*) (const char *,} @w{struct stat *)}}.
 
 This is a GNU extension.
+
+@item gl_flags
+The flags used when @code{glob} was called.  In addition, @code{GLOB_MAGCHAR}
+might be set.  See @ref{Flags for Globbing} for more details.
+
+This is a GNU extension.
 @end table
 @end deftp
 
@@ -310,6 +316,12 @@ function to get information about an object in the filesystems, not
 following symbolic links.  It is used if the @code{GLOB_ALTDIRFUNC} bit
 is set in the flag parameter.  The type of this field is @code{@w{int
 (*) (const char *,} @w{struct stat64 *)}}.
+
+This is a GNU extension.
+
+@item gl_flags
+The flags used when @code{glob} was called.  In addition, @code{GLOB_MAGCHAR}
+might be set.  See @ref{Flags for Globbing} for more details.
 
 This is a GNU extension.
 @end table
@@ -408,9 +420,11 @@ This function is a GNU extension.
 @node Flags for Globbing
 @subsection Flags for Globbing
 
-This section describes the flags that you can specify in the
+This section describes the standard flags that you can specify in the
 @var{flags} argument to @code{glob}.  Choose the flags you want,
 and combine them with the C bitwise OR operator @code{|}.
+
+Note that there are @ref{More Flags for Globbing} available as GNU extensions.
 
 @vtable @code
 @comment glob.h
@@ -481,13 +495,6 @@ matches.)
 
 @comment glob.h
 @comment POSIX.2
-@item GLOB_NOSORT
-Don't sort the file names; return them in no particular order.
-(In practice, the order will depend on the order of the entries in
-the directory.)  The only reason @emph{not} to sort is to save time.
-
-@comment glob.h
-@comment POSIX.2
 @item GLOB_NOESCAPE
 Don't treat the @samp{\} character specially in patterns.  Normally,
 @samp{\} quotes the following character, turning off its special meaning
@@ -500,6 +507,13 @@ If you use @code{GLOB_NOESCAPE}, then @samp{\} is an ordinary character.
 @code{glob} does its work by calling the function @code{fnmatch}
 repeatedly.  It handles the flag @code{GLOB_NOESCAPE} by turning on the
 @code{FNM_NOESCAPE} flag in calls to @code{fnmatch}.
+
+@comment glob.h
+@comment POSIX.2
+@item GLOB_NOSORT
+Don't sort the file names; return them in no particular order.
+(In practice, the order will depend on the order of the entries in
+the directory.)  The only reason @emph{not} to sort is to save time.
 @end vtable
 
 @node More Flags for Globbing
@@ -668,9 +682,9 @@ type @code{glob64_t} which were allocated by @code{glob64}.
 @node Regular Expressions
 @section Regular Expression Matching
 
-The GNU C library supports two interfaces for matching regular
+@Theglibc{} supports two interfaces for matching regular
 expressions.  One is the standard POSIX.2 interface, and the other is
-what the GNU system has had for many years.
+what @theglibc{} has had for many years.
 
 Both interfaces are declared in the header file @file{regex.h}.
 If you define @w{@code{_POSIX_C_SOURCE}}, then only the POSIX.2

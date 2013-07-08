@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  Sparc64 version.
-   Copyright (C) 1997-2006, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -27,11 +26,6 @@
 #include <ldsodefs.h>
 #include <sysdep.h>
 #include <dl-plt.h>
-
-#ifndef VALIDX
-# define VALIDX(tag) (DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGNUM \
-		      + DT_EXTRANUM + DT_VALTAGIDX (tag))
-#endif
 
 #define ELF64_R_TYPE_ID(info)	((info) & 0xff)
 #define ELF64_R_TYPE_DATA(info) ((info) >> 8)
@@ -125,9 +119,6 @@ elf_machine_plt_value (struct link_map *map, const Elf64_Rela *reloc,
 
 /* The SPARC never uses Elf64_Rel relocations.  */
 #define ELF_MACHINE_NO_REL 1
-
-/* The SPARC overlaps DT_RELA and DT_PLTREL.  */
-#define ELF_MACHINE_PLTREL_OVERLAP 1
 
 /* Set up the loaded object described by L so its unrelocated PLT
    entries will jump to the on-demand fixup code in dl-runtime.c.  */
@@ -265,6 +256,11 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
    The C function `_dl_start' is the real entry point;
    its return value is the user program's entry point.  */
 
+#define RTLD_GOT_ADDRESS(pic_reg, reg, symbol)	\
+	"sethi	%gdop_hix22(" #symbol "), " #reg "\n\t" \
+	"xor	" #reg ", %gdop_lox10(" #symbol "), " #reg "\n\t" \
+	"ldx	[" #pic_reg " + " #reg "], " #reg ", %gdop(" #symbol ")\n"
+
 #define __S1(x)	#x
 #define __S(x)	__S1(x)
 
@@ -289,24 +285,20 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 "1:	call	11f\n"							\
 "	 sethi	%hi(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7\n"		\
 "11:	or	%l7, %lo(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7\n"		\
-"	sethi	%hi(_dl_skip_args), %g5\n"				\
 "	add	%l7, %o7, %l7\n"					\
-"	or	%g5, %lo(_dl_skip_args), %g5\n"				\
 "   /* Save the user entry point address in %l0.  */\n"			\
 "	mov	%o0, %l0\n"						\
 "   /* See if we were run as a command with the executable file name as an\n" \
 "      extra leading argument.  If so, we must shift things around since we\n" \
 "      must keep the stack doubleword aligned.  */\n"			\
-"	ldx	[%l7 + %g5], %i0\n"					\
-"	ld	[%i0], %i0\n"						\
+	RTLD_GOT_ADDRESS(%l7, %g5, _dl_skip_args)			\
+"	ld	[%g5], %i0\n"						\
 "	brz,pt	%i0, 2f\n"						\
 "	 ldx	[%sp + " __S(STACK_BIAS) " + 22*8], %i5\n"		\
 "	/* Find out how far to shift.  */\n"				\
-"	sethi	%hi(_dl_argv), %l4\n"					\
 "	sub	%i5, %i0, %i5\n"					\
-"	or	%l4, %lo(_dl_argv), %l4\n"				\
 "	sllx	%i0, 3, %l6\n"						\
-"	ldx	[%l7 + %l4], %l4\n"					\
+	RTLD_GOT_ADDRESS(%l7, %l4, _dl_argv)				\
 "	stx	%i5, [%sp + " __S(STACK_BIAS) " + 22*8]\n"		\
 "	add	%sp, " __S(STACK_BIAS) " + 23*8, %i1\n"			\
 "	add	%i1, %l6, %i2\n"					\
@@ -334,20 +326,16 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 "	 add	%i1, 16, %i1\n"						\
 "	stx	%l5, [%l4]\n"						\
 "  /* %o0 = _dl_loaded, %o1 = argc, %o2 = argv, %o3 = envp.  */\n"	\
-"2:	sethi	%hi(_rtld_local), %o0\n"				\
-"	add	%sp, " __S(STACK_BIAS) " + 23*8, %o2\n"			\
-"	orcc	%o0, %lo(_rtld_local), %o0\n"				\
+"2:\t"	RTLD_GOT_ADDRESS(%l7, %o0, _rtld_local)				\
 "	sllx	%i5, 3, %o3\n"						\
-"	ldx	[%l7 + %o0], %o0\n"					\
+"	add	%sp, " __S(STACK_BIAS) " + 23*8, %o2\n"			\
 "	add	%o3, 8, %o3\n"						\
 "	mov	%i5, %o1\n"						\
 "	add	%o2, %o3, %o3\n"					\
 "	call	_dl_init_internal\n"					\
 "	 ldx	[%o0], %o0\n"						\
 "   /* Pass our finalizer function to the user in %g1.  */\n"		\
-"	sethi	%hi(_dl_fini), %g1\n"					\
-"	or	%g1, %lo(_dl_fini), %g1\n"				\
-"	ldx	[%l7 + %g1], %g1\n"					\
+       RTLD_GOT_ADDRESS(%l7, %g1, _dl_fini)				\
 "  /* Jump to the user's entry point and deallocate the extra stack we got.  */\n" \
 "	jmp	%l0\n"							\
 "	 add	%sp, 6*8, %sp\n"					\
@@ -391,6 +379,12 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
 
   if (__builtin_expect (r_type == R_SPARC_NONE, 0))
     return;
+
+  if (__builtin_expect (r_type == R_SPARC_SIZE64, 0))
+    {
+      *reloc_addr = sym->st_size + reloc->r_addend;
+      return;
+    }
 
 #if !defined RTLD_BOOTSTRAP || !defined HAVE_Z_COMBRELOC
   if (__builtin_expect (r_type == R_SPARC_RELATIVE, 0))
@@ -442,8 +436,7 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
 	  strtab = (const void *) D_PTR (map, l_info[DT_STRTAB]);
 	  _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-			    rtld_progname ?: "<program name unknown>",
-			    strtab + refsym->st_name);
+			    RTLD_PROGNAME, strtab + refsym->st_name);
 	}
       memcpy (reloc_addr_arg, (void *) value,
 	      MIN (sym->st_size, refsym->st_size));
@@ -459,7 +452,14 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
       break;
     case R_SPARC_JMP_IREL:
       value = ((Elf64_Addr (*) (int)) value) (GLRO(dl_hwcap));
-      /* Fall thru */
+      /* 'high' is always zero, for large PLT entries the linker
+	 emits an R_SPARC_IRELATIVE.  */
+#ifdef RESOLVE_CONFLICT_FIND_MAP
+      sparc64_fixup_plt (NULL, reloc, reloc_addr, value, 0, 0);
+#else
+      sparc64_fixup_plt (map, reloc, reloc_addr, value, 0, 0);
+#endif
+      break;
     case R_SPARC_JMP_SLOT:
 #ifdef RESOLVE_CONFLICT_FIND_MAP
       /* R_SPARC_JMP_SLOT conflicts against .plt[32768+]
@@ -558,6 +558,12 @@ elf_machine_rela (struct link_map *map, const Elf64_Rela *reloc,
 	((*(unsigned int *)reloc_addr & ~0x1fff) |
 	 (((value & 0x3ff) + ELF64_R_TYPE_DATA (reloc->r_info)) & 0x1fff));
       break;
+
+      /* ABS34 code model reloc */
+    case R_SPARC_H34:
+      *(unsigned int *) reloc_addr =
+	((*(unsigned int *)reloc_addr & 0xffc00000) |
+	 ((value >> 12) & 0x3fffff));
 
       /* MEDMID code model relocs */
     case R_SPARC_H44:

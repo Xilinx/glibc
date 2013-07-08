@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU C Library.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -41,7 +40,7 @@ ENTRY (syscall)
 	cfi_adjust_cfa_offset (160)
 	stg	%r1,0(%r15)	   /* Store back chain.	 */
 	stg	%r0,8(%r15)	   /* Store eos.  */
-	
+
 	lgr    %r1,%r2		   /* Move syscall number.  */
 	lgr    %r2,%r3		   /* First parameter.	*/
 	lgr    %r3,%r4		   /* Second parameter.	 */

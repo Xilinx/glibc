@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-1999, 2000-2002, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This header provides no interface for a user to the internals of
    the gconv implementation in the libc.  Therefore there is no use
@@ -56,7 +55,8 @@ enum
 enum
 {
   __GCONV_IS_LAST = 0x0001,
-  __GCONV_IGNORE_ERRORS = 0x0002
+  __GCONV_IGNORE_ERRORS = 0x0002,
+  __GCONV_SWAP = 0x0004
 };
 
 
@@ -69,7 +69,7 @@ struct __gconv_trans_data;
 
 /* Type of a conversion function.  */
 typedef int (*__gconv_fct) (struct __gconv_step *, struct __gconv_step_data *,
-			    __const unsigned char **, __const unsigned char *,
+			    const unsigned char **, const unsigned char *,
 			    unsigned char **, size_t *, int, int);
 
 /* Type of a specialized conversion function for a single byte to INTERNAL.  */
@@ -83,18 +83,18 @@ typedef void (*__gconv_end_fct) (struct __gconv_step *);
 /* Type of a transliteration/transscription function.  */
 typedef int (*__gconv_trans_fct) (struct __gconv_step *,
 				  struct __gconv_step_data *, void *,
-				  __const unsigned char *,
-				  __const unsigned char **,
-				  __const unsigned char *, unsigned char **,
+				  const unsigned char *,
+				  const unsigned char **,
+				  const unsigned char *, unsigned char **,
 				  size_t *);
 
 /* Function to call to provide transliteration module with context.  */
-typedef int (*__gconv_trans_context_fct) (void *, __const unsigned char *,
-					  __const unsigned char *,
+typedef int (*__gconv_trans_context_fct) (void *, const unsigned char *,
+					  const unsigned char *,
 					  unsigned char *, unsigned char *);
 
 /* Function to query module about supported encoded character sets.  */
-typedef int (*__gconv_trans_query_fct) (__const char *, __const char ***,
+typedef int (*__gconv_trans_query_fct) (const char *, const char ***,
 					size_t *);
 
 /* Constructor and destructor for local data for transliteration.  */
@@ -116,7 +116,7 @@ struct __gconv_trans_data
 struct __gconv_step
 {
   struct __gconv_loaded_object *__shlib_handle;
-  __const char *__modname;
+  const char *__modname;
 
   int __counter;
 

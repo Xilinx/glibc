@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <setjmp.h>
 #include <stdlib.h>
@@ -49,7 +48,7 @@ symbol_version (__novmx_siglongjmp,siglongjmp,GLIBC_2.3);
 symbol_version (__novmx_longjmp,longjmp,GLIBC_2.0);
 symbol_version (__novmx_siglongjmp,siglongjmp,GLIBC_2.0);
 # endif
-#endif /* defined SHARED && SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_3_4))  */ 
+#endif /* defined SHARED && SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_3_4))  */
 
 void
 __vmx_longjmp (jmp_buf env, int val)
@@ -65,4 +64,3 @@ __vmx_siglongjmp (jmp_buf env, int val)
 
 versioned_symbol (libc, __vmx_longjmp, longjmp, GLIBC_2_3_4);
 versioned_symbol (libc, __vmx_siglongjmp, siglongjmp, GLIBC_2_3_4);
-

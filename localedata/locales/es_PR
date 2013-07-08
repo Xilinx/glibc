@@ -14,7 +14,7 @@ escape_char  /
 LC_IDENTIFICATION
 title      "Spanish locale for Puerto Rico"
 source     "Free Software Foundation, Inc."
-address    "59 Temple Place - Suite 330, Boston, MA 02111-1307, USA"
+address    "http:////www.gnu.org//software//libc//"
 contact    ""
 email      "bug-glibc-locales@gnu.org"
 tel        ""
@@ -69,7 +69,9 @@ n_sign_posn          1
 END LC_MONETARY
 
 LC_NUMERIC
-copy "es_ES"
+decimal_point        "<U002E>"
+thousands_sep        "<U002C>"
+grouping             3;3
 END LC_NUMERIC
 
 LC_TIME

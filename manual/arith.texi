@@ -40,9 +40,9 @@ this is that a program often needs to be written for a particular range
 of integers, and sometimes must be written for a particular size of
 storage, regardless of what machine the program runs on.
 
-To address this problem, the GNU C library contains C type definitions
+To address this problem, @theglibc{} contains C type definitions
 you can use to declare integers that meet your exact needs.  Because the
-GNU C library header files are customized to a specific machine, your
+@glibcadj{} header files are customized to a specific machine, your
 program source code doesn't have to be.
 
 These @code{typedef}s are in @file{stdint.h}.
@@ -105,7 +105,7 @@ of the integer.
 @item uintmax_t
 @end itemize
 
-The GNU C library also provides macros that tell you the maximum and
+@Theglibc{} also provides macros that tell you the maximum and
 minimum possible values for each integer data type.  The macro names
 follow these examples: @code{INT32_MAX}, @code{UINT8_MAX},
 @code{INT_FAST32_MIN}, @code{INT_LEAST64_MIN}, @code{UINTMAX_MAX},
@@ -387,8 +387,16 @@ to
 @end smallexample
 @end deftypefn
 
+@comment math.h
+@comment GNU
+@deftypefn {Macro} int issignaling (@emph{float-type} @var{x})
+This macro returns a nonzero value if @var{x} is a signaling NaN
+(sNaN).  It is based on draft TS 18661 and currently enabled as a GNU
+extension.
+@end deftypefn
+
 Another set of floating-point classification functions was provided by
-BSD.  The GNU C library also supports these functions; however, we
+BSD.  @Theglibc{} also supports these functions; however, we
 recommend that you use the ISO C99 macros in new code.  Those are standard
 and will be available more widely.  Also, since they are macros, you do
 not have to worry about the type of their argument.
@@ -657,9 +665,7 @@ such as by defining @code{_GNU_SOURCE}, and then you must include
 @w{IEEE 754} also allows for another unusual value: negative zero.  This
 value is produced when you divide a positive number by negative
 infinity, or when a negative result is smaller than the limits of
-representation.  Negative zero behaves identically to zero in all
-calculations, unless you explicitly test the sign bit with
-@code{signbit} or @code{copysign}.
+representation.
 
 @node Status bit operations
 @subsection Examining the FPU status word
@@ -926,9 +932,7 @@ If a result is too small to be represented as a denormalized number, it
 is rounded to zero.  However, the sign of the result is preserved; if
 the calculation was negative, the result is @dfn{negative zero}.
 Negative zero can also result from some operations on infinity, such as
-@math{4/-@infinity{}}.  Negative zero behaves identically to zero except
-when the @code{copysign} or @code{signbit} functions are used to check
-the sign bit directly.
+@math{4/-@infinity{}}.
 
 At any time one of the above four rounding modes is selected.  You can
 find out which one with this function:
@@ -1023,7 +1027,7 @@ Implementation defined macros with names starting with @code{FE_} and
 having type @code{fenv_t *}.
 
 @vindex FE_NOMASK_ENV
-If possible, the GNU C Library defines a macro @code{FE_NOMASK_ENV}
+If possible, @theglibc{} defines a macro @code{FE_NOMASK_ENV}
 which represents an environment where every exception raised causes a
 trap to occur.  You can test for this macro using @code{#ifdef}.  It is
 only defined if @code{_GNU_SOURCE} is defined.
@@ -1068,7 +1072,7 @@ occur, you can use the following two functions.
 @comment GNU
 @deftypefun int feenableexcept (int @var{excepts})
 This functions enables traps for each of the exceptions as indicated by
-the parameter @var{except}.  The individual excepetions are described in
+the parameter @var{except}.  The individual exceptions are described in
 @ref{Status bit operations}.  Only the specified exceptions are
 enabled, the status of the other exceptions is not changed.
 
@@ -1080,7 +1084,7 @@ operation was successful, @code{-1} otherwise.
 @comment GNU
 @deftypefun int fedisableexcept (int @var{excepts})
 This functions disables traps for each of the exceptions as indicated by
-the parameter @var{except}.  The individual excepetions are described in
+the parameter @var{except}.  The individual exceptions are described in
 @ref{Status bit operations}.  Only the specified exceptions are
 disabled, the status of the other exceptions is not changed.
 
@@ -1090,7 +1094,7 @@ operation was successful, @code{-1} otherwise.
 
 @comment fenv.h
 @comment GNU
-@deftypefun int fegetexcept (int @var{excepts})
+@deftypefun int fegetexcept (void)
 The function returns a bitmask of all currently enabled exceptions.  It
 returns @code{-1} in case of failure.
 @end deftypefun
@@ -1217,8 +1221,8 @@ These functions are used to split the number @var{value}
 into a normalized fraction and an exponent.
 
 If the argument @var{value} is not zero, the return value is @var{value}
-times a power of two, and is always in the range 1/2 (inclusive) to 1
-(exclusive).  The corresponding exponent is stored in
+times a power of two, and its magnitude is always in the range 1/2
+(inclusive) to 1 (exclusive).  The corresponding exponent is stored in
 @code{*@var{exponent}}; the return value multiplied by 2 raised to this
 exponent equals the original number @var{value}.
 
@@ -1252,51 +1256,51 @@ equivalent to those of @code{ldexp} and @code{frexp}.  See also the
 
 @comment math.h
 @comment BSD
-@deftypefun double scalb (double @var{value}, int @var{exponent})
+@deftypefun double scalb (double @var{value}, double @var{exponent})
 @comment math.h
 @comment BSD
-@deftypefunx float scalbf (float @var{value}, int @var{exponent})
+@deftypefunx float scalbf (float @var{value}, float @var{exponent})
 @comment math.h
 @comment BSD
-@deftypefunx {long double} scalbl (long double @var{value}, int @var{exponent})
+@deftypefunx {long double} scalbl (long double @var{value}, long double @var{exponent})
 The @code{scalb} function is the BSD name for @code{ldexp}.
 @end deftypefun
 
 @comment math.h
 @comment BSD
-@deftypefun {long long int} scalbn (double @var{x}, int n)
+@deftypefun double scalbn (double @var{x}, int @var{n})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} scalbnf (float @var{x}, int n)
+@deftypefunx float scalbnf (float @var{x}, int @var{n})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} scalbnl (long double @var{x}, int n)
+@deftypefunx {long double} scalbnl (long double @var{x}, int @var{n})
 @code{scalbn} is identical to @code{scalb}, except that the exponent
 @var{n} is an @code{int} instead of a floating-point number.
 @end deftypefun
 
 @comment math.h
 @comment BSD
-@deftypefun {long long int} scalbln (double @var{x}, long int n)
+@deftypefun double scalbln (double @var{x}, long int @var{n})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} scalblnf (float @var{x}, long int n)
+@deftypefunx float scalblnf (float @var{x}, long int @var{n})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} scalblnl (long double @var{x}, long int n)
+@deftypefunx {long double} scalblnl (long double @var{x}, long int @var{n})
 @code{scalbln} is identical to @code{scalb}, except that the exponent
 @var{n} is a @code{long int} instead of a floating-point number.
 @end deftypefun
 
 @comment math.h
 @comment BSD
-@deftypefun {long long int} significand (double @var{x})
+@deftypefun double significand (double @var{x})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} significandf (float @var{x})
+@deftypefunx float significandf (float @var{x})
 @comment math.h
 @comment BSD
-@deftypefunx {long long int} significandl (long double @var{x})
+@deftypefunx {long double} significandl (long double @var{x})
 @code{significand} returns the mantissa of @var{x} scaled to the range
 @math{[1, 2)}.
 It is equivalent to @w{@code{scalb (@var{x}, (double) -ilogb (@var{x}))}}.
@@ -1817,7 +1821,7 @@ On processors which do not implement multiply-add in hardware,
 @file{math.h} defines the symbols @code{FP_FAST_FMA},
 @code{FP_FAST_FMAF}, and @code{FP_FAST_FMAL} when the corresponding
 version of @code{fma} is no slower than the expression @samp{x*y + z}.
-In the GNU C library, this always means the operation is implemented in
+In @theglibc{}, this always means the operation is implemented in
 hardware.
 @end deftypefun
 
@@ -1970,10 +1974,10 @@ negated imaginary part.  In other words, @samp{conj(a + bi) = a + -bi}.
 These functions return the argument of the complex number @var{z}.
 The argument of a complex number is the angle in the complex plane
 between the positive real axis and a line passing through zero and the
-number.  This angle is measured in the usual fashion and ranges from @math{0}
-to @math{2@pi{}}.
+number.  This angle is measured in the usual fashion and ranges from
+@math{-@pi{}} to @math{@pi{}}.
 
-@code{carg} has a branch cut along the positive real axis.
+@code{carg} has a branch cut along the negative real axis.
 @end deftypefun
 
 @comment complex.h
@@ -2135,7 +2139,7 @@ larger range.
 
 If the string has valid syntax for an integer but the value is not
 representable because of overflow, @code{strtoll} returns either
-@code{LONG_LONG_MAX} or @code{LONG_LONG_MIN} (@pxref{Range of Type}), as
+@code{LLONG_MAX} or @code{LLONG_MIN} (@pxref{Range of Type}), as
 appropriate for the sign of the value.  It also sets @code{errno} to
 @code{ERANGE} to indicate there was overflow.
 
@@ -2449,7 +2453,7 @@ is provided mostly for compatibility with existing code; using
 @code{strtod} is more robust.
 @end deftypefun
 
-The GNU C library also provides @samp{_l} versions of these functions,
+@Theglibc{} also provides @samp{_l} versions of these functions,
 which take an additional argument, the locale to use in conversion.
 @xref{Parsing of Integers}.
 
@@ -2457,10 +2461,10 @@ which take an additional argument, the locale to use in conversion.
 @section Old-fashioned System V number-to-string functions
 
 The old @w{System V} C library provided three functions to convert
-numbers to strings, with unusual and hard-to-use semantics.  The GNU C
-library also provides these functions and some natural extensions.
+numbers to strings, with unusual and hard-to-use semantics.  @Theglibc{}
+also provides these functions and some natural extensions.
 
-These functions are only available in glibc and on systems descended
+These functions are only available in @theglibc{} and on systems descended
 from AT&T Unix.  Therefore, unless these functions do precisely what you
 need, it is better to use @code{sprintf}, which is standard.
 
@@ -2520,7 +2524,7 @@ If @var{ndigit} decimal digits would exceed the precision of a
 @code{double} it is reduced to a system-specific value.
 @end deftypefun
 
-As extensions, the GNU C library provides versions of these three
+As extensions, @theglibc{} provides versions of these three
 functions that take @code{long double} arguments.
 
 @comment stdlib.h
@@ -2551,7 +2555,7 @@ restricted by the precision of a @code{long double}.
 @cindex gcvt_r
 The @code{ecvt} and @code{fcvt} functions, and their @code{long double}
 equivalents, all return a string located in a static buffer which is
-overwritten by the next call to the function.  The GNU C library
+overwritten by the next call to the function.  @Theglibc{}
 provides another set of extended functions which write the converted
 string into a user-supplied buffer.  These have the conventional
 @code{_r} suffix.

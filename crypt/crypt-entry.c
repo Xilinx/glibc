@@ -1,7 +1,7 @@
 /*
  * UFC-crypt: ultra fast crypt(3) implementation
  *
- * Copyright (C) 1991,1992,1993,1996,1997,2007 Free Software Foundation, Inc.
+ * Copyright (C) 1991-2013 Free Software Foundation, Inc.
  *
  * The GNU C Library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,9 +14,8 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with the GNU C Library; if not, write to the Free
- * Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- * 02111-1307 USA.
+ * License along with the GNU C Library; if not, see
+ * <http://www.gnu.org/licenses/>.
  *
  * crypt entry points
  *
@@ -28,6 +27,8 @@
 #include <stdio.h>
 #endif
 #include <string.h>
+#include <errno.h>
+#include <fips-private.h>
 
 #ifndef STATIC
 #define STATIC static
@@ -46,7 +47,6 @@
 #include "crypt-private.h"
 
 /* Prototypes for local functions.  */
-#if __STDC__ - 0
 #ifndef __GNU_LIBRARY__
 void _ufc_clearmem (char *start, int cnt);
 #else
@@ -61,7 +61,6 @@ extern char *__sha256_crypt (const char *key, const char *salt);
 extern char *__sha512_crypt_r (const char *key, const char *salt,
 			       char *buffer, int buflen);
 extern char *__sha512_crypt (const char *key, const char *salt);
-#endif
 
 /* Define our magic string to mark salt for MD5 encryption
    replacement.  This is meant to be the same as for other MD5 based
@@ -94,8 +93,16 @@ __crypt_r (key, salt, data)
 #ifdef _LIBC
   /* Try to find out whether we have to use MD5 encryption replacement.  */
   if (strncmp (md5_salt_prefix, salt, sizeof (md5_salt_prefix) - 1) == 0)
-    return __md5_crypt_r (key, salt, (char *) data,
-			  sizeof (struct crypt_data));
+    {
+      /* FIPS rules out MD5 password encryption.  */
+      if (fips_enabled_p ())
+	{
+	  __set_errno (EPERM);
+	  return NULL;
+	}
+      return __md5_crypt_r (key, salt, (char *) data,
+			    sizeof (struct crypt_data));
+    }
 
   /* Try to find out whether we have to use SHA256 encryption replacement.  */
   if (strncmp (sha256_salt_prefix, salt, sizeof (sha256_salt_prefix) - 1) == 0)
@@ -111,7 +118,18 @@ __crypt_r (key, salt, data)
   /*
    * Hack DES tables according to salt
    */
-  _ufc_setup_salt_r (salt, data);
+  if (!_ufc_setup_salt_r (salt, data))
+    {
+      __set_errno (EINVAL);
+      return NULL;
+    }
+
+  /* FIPS rules out DES password encryption.  */
+  if (fips_enabled_p ())
+    {
+      __set_errno (EPERM);
+      return NULL;
+    }
 
   /*
    * Setup key schedule
@@ -146,7 +164,9 @@ crypt (key, salt)
 {
 #ifdef _LIBC
   /* Try to find out whether we have to use MD5 encryption replacement.  */
-  if (strncmp (md5_salt_prefix, salt, sizeof (md5_salt_prefix) - 1) == 0)
+  if (strncmp (md5_salt_prefix, salt, sizeof (md5_salt_prefix) - 1) == 0
+      /* Let __crypt_r deal with the error code if FIPS is enabled.  */
+      && !fips_enabled_p ())
     return __md5_crypt (key, salt);
 
   /* Try to find out whether we have to use SHA256 encryption replacement.  */

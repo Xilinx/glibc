@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2003, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <unistd.h>
@@ -23,46 +22,13 @@
 #include <sys/syscall.h>
 
 #include <linux/posix_types.h>
-#include <kernel-features.h>
 
-#ifdef __NR_fchown32
-# if __ASSUME_32BITUIDS == 0
-/* This variable is shared with all files that need to check for 32bit
-   uids.  */
-extern int __libc_missing_32bit_uids;
-# endif
-#endif /* __NR_fchown32 */
+/* Consider moving to syscalls.list.  */
 
 int
 __fchown (int fd, uid_t owner, gid_t group)
 {
-#if  __ASSUME_32BITUIDS > 0
   return INLINE_SYSCALL (fchown32, 3, fd, owner, group);
-#else
-# ifdef __NR_fchown32
-  if (__libc_missing_32bit_uids <= 0)
-    {
-      int result;
-      int saved_errno = errno;
-
-      result = INLINE_SYSCALL (fchown32, 3, fd, owner, group);
-      if (result == 0 || errno != ENOSYS)
-	return result;
-
-      __set_errno (saved_errno);
-      __libc_missing_32bit_uids = 1;
-    }
-# endif /* __NR_fchown32 */
-
-  if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
-      || ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
-    {
-      __set_errno (EINVAL);
-      return -1;
-    }
-
-  return INLINE_SYSCALL (fchown, 3, fd, owner, group);
-#endif
 }
 
 weak_alias (__fchown, fchown)

@@ -25,18 +25,12 @@ static char rcsid[] = "$NetBSD: $";
  *   Special cases:
  */
 
-#include "math.h"
+#include <math.h>
 #include <math_private.h>
 #include <math_ldbl_opt.h>
 #include <float.h>
 
-#ifdef __STDC__
-	double __nexttoward(double x, long double y)
-#else
-	double __nexttoward(x,y)
-	double x;
-	long double y;
-#endif
+double __nexttoward(double x, long double y)
 {
 	int32_t hx,ix;
 	int64_t hy,iy;
@@ -51,7 +45,7 @@ static char rcsid[] = "$NetBSD: $";
 
 	if(((ix>=0x7ff00000)&&((ix-0x7ff00000)|lx)!=0) ||   /* x is nan */
 	   ((iy>=0x7ff0000000000000LL)&&((iy-0x7ff0000000000000LL)|uly)!=0))
-	   						    /* y is nan */
+							    /* y is nan */
 	   return x+y;
 	if((long double) x==y) return y;	/* x=y, return y */
 	if((ix|lx)==0) {			/* x == 0 */
@@ -63,11 +57,7 @@ static char rcsid[] = "$NetBSD: $";
 	    return x;
 	}
 	if(hx>=0) {				/* x > 0 */
-	    if (hy<0||(ix>>20)>(iy>>52)
-		|| ((ix>>20)==(iy>>52)
-		    && (((((int64_t)hx)<<32)|(lx))>(hy&0x000fffffffffffffLL)
-			|| (((((int64_t)hx)<<32)|(lx))==(hy&0x000fffffffffffffLL)
-			    )))) {	/* x > y, x -= ulp */
+	    if (x > y) {			/* x > 0 */
 		if(lx==0) hx -= 1;
 		lx -= 1;
 	    } else {				/* x < y, x += ulp */
@@ -75,11 +65,7 @@ static char rcsid[] = "$NetBSD: $";
 		if(lx==0) hx += 1;
 	    }
 	} else {				/* x < 0 */
-	    if (hy>=0||(ix>>20)>(iy>>52)
-		|| ((ix>>20)==(iy>>52)
-		    && (((((int64_t)hx)<<32)|(lx))>(hy&0x000fffffffffffffLL)
-			|| (((((int64_t)hx)<<32)|(lx))==(hy&0x000fffffffffffffLL)
-			   )))) {	/* x < y, x -= ulp */
+	    if (x < y) {			/* x < 0 */
 		if(lx==0) hx -= 1;
 		lx -= 1;
 	    } else {				/* x > y, x += ulp */

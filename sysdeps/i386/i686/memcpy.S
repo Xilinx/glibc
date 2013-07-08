@@ -1,7 +1,7 @@
 /* Copy memory block and return pointer to beginning of destination block
    For Intel 80x86, x>=6.
    This file is part of the GNU C Library.
-   Copyright (C) 1999, 2000, 2003, 2004, 2008 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,20 +15,17 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE		/* no space for saved regs */
+#define PARMS	4		/* no space for saved regs */
 #define RTN	PARMS
-#define DEST	RTN+RTN_SIZE
-#define SRC	DEST+PTR_SIZE
-#define LEN	SRC+PTR_SIZE
+#define DEST	RTN
+#define SRC	DEST+4
+#define LEN	SRC+4
 
 	.text
 #if defined PIC && !defined NOT_IN_libc
@@ -38,8 +35,7 @@ ENTRY_CHK (__memcpy_chk)
 	jb	HIDDEN_JUMPTARGET (__chk_fail)
 END_CHK (__memcpy_chk)
 #endif
-ENTRY (BP_SYM (memcpy))
-	ENTER
+ENTRY (memcpy)
 
 	movl	%edi, %eax
 	movl	DEST(%esp), %edi
@@ -82,10 +78,8 @@ ENTRY (BP_SYM (memcpy))
 .Lend:	movl	%eax, %edi
 	movl	%edx, %esi
 	movl	DEST(%esp), %eax
-	RETURN_BOUNDED_POINTER (DEST(%esp))
 
-	LEAVE
-	RET_PTR
+	ret
 
 	/* When we come here the pointers do not have the same
 	   alignment or the length is too short.  No need to optimize for
@@ -100,5 +94,5 @@ ENTRY (BP_SYM (memcpy))
 2:	rep
 	movsl
 	jmp	.Lend
-END (BP_SYM (memcpy))
+END (memcpy)
 libc_hidden_builtin_def (memcpy)

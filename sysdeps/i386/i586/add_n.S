@@ -1,6 +1,6 @@
 /* Pentium __mpn_add_n -- Add two limb vectors of the same length > 0 and store
    sum in a third limb vector.
-   Copyright (C) 1992,94,95,96,97,98,2000,2005 Free Software Foundation, Inc.
+   Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU MP Library.
 
    The GNU MP Library is free software; you can redistribute it and/or modify
@@ -14,24 +14,20 @@
    License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA. */
+   along with the GNU MP Library; see the file COPYING.LIB.  If not,
+   see <http://www.gnu.org/licenses/>.  */
 
 #include "sysdep.h"
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+16		/* space for 4 saved regs */
+#define PARMS	4+16		/* space for 4 saved regs */
 #define RES	PARMS
-#define S1	RES+PTR_SIZE
-#define S2	S1+PTR_SIZE
-#define SIZE	S2+PTR_SIZE
+#define S1	RES+4
+#define S2	S1+4
+#define SIZE	S2+4
 
 	.text
-ENTRY (BP_SYM (__mpn_add_n))
-	ENTER
+ENTRY (__mpn_add_n)
 
 	pushl	%edi
 	cfi_adjust_cfa_offset (4)
@@ -49,13 +45,6 @@ ENTRY (BP_SYM (__mpn_add_n))
 	movl	S2(%esp),%ebx
 	cfi_rel_offset (ebx, 0)
 	movl	SIZE(%esp),%ecx
-#if __BOUNDED_POINTERS__
-	shll	$2, %ecx		/* convert limbs to bytes */
-	CHECK_BOUNDS_BOTH_WIDE (%edi, RES(%esp), %ecx)
-	CHECK_BOUNDS_BOTH_WIDE (%esi, S1(%esp), %ecx)
-	CHECK_BOUNDS_BOTH_WIDE (%ebx, S2(%esp), %ecx)
-	shrl	$2, %ecx
-#endif
 	movl	(%ebx),%ebp
 	cfi_rel_offset (ebp, 4)
 
@@ -150,6 +139,5 @@ L(end2):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
 	ret
-END (BP_SYM (__mpn_add_n))
+END (__mpn_add_n)

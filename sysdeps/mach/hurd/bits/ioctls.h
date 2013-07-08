@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,93,96,97,98,99,2001,2007 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef __BITS_IOCTLS_H
 #define __BITS_IOCTLS_H	1
@@ -142,7 +141,7 @@ enum __ioctl_datum { IOC_8, IOC_16, IOC_32, IOC_64 };
 
 /* Construct an individual type field for TYPE.  */
 #define _IOTS(type)	\
-  (sizeof (type) == 8 ? IOC_64 : (sizeof (type) >> 1))
+  (sizeof (type) == 8 ? IOC_64 : (enum __ioctl_datum) (sizeof (type) >> 1))
 
 /* Construct a type information field for
    a single argument of the scalar TYPE.  */
@@ -158,6 +157,7 @@ enum __ioctl_datum { IOC_8, IOC_16, IOC_32, IOC_64 };
    _IOT_foobar is defined either in this file,
    or where struct foobar is defined.  */
 #define	_IO(g, n)	_IOC (IOC_VOID, (g), (n), 0)
+#define	_IOIW(g, n, t)	_IOC (IOC_VOID, (g), (n), _IOC_ENCODE_TYPE (t))
 #define	_IOR(g, n, t)	_IOC (IOC_OUT, (g), (n), _IOC_ENCODE_TYPE (t))
 #define	_IOW(g, n, t)	_IOC (IOC_IN, (g), (n), _IOC_ENCODE_TYPE (t))
 #define	_IOWR(g, n, t)	_IOC (IOC_INOUT, (g), (n), _IOC_ENCODE_TYPE (t))

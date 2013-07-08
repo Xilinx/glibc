@@ -1,5 +1,5 @@
 /* Bitwise manipulation over float. Function prototypes.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Adhemerval Zanella <azanella@br.ibm.com>, 2011
 
@@ -14,14 +14,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _FLOAT_BITWISE_
 #define _FLOAT_BITWISE_ 1
 
-#include "math_private.h"
+#include <math_private.h>
 
 /* Returns (int)(num & 0x7FFFFFF0 == value) */
 static inline

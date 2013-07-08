@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* __ieee754_powl(x,y) return x**y
  *
@@ -64,8 +64,8 @@
  *
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double bp[] = {
   1.0L,
@@ -88,8 +88,8 @@ static const long double zero = 0.0L,
   one = 1.0L,
   two = 2.0L,
   two113 = 1.0384593717069655257060992658440192E34L,
-  huge = 1.0e3000L,
-  tiny = 1.0e-3000L;
+  huge = 1.0e300L,
+  tiny = 1.0e-300L;
 
 /* 3/2 log x = 3 z + z^3 + z^3 (z^2 R(z^2))
    z = (x-1)/(x+1)
@@ -149,7 +149,7 @@ __ieee754_powl (long double x, long double y)
 {
   long double z, ax, z_h, z_l, p_h, p_l;
   long double y1, t1, t2, r, s, t, u, v, w;
-  long double s2, s_h, s_l, t_h, t_l;
+  long double s2, s_h, s_l, t_h, t_l, ay;
   int32_t i, j, k, yisint, n;
   u_int32_t ix, iy;
   int32_t hx, hy;
@@ -284,6 +284,10 @@ __ieee754_powl (long double x, long double y)
 	return (hy > 0) ? huge * huge : tiny * tiny;
     }
 
+  ay = y > 0 ? y : -y;
+  if (ay < 0x1p-117)
+    y = y < 0 ? -0x1p-117 : 0x1p-117;
+
   n = 0;
   /* take care subnormal number */
   if (ix < 0x00100000)
@@ -320,13 +324,13 @@ __ieee754_powl (long double x, long double y)
 
   o.value = s_h;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   s_h = o.value;
   /* t_h=ax+bp[k] High */
   t_h = ax + bp[k];
   o.value = t_h;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   t_h = o.value;
   t_l = ax - (t_h - bp[k]);
   s_l = v * ((u - s_h * t_h) - s_h * t_l);
@@ -340,7 +344,7 @@ __ieee754_powl (long double x, long double y)
   t_h = 3.0 + s2 + r;
   o.value = t_h;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   t_h = o.value;
   t_l = r - ((t_h - 3.0) - s2);
   /* u+v = s*(1+...) */
@@ -350,7 +354,7 @@ __ieee754_powl (long double x, long double y)
   p_h = u + v;
   o.value = p_h;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   p_h = o.value;
   p_l = v - (p_h - u);
   z_h = cp_h * p_h;		/* cp_h+cp_l = 2/(3*log2) */
@@ -360,7 +364,7 @@ __ieee754_powl (long double x, long double y)
   t1 = (((z_h + z_l) + dp_h[k]) + t);
   o.value = t1;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   t1 = o.value;
   t2 = z_l - (((t1 - t) - dp_h[k]) - z_h);
 
@@ -373,7 +377,7 @@ __ieee754_powl (long double x, long double y)
   y1 = y;
   o.value = y1;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   y1 = o.value;
   p_l = (y - y1) * t1 + y * t2;
   p_h = y1 * t1;
@@ -417,7 +421,7 @@ __ieee754_powl (long double x, long double y)
   t = p_l + p_h;
   o.value = t;
   o.parts32.w3 = 0;
-  o.parts32.w2 &= 0xffff8000;
+  o.parts32.w2 = 0;
   t = o.value;
   u = t * lg2_h;
   v = (p_l - (t - p_h)) * lg2 + t * lg2_l;

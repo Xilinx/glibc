@@ -1,5 +1,5 @@
 /* Atomic operations.  sparcv9 version.
-   Copyright (C) 2003, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2003.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdint.h>
 
@@ -56,10 +55,16 @@ typedef uintmax_t uatomic_max_t;
 ({									      \
   __typeof (*(mem)) __acev_tmp;						      \
   __typeof (mem) __acev_mem = (mem);					      \
-  __asm __volatile ("cas [%4], %2, %0"					      \
-		    : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
-		    : "r" (oldval), "m" (*__acev_mem), "r" (__acev_mem),      \
-		      "0" (newval) : "memory");				      \
+  if (__builtin_constant_p (oldval) && (oldval) == 0)			      \
+    __asm __volatile ("cas [%3], %%g0, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "m" (*__acev_mem), "r" (__acev_mem),		      \
+		        "0" (newval) : "memory");			      \
+  else									      \
+    __asm __volatile ("cas [%4], %2, %0"				      \
+		      : "=r" (__acev_tmp), "=m" (*__acev_mem)		      \
+		      : "r" (oldval), "m" (*__acev_mem), "r" (__acev_mem),    \
+		        "0" (newval) : "memory");			      \
   __acev_tmp; })
 
 /* This can be implemented if needed.  */

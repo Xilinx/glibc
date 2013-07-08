@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Basic eight-word fraction declaration and manipulation.
-   Copyright (C) 1997,1998,1999,2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz) and
@@ -26,9 +26,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* We need just a few things from here for op-4, if we ever need some
    other macros, they can be added. */
@@ -78,7 +77,7 @@
   } while (0)
 
 
-/* Right shift with sticky-lsb. 
+/* Right shift with sticky-lsb.
  * What this actually means is that we do a standard right-shift,
  * but that if any of the bits that fall off the right hand side
  * were one then we always set the LSbit.
@@ -108,4 +107,3 @@
     /* don't fix the LSB until the very end when we're sure f[0] is stable */	\
     X##_f[0] |= (_s != 0);						\
   } while (0)
-

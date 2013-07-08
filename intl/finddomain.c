@@ -1,6 +1,5 @@
 /* Handle list of needed message catalogs
-   Copyright (C) 1995-1999, 2000, 2001, 2002, 2004, 2006, 2007
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@gnu.org>, 1995.
 
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -172,7 +170,7 @@ out:
 /* This is called from iconv/gconv_db.c's free_mem, as locales must
    be freed before freeing gconv steps arrays.  */
 void __libc_freeres_fn_section
-_nl_finddomain_subfreeres ()
+_nl_finddomain_subfreeres (void)
 {
   struct loaded_l10nfile *runp = _nl_loaded_domains;
 

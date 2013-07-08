@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
@@ -27,32 +26,8 @@
    and the process ID of the new process to the old process.  */
 
 ENTRY (__vfork)
-
-#ifdef __NR_vfork
-
 	DO_CALL (SYS_ify (vfork))
-
-# ifdef __ASSUME_VFORK_SYSCALL
 	PSEUDO_RET
-# else
-	bnslr+
-	/* Check if vfork syscall is known at all.  */
-	cmpwi	r3,ENOSYS
-	bne-	.Lsyscall_error
-
-# endif
-#endif
-
-#ifndef __ASSUME_VFORK_SYSCALL
-	/* If we don't have vfork, fork is close enough.  */
-
-	DO_CALL (SYS_ify (fork))
-	bnslr+
-
-.Lsyscall_error:
-	b	__syscall_error@local
-#endif
-
 PSEUDO_END (__vfork)
 libc_hidden_def (__vfork)
 

@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Definitions for IEEE Quad Precision.
-   Copyright (C) 1997,1998,1999,2006,2007 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz),
@@ -27,9 +27,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if _FP_W_TYPE_SIZE < 32
 #error "Here's a nickel, kid. Go buy yourself a real computer."
@@ -37,8 +36,10 @@
 
 #if _FP_W_TYPE_SIZE < 64
 #define _FP_FRACTBITS_Q         (4*_FP_W_TYPE_SIZE)
+#define _FP_FRACTBITS_DW_Q	(8*_FP_W_TYPE_SIZE)
 #else
 #define _FP_FRACTBITS_Q		(2*_FP_W_TYPE_SIZE)
+#define _FP_FRACTBITS_DW_Q	(4*_FP_W_TYPE_SIZE)
 #endif
 
 #define _FP_FRACBITS_Q		113
@@ -60,6 +61,11 @@
 #define _FP_OVERFLOW_Q		\
 	((_FP_W_TYPE)1 << (_FP_WFRACBITS_Q % _FP_W_TYPE_SIZE))
 
+#define _FP_WFRACBITS_DW_Q	(2 * _FP_WFRACBITS_Q)
+#define _FP_WFRACXBITS_DW_Q	(_FP_FRACTBITS_DW_Q - _FP_WFRACBITS_DW_Q)
+#define _FP_HIGHBIT_DW_Q	\
+  ((_FP_W_TYPE)1 << (_FP_WFRACBITS_DW_Q - 1) % _FP_W_TYPE_SIZE)
+
 typedef float TFtype __attribute__((mode(TF)));
 
 #if _FP_W_TYPE_SIZE < 64
@@ -67,7 +73,7 @@ typedef float TFtype __attribute__((mode(TF)));
 union _FP_UNION_Q
 {
    TFtype flt;
-   struct 
+   struct _FP_STRUCT_LAYOUT
    {
 #if __BYTE_ORDER == __BIG_ENDIAN
       unsigned sign : 1;
@@ -156,6 +162,7 @@ union _FP_UNION_Q
 #define FP_DIV_Q(R,X,Y)			_FP_DIV(Q,4,R,X,Y)
 #define FP_SQRT_Q(R,X)			_FP_SQRT(Q,4,R,X)
 #define _FP_SQRT_MEAT_Q(R,S,T,X,Q)	_FP_SQRT_MEAT_4(R,S,T,X,Q)
+#define FP_FMA_Q(R,X,Y,Z)		_FP_FMA(Q,4,8,R,X,Y,Z)
 
 #define FP_CMP_Q(r,X,Y,un)	_FP_CMP(Q,4,r,X,Y,un)
 #define FP_CMP_EQ_Q(r,X,Y)	_FP_CMP_EQ(Q,4,r,X,Y)
@@ -167,14 +174,16 @@ union _FP_UNION_Q
 #define _FP_FRAC_HIGH_Q(X)	_FP_FRAC_HIGH_4(X)
 #define _FP_FRAC_HIGH_RAW_Q(X)	_FP_FRAC_HIGH_4(X)
 
+#define _FP_FRAC_HIGH_DW_Q(X)	_FP_FRAC_HIGH_8(X)
+
 #else   /* not _FP_W_TYPE_SIZE < 64 */
 union _FP_UNION_Q
 {
   TFtype flt /* __attribute__((mode(TF))) */ ;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
     _FP_W_TYPE a, b;
   } longs;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
 #if __BYTE_ORDER == __BIG_ENDIAN
     unsigned sign    : 1;
     unsigned exp     : _FP_EXPBITS_Q;
@@ -257,6 +266,7 @@ union _FP_UNION_Q
 #define FP_DIV_Q(R,X,Y)			_FP_DIV(Q,2,R,X,Y)
 #define FP_SQRT_Q(R,X)			_FP_SQRT(Q,2,R,X)
 #define _FP_SQRT_MEAT_Q(R,S,T,X,Q)	_FP_SQRT_MEAT_2(R,S,T,X,Q)
+#define FP_FMA_Q(R,X,Y,Z)		_FP_FMA(Q,2,4,R,X,Y,Z)
 
 #define FP_CMP_Q(r,X,Y,un)	_FP_CMP(Q,2,r,X,Y,un)
 #define FP_CMP_EQ_Q(r,X,Y)	_FP_CMP_EQ(Q,2,r,X,Y)
@@ -267,5 +277,7 @@ union _FP_UNION_Q
 
 #define _FP_FRAC_HIGH_Q(X)	_FP_FRAC_HIGH_2(X)
 #define _FP_FRAC_HIGH_RAW_Q(X)	_FP_FRAC_HIGH_2(X)
+
+#define _FP_FRAC_HIGH_DW_Q(X)	_FP_FRAC_HIGH_4(X)
 
 #endif /* not _FP_W_TYPE_SIZE < 64 */

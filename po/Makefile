@@ -1,5 +1,4 @@
-# Copyright (C) 1996-1999,2001,2002,2006,2007,2009,2011
-#	Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 # Makefile for installing libc message catalogs.
 
@@ -48,10 +46,6 @@ mo-installed = $(inst_msgcatdir)/%/LC_MESSAGES/$(domainname).mo
 # Files to install: a $(domainname).mo file for each language.
 install-others = $(LINGUAS:%=$(mo-installed))
 
-# Files to distribute: all the source and compiled binary translation files.
-distribute = $(ALL_LINGUAS:=.po) $(BROKEN_LINGUAS:=.po) $(ALL_LINGUAS:=.mo) \
-	     libc.pot header.pot
-
 
 include ../Rules
 
@@ -61,6 +55,7 @@ libc.pot: header.pot libc.pot.files
 	set `date -R`; disp="$$6"; \
 	sed -e 's/VERSION/$(version)/' \
 	    -e "s/DATE/`date +'%Y-%m-%d %H:%M'$$disp`/" \
+	    -e "s/CHARSET/UTF-8/" \
 	    $< > $@.new
 	egrep -v '\.ksh$$' $(word 2,$^) > $(objdir)/tmp-libc.pot-files
 	cd ..; $(XGETTEXT) --keyword=_ --keyword=N_ \

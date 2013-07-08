@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2006, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <signal.h>
@@ -59,18 +58,8 @@ __pthread_kill (threadid, signo)
      fork, it would have to happen in a signal handler.  But this is
      no allowed, pthread_kill is not guaranteed to be async-safe.  */
   int val;
-#if __ASSUME_TGKILL
   val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
 			  tid, signo);
-#else
-# ifdef __NR_tgkill
-  val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
-			  tid, signo);
-  if (INTERNAL_SYSCALL_ERROR_P (val, err)
-      && INTERNAL_SYSCALL_ERRNO (val, err) == ENOSYS)
-# endif
-    val = INTERNAL_SYSCALL (tkill, err, 2, tid, signo);
-#endif
 
   return (INTERNAL_SYSCALL_ERROR_P (val, err)
 	  ? INTERNAL_SYSCALL_ERRNO (val, err) : 0);

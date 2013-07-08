@@ -1,5 +1,5 @@
 /* Determine protocol families for which interfaces exist.  Linux version.
-   Copyright (C) 2003, 2006-2008, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -25,6 +24,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/socket.h>
 
 #include <asm/types.h>
@@ -62,7 +62,7 @@ static struct cached_data noai6ai_cached =
     .in6ailen = 0
   };
 
-static struct cached_data *cache;
+libc_freeres_ptr (static struct cached_data *cache);
 __libc_lock_define_initialized (static, lock);
 
 
@@ -78,6 +78,29 @@ __bump_nl_timestamp (void)
   return nl_timestamp;
 }
 #endif
+
+static inline uint32_t
+get_nl_timestamp (void)
+{
+#ifdef IS_IN_nscd
+  return nl_timestamp;
+#elif defined USE_NSCD
+  return __nscd_get_nl_timestamp ();
+#else
+  return 0;
+#endif
+}
+
+static inline bool
+cache_valid_p (void)
+{
+  if (cache != NULL)
+    {
+      uint32_t timestamp = get_nl_timestamp ();
+      return timestamp != 0 && cache->timestamp == timestamp;
+    }
+  return false;
+}
 
 
 static struct cached_data *
@@ -254,11 +277,7 @@ make_request (int fd, pid_t pid)
       if (result == NULL)
 	goto out_fail;
 
-#ifdef IS_IN_nscd
-      result->timestamp = nl_timestamp;
-#else
-      result->timestamp = __nscd_get_nl_timestamp ();
-#endif
+      result->timestamp = get_nl_timestamp ();
       result->usecnt = 2;
       result->seen_ipv4 = seen_ipv4;
       result->seen_ipv6 = true;
@@ -290,16 +309,6 @@ out_fail:
 }
 
 
-/* We don't know if we have NETLINK support compiled into our
-   Kernel.  */
-#if __ASSUME_NETLINK_SUPPORT == 0
-/* Define in ifaddrs.h.  */
-extern int __no_netlink_support attribute_hidden;
-#else
-# define __no_netlink_support 0
-#endif
-
-
 void
 attribute_hidden
 __check_pf (bool *seen_ipv4, bool *seen_ipv6,
@@ -308,104 +317,64 @@ __check_pf (bool *seen_ipv4, bool *seen_ipv6,
   *in6ai = NULL;
   *in6ailen = 0;
 
-  if (! __no_netlink_support)
+  struct cached_data *olddata = NULL;
+  struct cached_data *data = NULL;
+
+  __libc_lock_lock (lock);
+
+  if (cache_valid_p ())
     {
-      struct cached_data *olddata = NULL;
-      struct cached_data *data = NULL;
+      data = cache;
+      atomic_increment (&cache->usecnt);
+    }
+  else
+    {
+      int fd = __socket (PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 
-      __libc_lock_lock (lock);
-
-#ifdef IS_IN_nscd
-# define cache_valid() nl_timestamp != 0 && cache->timestamp == nl_timestamp
-#else
-# define cache_valid() \
-      ({ uint32_t val = __nscd_get_nl_timestamp ();			      \
-	 val != 0 && cache->timestamp == val; })
-#endif
-      if (cache != NULL && cache_valid ())
+      if (__builtin_expect (fd >= 0, 1))
 	{
-	  data = cache;
-	  atomic_increment (&cache->usecnt);
+	  struct sockaddr_nl nladdr;
+	  memset (&nladdr, '\0', sizeof (nladdr));
+	  nladdr.nl_family = AF_NETLINK;
+
+	  socklen_t addr_len = sizeof (nladdr);
+
+	  if (__bind (fd, (struct sockaddr *) &nladdr, sizeof (nladdr)) == 0
+	      && __getsockname (fd, (struct sockaddr *) &nladdr,
+				&addr_len) == 0)
+	    data = make_request (fd, nladdr.nl_pid);
+
+	  close_not_cancel_no_status (fd);
 	}
-      else
-	{
-	  int fd = __socket (PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-
-	  if (__builtin_expect (fd >= 0, 1))
-	    {
-	      struct sockaddr_nl nladdr;
-	      memset (&nladdr, '\0', sizeof (nladdr));
-	      nladdr.nl_family = AF_NETLINK;
-
-	      socklen_t addr_len = sizeof (nladdr);
-
-	      if(__bind (fd, (struct sockaddr *) &nladdr, sizeof (nladdr)) == 0
-		 && __getsockname (fd, (struct sockaddr *) &nladdr,
-				   &addr_len) == 0)
-		data = make_request (fd, nladdr.nl_pid);
-
-	      close_not_cancel_no_status (fd);
-	    }
-
-	  if (data != NULL)
-	    {
-	      olddata = cache;
-	      cache = data;
-	    }
-	}
-
-      __libc_lock_unlock (lock);
 
       if (data != NULL)
 	{
-	  /* It worked.  */
-	  *seen_ipv4 = data->seen_ipv4;
-	  *seen_ipv6 = data->seen_ipv6;
-	  *in6ailen = data->in6ailen;
-	  *in6ai = data->in6ai;
-
-	  if (olddata != NULL && olddata->usecnt > 0
-	      && atomic_add_zero (&olddata->usecnt, -1))
-	    free (olddata);
-
-	  return;
+	  olddata = cache;
+	  cache = data;
 	}
-
-#if __ASSUME_NETLINK_SUPPORT == 0
-      /* Remember that there is no netlink support.  */
-      __no_netlink_support = 1;
-#else
-      /* We cannot determine what interfaces are available.  Be
-	 pessimistic.  */
-      *seen_ipv4 = true;
-      *seen_ipv6 = true;
-#endif
     }
 
-#if __ASSUME_NETLINK_SUPPORT == 0
-  /* No netlink.  Get the interface list via getifaddrs.  */
-  struct ifaddrs *ifa = NULL;
-  if (getifaddrs (&ifa) != 0)
+  __libc_lock_unlock (lock);
+
+  if (data != NULL)
     {
-      /* We cannot determine what interfaces are available.  Be
-	 pessimistic.  */
-      *seen_ipv4 = true;
-      *seen_ipv6 = true;
+      /* It worked.  */
+      *seen_ipv4 = data->seen_ipv4;
+      *seen_ipv6 = data->seen_ipv6;
+      *in6ailen = data->in6ailen;
+      *in6ai = data->in6ai;
+
+      if (olddata != NULL && olddata->usecnt > 0
+	  && atomic_add_zero (&olddata->usecnt, -1))
+	free (olddata);
+
       return;
     }
 
-  struct ifaddrs *runp;
-  for (runp = ifa; runp != NULL; runp = runp->ifa_next)
-    if (runp->ifa_addr != NULL)
-      {
-	if (runp->ifa_addr->sa_family == PF_INET)
-	  *seen_ipv4 = true;
-	else if (runp->ifa_addr->sa_family == PF_INET6)
-	  *seen_ipv6 = true;
-      }
-
-  (void) freeifaddrs (ifa);
-#endif
+  /* We cannot determine what interfaces are available.  Be
+     pessimistic.  */
+  *seen_ipv4 = true;
+  *seen_ipv6 = true;
 }
 
 

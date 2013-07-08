@@ -1,5 +1,5 @@
 /* Assembly macros for 32-bit PowerPC.
-   Copyright (C) 1999, 2001, 2002, 2003, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,15 +13,12 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdeps/powerpc/sysdep.h>
 
 #ifdef __ASSEMBLER__
-
-#ifdef __ELF__
 
 /* If compiled for profiling, call `_mcount' at the start of each
    function.  */
@@ -32,19 +29,26 @@
 # define CALL_MCOUNT							      \
   mflr  r0;								      \
   stw   r0,4(r1);							      \
-  cfi_offset (lr, 4);	       						      \
+  cfi_offset (lr, 4);							      \
   bl    JUMPTARGET(_mcount);
 #else  /* PROF */
 # define CALL_MCOUNT		/* Do nothing.  */
 #endif /* PROF */
 
 #define	ENTRY(name)							      \
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				      \
-  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
+  .globl C_SYMBOL_NAME(name);						      \
+  .type C_SYMBOL_NAME(name),@function;					      \
   .align ALIGNARG(2);							      \
   C_LABEL(name)								      \
   cfi_startproc;							      \
   CALL_MCOUNT
+
+/* helper macro for accessing the 32-bit powerpc GOT. */
+
+#define	SETUP_GOT_ACCESS(regname,GOT_LABEL)				      \
+	bcl	20,31,GOT_LABEL	;					      \
+GOT_LABEL:			;					      \
+	mflr	(regname)
 
 #define EALIGN_W_0  /* No words to insert.  */
 #define EALIGN_W_1  nop
@@ -59,8 +63,8 @@
    past a 2^align boundary.  */
 #ifdef PROF
 # define EALIGN(name, alignt, words)					      \
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				      \
-  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
+  .globl C_SYMBOL_NAME(name);						      \
+  .type C_SYMBOL_NAME(name),@function;					      \
   .align ALIGNARG(2);							      \
   C_LABEL(name)								      \
   cfi_startproc;							      \
@@ -71,8 +75,8 @@
   0:
 #else /* PROF */
 # define EALIGN(name, alignt, words)					      \
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				      \
-  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
+  .globl C_SYMBOL_NAME(name);						      \
+  .type C_SYMBOL_NAME(name),@function;					      \
   .align ALIGNARG(alignt);						      \
   EALIGN_W_##words;							      \
   C_LABEL(name)								      \
@@ -84,8 +88,8 @@
   cfi_endproc;								      \
   ASM_SIZE_DIRECTIVE(name)
 
-#define DO_CALL(syscall)				      		      \
-    li 0,syscall;						              \
+#define DO_CALL(syscall)						      \
+    li 0,syscall;							      \
     sc
 
 #undef JUMPTARGET
@@ -145,9 +149,11 @@
 #undef L
 #define L(x) .L##x
 
+#define XGLUE(a,b) a##b
+#define GLUE(a,b) XGLUE (a,b)
+#define GENERATE_GOT_LABEL(name) GLUE (.got_label, name)
+
 /* Label in text section.  */
 #define C_TEXT(name) name
-
-#endif /* __ELF__ */
 
 #endif	/* __ASSEMBLER__ */

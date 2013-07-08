@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007, 2008, 2009, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -116,21 +115,21 @@ static const struct pthread_functions pthread_functions =
     .ptr___pthread_exit = __pthread_exit,
     .ptr_pthread_getschedparam = __pthread_getschedparam,
     .ptr_pthread_setschedparam = __pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = INTUSE(__pthread_mutex_destroy),
-    .ptr_pthread_mutex_init = INTUSE(__pthread_mutex_init),
-    .ptr_pthread_mutex_lock = INTUSE(__pthread_mutex_lock),
-    .ptr_pthread_mutex_unlock = INTUSE(__pthread_mutex_unlock),
+    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
+    .ptr_pthread_mutex_init = __pthread_mutex_init,
+    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
+    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
     .ptr_pthread_self = __pthread_self,
     .ptr_pthread_setcancelstate = __pthread_setcancelstate,
     .ptr_pthread_setcanceltype = __pthread_setcanceltype,
     .ptr___pthread_cleanup_upto = __pthread_cleanup_upto,
-    .ptr___pthread_once = __pthread_once_internal,
-    .ptr___pthread_rwlock_rdlock = __pthread_rwlock_rdlock_internal,
-    .ptr___pthread_rwlock_wrlock = __pthread_rwlock_wrlock_internal,
-    .ptr___pthread_rwlock_unlock = __pthread_rwlock_unlock_internal,
-    .ptr___pthread_key_create = __pthread_key_create_internal,
-    .ptr___pthread_getspecific = __pthread_getspecific_internal,
-    .ptr___pthread_setspecific = __pthread_setspecific_internal,
+    .ptr___pthread_once = __pthread_once,
+    .ptr___pthread_rwlock_rdlock = __pthread_rwlock_rdlock,
+    .ptr___pthread_rwlock_wrlock = __pthread_rwlock_wrlock,
+    .ptr___pthread_rwlock_unlock = __pthread_rwlock_unlock,
+    .ptr___pthread_key_create = __pthread_key_create,
+    .ptr___pthread_getspecific = __pthread_getspecific,
+    .ptr___pthread_setspecific = __pthread_setspecific,
     .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
     .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore,
     .ptr_nthreads = &__nptl_nthreads,
@@ -173,24 +172,18 @@ __nptl_set_robust (struct pthread *self)
 static void
 sigcancel_handler (int sig, siginfo_t *si, void *ctx)
 {
-#ifdef __ASSUME_CORRECT_SI_PID
   /* Determine the process ID.  It might be negative if the thread is
      in the middle of a fork() call.  */
   pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
   if (__builtin_expect (pid < 0, 0))
     pid = -pid;
-#endif
 
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
      many incorrect invocations as possible.  */
   if (sig != SIGCANCEL
-#ifdef __ASSUME_CORRECT_SI_PID
-      /* Kernels before 2.5.75 stored the thread ID and not the process
-	 ID in si_pid so we skip this test.  */
       || si->si_pid != pid
-#endif
       || si->si_code != SI_TKILL)
     return;
 
@@ -230,28 +223,24 @@ sigcancel_handler (int sig, siginfo_t *si, void *ctx)
 
 struct xid_command *__xidcmd attribute_hidden;
 
-/* For asynchronous cancellation we use a signal.  This is the handler.  */
+/* We use the SIGSETXID signal in the setuid, setgid, etc. implementations to
+   tell each thread to call the respective setxid syscall on itself.  This is
+   the handler.  */
 static void
 sighandler_setxid (int sig, siginfo_t *si, void *ctx)
 {
-#ifdef __ASSUME_CORRECT_SI_PID
   /* Determine the process ID.  It might be negative if the thread is
      in the middle of a fork() call.  */
   pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
   if (__builtin_expect (pid < 0, 0))
     pid = -pid;
-#endif
 
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
      many incorrect invocations as possible.  */
   if (sig != SIGSETXID
-#ifdef __ASSUME_CORRECT_SI_PID
-      /* Kernels before 2.5.75 stored the thread ID and not the process
-	 ID in si_pid so we skip this test.  */
       || si->si_pid != pid
-#endif
       || si->si_code != SI_TKILL)
     return;
 
@@ -427,14 +416,17 @@ __pthread_initialize_minimal_internal (void)
 
   /* Make sure it meets the minimum size that allocate_stack
      (allocatestack.c) will demand, which depends on the page size.  */
-  const uintptr_t pagesz = __sysconf (_SC_PAGESIZE);
+  const uintptr_t pagesz = GLRO(dl_pagesize);
   const size_t minstack = pagesz + __static_tls_size + MINIMAL_REST_STACK;
   if (limit.rlim_cur < minstack)
     limit.rlim_cur = minstack;
 
   /* Round the resource limit up to page size.  */
   limit.rlim_cur = (limit.rlim_cur + pagesz - 1) & -pagesz;
-  __default_stacksize = limit.rlim_cur;
+  lll_lock (__default_pthread_attr_lock, LLL_PRIVATE);
+  __default_pthread_attr.stacksize = limit.rlim_cur;
+  __default_pthread_attr.guardsize = GLRO (dl_pagesize);
+  lll_unlock (__default_pthread_attr_lock, LLL_PRIVATE);
 
 #ifdef SHARED
   /* Transfer the old value from the dynamic linker's internal location.  */
@@ -443,12 +435,12 @@ __pthread_initialize_minimal_internal (void)
 
   /* Make __rtld_lock_{,un}lock_recursive use pthread_mutex_{,un}lock,
      keep the lock count from the ld.so implementation.  */
-  GL(dl_rtld_lock_recursive) = (void *) INTUSE (__pthread_mutex_lock);
-  GL(dl_rtld_unlock_recursive) = (void *) INTUSE (__pthread_mutex_unlock);
+  GL(dl_rtld_lock_recursive) = (void *) __pthread_mutex_lock;
+  GL(dl_rtld_unlock_recursive) = (void *) __pthread_mutex_unlock;
   unsigned int rtld_lock_count = GL(dl_load_lock).mutex.__data.__count;
   GL(dl_load_lock).mutex.__data.__count = 0;
   while (rtld_lock_count-- > 0)
-    INTUSE (__pthread_mutex_lock) (&GL(dl_load_lock).mutex);
+    __pthread_mutex_lock (&GL(dl_load_lock).mutex);
 
   GL(dl_make_stack_executable_hook) = &__make_stacks_executable;
 #endif
@@ -469,3 +461,13 @@ __pthread_initialize_minimal_internal (void)
 }
 strong_alias (__pthread_initialize_minimal_internal,
 	      __pthread_initialize_minimal)
+
+
+size_t
+__pthread_get_minstack (const pthread_attr_t *attr)
+{
+  struct pthread_attr *iattr = (struct pthread_attr *) attr;
+
+  return (GLRO(dl_pagesize) + __static_tls_size + PTHREAD_STACK_MIN
+	  + iattr->guardsize);
+}

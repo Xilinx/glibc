@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Declaration of types and functions for shadow group suite.  */
 
@@ -76,7 +75,7 @@ extern struct sgrp *getsgent (void);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct sgrp *getsgnam (__const char *__name);
+extern struct sgrp *getsgnam (const char *__name);
 
 /* Read shadow entry from STRING.
 
@@ -84,7 +83,7 @@ extern struct sgrp *getsgnam (__const char *__name);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern struct sgrp *sgetsgent (__const char *__string);
+extern struct sgrp *sgetsgent (const char *__string);
 
 /* Read next shadow entry from STREAM.
 
@@ -100,7 +99,7 @@ extern struct sgrp *fgetsgent (FILE *__stream);
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern int putsgent (__const struct sgrp *__g, FILE *__stream);
+extern int putsgent (const struct sgrp *__g, FILE *__stream);
 
 
 #ifdef __USE_MISC
@@ -113,11 +112,11 @@ extern int putsgent (__const struct sgrp *__g, FILE *__stream);
 extern int getsgent_r (struct sgrp *__result_buf, char *__buffer,
 		       size_t __buflen, struct sgrp **__result);
 
-extern int getsgnam_r (__const char *__name, struct sgrp *__result_buf,
+extern int getsgnam_r (const char *__name, struct sgrp *__result_buf,
 		       char *__buffer, size_t __buflen,
 		       struct sgrp **__result);
 
-extern int sgetsgent_r (__const char *__string, struct sgrp *__result_buf,
+extern int sgetsgent_r (const char *__string, struct sgrp *__result_buf,
 			char *__buffer, size_t __buflen,
 			struct sgrp **__result);
 

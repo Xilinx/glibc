@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2002, 2004, 2005, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Schwab <schwab@gnu.org>.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
@@ -28,8 +27,6 @@
    and the process ID of the new process to the old process.  */
 
 ENTRY (__vfork)
-
-#ifdef __NR_vfork
 
 	/* Pop the return PC value into ECX.  */
 	popl	%ecx
@@ -56,33 +53,10 @@ ENTRY (__vfork)
 
 	cmpl	$-4095, %eax
 	/* Branch forward if it failed.  */
-# ifdef __ASSUME_VFORK_SYSCALL
 	jae	SYSCALL_ERROR_LABEL
-.Lpseudo_end:
-# else
-	jae	.Lerror
-# endif
 
 	ret
 
-# ifndef __ASSUME_VFORK_SYSCALL
-.Lerror:
-	/* Check if vfork syscall is known at all.  */
-	cmpl	$-ENOSYS, %eax
-	jne	SYSCALL_ERROR_LABEL
-# endif
-#endif
-
-#ifndef __ASSUME_VFORK_SYSCALL
-	/* If we don't have vfork, fork is close enough.  */
-
-	movl	$SYS_ify (fork), %eax
-	int	$0x80
-	cmpl	$-4095, %eax
-	jae	SYSCALL_ERROR_LABEL
-.Lpseudo_end:
-	ret
-#endif
 PSEUDO_END (__vfork)
 libc_hidden_def (__vfork)
 

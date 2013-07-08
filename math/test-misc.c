@@ -1,5 +1,5 @@
 /* Miscellaneous tests which don't fit anywhere else.
-   Copyright (C) 2000, 2001, 2004, 2005, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <float.h>
@@ -23,6 +22,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <math-tests.h>
 
 
 int
@@ -1057,7 +1057,7 @@ main (void)
     }
 #endif
 
-#ifdef __i386__
+#if defined (__i386__) || defined (__x86_64__)
   /* This is a test for the strange long doubles in x86 FPUs.  */
   {
     union
@@ -1075,7 +1075,7 @@ main (void)
       }
   }
 
-  /* Special NaNs in x86 long double.  Test for scalbl.  */
+  /* Special qNaNs in x86 long double.  Test for scalbl.  */
   {
     union
     {
@@ -1088,12 +1088,12 @@ main (void)
     r = scalbl (u.d, 0.0);
     if (!isnan (r))
       {
-	puts ("scalbl(NaN, 0) does not return NaN");
+	puts ("scalbl (qNaN, 0) does not return NaN");
 	result = 1;
       }
     else if (memcmp (&r, &u.d, sizeof (double)) != 0)
       {
-	puts ("scalbl(NaN, 0) does not return the same NaN");
+	puts ("scalbl (qNaN, 0) does not return the same NaN");
 	result = 1;
       }
   }
@@ -1117,7 +1117,7 @@ main (void)
       }
     else if (fetestexcept (FE_UNDERFLOW))
       {
-	puts ("scalbl(NaN, 0) raises underflow exception");
+	puts ("scalbl (LDBL_MIN, 2147483647) raises underflow exception");
 	result = 1;
       }
 
@@ -1135,7 +1135,7 @@ main (void)
       }
     else if (fetestexcept (FE_OVERFLOW))
       {
-	puts ("scalbl(NaN, 0) raises overflow exception");
+	puts ("scalbl (LDBL_MAX, -2147483647) raises overflow exception");
 	result = 1;
       }
   }
@@ -1187,12 +1187,14 @@ main (void)
   (void) &f2;
   feclearexcept (FE_ALL_EXCEPT);
   f2 += f1;
+#if defined(FE_OVERFLOW) && defined(FE_INEXACT)
   int fe = fetestexcept (FE_ALL_EXCEPT);
-  if (fe != (FE_OVERFLOW | FE_INEXACT))
+  if (EXCEPTION_TESTS (float) && fe != (FE_OVERFLOW | FE_INEXACT))
     {
       printf ("float overflow test failed: %x\n", fe);
       result = 1;
     }
+#endif
 
   volatile double d1 = DBL_MAX;
   volatile double d2 = DBL_MAX / 2;
@@ -1200,12 +1202,14 @@ main (void)
   (void) &d2;
   feclearexcept (FE_ALL_EXCEPT);
   d2 += d1;
+#if defined(FE_OVERFLOW) && defined(FE_INEXACT)
   fe = fetestexcept (FE_ALL_EXCEPT);
-  if (fe != (FE_OVERFLOW | FE_INEXACT))
+  if (EXCEPTION_TESTS (double) && fe != (FE_OVERFLOW | FE_INEXACT))
     {
       printf ("double overflow test failed: %x\n", fe);
       result = 1;
     }
+#endif
 
 #ifndef NO_LONG_DOUBLE
   volatile long double ld1 = LDBL_MAX;
@@ -1214,12 +1218,14 @@ main (void)
   (void) &ld2;
   feclearexcept (FE_ALL_EXCEPT);
   ld2 += ld1;
+# if defined(FE_OVERFLOW) && defined(FE_INEXACT)
   fe = fetestexcept (FE_ALL_EXCEPT);
-  if (fe != (FE_OVERFLOW | FE_INEXACT))
+  if (EXCEPTION_TESTS (long double) && fe != (FE_OVERFLOW | FE_INEXACT))
     {
       printf ("long double overflow test failed: %x\n", fe);
       result = 1;
     }
+# endif
 #endif
 
 #if !defined NO_LONG_DOUBLE && LDBL_MANT_DIG == 113
@@ -1289,7 +1295,11 @@ main (void)
 	  if (fesetround (mode))
 	    {
 	      printf ("failed to set rounding mode to %s\n", mstr);
-	      result = 1;
+	      if (ROUNDING_TESTS (long double, mode)
+		  && ROUNDING_TESTS (double, mode))
+		result = 1;
+	      else
+		puts ("ignoring this failure");
 	      break;
 	    }
 	  d5 = ld5 * i;
@@ -1300,7 +1310,11 @@ main (void)
 	    {
 	      printf ("%La incorrectly rounded to %s as %a\n",
 		      ld5 * i, mstr, d5);
-	      result = 1;
+	      if (ROUNDING_TESTS (long double, mode)
+		  && ROUNDING_TESTS (double, mode))
+		result = 1;
+	      else
+		puts ("ignoring this failure");
 	    }
 	}
     }
@@ -1316,7 +1330,11 @@ main (void)
   if (d7 != nextafter (0.0, 1.0))
     {
       printf ("%La incorrectly rounded upward to %a\n", ld7, d7);
-      result = 1;
+      if (ROUNDING_TESTS (long double, FE_UPWARD)
+	  && ROUNDING_TESTS (double, FE_UPWARD))
+	result = 1;
+      else
+	puts ("ignoring this failure");
     }
 #endif
 

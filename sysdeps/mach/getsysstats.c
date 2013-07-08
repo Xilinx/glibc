@@ -1,5 +1,5 @@
 /* System dependent pieces of sysconf; Mach version
-   Copyright (C) 1996,97,99,2001,02 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <mach.h>
@@ -25,7 +24,7 @@
 
 /* Return the number of processors configured on the system. */
 int
-__get_nprocs_conf ()
+__get_nprocs_conf (void)
 {
   struct host_basic_info hbi;
   kern_return_t err;
@@ -44,7 +43,7 @@ weak_alias (__get_nprocs_conf, get_nprocs_conf)
 
 /* Return the number of processors currently available on the system. */
 int
-__get_nprocs ()
+__get_nprocs (void)
 {
   struct host_basic_info hbi;
   kern_return_t err;
@@ -63,7 +62,7 @@ weak_alias (__get_nprocs, get_nprocs)
 
 /* Return the number of physical pages on the system. */
 long int
-__get_phys_pages ()
+__get_phys_pages (void)
 {
   struct host_basic_info hbi;
   kern_return_t err;
@@ -82,7 +81,7 @@ weak_alias (__get_phys_pages, get_phys_pages)
 
 /* Return the number of available physical pages */
 long int
-__get_avphys_pages ()
+__get_avphys_pages (void)
 {
   vm_statistics_data_t vs;
   kern_return_t err;

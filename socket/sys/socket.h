@@ -1,6 +1,5 @@
 /* Declarations of socket constants, types, and functions.
-   Copyright (C) 1991,92,1994-2001,2003,2005,2007,2008
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SYS_SOCKET_H
 #define	_SYS_SOCKET_H	1
@@ -69,7 +67,7 @@ enum
    old-style declaration, too.  */
 #if defined __cplusplus || !__GNUC_PREREQ (2, 7) || !defined __USE_GNU
 # define __SOCKADDR_ARG		struct sockaddr *__restrict
-# define __CONST_SOCKADDR_ARG	__const struct sockaddr *
+# define __CONST_SOCKADDR_ARG	const struct sockaddr *
 #else
 /* Add more `struct sockaddr_AF' types here as necessary.
    These are all the ones I found on NetBSD and Linux.  */
@@ -92,10 +90,20 @@ enum
 typedef union { __SOCKADDR_ALLTYPES
 	      } __SOCKADDR_ARG __attribute__ ((__transparent_union__));
 # undef __SOCKADDR_ONETYPE
-# define __SOCKADDR_ONETYPE(type) __const struct type *__restrict __##type##__;
+# define __SOCKADDR_ONETYPE(type) const struct type *__restrict __##type##__;
 typedef union { __SOCKADDR_ALLTYPES
 	      } __CONST_SOCKADDR_ARG __attribute__ ((__transparent_union__));
 # undef __SOCKADDR_ONETYPE
+#endif
+
+#ifdef __USE_GNU
+/* For `recvmmsg' and `sendmmsg'.  */
+struct mmsghdr
+  {
+    struct msghdr msg_hdr;	/* Actual message header.  */
+    unsigned int msg_len;	/* Number of received or sent bytes for the
+				   entry.  */
+  };
 #endif
 
 
@@ -138,7 +146,7 @@ extern int getpeername (int __fd, __SOCKADDR_ARG __addr,
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t send (int __fd, __const void *__buf, size_t __n, int __flags);
+extern ssize_t send (int __fd, const void *__buf, size_t __n, int __flags);
 
 /* Read N bytes into BUF from socket FD.
    Returns the number read or -1 for errors.
@@ -152,7 +160,7 @@ extern ssize_t recv (int __fd, void *__buf, size_t __n, int __flags);
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
+extern ssize_t sendto (int __fd, const void *__buf, size_t __n,
 		       int __flags, __CONST_SOCKADDR_ARG __addr,
 		       socklen_t __addr_len);
 
@@ -173,8 +181,18 @@ extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern ssize_t sendmsg (int __fd, __const struct msghdr *__message,
+extern ssize_t sendmsg (int __fd, const struct msghdr *__message,
 			int __flags);
+
+#ifdef __USE_GNU
+/* Send a VLEN messages as described by VMESSAGES to socket FD.
+   Returns the number of datagrams successfully written or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int sendmmsg (int __fd, struct mmsghdr *__vmessages,
+		     unsigned int __vlen, int __flags);
+#endif
 
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.
@@ -182,6 +200,17 @@ extern ssize_t sendmsg (int __fd, __const struct msghdr *__message,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags);
+
+#ifdef __USE_GNU
+/* Receive up to VLEN messages as described by VMESSAGES from socket FD.
+   Returns the number of bytes read or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int recvmmsg (int __fd, struct mmsghdr *__vmessages,
+		     unsigned int __vlen, int __flags,
+		     const struct timespec *__tmo);
+#endif
 
 
 /* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
@@ -195,7 +224,7 @@ extern int getsockopt (int __fd, int __level, int __optname,
    to *OPTVAL (which is OPTLEN bytes long).
    Returns 0 on success, -1 for errors.  */
 extern int setsockopt (int __fd, int __level, int __optname,
-		       __const void *__optval, socklen_t __optlen) __THROW;
+		       const void *__optval, socklen_t __optlen) __THROW;
 
 
 /* Prepare to accept connections on socket FD.
@@ -247,7 +276,7 @@ extern int isfdtype (int __fd, int __fdtype) __THROW;
 
 
 /* Define some macros helping to catch buffer overflows.  */
-#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
 # include <bits/socket2.h>
 #endif
 

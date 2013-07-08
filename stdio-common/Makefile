@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2009, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,16 +12,15 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Specific makefile for stdio-common.
 #
 subdir	:= stdio-common
 
-headers	:= stdio_ext.h printf.h bits/printf-ldbl.h
+headers	:= stdio_ext.h printf.h bits/printf-ldbl.h bits/stdio_lim.h
 
 routines	:=							      \
 	ctermid cuserid							      \
@@ -40,13 +39,9 @@ routines	:=							      \
 	isoc99_vsscanf							      \
 	psiginfo
 
-install-others = $(inst_includedir)/bits/stdio_lim.h
-
 include ../Makeconfig
 
 aux	:= errlist siglist printf-parsemb printf-parsewc fxprintf
-distribute := _itoa.h _itowa.h _i18n_number.h \
-	      printf-parse.h stdio_lim.h.in tst-unbputc.sh tst-printf.sh
 
 tests := tstscanf test_rdwr test-popen tstgetln test-fseek \
 	 temptest tst-fileno test-fwrite tst-ungetc tst-ferror \
@@ -56,30 +51,29 @@ tests := tstscanf test_rdwr test-popen tstgetln test-fseek \
 	 scanf1 scanf2 scanf3 scanf4 scanf5 scanf7 scanf8 scanf9 scanf10 \
 	 scanf11 scanf12 tst-tmpnam tst-cookie tst-obprintf tst-sscanf \
 	 tst-swprintf tst-fseek tst-fmemopen test-vfprintf tst-gets \
-	 tst-perror tst-sprintf tst-rndseek tst-fdopen tst-fphex bug14 bug15 \
+	 tst-perror tst-sprintf tst-rndseek tst-fdopen tst-fphex bug14 \
 	 tst-popen tst-unlockedio tst-fmemopen2 tst-put-error tst-fgets \
 	 tst-fwrite bug16 bug17 tst-swscanf tst-sprintf2 bug18 bug18a \
 	 bug19 bug19a tst-popen2 scanf13 scanf14 scanf15 bug20 bug21 bug22 \
-	 scanf16 scanf17 tst-setvbuf1 tst-grouping bug23 bug24
+	 scanf16 scanf17 tst-setvbuf1 tst-grouping bug23 bug24 \
+	 bug-vfprintf-nargs tst-long-dbl-fphex tst-fphex-wide tst-sprintf3 \
+	 bug25 tst-printf-round bug26
 
 test-srcs = tst-unbputc tst-printf
 
 include ../Rules
 
-$(inst_includedir)/bits/stdio_lim.h: $(common-objpfx)bits/stdio_lim.h $(+force)
-	$(do-install)
-
-ifeq ($(cross-compiling),no)
+ifeq ($(run-built-tests),yes)
 .PHONY: do-tst-unbputc do-tst-printf
 tests: do-tst-unbputc do-tst-printf
 
 do-tst-unbputc: $(objpfx)tst-unbputc.out
-$(objpfx)tst-unbputc.out: $(objpfx)tst-unbputc tst-unbputc.sh
-	$(SHELL) -e tst-unbputc.sh $(common-objpfx) '$(run-program-prefix)'
+$(objpfx)tst-unbputc.out: tst-unbputc.sh $(objpfx)tst-unbputc
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
 
 do-tst-printf: $(objpfx)tst-printf.out
-$(objpfx)tst-printf.out: $(objpfx)tst-printf tst-printf.sh
-	$(SHELL) -e tst-printf.sh $(common-objpfx) '$(run-program-prefix)'
+$(objpfx)tst-printf.out: tst-printf.sh $(objpfx)tst-printf
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
 endif
 
 CFLAGS-vfprintf.c = -Wno-uninitialized
@@ -122,18 +116,23 @@ CFLAGS-scanf17.c = -I../libio -I../stdlib -I../wcsmbs -I../time -I../string \
 
 # We know the test has a format string problem.
 CFLAGS-tst-sprintf.c = -Wno-format
+tst-sprintf-ENV = LOCPATH=$(common-objpfx)localedata
 tst-sscanf-ENV = LOCPATH=$(common-objpfx)localedata
 tst-swprintf-ENV = LOCPATH=$(common-objpfx)localedata
 test-vfprintf-ENV = LOCPATH=$(common-objpfx)localedata
 scanf13-ENV = LOCPATH=$(common-objpfx)localedata
 bug14-ENV = LOCPATH=$(common-objpfx)localedata
-bug15-ENV = LOCPATH=$(common-objpfx)localedata
 tst-grouping-ENV = LOCPATH=$(common-objpfx)localedata
 
-ifneq (,$(filter %REENTRANT, $(defines)))
-CPPFLAGS += -D_IO_MTSAFE_IO
-endif
+CPPFLAGS += $(libio-mtsafe)
 
 $(objpfx)tst-setvbuf1.out: tst-setvbuf1.expect $(objpfx)tst-setvbuf1
-	$(built-program-cmd) > $@ 2>&1
+	$(test-program-cmd) > $@ 2>&1
 	cmp tst-setvbuf1.expect $@
+
+ifeq ($(build-shared),yes)
+link-libm = $(common-objpfx)math/libm.so
+else
+link-libm = $(common-objpfx)math/libm.a
+endif
+$(objpfx)tst-printf-round: $(link-libm)

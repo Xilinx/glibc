@@ -200,17 +200,17 @@ double gen_special_double(int i)
       case 0:
 	X_c = FP_CLS_NAN;
 #if _FP_W_TYPE_SIZE < _FP_FRACBITS_D
-	__FP_FRAC_SET_2(X, _FP_QNANBIT_D, 0x1234);
+	__FP_FRAC_SET_2(X, _FP_QNANNEGATEDP ? 0 : _FP_QNANBIT_D, 0x1234);
 #else
-	_FP_FRAC_SET_1(X, _FP_QNANBIT_D | 0x1234);
+	_FP_FRAC_SET_1(X, (_FP_QNANNEGATEDP ? 0 : _FP_QNANBIT_D) | 0x1234);
 #endif
 	break;
       case 2:
 	X_c = FP_CLS_NAN;
 #if _FP_W_TYPE_SIZE < _FP_FRACBITS_D
-	__FP_FRAC_SET_2(X, _FP_QNANBIT_D, 0x1);
+	__FP_FRAC_SET_2(X, _FP_QNANNEGATEDP ? 0 : _FP_QNANBIT_D, 0x1);
 #else
-	_FP_FRAC_SET_1(X, _FP_QNANBIT_D | 0x1);
+	_FP_FRAC_SET_1(X, (_FP_QNANNEGATEDP ? 0 : _FP_QNANBIT_D) | 0x1);
 #endif
 	break;
       case 4:
@@ -244,7 +244,7 @@ float build_float(const char *s, const char *e, const char *f)
 
     return u.flt;
 }
-      
+
 double build_double(const char *s, const char *e, const char *f)
 {
     union _FP_UNION_D u;
@@ -264,10 +264,10 @@ double build_double(const char *s, const char *e, const char *f)
 #else
     u.bits.frac = strtoul(f, 0, 16);
 #endif
-	
+
     return u.flt;
 }
-      
+
 /*======================================================================*/
 
 fpu_control_t fcw0, fcw1;
@@ -303,7 +303,7 @@ void test_double_arith(double (*tf)(double, double),
     _FPU_GETCW(fcw0);
     fcw1 = ((fcw0 & ~_FPU_EXTENDED) | _FPU_DOUBLE);
     _FPU_SETCW(fcw1);
-#endif    
+#endif
     rr = (*rf)(x, y);
 #ifdef __i386__
     _FPU_SETCW(fcw0);
@@ -386,7 +386,7 @@ void test_float_int_conv(float x)
 	printf("\n\ttrue  = %d\n\tfalse = %d\n", rr, tr);
     }
 }
-	
+
 void test_double_int_conv(double x)
 {
     int tr, rr;

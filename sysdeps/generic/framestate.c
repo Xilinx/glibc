@@ -1,5 +1,5 @@
 /* __frame_state_for unwinder helper function wrapper.
-   Copyright (C) 2001, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2001.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -24,7 +23,7 @@
 #define __frame_state_for fallback_frame_state_for
 #include <unwind-dw2.c>
 #undef __frame_state_for
-#include <libgcc_s.h>
+#include <gnu/lib-names.h>
 
 typedef struct frame_state * (*framesf)(void *pc, struct frame_state *);
 struct frame_state *__frame_state_for (void *pc,
@@ -45,7 +44,7 @@ __frame_state_for (void *pc, struct frame_state *frame_state)
 #ifndef __USING_SJLJ_EXCEPTIONS__
 	frame_state_for = fallback_frame_state_for;
 #else
-      	frame_state_for = abort;
+	frame_state_for = abort;
 #endif
     }
 

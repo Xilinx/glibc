@@ -1,6 +1,6 @@
 /* Test glob memory management.
    for the filesystem access functions.
-   Copyright (C) 2001, 2002, 2004 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <error.h>
@@ -277,7 +276,7 @@ do_test (void)
       != GLOB_ABORTED)
     {
       puts ("glob did not fail with GLOB_ABORTED");
-      exit (EXIT_FAILURE); 
+      exit (EXIT_FAILURE);
     }
 
   globfree (&gl);
@@ -289,7 +288,7 @@ do_test (void)
   if (glob ("dir2/*", GLOB_DOOFFS, NULL, &gl) != GLOB_NOMATCH)
     {
       puts ("glob did not fail with GLOB_NOMATCH");
-      exit (EXIT_FAILURE); 
+      exit (EXIT_FAILURE);
     }
 
   globfree (&gl);

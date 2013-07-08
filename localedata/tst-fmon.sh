@@ -1,9 +1,8 @@
 #! /bin/sh
 # Testing the implementation of strfmon(3).
-# Copyright (C) 1996-1998, 2000, 2003, 2004 Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Jochen Hein <jochen.hein@delphi.central.de>, 1997.
-#
 
 # The GNU C Library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,13 +15,15 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
+
+set -e
 
 common_objpfx=$1
 run_program_prefix=$2
-datafile=$3
+test_program_prefix=$3
+datafile=$4
 
 here=`pwd`
 
@@ -47,8 +48,8 @@ while IFS="	" read locale format value expect; do
 	expect=`echo "$expect" | sed 's/^\"\(.*\)\"$/\1/'`
 	LOCPATH=${common_objpfx}localedata \
 	GCONV_PATH=${common_objpfx}/iconvdata \
-	${run_program_prefix} ${common_objpfx}localedata/tst-fmon \
-	"$locale" "$format" "$value" "$expect" ||
+	${test_program_prefix} ${common_objpfx}localedata/tst-fmon \
+	"$locale" "$format" "$value" "$expect" < /dev/null ||
 	errcode=$?
     fi
 done < $datafile

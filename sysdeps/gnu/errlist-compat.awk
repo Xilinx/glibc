@@ -1,5 +1,5 @@
 # awk script to generate errlist-compat.c
-# Copyright (C) 2002, 2004, 2006 Free Software Foundation, Inc.
+# Copyright (C) 2002-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 # This script takes the Versions file as input and looks for #errlist-compat
@@ -82,10 +81,13 @@ END {
   if (highest > count) {
     printf "*** errlist.c count %d inflated to %s count %d (old errno.h?)\n", \
       count, highest_version, highest > "/dev/stderr";
-    printf "#define ERR_MAX %d\n\n", highest;
+    printf "#define ERR_MAX %d\n\n", highest - 1;
   }
 
-  for (old in compat) {
+  # same regardless of awk's ordering of the associative array.
+  num_compat_elems = asorti(compat, compat_indices)
+  for (i = 1; i <= num_compat_elems; i++) {
+    old = compat_indices[i]
     new = compat[old];
     n = vcount[old];
     printf "#if SHLIB_COMPAT (libc, %s, %s)\n", old, new;

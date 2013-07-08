@@ -1,6 +1,5 @@
 /* Utilities for reading/writing fstab, mtab, etc.
-   Copyright (C) 1995-2000, 2001, 2002, 2003, 2006, 2010, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <mntent.h>
@@ -50,7 +48,7 @@ __setmntent (const char *file, const char *mode)
 
   return result;
 }
-INTDEF(__setmntent)
+libc_hidden_def (__setmntent)
 weak_alias (__setmntent, setmntent)
 
 
@@ -62,7 +60,7 @@ __endmntent (FILE *stream)
     fclose (stream);
   return 1;		/* SunOS 4.x says to always return 1 */
 }
-INTDEF(__endmntent)
+libc_hidden_def (__endmntent)
 weak_alias (__endmntent, endmntent)
 
 
@@ -179,7 +177,7 @@ __getmntent_r (FILE *stream, struct mntent *mp, char *buffer, int bufsiz)
 
   return mp;
 }
-INTDEF(__getmntent_r)
+libc_hidden_def (__getmntent_r)
 weak_alias (__getmntent_r, getmntent_r)
 
 

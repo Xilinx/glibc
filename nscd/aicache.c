@@ -1,5 +1,5 @@
 /* Cache handling for host lookup.
-   Copyright (C) 2004-2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -461,9 +460,12 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
 		      <= (sizeof (struct database_pers_head)
 			  + db->head->module * sizeof (ref_t)
 			  + db->head->data_size));
+# ifndef __ASSUME_SENDFILE
 	      ssize_t written;
-	      written = sendfileall (fd, db->wr_fd, (char *) &dataset->resp
-				     - (char *) db->head, dataset->head.recsize);
+	      written =
+# endif
+		sendfileall (fd, db->wr_fd, (char *) &dataset->resp
+			     - (char *) db->head, dataset->head.recsize);
 # ifndef __ASSUME_SENDFILE
 	      if (written == -1 && errno == ENOSYS)
 		goto use_write;
@@ -511,8 +513,9 @@ next_nip:
       if (fd != -1)
 	TEMP_FAILURE_RETRY (send (fd, &notfound, total, MSG_NOSIGNAL));
 
-      /* If we cannot permanently store the result, so be it.  */
-      if (__builtin_expect (db->negtimeout == 0, 0))
+      /* If we have a transient error or cannot permanently store the
+	 result, so be it.  */
+      if (rc4 == EAGAIN || __builtin_expect (db->negtimeout == 0, 0))
 	{
 	  /* Mark the old entry as obsolete.  */
 	  if (dh != NULL)

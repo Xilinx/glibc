@@ -1,6 +1,6 @@
 /* long double trunc function.
    IBM extended format long double version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -80,7 +79,7 @@ ENTRY (__truncl)
 	beqlr-  cr0
 	mtfsfi	7,1		/* Set rounding mode toward 0.  */
 	fdiv	fp8,fp1,fp13	/* x_high/TWO52  */
-	
+
 	bng-	cr6,.L6		/* if (x > 0.0)  */
 	fctidz	fp0,fp8
 	fcfid	fp8,fp0		/* tau = floor(x_high/TWO52);  */
@@ -99,7 +98,7 @@ ENTRY (__truncl)
 .L6:				/* if (x < 0.0)  */
 	fctidz	fp0,fp8
 	fcfid	fp8,fp0		/* tau = floor(x_high/TWO52);  */
-	fadd	fp8,fp8,fp8	/* tau++; Make tau even  */	
+	fadd	fp8,fp8,fp8	/* tau++; Make tau even  */
 	bnl	cr5,.L7		/* if (x_low < 0.0)  */
 	fmr	fp3,fp1
 	fmr	fp4,fp2

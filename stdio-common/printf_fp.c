@@ -1,5 +1,5 @@
 /* Floating point output for `printf'.
-   Copyright (C) 1995-2003, 2006-2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* The gmp headers need some configuration frobs.  */
 #define HAVE_ALLOCA 1
@@ -40,6 +39,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <stdbool.h>
+#include <rounding-mode.h>
 
 #ifdef COMPILE_WPRINTF
 # define CHAR_T        wchar_t
@@ -57,7 +58,7 @@
 /* This defines make it possible to use the same code for GNU C library and
    the GNU I/O library.	 */
 #define PUT(f, s, n) _IO_sputn (f, s, n)
-#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : INTUSE(_IO_padn) (f, c, n))
+#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : _IO_padn (f, c, n))
 /* We use this file GNU C library and GNU I/O library.	So make
    names equal.	 */
 #undef putc
@@ -71,7 +72,7 @@
 #define outchar(ch)							      \
   do									      \
     {									      \
-      register const int outc = (ch);					      \
+      const int outc = (ch);						      \
       if (putc (outc, fp) == EOF)					      \
 	{								      \
 	  if (buffer_malloced)						      \
@@ -84,7 +85,7 @@
 #define PRINT(ptr, wptr, len)						      \
   do									      \
     {									      \
-      register size_t outlen = (len);					      \
+      size_t outlen = (len);						      \
       if (len > 20)							      \
 	{								      \
 	  if (PUT (fp, wide ? (const char *) wptr : ptr, outlen) != outlen)   \
@@ -131,9 +132,6 @@
   memcpy (dst, src, (dst##size = src##size) * sizeof (mp_limb_t))
 #define MPN_GE(u,v) \
   (u##size > v##size || (u##size == v##size && __mpn_cmp (u, v, u##size) >= 0))
-
-extern int __isinfl_internal (long double) attribute_hidden;
-extern int __isnanl_internal (long double) attribute_hidden;
 
 extern mp_size_t __mpn_extract_double (mp_ptr res_ptr, mp_size_t size,
 				       int *expt, int *is_neg,
@@ -197,9 +195,6 @@ ___printf_fp (FILE *fp,
 
   /* Temporary bignum value.  */
   MPN_VAR(tmp);
-
-  /* Digit which is result of last hack_digit() call.  */
-  wchar_t digit;
 
   /* The type of output format that will be used: 'e'/'E' or 'f'.  */
   int type;
@@ -956,33 +951,30 @@ ___printf_fp (FILE *fp,
       }
 
     /* Do rounding.  */
-    digit = hack_digit ();
-    if (digit > L'4')
+    wchar_t last_digit = wcp[-1] != decimalwc ? wcp[-1] : wcp[-2];
+    wchar_t next_digit = hack_digit ();
+    bool more_bits;
+    if (next_digit != L'0' && next_digit != L'5')
+      more_bits = true;
+    else if (fracsize == 1 && frac[0] == 0)
+      /* Rest of the number is zero.  */
+      more_bits = false;
+    else if (scalesize == 0)
+      {
+	/* Here we have to see whether all limbs are zero since no
+	   normalization happened.  */
+	size_t lcnt = fracsize;
+	while (lcnt >= 1 && frac[lcnt - 1] == 0)
+	  --lcnt;
+	more_bits = lcnt > 0;
+      }
+    else
+      more_bits = true;
+    int rounding_mode = get_rounding_mode ();
+    if (round_away (is_neg, (last_digit - L'0') & 1, next_digit >= L'5',
+		    more_bits, rounding_mode))
       {
 	wchar_t *wtp = wcp;
-
-	if (digit == L'5'
-	    && ((*(wcp - 1) != decimalwc && (*(wcp - 1) & 1) == 0)
-		|| ((*(wcp - 1) == decimalwc && (*(wcp - 2) & 1) == 0))))
-	  {
-	    /* This is the critical case.	 */
-	    if (fracsize == 1 && frac[0] == 0)
-	      /* Rest of the number is zero -> round to even.
-		 (IEEE 754-1985 4.1 says this is the default rounding.)  */
-	      goto do_expo;
-	    else if (scalesize == 0)
-	      {
-		/* Here we have to see whether all limbs are zero since no
-		   normalization happened.  */
-		size_t lcnt = fracsize;
-		while (lcnt >= 1 && frac[lcnt - 1] == 0)
-		  --lcnt;
-		if (lcnt == 0)
-		  /* Rest of the number is zero -> round to even.
-		     (IEEE 754-1985 4.1 says this is the default rounding.)  */
-		  goto do_expo;
-	      }
-	  }
 
 	if (fracdig_no > 0)
 	  {
@@ -1077,7 +1069,6 @@ ___printf_fp (FILE *fp,
 	  }
       }
 
-  do_expo:
     /* Now remove unnecessary '0' at the end of the string.  */
     while (fracdig_no > fracdig_min + added_zeros && *(wcp - 1) == L'0')
       {

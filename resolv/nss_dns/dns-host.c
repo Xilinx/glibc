@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2004, 2007-2009, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Extended from original form by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Parts of this file are plain copies of the file `gethtnamadr.c' from
    the bind package and it has the following copyright.  */
@@ -88,10 +87,6 @@
 #include <resolv/mapv4v6hostent.h>
 
 #define RESOLVSORT
-
-/* Maximum number of aliases we allow.  */
-#define MAX_NR_ALIASES	48
-#define MAX_NR_ADDRS	48
 
 #if PACKETSZ > 65536
 # define MAXPACKET	PACKETSZ
@@ -204,6 +199,11 @@ _nss_dns_gethostbyname3_r (const char *name, int af, struct hostent *result,
 	  status = NSS_STATUS_TRYAGAIN;
 	  h_errno = TRY_AGAIN;
 	  break;
+	/* System has run out of file descriptors.  */
+	case EMFILE:
+	case ENFILE:
+	  h_errno = NETDB_INTERNAL;
+	  /* Fall through.  */
 	case ECONNREFUSED:
 	case ETIMEDOUT:
 	  status = NSS_STATUS_UNAVAIL;
@@ -316,14 +316,26 @@ _nss_dns_gethostbyname4_r (const char *name, struct gaih_addrtuple **pat,
 			      &ans2p, &nans2p, &resplen2);
   if (n < 0)
     {
-      if (errno == ESRCH)
+      switch (errno)
 	{
+	case ESRCH:
 	  status = NSS_STATUS_TRYAGAIN;
 	  h_errno = TRY_AGAIN;
+	  break;
+	/* System has run out of file descriptors.  */
+	case EMFILE:
+	case ENFILE:
+	  h_errno = NETDB_INTERNAL;
+	  /* Fall through.  */
+	case ECONNREFUSED:
+	case ETIMEDOUT:
+	  status = NSS_STATUS_UNAVAIL;
+	  break;
+	default:
+	  status = NSS_STATUS_NOTFOUND;
+	  break;
 	}
-      else
-	status = (errno == ECONNREFUSED
-		  ? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
+
       *herrnop = h_errno;
       if (h_errno == TRY_AGAIN)
 	*errnop = EAGAIN;
@@ -589,7 +601,7 @@ getanswer_r (const querybuf *answer, int anslen, const char *qname, int qtype,
     char *h_addr_ptrs[0];
   } *host_data;
   int linebuflen;
-  register const HEADER *hp;
+  const HEADER *hp;
   const u_char *end_of_message, *cp;
   int n, ancount, qdcount;
   int haveanswer, had_error;
@@ -745,6 +757,10 @@ getanswer_r (const querybuf *answer, int anslen, const char *qname, int qtype,
 
       if ((qtype == T_A || qtype == T_AAAA) && type == T_CNAME)
 	{
+	  /* A CNAME could also have a TTL entry.  */
+	  if (ttlp != NULL && ttl < *ttlp)
+	      *ttlp = ttl;
+
 	  if (ap >= &host_data->aliases[MAX_NR_ALIASES - 1])
 	    continue;
 	  n = dn_expand (answer->buf, end_of_message, cp, tbuf, sizeof tbuf);
@@ -904,9 +920,12 @@ getanswer_r (const querybuf *answer, int anslen, const char *qname, int qtype,
 	    }
 	  if (!haveanswer)
 	    {
-	      register int nn;
+	      int nn;
 
-	      if (ttlp != NULL)
+	      /* We compose a single hostent out of the entire chain of
+	         entries, so the TTL of the hostent is essentially the lowest
+		 TTL in the chain.  */
+	      if (ttlp != NULL && ttl < *ttlp)
 		*ttlp = ttl;
 	      if (canonp != NULL)
 		*canonp = bp;
@@ -1082,6 +1101,11 @@ gaih_getanswer_slice (const querybuf *answer, int anslen, const char *qname,
       if (type == T_CNAME)
 	{
 	  char tbuf[MAXDNAME];
+
+	  /* A CNAME could also have a TTL entry.  */
+	  if (ttlp != NULL && ttl < *ttlp)
+	      *ttlp = ttl;
+
 	  n = dn_expand (answer->buf, end_of_message, cp, tbuf, sizeof tbuf);
 	  if (__builtin_expect (n < 0 || res_hnok (tbuf) == 0, 0))
 	    {
@@ -1162,7 +1186,10 @@ gaih_getanswer_slice (const querybuf *answer, int anslen, const char *qname,
 
       if (*firstp)
 	{
-	  if (ttlp != NULL)
+	  /* We compose a single hostent out of the entire chain of
+	     entries, so the TTL of the hostent is essentially the lowest
+	     TTL in the chain.  */
+	  if (ttlp != NULL && ttl < *ttlp)
 	    *ttlp = ttl;
 
 	  (*pat)->name = canon ?: h_name;
@@ -1220,7 +1247,13 @@ gaih_getanswer (const querybuf *answer1, int anslen1, const querybuf *answer2,
 				  &first);
   if ((status == NSS_STATUS_SUCCESS || status == NSS_STATUS_NOTFOUND
        || (status == NSS_STATUS_TRYAGAIN
-	   && (errno != ERANGE || *h_errnop != NO_RECOVERY)))
+	   /* We want to look at the second answer in case of an
+	      NSS_STATUS_TRYAGAIN only if the error is non-recoverable, i.e.
+	      *h_errnop is NO_RECOVERY. If not, and if the failure was due to
+	      an insufficient buffer (ERANGE), then we need to drop the results
+	      and pass on the NSS_STATUS_TRYAGAIN to the caller so that it can
+	      repeat the query with a larger buffer.  */
+	   && (*errnop != ERANGE || *h_errnop == NO_RECOVERY)))
       && answer2 != NULL && anslen2 > 0)
     {
       enum nss_status status2 = gaih_getanswer_slice(answer2, anslen2, qname,

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2008, 2009, 2010, 2011   Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
 #include <limits.h>
@@ -27,7 +26,7 @@
 #include <wchar.h>
 #include <bits/libc-lock.h>
 #include <sys/param.h>
-#include "_itoa.h"
+#include <_itoa.h>
 #include <locale/localeinfo.h>
 #include <stdio.h>
 
@@ -68,10 +67,10 @@
   do {									      \
     unsigned int _val = val;						      \
     assert ((unsigned int) done < (unsigned int) INT_MAX);		      \
-    if (__builtin_expect ((unsigned int) INT_MAX - (unsigned int) done	      \
-			  < _val, 0))					      \
+    if (__glibc_unlikely (INT_MAX - done < _val))			      \
       {									      \
 	done = -1;							      \
+	 __set_errno (EOVERFLOW);					      \
 	goto all_done;							      \
       }									      \
     done += _val;							      \
@@ -88,8 +87,18 @@
 
 # define PUT(F, S, N)	_IO_sputn ((F), (S), (N))
 # define PAD(Padchar) \
-  if (width > 0)							      \
-    done_add (INTUSE(_IO_padn) (s, (Padchar), width))
+  do {									      \
+    if (width > 0)							      \
+      {									      \
+	unsigned int d = _IO_padn (s, (Padchar), width);		      \
+	if (__glibc_unlikely (d == EOF))				      \
+	  {								      \
+	    done = -1;							      \
+	    goto all_done;						      \
+	  }								      \
+	done_add (d);							      \
+      }									      \
+  } while (0)
 # define PUTC(C, F)	_IO_putc_unlocked (C, F)
 # define ORIENT		if (_IO_vtable_offset (s) == 0 && _IO_fwide (s, -1) != -1)\
 			  return -1
@@ -103,12 +112,22 @@
 # define ISDIGIT(Ch)	((unsigned int) ((Ch) - L'0') < 10)
 # define STR_LEN(Str)	__wcslen (Str)
 
-# include "_itowa.h"
+# include <_itowa.h>
 
 # define PUT(F, S, N)	_IO_sputn ((F), (S), (N))
 # define PAD(Padchar) \
-  if (width > 0)							      \
-    done_add (_IO_wpadn (s, (Padchar), width))
+  do {									      \
+    if (width > 0)							      \
+      {									      \
+	unsigned int d = _IO_wpadn (s, (Padchar), width);		      \
+	if (__glibc_unlikely (d == EOF))				      \
+	  {								      \
+	    done = -1;							      \
+	    goto all_done;						      \
+	  }								      \
+	done_add (d);							      \
+      }									      \
+  } while (0)
 # define PUTC(C, F)	_IO_putwc_unlocked (C, F)
 # define ORIENT		if (_IO_fwide (s, 1) != 1) return -1
 
@@ -128,7 +147,7 @@
 #define	outchar(Ch)							      \
   do									      \
     {									      \
-      register const INT_T outc = (Ch);					      \
+      const INT_T outc = (Ch);						      \
       if (PUTC (outc, s) == EOF || done == INT_MAX)			      \
 	{								      \
 	  done = -1;							      \
@@ -142,12 +161,17 @@
   do									      \
     {									      \
       assert ((size_t) done <= (size_t) INT_MAX);			      \
-      if ((size_t) PUT (s, (String), (Len)) != (size_t) (Len)		      \
-	  || (size_t) INT_MAX - (size_t) done < (size_t) (Len))		      \
+      if ((size_t) PUT (s, (String), (Len)) != (size_t) (Len))		      \
 	{								      \
 	  done = -1;							      \
 	  goto all_done;						      \
 	}								      \
+      if (__glibc_unlikely (INT_MAX - done < (Len)))			      \
+      {									      \
+	done = -1;							      \
+	 __set_errno (EOVERFLOW);					      \
+	goto all_done;							      \
+      }									      \
       done += (Len);							      \
     }									      \
   while (0)
@@ -236,6 +260,9 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
      0 if unknown.  */
   int readonly_format = 0;
 
+  /* For the argument descriptions, which may be allocated on the heap.  */
+  void *args_malloced = NULL;
+
   /* This table maps a character into a number representing a
      class.  In each step there is a destination label for each
      class.  */
@@ -275,7 +302,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
       do								      \
 	{								      \
 	  int offset;							      \
-	  void *__unbounded ptr;					      \
+	  void *ptr;							      \
 	  spec = (ChExpr);						      \
 	  offset = NOT_IN_JUMP_RANGE (spec) ? REF (form_unknown)	      \
 	    : table[CHAR_CLASS (spec)];					      \
@@ -288,7 +315,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 # define JUMP(ChExpr, table)						      \
       do								      \
 	{								      \
-	  const void *__unbounded ptr;					      \
+	  const void *ptr;						      \
 	  spec = (ChExpr);						      \
 	  ptr = NOT_IN_JUMP_RANGE (spec) ? REF (form_unknown)		      \
 	    : table[CHAR_CLASS (spec)];					      \
@@ -820,7 +847,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 									      \
 	if (function_done < 0)						      \
 	  {								      \
-	    /* Error in print handler.  */				      \
+	    /* Error in print handler; up to handler to set errno.  */	      \
 	    done = -1;							      \
 	    goto all_done;						      \
 	  }								      \
@@ -874,7 +901,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 									      \
 	if (function_done < 0)						      \
 	  {								      \
-	    /* Error in print handler.  */				      \
+	    /* Error in print handler; up to handler to set errno.  */	      \
 	    done = -1;							      \
 	    goto all_done;						      \
 	  }								      \
@@ -1081,7 +1108,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	outstring (string, len);					      \
 	if (left)							      \
 	  PAD (L' ');							      \
-	if (__builtin_expect (string_malloced, 0))			      \
+	if (__glibc_unlikely (string_malloced))				      \
 	  free (string);						      \
       }									      \
       break;
@@ -1115,7 +1142,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 			 &mbstate);					      \
 	if (len == (size_t) -1)						      \
 	  {								      \
-	    /* Something went wron gduring the conversion.  Bail out.  */     \
+	    /* Something went wrong during the conversion.  Bail out.  */     \
 	    done = -1;							      \
 	    goto all_done;						      \
 	  }								      \
@@ -1227,7 +1254,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	outstring (string, len);					      \
 	if (left)							      \
 	  PAD (' ');							      \
-	if (__builtin_expect (string_malloced, 0))			      \
+	if (__glibc_unlikely (string_malloced))			              \
 	  free (string);						      \
       }									      \
       break;
@@ -1288,9 +1315,9 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
     goto all_done;
 
   /* Use the slow path in case any printf handler is registered.  */
-  if (__builtin_expect (__printf_function_table != NULL
+  if (__glibc_unlikely (__printf_function_table != NULL
 			|| __printf_modifier_table != NULL
-			|| __printf_va_arg_table != NULL, 0))
+			|| __printf_va_arg_table != NULL))
     goto do_positional;
 
   /* Process whole format string.  */
@@ -1400,10 +1427,21 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	const UCHAR_T *tmp;	/* Temporary value.  */
 
 	tmp = ++f;
-	if (ISDIGIT (*tmp) && read_int (&tmp) && *tmp == L_('$'))
-	  /* The width comes from a positional parameter.  */
-	  goto do_positional;
+	if (ISDIGIT (*tmp))
+	  {
+	    int pos = read_int (&tmp);
 
+	    if (pos == -1)
+	      {
+		__set_errno (EOVERFLOW);
+		done = -1;
+		goto all_done;
+	      }
+
+	    if (pos && *tmp == L_('$'))
+	      /* The width comes from a positional parameter.  */
+	      goto do_positional;
+	  }
 	width = va_arg (ap, int);
 
 	/* Negative width means left justified.  */
@@ -1414,9 +1452,9 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	    left = 1;
 	  }
 
-	if (__builtin_expect (width >= (size_t) -1 / sizeof (CHAR_T) - 32, 0))
+	if (__glibc_unlikely (width >= INT_MAX / sizeof (CHAR_T) - 32))
 	  {
-	    __set_errno (ERANGE);
+	    __set_errno (EOVERFLOW);
 	    done = -1;
 	    goto all_done;
 	  }
@@ -1446,9 +1484,10 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
     LABEL (width):
       width = read_int (&f);
 
-      if (__builtin_expect (width >= (size_t) -1 / sizeof (CHAR_T) - 32, 0))
+      if (__glibc_unlikely (width == -1
+			    || width >= INT_MAX / sizeof (CHAR_T) - 32))
 	{
-	  __set_errno (ERANGE);
+	  __set_errno (EOVERFLOW);
 	  done = -1;
 	  goto all_done;
 	}
@@ -1483,10 +1522,21 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	  const UCHAR_T *tmp;	/* Temporary value.  */
 
 	  tmp = ++f;
-	  if (ISDIGIT (*tmp) && read_int (&tmp) > 0 && *tmp == L_('$'))
-	    /* The precision comes from a positional parameter.  */
-	    goto do_positional;
+	  if (ISDIGIT (*tmp))
+	    {
+	      int pos = read_int (&tmp);
 
+	      if (pos == -1)
+		{
+		  __set_errno (EOVERFLOW);
+		  done = -1;
+		  goto all_done;
+		}
+
+	      if (pos && *tmp == L_('$'))
+		/* The precision comes from a positional parameter.  */
+		goto do_positional;
+	    }
 	  prec = va_arg (ap, int);
 
 	  /* If the precision is negative the precision is omitted.  */
@@ -1494,15 +1544,26 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	    prec = -1;
 	}
       else if (ISDIGIT (*f))
-	prec = read_int (&f);
+	{
+	  prec = read_int (&f);
+
+	  /* The precision was specified in this case as an extremely
+	     large positive value.  */
+	  if (prec == -1)
+	    {
+	      __set_errno (EOVERFLOW);
+	      done = -1;
+	      goto all_done;
+	    }
+	}
       else
 	prec = 0;
       if (prec > width
 	  && prec > sizeof (work_buffer) / sizeof (work_buffer[0]) - 32)
 	{
-	  if (__builtin_expect (prec >= (size_t) -1 / sizeof (CHAR_T) - 32, 0))
+	  if (__glibc_unlikely (prec >= INT_MAX / sizeof (CHAR_T) - 32))
 	    {
-	      __set_errno (ERANGE);
+	      __set_errno (EOVERFLOW);
 	      done = -1;
 	      goto all_done;
 	    }
@@ -1571,6 +1632,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	  if (spec == L_('\0'))
 	    {
 	      /* The format string ended before the specifier is complete.  */
+	      __set_errno (EINVAL);
 	      done = -1;
 	      goto all_done;
 	    }
@@ -1583,7 +1645,7 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
       /* The format is correctly handled.  */
       ++nspecs_done;
 
-      if (__builtin_expect (workstart != NULL, 0))
+      if (__glibc_unlikely (workstart != NULL))
 	free (workstart);
       workstart = NULL;
 
@@ -1608,17 +1670,18 @@ do_positional:
     /* Array with information about the needed arguments.  This has to
        be dynamically extensible.  */
     size_t nspecs = 0;
-    size_t nspecs_max = 32;	/* A more or less arbitrary start value.  */
-    struct printf_spec *specs
-      = alloca (nspecs_max * sizeof (struct printf_spec));
+    /* A more or less arbitrary start value.  */
+    size_t nspecs_size = 32 * sizeof (struct printf_spec);
+    struct printf_spec *specs = alloca (nspecs_size);
 
     /* The number of arguments the format string requests.  This will
        determine the size of the array needed to store the argument
        attributes.  */
     size_t nargs = 0;
-    int *args_type;
-    union printf_arg *args_value = NULL;
+    size_t bytes_per_arg;
+    union printf_arg *args_value;
     int *args_size;
+    int *args_type;
 
     /* Positional parameters refer to arguments directly.  This could
        also determine the maximum number of arguments.  Track the
@@ -1628,7 +1691,8 @@ do_positional:
     /* Just a counter.  */
     size_t cnt;
 
-    free (workstart);
+    if (__glibc_unlikely (workstart != NULL))
+      free (workstart);
     workstart = NULL;
 
     if (grouping == (const char *) -1)
@@ -1647,15 +1711,14 @@ do_positional:
 
     for (f = lead_str_end; *f != L_('\0'); f = specs[nspecs++].next_fmt)
       {
-	if (nspecs >= nspecs_max)
+	if (nspecs * sizeof (*specs) >= nspecs_size)
 	  {
 	    /* Extend the array of format specifiers.  */
 	    struct printf_spec *old = specs;
-	    specs = extend_alloca (specs, nspecs_max,
-				   2 * nspecs_max * sizeof (*specs));
+	    specs = extend_alloca (specs, nspecs_size, 2 * nspecs_size);
 
 	    /* Copy the old array's elements to the new space.  */
-	    memmove (specs, old, nspecs * sizeof (struct printf_spec));
+	    memmove (specs, old, nspecs * sizeof (*specs));
 	  }
 
 	/* Parse the format specifier.  */
@@ -1668,13 +1731,38 @@ do_positional:
 
     /* Determine the number of arguments the format string consumes.  */
     nargs = MAX (nargs, max_ref_arg);
+    /* Calculate total size needed to represent a single argument across
+       all three argument-related arrays.  */
+    bytes_per_arg = (sizeof (*args_value) + sizeof (*args_size)
+		     + sizeof (*args_type));
 
-    /* Allocate memory for the argument descriptions.  */
-    args_type = alloca (nargs * sizeof (int));
+    /* Check for potential integer overflow.  */
+    if (__glibc_unlikely (nargs > INT_MAX / bytes_per_arg))
+      {
+	 __set_errno (EOVERFLOW);
+	 done = -1;
+	 goto all_done;
+      }
+
+    /* Allocate memory for all three argument arrays.  */
+    if (__libc_use_alloca (nargs * bytes_per_arg))
+	args_value = alloca (nargs * bytes_per_arg);
+    else
+      {
+	args_value = args_malloced = malloc (nargs * bytes_per_arg);
+	if (args_value == NULL)
+	  {
+	    done = -1;
+	    goto all_done;
+	  }
+      }
+
+    /* Set up the remaining two arrays to each point past the end of the
+       prior array, since space for all three has been allocated now.  */
+    args_size = &args_value[nargs].pa_int;
+    args_type = &args_size[nargs];
     memset (args_type, s->_flags2 & _IO_FLAGS2_FORTIFY ? '\xff' : '\0',
-	    nargs * sizeof (int));
-    args_value = alloca (nargs * sizeof (union printf_arg));
-    args_size = alloca (nargs * sizeof (int));
+	    nargs * sizeof (*args_type));
 
     /* XXX Could do sanity check here: If any element in ARGS_TYPE is
        still zero after this loop, format is invalid.  For now we
@@ -1754,7 +1842,7 @@ do_positional:
 	default:
 	  if ((args_type[cnt] & PA_FLAG_PTR) != 0)
 	    args_value[cnt].pa_pointer = va_arg (ap_save, void *);
-	  else if (__builtin_expect (__printf_va_arg_table != NULL, 0)
+	  else if (__glibc_unlikely (__printf_va_arg_table != NULL)
 		   && __printf_va_arg_table[args_type[cnt] - PA_LAST] != NULL)
 	    {
 	      args_value[cnt].pa_user = alloca (args_size[cnt]);
@@ -1857,6 +1945,11 @@ do_positional:
 	      {
 		workstart = (CHAR_T *) malloc ((MAX (prec, width) + 32)
 					       * sizeof (CHAR_T));
+		if (workstart == NULL)
+		  {
+		    done = -1;
+		    goto all_done;
+		  }
 		workend = workstart + (MAX (prec, width) + 32);
 	      }
 	  }
@@ -1889,6 +1982,7 @@ do_positional:
 		       about # of chars.  */
 		    if (function_done < 0)
 		      {
+			/* Function has set errno.  */
 			done = -1;
 			goto all_done;
 		      }
@@ -1923,6 +2017,7 @@ do_positional:
 		 of chars.  */
 	      if (function_done < 0)
 		{
+		  /* Function has set errno.  */
 		  done = -1;
 		  goto all_done;
 		}
@@ -1932,7 +2027,8 @@ do_positional:
 	    break;
 	  }
 
-	free (workstart);
+	if (__glibc_unlikely (workstart != NULL))
+	  free (workstart);
 	workstart = NULL;
 
 	/* Write the following constant string.  */
@@ -1943,7 +2039,9 @@ do_positional:
   }
 
 all_done:
-  if (__builtin_expect (workstart != NULL, 0))
+  if (__glibc_unlikely (args_malloced != NULL))
+    free (args_malloced);
+  if (__glibc_unlikely (workstart != NULL))
     free (workstart);
   /* Unlock the stream.  */
   _IO_funlockfile (s);
@@ -1963,7 +2061,7 @@ printf_unknown (FILE *s, const struct printf_info *info,
   CHAR_T work_buffer[MAX (sizeof (info->width), sizeof (info->prec)) * 3];
   CHAR_T *const workend
     = &work_buffer[sizeof (work_buffer) / sizeof (CHAR_T)];
-  register CHAR_T *w;
+  CHAR_T *w;
 
   outchar (L_('%'));
 
@@ -2125,18 +2223,18 @@ _IO_helper_overflow (_IO_FILE *s, int c)
 static const struct _IO_jump_t _IO_helper_jumps =
 {
   JUMP_INIT_DUMMY,
-  JUMP_INIT (finish, INTUSE(_IO_wdefault_finish)),
+  JUMP_INIT (finish, _IO_wdefault_finish),
   JUMP_INIT (overflow, _IO_helper_overflow),
   JUMP_INIT (underflow, _IO_default_underflow),
-  JUMP_INIT (uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT (pbackfail, (_IO_pbackfail_t) INTUSE(_IO_wdefault_pbackfail)),
-  JUMP_INIT (xsputn, INTUSE(_IO_wdefault_xsputn)),
-  JUMP_INIT (xsgetn, INTUSE(_IO_wdefault_xsgetn)),
+  JUMP_INIT (uflow, _IO_default_uflow),
+  JUMP_INIT (pbackfail, (_IO_pbackfail_t) _IO_wdefault_pbackfail),
+  JUMP_INIT (xsputn, _IO_wdefault_xsputn),
+  JUMP_INIT (xsgetn, _IO_wdefault_xsgetn),
   JUMP_INIT (seekoff, _IO_default_seekoff),
   JUMP_INIT (seekpos, _IO_default_seekpos),
   JUMP_INIT (setbuf, _IO_default_setbuf),
   JUMP_INIT (sync, _IO_default_sync),
-  JUMP_INIT (doallocate, INTUSE(_IO_wdefault_doallocate)),
+  JUMP_INIT (doallocate, _IO_wdefault_doallocate),
   JUMP_INIT (read, _IO_default_read),
   JUMP_INIT (write, _IO_default_write),
   JUMP_INIT (seek, _IO_default_seek),
@@ -2147,18 +2245,18 @@ static const struct _IO_jump_t _IO_helper_jumps =
 static const struct _IO_jump_t _IO_helper_jumps =
 {
   JUMP_INIT_DUMMY,
-  JUMP_INIT (finish, INTUSE(_IO_default_finish)),
+  JUMP_INIT (finish, _IO_default_finish),
   JUMP_INIT (overflow, _IO_helper_overflow),
   JUMP_INIT (underflow, _IO_default_underflow),
-  JUMP_INIT (uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT (pbackfail, INTUSE(_IO_default_pbackfail)),
-  JUMP_INIT (xsputn, INTUSE(_IO_default_xsputn)),
-  JUMP_INIT (xsgetn, INTUSE(_IO_default_xsgetn)),
+  JUMP_INIT (uflow, _IO_default_uflow),
+  JUMP_INIT (pbackfail, _IO_default_pbackfail),
+  JUMP_INIT (xsputn, _IO_default_xsputn),
+  JUMP_INIT (xsgetn, _IO_default_xsgetn),
   JUMP_INIT (seekoff, _IO_default_seekoff),
   JUMP_INIT (seekpos, _IO_default_seekpos),
   JUMP_INIT (setbuf, _IO_default_setbuf),
   JUMP_INIT (sync, _IO_default_sync),
-  JUMP_INIT (doallocate, INTUSE(_IO_default_doallocate)),
+  JUMP_INIT (doallocate, _IO_default_doallocate),
   JUMP_INIT (read, _IO_default_read),
   JUMP_INIT (write, _IO_default_write),
   JUMP_INIT (seek, _IO_default_seek),
@@ -2169,12 +2267,12 @@ static const struct _IO_jump_t _IO_helper_jumps =
 
 static int
 internal_function
-buffered_vfprintf (register _IO_FILE *s, const CHAR_T *format,
+buffered_vfprintf (_IO_FILE *s, const CHAR_T *format,
 		   _IO_va_list args)
 {
   CHAR_T buf[_IO_BUFSIZ];
   struct helper_file helper;
-  register _IO_FILE *hp = (_IO_FILE *) &helper._f;
+  _IO_FILE *hp = (_IO_FILE *) &helper._f;
   int result, to_flush;
 
   /* Orient the stream.  */
@@ -2204,7 +2302,7 @@ buffered_vfprintf (register _IO_FILE *s, const CHAR_T *format,
 
   /* Now print to helper instead.  */
 #ifndef COMPILE_WPRINTF
-  result = INTUSE(_IO_vfprintf) (hp, format, args);
+  result = _IO_vfprintf (hp, format, args);
 #else
   result = vfprintf (hp, format, args);
 #endif
@@ -2245,4 +2343,5 @@ ldbl_weak_alias (_IO_vfwprintf, vfwprintf);
 ldbl_strong_alias (_IO_vfprintf_internal, vfprintf);
 ldbl_hidden_def (_IO_vfprintf_internal, vfprintf)
 ldbl_strong_alias (_IO_vfprintf_internal, _IO_vfprintf);
+ldbl_hidden_def (_IO_vfprintf_internal, _IO_vfprintf)
 #endif

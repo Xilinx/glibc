@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -25,7 +24,6 @@
 #include <sysdep.h>
 #include <sys/syscall.h>
 #include <shlib-compat.h>
-#include <bp-checks.h>
 
 #include <linux/posix_types.h>
 #include <kernel-features.h>
@@ -84,31 +82,18 @@ fchownat (int fd, const char *file, uid_t owner, gid_t group, int flag)
       file = buf;
     }
 
-# if __ASSUME_32BITUIDS > 0
-  /* This implies __ASSUME_LCHOWN_SYSCALL.  */
   INTERNAL_SYSCALL_DECL (err);
 
   if (flag & AT_SYMLINK_NOFOLLOW)
-    result = INTERNAL_SYSCALL (lchown32, err, 3, CHECK_STRING (file), owner,
-			       group);
+    result = INTERNAL_SYSCALL (lchown32, err, 3, file, owner, group);
   else
-    result = INTERNAL_SYSCALL (chown32, err, 3, CHECK_STRING (file), owner,
-			       group);
+    result = INTERNAL_SYSCALL (chown32, err, 3, file, owner, group);
 
   if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (result, err), 0))
     {
       __atfct_seterrno (INTERNAL_SYSCALL_ERRNO (result, err), fd, buf);
       return -1;
     }
-# else
-  /* Don't inline the rest to avoid unnecessary code duplication.  */
-  if (flag & AT_SYMLINK_NOFOLLOW)
-    result = __lchown (file, owner, group);
-  else
-    result = __chown (file, owner, group);
-  if (result < 0)
-    __atfct_seterrno (errno, fd, buf);
-# endif
 
   return result;
 

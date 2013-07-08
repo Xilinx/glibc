@@ -1,5 +1,5 @@
 /* Jump to a new context powerpc32 common.
-   Copyright (C) 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This is the common implementation of setcontext for powerpc32.
    It not complete in itself should be included in to a framework that
@@ -73,10 +72,10 @@ ENTRY(__CONTEXT_FUNC_NAME)
 
 #ifdef PIC
 	mflr    r8
-	bcl	20,31,1f
-1:	mflr	r7
-	addis	r7,r7,_GLOBAL_OFFSET_TABLE_-1b@ha
-	addi	r7,r7,_GLOBAL_OFFSET_TABLE_-1b@l
+# define got_label GENERATE_GOT_LABEL (__CONTEXT_FUNC_NAME)
+	SETUP_GOT_ACCESS(r7,got_label)
+	addis	r7,r7,_GLOBAL_OFFSET_TABLE_-got_label@ha
+	addi	r7,r7,_GLOBAL_OFFSET_TABLE_-got_label@l
 # ifdef SHARED
 	lwz     r7,_rtld_global_ro@got(r7)
 	mtlr    r8

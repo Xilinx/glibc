@@ -1,4 +1,4 @@
-/* Copyright (C) 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fcntl.h>
 #include <kernel-features.h>
@@ -39,7 +38,13 @@ posix_fallocate (int fd, __off_t offset, __off_t len)
 # endif
     {
       INTERNAL_SYSCALL_DECL (err);
+# ifdef INTERNAL_SYSCALL_TYPES
+      int res = INTERNAL_SYSCALL_TYPES (fallocate, err, 4, int, fd,
+					int, 0, off_t, offset,
+					off_t, len);
+# else
       int res = INTERNAL_SYSCALL (fallocate, err, 4, fd, 0, offset, len);
+# endif
 
       if (! INTERNAL_SYSCALL_ERROR_P (res, err))
 	return 0;

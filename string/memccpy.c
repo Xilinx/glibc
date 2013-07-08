@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1995, 1997, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <string.h>
 
@@ -31,10 +30,10 @@ __memccpy (dest, src, c, n)
       int c;
       size_t n;
 {
-  register const char *s = src;
-  register char *d = dest;
-  register const char x = c;
-  register size_t i = n;
+  const char *s = src;
+  char *d = dest;
+  const char x = c;
+  size_t i = n;
 
   while (i-- > 0)
     if ((*d++ = *s++) == x)

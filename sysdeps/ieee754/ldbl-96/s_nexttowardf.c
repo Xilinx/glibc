@@ -17,17 +17,11 @@
 static char rcsid[] = "$NetBSD: $";
 #endif
 
-#include "math.h"
+#include <math.h>
 #include <math_private.h>
 #include <float.h>
 
-#ifdef __STDC__
-	float __nexttowardf(float x, long double y)
-#else
-	float __nexttowardf(x,y)
-	float x;
-	long double y;
-#endif
+float __nexttowardf(float x, long double y)
 {
 	int32_t hx,ix,iy;
 	u_int32_t hy,ly,esy;
@@ -50,17 +44,13 @@ static char rcsid[] = "$NetBSD: $";
 	    return x;
 	}
 	if(hx>=0) {				/* x > 0 */
-	    if(esy>=0x8000||((ix>>23)&0xff)>iy-0x3f80
-	       || (((ix>>23)&0xff)==iy-0x3f80
-		   && ((ix&0x7fffff)<<8)>(hy&0x7fffffff))) {/* x > y, x -= ulp */
+	    if(x > y) {				/* x -= ulp */
 		hx -= 1;
 	    } else {				/* x < y, x += ulp */
 		hx += 1;
 	    }
 	} else {				/* x < 0 */
-	    if(esy<0x8000||((ix>>23)&0xff)>iy-0x3f80
-	       || (((ix>>23)&0xff)==iy-0x3f80
-		   && ((ix&0x7fffff)<<8)>(hy&0x7fffffff))) {/* x < y, x -= ulp */
+	    if(x < y) {				/* x -= ulp */
 		hx -= 1;
 	    } else {				/* x > y, x += ulp */
 		hx += 1;

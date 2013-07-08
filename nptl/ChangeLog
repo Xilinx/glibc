@@ -1,3 +1,1544 @@
+2013-07-03  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86/init-arch.c: New file.
+	* sysdeps/unix/sysv/linux/x86/init-arch.h: Likewise.
+
+2013-07-02  Andi Kleen <ak@linux.intel.com>
+
+	* sysdeps/unix/sysv/linux/x86/elision-conf.c (elision_init):
+	  Check ENABLE_LOCK_ELISION.
+
+2013-07-02  Andi Kleen  <ak@linux.intel.com>
+
+	* pthread_mutexattr_settype.c (__pthread_mutexattr_settype):
+	  Disable elision for PTHREAD_MUTEX_DEFAULT.
+
+2013-07-02  Andi Kleen  <ak@linux.intel.com>
+	    Hongjiu Lu  <hongjiu.lu@intel.com>
+
+	* pthread_mutex_lock.c
+	(__pthread_mutex_lock): Add lock elision support.
+	* pthread_mutex_timedlock.c (pthread_mutex_timedlock): Likewise.
+	* pthread_mutex_trylock.c (__pthread_mutex_trylock): Likewise.
+	* pthread_mutex_unlock.c (__pthread_mutex_unlock_usercnt): Likewise.
+	* sysdeps/unix/sysv/linux/pthread_mutex_cond_lock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86/Makefile: New file.
+	* sysdeps/unix/sysv/linux/x86/force-elision.h: New file
+	* sysdeps/unix/sysv/linux/x86/pthread_mutex_cond_lock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86/pthread_mutex_lock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86/pthread_mutex_timedlock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86/pthread_mutex_trylock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86/pthread_mutex_unlock.c: Likewise.
+
+2013-07-02  Andi Kleen  <ak@linux.intel.com>
+
+	* tst-mutex5.c: Include config.h.
+	  (do_test): Add checks for ENABLE_LOCK_ELISION.
+	* tst-mutex8.c: Include config.h
+	  (tf): Add checks for ENABLE_LOCK_ELISION.
+	  (check_type): Likewise.
+
+2013-07-02  Andi Kleen  <ak@linux.intel.com>
+
+	* pthreadP.h: Add elision types.
+	  (PTHREAD_MUTEX_TYPE_ELISION): Add.
+	* sysdeps/pthread/pthread.h: Add elision initializers.
+	  (PTHREAD_MUTEX_ELISION_NP, PTHREAD_MUTEX_NO_ELISION_NP,
+	   PTHREAD_MUTEX_PSHARED_NP): Add new flags.
+	  (__PTHREAD_SPINS): Add.
+
+2013-07-02  Andi Kleen  <ak@linux.intel.com>
+	    Hongjiu Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/i386/lowlevellock.h (__lll_timedwait_tid,
+	  lll_timedlock_elision, __lll_lock_elision, __lll_unlock_elision,
+	  __lll_trylock_elision, lll_lock_elision, lll_unlock_elision,
+	  lll_trylock_elision): Add.
+	* sysdeps/unix/sysv/linux/x86/Makefile: Imply x86.
+	* sysdeps/unix/sysv/linux/x86/elision-conf.c: New file.
+	* sysdeps/unix/sysv/linux/x86/elision-conf.h: New file.
+	* sysdeps/unix/sysv/linux/x86/elision-lock.c: New file.
+	* sysdeps/unix/sysv/linux/x86/elision-timed.c: New file.
+	* sysdeps/unix/sysv/linux/x86/elision-trylock.c: New file.
+	* sysdeps/unix/sysv/linux/x86/elision-unlock.c: New file.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h (__lll_timedwait_tid,
+	  lll_timedlock_elision, __lll_lock_elision, __lll_unlock_elision,
+	  __lll_trylock_elision, lll_lock_elision, lll_unlock_elision,
+	  lll_trylock_elision): Add.
+	* nptl/sysdeps/unix/sysv/linux/x86/hle.h: New file.
+	* elision-conf.h: New file.
+
+2013-06-24  Vladimir Nikulichev  <v.nikulichev@gmail.com>
+
+	[BZ #12310]
+	* pthread_exit.c: Add reference to pthread_create.
+
+2013-06-22  Joseph Myers  <joseph@codesourcery.com>
+
+	* pthread_getattr_default_np.c: Include <string.h>.
+
+2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* Versions (libpthread): Add GLIBC_2.18.
+	(GLIBC_2.18): Add pthread_setattr_default_np and
+	pthread_getattr_default_np.
+	* allocatestack.c (allocate_stack): Synchronize read from
+	__default_pthread_attr.
+	(__reclaim_stacks): Initialize __default_pthread_attr_lock.
+	* nptl-init.c (__pthread_initialize_minimal_internal):
+	Synchronize write to __default_pthread_attr.
+	* pthreadP.h (__default_pthread_attr_lock): Declare.
+	* pthread_attr_getstacksize (__pthread_attr_getstacksize):
+	Synchronize read from __default_pthread_attr.
+	* pthread_create.c (__pthread_create_2_1): Make a local copy of
+	__default_pthread_attr.  Check value of flags in IATTR even if
+	input ATTR is NULL.
+	* pthread_getattr_default_np.c: New file.
+	* pthread_setattr_default_np.c: New file.
+	* sysdeps/pthread/pthread.h [__USE_GNU]
+	(pthread_getattr_default_np, pthread_setattr_default_np):
+	Declare.
+	* tst-default-attr.c: New test case.
+	* Makefile (libpthread-routines): Add
+	pthread_setattr_default_np and pthread_getattr_default_np.
+	(tests): Add tst-default-attr.
+	* vars.c (__default_pthread_attr_lock): Declare and initialize.
+
+2013-06-13  Siddhesh Poyarekar  <siddhesh@redhat.com>
+	    Carlos O'Donell  <carlos@redhat.com>
+
+	[BZ #15618]
+	* tst-pthread-attr-affinity: New test case.
+	* Makefile (tests): Add it.
+	* sysdeps/unix/sysv/linux/pthread_attr_getaffinity.c
+	(__pthread_attr_getaffinity_new): Copy minimum of source and
+	destination sizes to avoid a buffer overrun.
+
+2013-06-10  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/unix/sysv/linux/i386/lowlevellock.h
+	(lll_futex_wake): Return syscall error.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h
+	(lll_futex_wake): Return syscall error.
+
+2013-08-06   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/pthread/allocalim.h: (__libc_use_alloca): Fix warning.
+
+2013-06-06   Ondřej Bílka  <neleai@seznam.cz>
+
+	* tst-cond22.c: Fix leading whitespaces.
+	* tst-umask1.c: Likewise.
+
+2013-06-06  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_barrier_wait.S: Remove
+	trailing whitespace.
+	* sysdeps/unix/sysv/linux/powerpc/pt-longjmp.c: Likewise.
+	* sysdeps/unix/sysv/linux/sh/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_barrier_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_broadcast.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_signal.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_once.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_rdlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_unlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h: Likewise.
+	* tst-mutexpp10.c: Likewise.
+	* tst-stackguard1.c: Likewise.
+
+2013-05-31  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile ($(objpfx)libpthread.so): Remove dependencies on libc
+	and ld.so.
+
+2013-05-16  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* pthread_create.c: Add missing #include <stdint.h> due to uint64_t or
+	uint32_t usage.
+	* sysdeps/pthread/createthread.c: Likewise.
+
+2013-05-14  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #10686]
+	* sysdeps/x86_64/tls.h (struct tcbhead_t): Add __private_ss field.
+	* sysdeps/i386/tls.h (struct tcbhead_t): Likewise.
+
+2013-05-09  Andi Kleen  <ak@linux.intel.com>
+
+	* tst-mutex8.c (do_test): Check for ENABLE_PI.
+
+2013-04-22  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* pthreadP.h (check_sched_policy_attr): New inline function.
+	(check_sched_priority_attr): Likewise.
+	(check_stacksize_attr): Likewise.
+	(__kernel_cpumask_size, __determine_cpumask_size): Declare
+	extern.
+	(check_cpuset_attr): New inline function.
+	* pthread_attr_setschedparam (__pthread_attr_setschedparam):
+	Use check_sched_priority_attr.
+	* pthread_attr_setschedpolicy.c
+	(__pthread_attr_setschedpolicy): Use check_sched_policy_attr.
+	* pthread_attr_setstack.c (__pthread_attr_setstack): Use
+	check_stacksize_attr.
+	* pthread_attr_setstacksize.c (__pthread_attr_setstacksize):
+	Likewise.
+	* sysdeps/unix/sysv/linux/pthread_attr_setaffinity.c
+	(__pthread_attr_setaffinity_new): Use check_cpuset_attr.
+
+2013-04-11  Andreas Schwab  <schwab@suse.de>
+
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): If possible use FUTEX_WAIT_BITSET to
+	directly use absolute timeout.
+
+2013-04-07  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/unix/sysv/linux/sem_post.c: Include atomic.h.
+
+2013-04-04  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #15337]
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S
+	[IS_IN_libpthread]
+	[SHARED && defined DO_VERSIONING && !defined NO_HIDDEN]: Mark
+	__pthread_unwind hidden.
+
+2013-03-28  Roland McGrath  <roland@hack.frob.com>
+
+	* pthread_create.c (start_thread) [!SHARED]:
+	Call __call_tls_dtors only if it's not NULL.
+
+2013-03-19  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* allocatestack.c (allocate_stack): Use __default_pthread_attr
+	instead of __default_stacksize.
+	* nptl-init.c (__pthread_initialize_minimal_internal):
+	Likewise.  Initialize guardsize.
+	* pthreadP.h (__default_pthread_attr): Declare.
+	* pthread_attr_getstacksize.c (__pthread_attr_getstacksize):
+	Use __default_pthread_attr instead of __default_stacksize.
+	* pthread_create.c (default_attr): Remove.
+	(__pthread_create_2_1): Use __default_pthread_attr instead of
+	default_attr.
+	* vars.c (__default_stacksize): Remove.
+	(__default_pthread_attr): New static variable to store
+	default thread attributes.
+
+2013-03-18  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* pthread_barrier_init.c (default_attr): Rename to
+	default_barrierattr.
+	(pthread_barrier_init): Adjust for the rename.
+	* pthread_mutex_init.c (default_attr): Rename to
+	default_mutexattr.
+	(__pthread_mutex_init): Adjust for the rename.
+	* pthread_rwlock_init.c (default_attr): Rebane to
+	default_rwlockattr.
+	(__pthread_rwlock_init): Adjust for the rename.
+
+2013-03-12  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/unix/sysv/linux/lowlevellock.c: Include <atomic.h>.
+
+2013-03-04  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/unix/sysv/linux/i386/i686/dl-sysdep.h:
+	Change multiple inclusion guard to _LINUX_I686_DL_SYSDEP_H.
+	Use #include_next.
+	(HAVE_DL_DISCOVER_OSVERSION): Remove definition, now redundant.
+	(RTLD_PRIVATE_ERRNO): Likewise.
+	(NEED_DL_SYSINFO, DL_SYSINFO_DEFAULT, DL_SYSINFO_IMPLEMENTATION):
+	Move macros and associated declaration to ...
+	* sysdeps/unix/sysv/linux/i386/dl-sysdep.h: ... here.
+	Change multiple include guard to _LINUX_I386_DL_SYSDEP_H.
+	Use #include_next.
+
+2013-03-01  Carlos O'Donell  <carlos@redhat.com>
+
+	* Makefile (tests): Revert last change.
+	(tst-pthread-stack-env-ENV): Likewise.
+	* nptl-init.c (set_default_stacksize): Likewise.
+	(__pthread_initialize_minimal_internal): Likewise.
+	* tst-pthread-stack-env.c: Likewise.
+
+2013-03-01  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* tst-oddstacklimit.c: Include stdlib.h.
+
+	* Makefile (tests): Add tst-pthread-stack-env.
+	(tst-pthread-stack-env-ENV): Set environment for test.
+	* nptl-init.c (set_default_stacksize): New function.
+	(__pthread_initialize_minimal_internal): Accept ARGC, ARGV and
+	ENVP.  Initialize __ENVIRON and set __DEFAULT_STACKSIZE.
+	* tst-pthread-stack-env.c: New test case.
+
+2013-02-21  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h
+	(FUTEX_WAIT_REQUEUE_PI): Define.
+	(FUTEX_CMP_REQUEUE_PI): Likewise.
+	(lll_futex_wait_requeue_pi): Likewise.
+	(lll_futex_timed_wait_requeue_pi): Likewise.
+	(lll_futex_cmp_requeue_pi): Likewise.
+
+2013-02-21  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/unix/sysv/linux/fork.c: Fix comment typo.
+
+2013-02-18  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/pthread/tst-timer.c: Include stdlib.h for declaration
+	of exit.
+	* tst-barrier4.c: Likewise.
+	* tst-robust7.c: Likewise.
+
+	[BZ #14920]
+	* pthreadP.h (USE_REQUEUE_PI): New macro to check if mutex is
+	PI-aware.
+	* pthread_cond_broadcast.c (__pthread_cond_broadcast): Use
+	PI-aware futex operations if available and mutex is PI-aware.
+	* pthread_cond_signal.c (__pthread_cond_signal): Likewise.
+	* nptl/pthread_cond_timedwait.c (__pthread_cond_timedwait):
+	Likewise.
+	* pthread_cond_wait.c (__condvar_cleanup): Adjust lock if
+	cancellation occurred just after futex returned successfully
+	from a PI operation with the mutex held.
+	(__pthread_cond_wait): Use PI-aware futex operations if
+	available and mutex is PI-aware.
+	* sysdeps/unix/sysv/linux/powerpc/lowlevellock.h
+	(FUTEX_WAIT_REQUEUE_PI): Define.
+	(FUTEX_CMP_REQUEUE_PI): Likewise.
+	(lll_futex_wait_requeue_pi): Likewise.
+	(lll_futex_timed_wait_requeue_pi): Likewise.
+	(lll_futex_cmp_requeue_pi): Likewise.
+	* nptl/sysdeps/unix/sysv/linux/s390/lowlevellock.h
+	(FUTEX_WAIT_REQUEUE_PI): Define.
+	(FUTEX_CMP_REQUEUE_PI): Likewise.
+	(lll_futex_wait_requeue_pi): Likewise.
+	(lll_futex_timed_wait_requeue_pi): Likewise.
+	(lll_futex_cmp_requeue_pi): Likewise.
+	* sysdeps/unix/sysv/linux/kernel-features.h: Define
+	__ASSUME_REQUEUE_PI for Linux version higher than 2.6.31.
+
+2013-02-04  Andreas Schwab  <schwab@suse.de>
+
+	[BZ #14142]
+	* tst-cancel14.c: Include <sys/time.h>.
+	* tst-cancel15.c: Likewise.
+	* tst-mutex9.c: Include <stdint.h>, <stdlib.h> and <sys/time.h>.
+	* tst-stackguard1.c: Include <tls.h>
+
+2013-01-16  Andreas Schwab  <schwab@suse.de>
+
+	[BZ #14327]
+	* sem_open.c (sem_open): Use __mktemp instead of mktemp.
+
+2013-01-11  Carlos O'Donell  <codonell@redhat.com>
+
+	* allocatestack.c (allocate_stack): Add comment. Remove assert
+	on attr.
+
+2013-01-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (tst-cancel7-ARGS: Replace $(host-built-program-cmd)
+	with $(host-test-program-cmd).
+	(tst-exec4-ARGS): Likewise.
+	(tst-stackguard1-ARGS): Likewise.
+	($(objpfx)tst-tls6.out): Don't pass $(elf-objpfx) to tst-tls6.sh.
+	Replace $(rtld-installed-name) with $(test-via-rtld-prefix).
+	* tst-tls6.sh (elf_objpfx): Removed.
+	(rtld_installed_name): Renamed to ...
+	(test_via_rtld_prefix): This.
+	(tst_tls5): Prepend ${test_via_rtld_prefix}.
+
+2013-01-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* All files with FSF copyright notices: Update copyright dates
+	using scripts/update-copyrights.
+
+2013-01-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevelrobustlock.S: Reformat
+	copyright notice.
+
+2012-12-28  Andi Kleen  <ak@linux.intel.com>
+
+	* pthread_rwlock_tryrdlock.c (__pthread_rwlock_tryrdlock): Convert
+	to prototype.
+	* pthread_rwlock_trywrlock.c (__pthread_rwlock_trywrlock):
+	Likewise.
+
+2012-12-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h
+	(lll_futex_timed_wait_bitset): New macro.
+
+2012-12-27  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/unix/sysv/linux/s390/lowlevellock.h (SYS_futex):
+	Remove definition.
+	(lll_futex_timed_wait): Replace assembly code with
+	INTERNAL_SYSCALL.
+	(lll_futex_timed_wait_bitset): Likewise.
+	(lll_futex_wake): Likewise.
+	(lll_futex_requeue): Likewise.
+	(lll_futex_wake_unlock): Likewise.
+
+2012-12-08  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/unix/sysv/linux/s390/jmp-unwind.c (_longjmp_unwind):
+	Declare LOCAL_VAR as char.
+
+2012-12-04  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/powerpc/sem_post.c (__old_sem_post):
+	Cast result of atomic_increment_val to (void) instead of storing
+	in otherwise-unused variable.
+
+2012-12-03  Allan McRae  <allan@archlinux.org>
+
+	* Makefile (LDFLAGS-tst-cond24, LDFLAGS-tst-cond25): Remove.
+
+2012-11-26  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* unwind.c (__pthread_unwind): Pass address of unwind_cleanup
+	to THREAD_SETMEM.
+	* sysdeps/i386/tls.h: Include <libc-internal.h>.
+	(THREAD_SETMEM): Use cast_to_integer before casting to uint64_t.
+	(THREAD_SETMEM_NC): Likewise.
+	* sysdeps/x86_64/tls.h: Include <libc-internal.h>.
+	(THREAD_SETMEM): Use cast_to_integer before casting to uint64_t.
+	(THREAD_SETMEM_NC): Likewise.
+
+2012-11-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sem_post.c (__old_sem_post): Cast result
+	of atomic_increment_val to (void) instead of storing in
+	otherwise-unused variable.
+
+	* pthread_cond_timedwait.c (__pthread_cond_timedwait)
+	[__NR_clock_gettime]: Cast result of INTERNAL_VSYSCALL to void
+	instead of storing in otherwise-unused variable.
+
+2012-11-14  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* Makefile (CFLAGS-open.c, CFLAGS-open64.c, CFLAGS-pause.c)
+	  (CFLAGS-recv.c, CFLAGS-send.c): Define.
+
+2012-11-06  Chris Metcalf  <cmetcalf@tilera.com>
+
+	* tst-sem14.c (TIMEOUT): Set timeout to 10 seconds.
+	* tst-cond24.c (TIMEOUT): Increase from 10 to 20 seconds.
+
+2012-11-05  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* pthread_cond_timedwait.c (__pthread_cond_timedwait): Time out
+	if absolute timeout is negative.
+	[__ASSUME_FUTEX_CLOCK_REALTIME &&
+	lll_futex_timed_wait_bitset]: Use lll_futex_timed_wait_bitset.
+	* pthread_rwlock_timedrdlock.c (pthread_rwlock_timedrdlock):
+	Likewise.
+	* pthread_rwlock_timedwrlock.c (pthread_rwlock_timedwrlock):
+	Likewise.
+	* sysdeps/unix/sysv/linux/lowlevelrobustlock.c
+	(__lll_robust_timedlock_wait): Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/lowlevellock.h
+	(lll_futex_timed_wait_bitset): New macro.
+	* sysdeps/unix/sysv/linux/s390/lowlevellock.h
+	(lll_futex_timed_wait_bitset): Likewise.
+
+2012-11-03  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h (BUSY_WAIT_NOP):
+	Add missing spaces.
+	(__cpu_relax): Likewise.
+
+2012-11-02  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/tls.h: Don't include <xmmintrin.h>.
+	(__128bits): New struct typedef.
+	(tcbhead_t): Replace __m128 with __128bits.
+
+2012-10-30  Aurelien Jarno  <aurelien@aurel32.net>
+	    Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (tst-cancel7-ARGS): Use exec in --command argument.
+
+2012-10-28  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h (BUSY_WAIT_NOP):
+	Define when we have v9 instructions available.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/cpu_relax.S: New file.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sparcv9/cpu_relax.S: New
+	file.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sparcv9/Makefile: New
+	file.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/Makefile: Add cpu_relax
+	to libpthread-routines.
+
+2012-10-25  Roland McGrath  <roland@hack.frob.com>
+
+	* tst-cond-except.c (TEST_FUNCTION): New macro.
+
+2012-10-25  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile ($(objpfx)tst-tls6.out): Use $(BASH) not $(SHELL) to
+	run tst-tls6.sh.
+	* tst-tls6.sh: Use /bin/bash not /bin/sh.
+
+2012-10-25  Roland McGrath  <roland@hack.frob.com>
+
+	* tst-basic2.c (do_test): Return RESULT, not always zero.
+
+	* tst-cond25.c: Include <stdint.h>
+	(waiter): Add casts to uintptr_t between casting integer<->pointer.
+	(timed_waiter): Likewise.
+	(do_test_wait): Likewise.
+	* tst-cond-except.c (thr): Likewise.
+	(do_test): Use prototype definition.
+
+2012-10-24  Joseph Myers  <joseph@codesourcery.com>
+	    Jim Blandy  <jimb@codesourcery.com>
+
+	* Makefile ($(objpfx)tst-tls6.out): Pass $(test-wrapper-env) to
+	tst-tls6.sh.
+	* tst-tls6.sh (test_wrapper_env): New variable.  Use it to run
+	programs with LD_PRELOAD set.
+
+2012-10-24  Roland McGrath  <roland@hack.frob.com>
+
+	* Makefile ($(objpfx)tst-cond11, $(objpfx)tst-cond19): Targets removed.
+	($(objpfx)tst-sem5, $(objpfx)tst-cancel18): Likewise.
+	((objpfx)tst-cancelx18, $(objpfx)tst-clock2): Likewise.
+	($(objpfx)tst-rwlock14): Likewise.
+
+2012-10-24  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (tests): Remove tst-oddstacklimit.
+	(test-srcs): New variable.
+	(tst-oddstacklimit-ENV): Remove.
+	[$(run-built-tests) = yes] (tests): Depend on
+	$(objpfx)tst-oddstacklimit.out.
+	[$(run-built-tests) = yes] ($(objpfx)tst-oddstacklimit.out): New
+	target.
+	* tst-oddstacklimit.c: Do not include "tst-basic1.c".  Use
+	setrlimit before executing tst-basic1 test passed to --command.
+
+2012-10-23  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile [$(cross-compiling) = no]: Change condition to
+	[$(run-built-tests) = yes].
+
+2012-10-23  Jim Blandy  <jimb@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (tst-cancel7-ARGS): Use $(host-built-program-cmd).
+	(tst-exec4-ARGS): Likewise.
+	(tst-stackguard1-ARGS): Likewise.
+
+2012-10-21  Jim Blandy  <jimb@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile ($(objpfx)tst-cancel-wrappers.out): Pass $(NM) to
+	tst-cancel-wrappers.sh.
+	* tst-cancel-wrappers.sh: Use nm program given as first argument,
+	not hardcoded "nm".
+
+2012-10-17  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* tst-cond25.c (do_test_wait): Don't check for return value from
+	pthread_cancel.
+
+2012-10-16  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #14652]
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__condvar_tw_cleanup):  Adjust the mutex data structure if it
+	was locked by FUTEX_WAIT_REQUEUE_PI.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait
+	(__condvar_w_cleanup): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S
+	(__condvar_cleanup2): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S
+	(__condvar_cleanup1): Likewise.
+
+2012-10-10  Carlos O'Donell  <carlos@systemhalted.org>
+
+	* sysdeps/pthread/pthread.h [!(defined __GNUC__ &&
+	defined __EXCEPTIONS) && defined __USE_GNU]
+	(pthread_cleanup_push_defer_np): Fix formatting.
+
+2012-10-10  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #14652]
+	* Makefile (tests): New test case tst-cond25.
+	(LDFLAGS-tst-cond25): Link tst-cond25 against librt.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__condvar_tw_cleanup): Lock mutex only if we don't already
+	own it.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S
+	(__condvar_w_cleanup): Likewise.
+	* sysdeps/unix/sysv/linux/pthread-pi-defines.sym: Add TID_MASK.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S
+	(__condvar_cleanup2): Lock mutex only if we don't already
+	own it.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S
+	(__condvar_cleanup1): Likewise.
+	* tst-cond25.c: New test case.
+
+2012-10-09  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/pthread/configure: Regenerated.
+	* sysdeps/x86_64/configure: Regenerated.
+
+2012-10-05  David S. Miller  <davem@davemloft.net>
+
+	[BZ #14568]
+	* sysdeps/sparc/tls.h (DB_THREAD_SELF_INCLUDE): Delete.
+	(DB_THREAD_SELF): Use constants for the register offsets.  Correct
+	the case of a 64-bit debugger with a 32-bit inferior.
+
+2012-10-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14557]
+	* Makefile (tests-static): Add tst-cancel24-static,
+	tst-cond8-static tst-mutex8-static, tst-mutexpi8-static,
+	tst-sem11-static and tst-sem12-static.
+	(tests): Likewise.
+	(LDLIBS-tst-cancel24-static): New macro.
+	* tst-cancel24-static.cc: New file.
+	* tst-cond8-static.c: Likewise.
+	* tst-mutex8-static.c: Likewise.
+	* tst-mutexpi8-static.c: Likewise.
+	* tst-sem11-static.c: Likewise.
+	* tst-sem12-static.c: Likewise.
+
+2012-10-05  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #14417]
+	* Makefile (tests): New test case tst-cond24.
+	(LDFLAGS-tst-cond24): Link tst-cond24 against librt.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): Unlock mutex before going back to
+	wait in PI case.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S
+	(__pthread_cond_wait): Likewise.  Revert handling of EAGAIN
+	return from futex_wait.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): Unlock mutex before going back to
+	wait in PI case.  Set requeue_pi flag only if wait returned 0.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S
+	(__pthread_cond_wait): Likewise.  Revert handling of EAGAIN
+	return from futex_wait.
+	* tst-cond24.c: New test case.
+
+2012-10-04  Roland McGrath  <roland@hack.frob.com>
+
+	* pthread_create.c (start_thread): Use __madvise, not madvise.
+
+2012-10-02  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/tls.h: Update copyright years.
+
+2012-10-02  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* pthread_create.c (start_thread): Fix clone flag name in
+	comment to CLONE_CHILD_CLEARTID.
+	* sysdeps/unix/sysv/linux/i386/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/sh/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h: Likewise.
+
+2012-10-01  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #14477]
+	* Makefile (tests): Add tst-cond-except.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): Mark instructions where %ebx is
+	incremented in PI case.
+	(.gcc_except_table): Add entry to jump to __condvar_tw_cleanup2
+	for the marked PI case instructions.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S
+	(__pthread_cond_wait): Mark instructions where %ebx is
+	incremented in PI case.
+	(.gcc_except_table): Add entry to jump to __condvar_w_cleanup2
+	for the marked PI case instructions.
+	* tst-cond-except.c: New test case.
+
+2012-09-24  Dmitry V. Levin  <ldv@altlinux.org>
+
+	* tst-tls6.sh: Add "set -e".
+	* Makefile: Do not specify -e option when running testsuite
+	shell scripts.
+
+	* tst-tls6.sh: Add copyright header.
+
+2012-09-24  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/tls.h (THREAD_SETMEM): Add "()" when casting
+	to uint64_t for 64-bit store.
+	(THREAD_SETMEM_NC): Likewise.
+
+2012-09-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/i386/tls.h (THREAD_SETMEM): Cast to uint64_t for
+	64-bit store.
+	(THREAD_SETMEM_NC): Likewise.
+
+2012-09-14  Jeff Law  <law@redhat.com>
+
+	[BZ #14583]
+	* sysdeps/pthread/pthread.h: Fix prototype of __sigsetjmp.
+
+2012-09-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14576]
+	* sysdeps/pthread/bits/libc-lockP.h (__rtld_lock_init_recursive):
+	Removed.
+
+2012-09-07  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* Makefile (LDFLAGS-tst-cancel24): Renamed to ...
+	(LDLIBS-tst-cancel24): This.
+
+2012-09-06  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14545]
+	* Makefile (tests-static): Add tst-cancel21-static.
+	(tests): Likewise.
+	* tst-cancel21-static.c: New file.
+
+2012-09-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/pthread_getcpuclockid.c
+	[!__ASSUME_POSIX_CPU_TIMERS]: Remove conditional code.
+	[__NR_clock_getres]: Make code unconditional.
+	(pthread_getcpuclockid): Remove code left unreachable by removal
+	of conditionals.
+
+2012-08-31  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #14532]
+	* sysdeps/unix/sysv/linux/sem_post.c (__new_sem_post): Use
+	atomic_compare_and_exchange_bool_rel.
+	* tst-sem14.c: New file.
+	* Makefile (tests): Add tst-sem14.
+
+2012-08-15  Roland McGrath  <roland@hack.frob.com>
+
+	* Makefile (CFLAGS-flockfile.c): Use $(libio-mtsafe) instead
+	of -D_IO_MTSAFE_IO.
+	(CFLAGS-ftrylockfile.c, CFLAGS-funlockfile.c): Likewise.
+	* sysdeps/unix/sysv/linux/Makefile (CFLAGS-fork.c): Likewise.
+
+2012-08-16  Joseph Myers  <joseph@codesourcery.com>
+
+	* pthread_cond_timedwait.c (__pthread_cond_timedwait)
+	[!__ASSUME_POSIX_TIMERS]: Remove conditional code.
+	* pthread_condattr_setclock.c (pthread_condattr_setclock)
+	[!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/pthread_getcpuclockid.c
+	[!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/timer_create.c [__NR_timer_create]: Make
+	code unconditional.
+	[!__NR-timer_create]: Remove conditional code.
+	(timer_create) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/timer_delete.c [__NR_timer_delete]: Make
+	code unconditional.
+	[!__NR_timer_delete]: Remove conditional code.
+	(timer_delete) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/timer_getoverr.c
+	[__NR_timer_getoverrun]: Make code unconditional.
+	[!__NR_timer_getoverrun]: Remove conditional code.
+	(timer_getoverrun) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/timer_gettime.c [__NR_timer_gettime]:
+	Make code unconditional.
+	[!__NR_timer_gettime]: Remove conditional code.
+	(timer_gettime) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/timer_routines.c [__NR_timer_create]:
+	Make code unconditional.
+	[!__ASSUME_POSIX_TIMERS]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/timer_settime.c [__NR_timer_settime]:
+	Make code unconditional.
+	[!__NR_timer_settime]: Remove conditional code.
+	(timer_settime) [!__ASSUME_POSIX_TIMERS]: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait) [!__ASSUME_POSIX_TIMERS]: Remove
+	conditional code.
+
+2012-08-15  Tom de Vries  <vries@codesourcery.com>
+	    Maxim Kuvyrkov  <maxim@codesourcery.com>
+
+	* sysdeps/pthread/bits/libc-lockP.h (__libc_lock_lock)
+	(__libc_lock_trylock): Allow pre-existing definitions.
+
+2012-08-15  Maxim Kuvyrkov  <maxim@codesourcery.com>
+
+	* pthread_spin_lock.c: New file.
+	* pthread_spin_trylock.c: New file.
+
+2012-08-08  Joseph Myers  <joseph@codesourcery.com>
+
+	* allocatestack.c (setxid_signal_thread) [__ASSUME_TGKILL]: Make
+	code unconditional.
+	(setxid_signal_thread) [!__ASSUME_TGKILL]: Remove conditional code.
+	* pthread_cancel.c (pthread_cancel) [__ASSUME_TGKILL]: Make code
+	unconditional.
+	(pthread_cancel) [!__ASSUME_TGKILL]: Remove conditional code.
+	* sysdeps/pthread/createthread.c (do_clone) [__ASSUME_TGKILL]:
+	Make code unconditional.
+	(do_clone) [!__ASSUME_TGKILL]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/pt-raise.c (raise) [__ASSUME_TGKILL ||
+	__NR_tgkill]: Make code unconditional.
+	(raise) [__ASSUME_TGKILL]: Likewise.
+	(raise) [!__ASSUME_TGKILL]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/pthread_kill.c (__pthread_kill)
+	[__ASSUME_TGKILL]: Make code unconditional.
+	(__pthread_kill) [!__ASSUME_TGKILL]: Remove conditional code.
+	* sysdeps/unix/sysv/linux/raise.c (raise) [__ASSUME_TGKILL ||
+	__NR_tgkill]: Make code unconditional.
+	(raise) [__ASSUME_TGKILL]: Likewise.
+	(raise) [!__ASSUME_TGKILL]: Remove conditional code.
+
+2012-08-07  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/pthread/createthread.c (create_thread)
+	[!__ASSUME_NO_CLONE_DETACHED]: Remove conditional code.
+
+2012-08-03  Joseph Myers  <joseph@codesourcery.com>
+
+	* nptl-init.c (sigcancel_handler) [__ASSUME_CORRECT_SI_PID]: Make
+	code unconditional.
+	(sighandler_setxid) [__ASSUME_CORRECT_SI_PID]: Likewise.
+
+2012-07-28  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* tst-pthread-getattr.c (MAX_STACK_SIZE): New macro.
+	(pagesize): New static variable.
+	(allocate_and_test): Return MEM.  Rename parameter to TARGET.
+	(check_stack_top): New local variables MEM and PAGEMASK.  Cap
+	stack size to MAX_STACK_SIZE.  Call allocate_and_test for
+	halfway up the stack top page.  Verify that the top page was
+	written into.
+	(do_test): Get pagesize using sysconf.
+
+2012-07-25  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/unix/sysv/linux/i386/pt-vfork.S: Remove pseudo_end
+	label.
+	* sysdeps/unix/sysv/linux/i386/sysdep-cancel.h (PSEUDO): Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/sysdep-cancel.h (PSEUDO):
+	Likewise.
+
+2012-07-25  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* tst-pthread-getattr.c: Revert last change.
+
+2012-07-20  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* tst-pthread-getattr.c (MAX_STACK_SIZE): New max cap for stack
+	size.
+	(_MIN): New macro.
+	(allocate_and_test): Return STACKADDR.  Access STACKADDR instead
+	of MEM to test.
+	(check_stack_top): Read valued written into STACKADDR in
+	allocate_and_test.  Cap stack size to MAX_STACK_SIZE.
+
+2012-07-19  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* nptl-init.c (sighandler_setxid): Fix the comment that
+	describes it.
+
+2012-06-23  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sh/lowlevelrobustlock.S
+	(__lll_robust_timedlock_wait): Simplify CFI directives.
+
+2012-06-20  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #12416]
+	* Makefile (tests): Add test case.
+	* pthread_getattr_np.c (pthread_getattr_np): Deduct pages below
+	the __libc_stack_end page from stacksize.  Truncate stacksize to
+	make it page aligned when it is computed from RLIMIT_STACK.
+	* tst-pthread-getattr.c: New test case. Verify that stackaddr is
+	accessible.
+
+2012-06-07  Carlos Sánchez de La Lama  <csanchezdll@gmail.com>
+
+	[BZ #14205]
+	* sysdeps/sparc/sparc32/pthread_spin_lock.S: Do not use v9
+	branches.
+
+2012-06-04  Siddhesh Poyarekar  <siddhesh@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	[BZ #14188]
+	* sysdeps/pthread/pthread.h
+	[!(defined __GNUC__ && defined __EXCEPTIONS)]
+	(pthread_cleanup_push, pthread_cleanup_push_defer_np): Use
+	__libc_unlikely instead of __builtin_expect.
+
+2012-05-30  H.J. Lu  <hongjiu.lu@intel.com>
+
+	[BZ #14117]
+	* sysdeps/unix/sysv/linux/i386/bits/pthreadtypes.h: Removed.
+	* sysdeps/unix/sysv/linux/i386/bits/semaphore.h: Likewise.
+	* sysdeps/unix/sysv/linux/i386/Implies: New file.
+	* sysdeps/unix/sysv/linux/x86_64/Implies: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/pthreadtypes.h: Renamed
+	to ...
+	* sysdeps/unix/sysv/linux/x86/bits/pthreadtypes.h: This.
+	* sysdeps/unix/sysv/linux/x86_64/bits/semaphore.h: Renamed
+	to ...
+	* sysdeps/unix/sysv/linux/x86/bits/semaphore.h: This.
+
+2012-05-30  Andreas Schwab  <schwab@linux-m68k.org>
+
+	[BZ #14132]
+	* nptl-init.c (pthread_functions): Remove use of INTUSE and
+	_internal aliases.
+	(__pthread_initialize_minimal_internal): Likewise.
+	* sem_open.c: Likewise.
+	* sem_unlink.c: Likewise.
+	* pthreadP.h: Replace _internal aliases by hidden_proto
+	declarations.
+	* pthread_getspecific.c: Replace _internal alias by hidden_def.
+	* pthread_key_create.c: Likewise.
+	* pthread_mutex_destroy.c: Likewise.
+	* pthread_mutex_init.c: Likewise.
+	* pthread_mutex_lock.c: Likewise.
+	* pthread_mutex_unlock.c: Likewise.
+	* pthread_once.c: Likewise.
+	* pthread_rwlock_rdlock.c: Likewise.
+	* pthread_rwlock_unlock.c: Likewise.
+	* pthread_rwlock_wrlock.c: Likewise.
+	* pthread_setspecific.c: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_rwlock_rdlock.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_rwlock_unlock.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_rwlock_wrlock.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/i386/pthread_once.S: Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/pthread_once.c: Likewise.
+	* sysdeps/unix/sysv/linux/s390/pthread_once.c: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_once.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_rdlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_unlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_wrlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/pthread_once.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_once.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_rdlock.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_unlock.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_wrlock.S:
+	Likewise.
+
+2012-05-27  Chung-Lin Tang  <cltang@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sh/sysdep-cancel.h (PSEUDO, LOAD_ARGS_1)
+	(LOAD_ARGS_2 ,LOAD_ARGS_3 ,LOAD_ARGS_4): Add CFI restores.
+
+	* sysdeps/unix/sysv/linux/sh/lowlevellock.S (__lll_lock_wait_private)
+	(__lll_lock_wait, __lll_timedlock_wait, __lll_timedwait_tid): Add CFI
+	directives.
+	* sysdeps/unix/sysv/linux/sh/lowlevelrobustlock.S
+	(__lll_robust_lock_wait, __lll_robust_timedlock_wait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_barrier_wait.S
+	(pthread_barrier_wait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_broadcast.S
+	(__pthread_cond_broadcast): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_signal.S
+	(__pthread_cond_signal): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_wait.S (__pthread_cond_wait):
+	Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_rdlock.S
+	(__pthread_rwlock_rdlock): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_timedrdlock.S
+	(pthread_rwlock_timedrdlock): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_timedwrlock.S
+	(pthread_rwlock_timedwrlock): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_unlock.S
+	(__pthread_rwlock_unlock): Likewise.
+	* sysdeps/unix/sysv/linux/sh/pthread_rwlock_wrlock.S
+	(__pthread_rwlock_wrlock): Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_post.S (__new_sem_post): Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_timedwait.S (sem_timedwait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_trywait.S (__new_sem_trywait):
+	Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_wait.S (__new_sem_wait): Likewise.
+
+2012-05-26  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #12416]
+	* nptl/pthread_getattr_np.c (pthread_getattr_np): Use
+	__libc_stack_end rounded to the end of containing page as the
+	real stack end.
+
+2012-05-25  Rayson Ho  <rho@redhat.com>
+
+	* sysdeps/unix/sysv/linux/i386/lowlevellock.h: Low-level SystemTap
+	probes for i386.
+	* sysdeps/unix/sysv/linux/i386/i486/lowlevellock.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/lowlevellock.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_broadcast.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_signal.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_rwlock_rdlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_rwlock_wrlock.S: Likewise.
+
+2012-05-25  Rayson Ho  <rho@redhat.com>
+	    Roland McGrath  <roland@hack.frob.com>
+
+	* DESIGN-systemtap-probes.txt: New file.
+	* pthread_cond_broadcast.c: SystemTap probes.
+	* pthread_cond_init.c: Likewise.
+	* pthread_cond_signal.c: Likewise.
+	* pthread_cond_wait.c: Likewise.
+	* pthread_cond_destroy.c: Likewise.
+	* pthread_create.c: Likewise.
+	* pthread_join.c: Likewise.
+	* pthread_mutex_destroy.c: Likewise.
+	* pthread_mutex_init.c: Likewise.
+	* pthread_mutex_lock.c: Likewise.
+	* pthread_mutex_timedlock.c: Likewise.
+	* pthread_mutex_unlock.c: Likewise.
+	* pthread_rwlock_destroy.c: Likewise.
+	* pthread_rwlock_rdlock.c: Likewise.
+	* pthread_rwlock_unlock.c: Likewise.
+	* pthread_rwlock_wrlock.c: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_broadcast.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_signal.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_rdlock.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_wrlock.S: Likewise.
+
+2012-05-24  Roland McGrath  <roland@hack.frob.com>
+
+	* pthread_create.c (start_thread): Define pthread_start LIBC_PROBE.
+
+2012-05-17  Andreas Jaeger  <aj@suse.de>
+
+	* sysdeps/unix/sysv/linux/i386/i686/dl-sysdep.h
+	(HAVE_DL_DISCOVER_OSVERSION): Don't declare _dl_discover_osversion
+	only for older kernels.
+
+2012-05-15  Joseph Myers  <joseph@codesourcery.com>
+
+	* pthreadP.h [!__NR_set_robust_list] (__NR_set_robust_list): Do
+	not define.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h (lll_lock): Load
+	futex pointer into RDI_LP.  Use RSP_LP to operate on stack.
+	(lll_robust_lock): Likewise.
+	(lll_cond_lock): Likewise.
+	(lll_robust_cond_lock): Likewise.
+	(lll_timedlock): Likewise.
+	(lll_robust_timedlock): Likewise.
+	(lll_unlock): Likewise.
+	(lll_robust_unlock): Likewise.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_signal.S: Use
+	LP_OP(cmp) and RCX_LP on dep_mutex pointer.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sem_wait.S: Use LP_OP(op)
+	on NWAITERS.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sem_timedwait.S: Use LP_OP(op)
+	on NWAITERS.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/sem_post.S: Use LP_OP(cmp) on
+	NWAITERS, which is unsigned long int.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_once.S
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Use
+	LP_OP(cmp), RSI_LP and R8_LP on dep_mutex pointer.  Load
+	__vdso_clock_gettime pointer into RAX_LP.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_timedwait.S: Use
+	LP_OP(cmp), RSI_LP and R8_LP on dep_mutex pointer.  Load
+	__vdso_clock_gettime pointer into RAX_LP.
+	(__gcc_personality_v0): Replace 8-byte data alignment with
+	LP_SIZE alignment and .quad with ASM_ADDR.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_broadcast.S: Use
+	LP_OP(cmp) and R8_LP on dep_mutex pointer.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Use LP_OP(mov)
+	to update pointer in memory.  Load pointer into RDI_LP.
+
+2012-05-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h
+	(LLL_STUB_UNWIND_INFO_START): Align label to LP_SIZE instead
+	of 8.
+	(LLL_STUB_UNWIND_INFO_END): Likewise.
+	(lll_timedlock): Load timeout pointer into RDX_LP.
+	(lll_robust_timedlock): Likewise.
+
+2012-05-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	[BZ #13613]
+	* Makefile (tests): Add test cases.
+	* descr.h (struct pthread): Add a comment describing multiple_threads.
+	* pthreadP.h (__pthread_multiple_threads): Expand comment to include
+	single-process case.
+	* pthread_cancel.c (pthread_cancel): Enable multiple_threads
+	before setting cancelstate of the thread.
+	* sysdeps/unix/sysv/linux/libc_multiple_threads.c
+	(__libc_multiple_threads): Add explanatory comment.
+	* tst-cancel-self-cancelstate.c: New test case.
+	* tst-cancel-self-canceltype.c: Likewise.
+	* tst-cancel-self-cleanup.c: Supporting file for test cases.
+	* tst-cancel-self-testcancel.c: New test case.
+	* tst-cancel-self.c: Likewise.
+	* vars.c: Expand comment to include single-process case.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/tls.h: Don't include <bits/wordsize.h>.
+	(tcbhead_t): Remove __x86_64__ check.  Align rtld_savespace_sse
+	to 32 bytes.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/pthread/pthread.h (__PTHREAD_RWLOCK_INT_FLAGS_SHARED):
+	New.
+	(PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP): Check
+	__PTHREAD_RWLOCK_INT_FLAGS_SHARED instead of __WORDSIZE.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* shlib-versions: Move x86_64-.*-linux.* entry to ...
+	* sysdeps/x86_64/64/shlib-versions: Here.  New file.
+	* sysdeps/x86_64/x32/shlib-versions: New file.
+
+2012-05-14  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/pthreadtypes.h: Define x32
+	__SIZEOF_PTHREAD_XXX_T.
+	(__pthread_internal_list): Check __x86_64__ instead of __WORDSIZE.
+	(pthread_mutex_t): Likewise.
+	(pthread_rwlock_t): Likewise.
+	(__PTHREAD_RWLOCK_INT_FLAGS_SHARED): New.  Defined if __x86_64__
+	is defined.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/x32/tls.h: New file.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/tls.h (THREAD_SETMEM): Use uint64_t on 64-bit
+	integer.
+	(THREAD_SETMEM_NC): Likewise.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/tls.h (THREAD_SELF): Replace movq/%q0 with
+	mov/%0.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/bits/pthreadtypes.h
+	(__cleanup_fct_attribute): Check __x86_64__ instead of
+	__WORDSIZE.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/pthread/pthread.h (PTHREAD_MUTEX_INITIALIZER): Check
+	__PTHREAD_MUTEX_HAVE_PREV instead of __WORDSIZE.
+	(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP): Likewise.
+	(PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP): Likewise.
+	(PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP): Likewise.
+
+2012-05-11  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* pthread_create.c (start_thread): Check __PTHREAD_MUTEX_HAVE_PREV
+	instead of __WORDSIZE.
+
+2012-05-10  Thomas Schwinge  <thomas@schwinge.name>
+
+	[BZ #3748]
+	* sysdeps/pthread/bits/libc-lockP.h (__libc_once_get): New macro.
+
+2012-05-09  Chung-Lin Tang  <cltang@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_timedwait.S
+	(__pthread_cond_timedwait): Use CFI directives.
+	* sysdeps/unix/sysv/linux/sh/pthread_cond_wait.S
+	(__pthread_cond_wait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_timedwait.S (sem_timedwait): Likewise.
+	* sysdeps/unix/sysv/linux/sh/sem_wait.S (__new_sem_wait): Likewise.
+
+2012-05-03  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc64/pthread_spin_unlock.S: Fix thinko, we
+	always have to return 0, especially for the pthread_spin_init
+	alias.
+	* sysdeps/sparc/sparc32/pthread_spin_lock.S: Add missing trailing
+	newline.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_lock.S: Likewise.
+	* sysdeps/sparc/sparc64/pthread_spin_lock.S: Likewise.
+
+2012-05-02  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/sparc64/pthread_spin_lock.S: New.
+	* sysdeps/sparc/sparc64/pthread_spin_lock.c: Delete.
+	* sysdeps/sparc/sparc64/pthread_spin_unlock.S: New.
+	* sysdeps/sparc/sparc64/pthread_spin_unlock.c: Delete.
+	* sysdeps/sparc/sparc64/pthread_spin_trylock.S: New.
+	* sysdeps/sparc/sparc64/pthread_spin_trylock.c: Delete.
+	* sysdeps/sparc/sparc64/pthread_spin_init.c: New.
+	* sysdeps/sparc/sparc32/pthread_spin_lock.S: New.
+	* sysdeps/sparc/sparc32/pthread_spin_lock.c: Delete.
+	* sysdeps/sparc/sparc32/pthread_spin_trylock.S: New.
+	* sysdeps/sparc/sparc32/pthread_spin_trylock.c: Delete.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_lock.S: New.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_lock.c: Delete.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_trylock.S: New.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_trylock.c: Delete.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_unlock.S: New.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_unlock.c: Delete.
+	* sysdeps/sparc/sparc32/sparcv9/pthread_spin_init.c: New.
+
+2012-05-02  Allan McRae  <allan@archlinux.org>
+
+	* Makefile: (LDFLAGS-tst-tls5): Use $(no-as-needed).
+	(LDFLAGS-tst-cancel24): Likewise.
+
+2012-05-02  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	* sysdeps/i386/pthread_spin_lock.S: New.
+	* sysdeps/i386/pthread_spin_lock.c: Delete.
+	* sysdeps/x86_64/pthread_spin_lock.S: New.
+	* sysdeps/x86_64/pthread_spin_lock.c: Delete.
+
+2012-04-28  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* Makefile ($(objpfx)tst-stack3-mem, $(objpfx)tst-tls6.out): Don't
+	run when cross-compiling.
+
+2012-04-26  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	* sysdeps/pthread/unwind-forcedunwind.c: Include gnu/lib-names.h
+	instead of libgcc_s.h.
+
+2012-04-20  Paul Pluzhnikov  <ppluzhnikov@google.com>
+
+	* sysdeps/x86_64/tls.h (TLS_GET_FS, TLS_SET_FS): Delete.
+
+2012-03-27  David S. Miller  <davem@davemloft.net>
+
+	* tst-cond16.c (do_test): Use a thread stack size which is either
+	PTHREAD_STACK_MIN or the page size, whichever is larger.
+	* tst-cond18.c (do_test): Likewise.
+
+2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/x86_64/pthreaddef.h (CURRENT_STACK_FRAME): Use
+	register char * __asm__("rsp") to get stack frame.
+
+2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h (SYS_futex): Use
+	__NR_futex directly.
+
+2012-03-19  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* unwind.c (unwind_stop): Cast _Unwind_GetCFA return to
+	_Unwind_Ptr first.
+
+2012-03-16  David S. Miller  <davem@davemloft.net>
+
+	[BZ #13844]
+	* sysdeps/unix/sysv/linux/libc-lowlevellock.c: Include using <..>
+	instead of "...".
+	* sysdeps/unix/sysv/linux/sparc/sparc32/libc-lowlevellock.c:
+	Delete, not needed.
+
+2012-03-15  David S. Miller  <davem@davemloft.net>
+
+	[BZ #13844]
+	* sysdeps/unix/sysv/linux/sparc/sparc32/libc-lowlevellock.c: New file.
+
+2012-03-09  Paul Eggert  <eggert@cs.ucla.edu>
+
+	[BZ #13673]
+	* pt-crti.S: Replace FSF snail mail address with URL.
+
+2012-03-09  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/pthread/pthread.h (__need_clockid_t, __need_timespec):
+	Do not define before including <time.h>.
+
+2012-03-08  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sem_post.c: Update copyright year.
+
+2012-03-08  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sh/lowlevellock.S (__lll_timedlock_wait):
+	Check for timestamp before the Epoch.
+
+	* sysdeps/unix/sysv/linux/sh/sem_timedwait.S (sem_timedwait): Fix
+	updating nwaiters.
+
+	* tst-sem13.c (do_test): Add another test case.
+	* sysdeps/unix/sysv/linux/i386/i486/sem_timedwait.S (sem_timedwait):
+	Fix updating nwaiters.
+
+2012-03-07  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #10545]
+	* sysdeps/pthread/configure.in (libc_cv_forced_unwind): Change
+	link test to a compile test.
+	(libc_cv_c_cleanup): Likewise.  Declare puts rather than including
+	<stdio.h>.
+	* sysdeps/pthread/configure: Regenerated.
+
+2012-03-07  Ulrich Drepper  <drepper@gmail.com>
+
+	* Makefile (distribute): Remove variable.
+
+2012-01-23  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/sem_timedwait.c (sem_timedwait): Get rid of
+	superfluous assignment.
+	* sysdeps/unix/sysv/linux/sparc/sem_timedwait.c (sem_timedwait):
+	Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/sem_timedwait.c
+	(sem_timedwait): Likewise.
+
+2012-03-06  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/pthread/bits/libc-lock.h: Move information not needed in
+	installed headers to...
+	* sysdeps/pthread/bits/libc-lockP.h: ...here.  New file.
+
+2012-03-06  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/sparc/sem_post.c (__new_sem_post): Use
+	atomic_increment and remove unused local variable.
+	(__old_sem_post): Likewise.
+
+2012-02-27  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/unix/sysv/linux/i386/bits/pthreadtypes.h: Don't refer to
+	non-existing __pthread_attr.
+	* sysdeps/unix/sysv/linux/powerpc/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/sh/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/pthreadtypes.h: Likewise.
+
+2012-02-26  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/pthread/pthread.h: Define __need_clockid_t for __USE_XOPEN2K.
+
+	* sysdeps/pthread/pthread.h: Define __need_timespec before including
+	<time.h>.
+	* sysdeps/unix/sysv/linux/i386/bits/pthreadtypes.h: Name pthread_attr_t
+	union.
+	* sysdeps/unix/sysv/linux/powerpc/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/sh/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/bits/pthreadtypes.h: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/bits/pthreadtypes.h: Likewise.
+
+2012-02-21  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #13695]
+	* Makefile (generated): Remove crti.S, crtn.S, defs.h and
+	pt-initfini.s.
+	[crti.S not in sysdirs] (omit-deps): Do not append.
+	[crti.S not in sysdirs] (CFLAGS-pt-initfini.s): Remove variable.
+	[crti.S not in sysdirs] (pt-initfini.c): Remove vpath directive.
+	[crti.S not in sysdirs] ($(objpfx)crti.S): Remove rule.
+	[crti.S not in sysdirs] ($(objpfx)crtn.S): Likewise.
+	[crti.S not in sysdirs] ($(objpfx)defs.h): Likewise.
+	[crti.S not in sysdirs] ($(objpfx)crti.o): Likewise.
+	[crti.S not in sysdirs] ($(objpfx)crtn.o): Likewise.
+	[crti.S in sysdirs] (extra-objs): Append unconditionally.
+	[crti.S in sysdirs] ($(objpfx)crti.o): Define rule
+	unconditionally.
+	* sysdeps/pthread/pt-initfini.c: Remove file.
+
+2012-02-16  Richard Henderson  <rth@twiddle.net>
+
+	* sysdeps/unix/sysv/linux/s390/s390-32/pt-initfini.c: Remove file.
+	* sysdeps/unix/sysv/linux/s390/s390-64/pt-initfini.c: Remove file.
+
+2012-02-15  Kaz Kojima  <kkojima@rr.iij4u.or.jp>
+
+	* sysdeps/unix/sysv/linux/sh/pt-initfini.c: Remove file.
+
+2012-02-16  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/Makefile: Add -fPIC when building pt-crti.S and crtn.S
+
+2012-02-15  Marek Polacek  <polacek@redhat.com>
+
+	* sysdeps/unix/sysv/linux/x86_64/Makefile: Remove file.
+
+2012-02-09  Paul Eggert  <eggert@cs.ucla.edu>
+
+	Replace FSF snail mail address with URLs, as per GNU coding standards.
+
+2012-02-08  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* Makefile (extra-objs) [crti.S in sysdirs]: Add pt-crti.o.
+
+2012-02-08  Joseph Myers  <joseph@codesourcery.com>
+
+	Support crti.S and crtn.S provided directly by architectures.
+	* Makefile [crti.S in sysdirs] (omit-deps): Do not append.
+	[crti.S in sysdirs] (CFLAGS-pt-initfini.s): Do not define variable.
+	[crti.S in sysdirs] ($(objpfx)pt-initfini.s): Disable rule.
+	[crti.S in sysdirs] ($(objpfx)crti.S): Likewise.
+	[crti.S in sysdirs] ($(objpfx)crtn.S): Likewise.
+	[crti.S in sysdirs] ($(objpfx)defs.h): Likewise.
+	[crti.S in sysdirs] ($(objpfx)crti.o): Likewise.
+	[crti.S in sysdirs] ($(objpfx)crtn.o): Likewise.
+	[crti.S in sysdirs] (pt-initfini.c): Remove vpath directive.
+	[crti.S in sysdirs] ($(objpfx)crti.o): New rule.
+	* pt-crti.S: New file.
+	* sysdeps/unix/sysv/linux/i386/Makefile: Remove file.
+
+2012-02-03  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S: Use
+	macros for PIC register setup.
+	* sysdeps/unix/sysv/linux/i386/i486/sem_post.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/sem_timedwait.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/sem_trywait.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/i486/sem_wait.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/pthread_once.S: Likewise.
+
+2012-01-11  Marek Polacek  <polacek@redhat.com>
+
+	* forward.c (FORWARD_NORETURN): Define macro.
+	(__pthread_unwind): Use FORWARD_NORETURN macro to avoid warning.
+	(__pthread_exit): Likewise.
+
+2012-01-10  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/pthread/pthread.h: Add const attribute to pthread_equal.
+
+	* pthreadP.h: Add noreturn to __pthread_exit.
+	* sysdeps/pthread/pthread-functions.h: Likewise for ptr___pthread_exit.
+
+2011-12-30  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	* sysdeps/unix/sysv/linux/aio_misc.h (__aio_create_helper_thread):
+	Call pthread_attr_setstacksize() with result of
+	__pthread_get_minstack() to account for application TLS usage.
+
+2012-01-08  Marek Polacek  <polacek@redhat.com>
+
+	* sysdeps/unix/sysv/linux/mq_notify.c: Include <nptl/pthreadP.h>.
+
+2012-01-07  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13553]
+	* pthreadP.h: Use const instead of __const.
+	* semaphore.h: Likewise.
+	* sysdeps/pthread/bits/libc-lock.h: Likewise.
+	* sysdeps/pthread/bits/sigthread.h: Likewise.
+	* sysdeps/pthread/pthread.h: Likewise.
+
+	* Makefile: Remove elf=yes test, only ELF is supported.
+
+	* shlib-versions: Remove entries for ports architectures.
+
+	In case anyone cares, the IA-64 architecture could move to ports.
+	* sysdeps/ia64/*: Removed.
+	* sysdeps/unix/sysv/linux/ia64/*: Removed.
+
+2011-12-22  Ulrich Drepper  <drepper@gmail.com>
+
+	* sysdeps/pthread/gai_misc.h (__gai_create_helper_thread): Use
+	__pthread_get_minstack.
+	* sysdeps/unix/sysv/linux/mq_notify.c (init_mq_netlink): Likewise.
+
+	[BZ #13088]
+	* sysdeps/unix/sysv/linux/timer_routines.c: Get minimum stack size
+	through __pthread_get_minstack.
+	* nptl-init.c (__pthread_initialize_minimal_internal): Get page size
+	directly from _rtld_global_ro.
+	(__pthread_get_minstack): New function.
+	* pthreadP.h: Declare __pthread_get_minstack.
+	* Versions (libpthread) [GLIBC_PRIVATE]: Add __pthread_get_minstack.
+
+2011-12-21  Ulrich Drepper  <drepper@gmail.com>
+
+	[BZ #13515]
+	* sysdeps/unix/sysv/linux/pthread_getname.c (pthread_getname_np):
+	Correct reading name from file.
+
+2011-12-14  Carlos O'Donell  <carlos@systemhalted.org>
+
+	* allocatestack.c (allocate_stack): Return errno on failure.
+
+2011-12-14  Jeff Law  <law@redhat.com>
+
+	[BZ #5245]
+	* pthread_create.c (__pthread_create_2_1): Translate ENOMEM to EAGAIN.
+
+2011-11-28  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/i386/i486/pthread_cond_wait.S: Handle
+	EAGAIN from FUTEX_WAIT_REQUEUE_PI.
+	* sysdeps/unix/sysv/linux/x86_64/pthread_cond_wait.S: Likewise.
+
 2011-11-15  Ulrich Drepper  <drepper@gmail.com>
 
 	* pthread_getattr_np.c (pthread_getattr_np): Set FD_CLOEXEC for

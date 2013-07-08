@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <dlfcn.h>
 #include <pthreadP.h>
@@ -40,6 +39,17 @@ name decl								      \
     defaction;								      \
 									      \
   return PTHFCT_CALL (ptr_##name, params);				      \
+}
+
+/* Same as FORWARD2, only without return.  */
+#define FORWARD_NORETURN(name, rettype, decl, params, defaction) \
+rettype									      \
+name decl								      \
+{									      \
+  if (!__libc_pthread_functions_init)					      \
+    defaction;								      \
+									      \
+  PTHFCT_CALL (ptr_##name, params);					      \
 }
 
 #define FORWARD(name, decl, params, defretval) \
@@ -160,8 +170,8 @@ FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
 	 (thread1, thread2), 1)
 
 
-/* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
-FORWARD2 (__pthread_exit, void, (void *retval), (retval), exit (EXIT_SUCCESS))
+FORWARD_NORETURN (__pthread_exit, void, (void *retval), (retval),
+		  exit (EXIT_SUCCESS))
 strong_alias (__pthread_exit, pthread_exit);
 
 
@@ -192,8 +202,7 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
-#define return /* value is void */
-FORWARD2(__pthread_unwind,
+FORWARD_NORETURN(__pthread_unwind,
 	 void attribute_hidden __attribute ((noreturn)) __cleanup_fct_attribute
 	 attribute_compat_text_section,
 	 (__pthread_unwind_buf_t *buf), (buf), {
@@ -201,4 +210,3 @@ FORWARD2(__pthread_unwind,
 		       INTERNAL_SYSCALL_DECL (err);
 		       INTERNAL_SYSCALL (kill, err, 1, SIGKILL);
 		     })
-#undef return

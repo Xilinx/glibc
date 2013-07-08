@@ -1,5 +1,5 @@
 /* Compute x * y + z as ternary operation.
-   Copyright (C) 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2010.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 #include <fenv.h>
@@ -33,15 +32,30 @@ float
 __fmaf (float x, float y, float z)
 {
   fenv_t env;
+
   /* Multiplication is always exact.  */
   double temp = (double) x * (double) y;
+
+  /* Ensure correct sign of an exact zero result by performing the
+     addition in the original rounding mode in that case.  */
+  if (temp == -z)
+    return (float) temp + z;
+
   union ieee754_double u;
-  libc_feholdexcept_setroundf (&env, FE_TOWARDZERO);
+
+  libc_feholdexcept_setround (&env, FE_TOWARDZERO);
+
   /* Perform addition with round to odd.  */
   u.d = temp + (double) z;
+  /* Ensure the addition is not scheduled after fetestexcept call.  */
+  math_force_eval (u.d);
+
+  /* Reset rounding mode and test for inexact simultaneously.  */
+  int j = libc_feupdateenv_test (&env, FE_INEXACT) != 0;
+
   if ((u.ieee.mantissa1 & 1) == 0 && u.ieee.exponent != 0x7ff)
-    u.ieee.mantissa1 |= libc_fetestexcept (FE_INEXACT) != 0;
-  libc_feupdateenv (&env);
+    u.ieee.mantissa1 |= j;
+
   /* And finally truncation with round to nearest.  */
   return (float) u.d;
 }

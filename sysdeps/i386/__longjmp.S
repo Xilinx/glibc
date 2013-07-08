@@ -1,6 +1,5 @@
 /* longjmp for i386.
-   Copyright (C) 1995-1998,2000,2002,2005,2006,2009,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <jmpbuf-offsets.h>
@@ -42,7 +40,7 @@ ENTRY (__longjmp)
 	cfi_offset(%esi, JB_SI*4)
 	cfi_offset(%edi, JB_DI*4)
 	cfi_offset(%ebp, JB_BP*4)
-     	/* Restore registers.  */
+	/* Restore registers.  */
 	movl (JB_BX*4)(%eax), %ebx
 	movl (JB_SI*4)(%eax), %esi
 	movl (JB_DI*4)(%eax), %edi
@@ -61,7 +59,7 @@ ENTRY (__longjmp)
 	/* Save the return address now.  */
 	movl (JB_PC*4)(%ecx), %edx
 	LIBC_PROBE (longjmp, 3, 4@%ecx, -4@%eax, 4@%edx)
-     	/* Restore registers.  */
+	/* Restore registers.  */
 	movl (JB_BX*4)(%ecx), %ebx
 	movl (JB_SI*4)(%ecx), %esi
 	movl (JB_DI*4)(%ecx), %edi
@@ -70,5 +68,5 @@ ENTRY (__longjmp)
 	LIBC_PROBE (longjmp_target, 3, 4@%ecx, -4@%ecx, 4@%edx)
 #endif
 	/* Jump to saved PC.  */
-     	jmp *%edx
+	jmp *%edx
 END (__longjmp)

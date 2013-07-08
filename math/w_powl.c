@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 #include <math_private.h>
@@ -34,25 +33,25 @@ __powl (long double x, long double y)
 	    {
 	      if (y == 0.0L)
 		/* pow(NaN,0.0) */
-		return __kernel_standard (x, y, 242);
+		return __kernel_standard_l (x, y, 242);
 	    }
 	  else if (__finitel (x) && __finitel (y))
 	    {
 	      if (__isnanl (z))
 		/* pow neg**non-int */
-		return __kernel_standard (x, y, 224);
+		return __kernel_standard_l (x, y, 224);
 	      else if (x == 0.0L && y < 0.0L)
 		{
 		  if (signbit (x) && signbit (z))
 		    /* pow(-0.0,negative) */
-		    return __kernel_standard (x, y, 223);
+		    return __kernel_standard_l (x, y, 223);
 		  else
 		    /* pow(+0.0,negative) */
-		    return __kernel_standard (x, y, 243);
+		    return __kernel_standard_l (x, y, 243);
 		}
 	      else
 		/* pow overflow */
-		return __kernel_standard (x, y, 221);
+		return __kernel_standard_l (x, y, 221);
 	    }
 	}
     }
@@ -63,11 +62,11 @@ __powl (long double x, long double y)
 	{
 	  if (y == 0.0L)
 	    /* pow(0.0,0.0) */
-	    return __kernel_standard (x, y, 220);
+	    return __kernel_standard_l (x, y, 220);
 	}
       else
 	/* pow underflow */
-	return __kernel_standard (x, y, 222);
+	return __kernel_standard_l (x, y, 222);
     }
 
   return z;

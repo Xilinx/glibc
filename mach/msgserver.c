@@ -1,4 +1,4 @@
-/* Copyright (C) 1993,94,95,96,2001,02 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Based on CMU's mach_msg_server.c revision 2.4 of 91/05/14, and thus
    under the following copyright.  Rewritten by Roland McGrath (FSF)
@@ -79,8 +78,8 @@ __mach_msg_server_timeout (boolean_t (*demux) (mach_msg_header_t *request,
 			   mach_msg_option_t option,
 			   mach_msg_timeout_t timeout)
 {
-  register mig_reply_header_t *request, *reply;
-  register mach_msg_return_t mr;
+  mig_reply_header_t *request, *reply;
+  mach_msg_return_t mr;
 
   if (max_size == 0)
     {

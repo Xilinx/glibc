@@ -1,4 +1,4 @@
-/* Copyright (C) 1997,1998,2000,2002,2003,2010 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_STATFS_H
 # error "Never include <bits/statfs.h> directly; use <sys/statfs.h> instead."
@@ -24,8 +23,8 @@
 
 struct statfs
   {
-    __SWORD_TYPE f_type;
-    __SWORD_TYPE f_bsize;
+    __fsword_t f_type;
+    __fsword_t f_bsize;
 #ifndef __USE_FILE_OFFSET64
     __fsblkcnt_t f_blocks;
     __fsblkcnt_t f_bfree;
@@ -40,27 +39,27 @@ struct statfs
     __fsfilcnt64_t f_ffree;
 #endif
     __fsid_t f_fsid;
-    __SWORD_TYPE f_namelen;
-    __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_flags;
-    __SWORD_TYPE f_spare[4];
+    __fsword_t f_namelen;
+    __fsword_t f_frsize;
+    __fsword_t f_flags;
+    __fsword_t f_spare[4];
   };
 
 #ifdef __USE_LARGEFILE64
 struct statfs64
   {
-    __SWORD_TYPE f_type;
-    __SWORD_TYPE f_bsize;
+    __fsword_t f_type;
+    __fsword_t f_bsize;
     __fsblkcnt64_t f_blocks;
     __fsblkcnt64_t f_bfree;
     __fsblkcnt64_t f_bavail;
     __fsfilcnt64_t f_files;
     __fsfilcnt64_t f_ffree;
     __fsid_t f_fsid;
-    __SWORD_TYPE f_namelen;
-    __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_flags;
-    __SWORD_TYPE f_spare[4];
+    __fsword_t f_namelen;
+    __fsword_t f_frsize;
+    __fsword_t f_flags;
+    __fsword_t f_spare[4];
   };
 #endif
 

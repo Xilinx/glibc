@@ -1,5 +1,5 @@
 /* setjmp for PowerPC64.
-   Copyright (C) 1995-2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ASM
@@ -24,14 +23,18 @@
 #else
 #include <jmpbuf-offsets.h>
 #endif
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #ifndef __NO_VMX__
 	.section	".toc","aw"
 .LC__dl_hwcap:
 # ifdef SHARED
+#  ifdef IS_IN_rtld
+	/* Inside ld.so we use the local alias to avoid runtime GOT
+	   relocations.  */
+	.tc _rtld_local_ro[TC],_rtld_local_ro
+#  else
 	.tc _rtld_global_ro[TC],_rtld_global_ro
+#  endif
 # else
 	.tc _dl_hwcap[TC],_dl_hwcap
 # endif
@@ -50,24 +53,23 @@ END (setjmp)
    that saves r2 since the call won't go via a plt call stub.  See
    bugz #269.  __GI__setjmp is used in csu/libc-start.c when
    HAVE_CLEANUP_JMP_BUF is defined.  */
-ENTRY (BP_SYM (__GI__setjmp))
+ENTRY (__GI__setjmp)
 	std r2,40(r1)		/* Save the callers TOC in the save area.  */
 	cfi_endproc
-END_2 (BP_SYM (__GI__setjmp))
+END_2 (__GI__setjmp)
 /* Fall thru. */
 #endif
 
-ENTRY (BP_SYM (_setjmp))
+ENTRY (_setjmp)
 	CALL_MCOUNT 1
 	li r4,0			/* Set second argument to 0.  */
 	b JUMPTARGET (GLUE(__sigsetjmp,_ent))
-END (BP_SYM (_setjmp))
+END (_setjmp)
 libc_hidden_def (_setjmp)
 
-ENTRY (BP_SYM (__sigsetjmp))
+ENTRY (__sigsetjmp)
 	CALL_MCOUNT 2
 JUMPTARGET(GLUE(__sigsetjmp,_ent)):
-	CHECK_BOUNDS_BOTH_WIDE_LIT (r3, r8, r9, JB_SIZE)
 #ifdef PTR_MANGLE
 	mr   r5, r1
 	PTR_MANGLE (r5, r6)
@@ -214,18 +216,18 @@ L(no_vmx):
 	li	r3,0
 	blr
 #elif defined SHARED
-	b	JUMPTARGET (BP_SYM (__sigjmp_save))
+	b	JUMPTARGET (__sigjmp_save)
 #else
 	mflr	r0
 	std	r0,16(r1)
 	stdu	r1,-112(r1)
 	cfi_adjust_cfa_offset(112)
 	cfi_offset(lr,16)
-	bl	JUMPTARGET (BP_SYM (__sigjmp_save))
+	bl	JUMPTARGET (__sigjmp_save)
 	nop
 	ld	r0,112+16(r1)
 	addi	r1,r1,112
 	mtlr	r0
 	blr
 #endif
-END (BP_SYM (__sigsetjmp))
+END (__sigsetjmp)

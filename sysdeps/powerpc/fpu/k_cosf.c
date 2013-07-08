@@ -1,5 +1,5 @@
 /* k_cosf.c -- float version of k_cos.c
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Adhemerval Zanella <azanella@br.ibm.com>, 2011
 
@@ -14,12 +14,12 @@
    Library General Public License for more details.
 
    You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <fenv.h>
+#include <math_private.h>
 
 static const float twom27   = 7.4505806e-09;
 static const float dot3     = 3.0000001e-01;
@@ -41,8 +41,8 @@ __kernel_cosf (float x, float y)
   ix = __builtin_fabsf (x);
   if (ix < twom27)
     {				/* |x| < 2**-27 */
-      if (x == 0.0)
-	return one;
+      __feraiseexcept (FE_INEXACT);
+      return one;
     }
   z = x * x;
   r = z * (C1 + z * (C2 + z * (C3 + z * (C4 + z * (C5 + z * C6)))));

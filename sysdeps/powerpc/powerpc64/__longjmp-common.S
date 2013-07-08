@@ -1,5 +1,5 @@
 /* longjmp for PowerPC64.
-   Copyright (C) 1995, 1996,1997,1999-2006,2009 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ASM
@@ -25,14 +24,18 @@
 #else
 # include <jmpbuf-offsets.h>
 #endif
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #ifndef __NO_VMX__
 	.section	".toc","aw"
 .LC__dl_hwcap:
 # ifdef SHARED
+#  ifdef IS_IN_rtld
+	/* Inside ld.so we use the local alias to avoid runtime GOT
+	   relocations.  */
+	.tc _rtld_local_ro[TC],_rtld_local_ro
+#  else
 	.tc _rtld_global_ro[TC],_rtld_global_ro
+#  endif
 # else
 	.tc _dl_hwcap[TC],_dl_hwcap
 # endif
@@ -40,9 +43,8 @@
 #endif
 
 	.machine	"altivec"
-ENTRY (BP_SYM (__longjmp))
+ENTRY (__longjmp)
 	CALL_MCOUNT 2
-	CHECK_BOUNDS_BOTH_WIDE_LIT (r3, r8, r9, JB_SIZE)
 #ifndef __NO_VMX__
 	ld    r5,.LC__dl_hwcap@toc(r2)
 # ifdef SHARED
@@ -173,4 +175,4 @@ L(no_vmx):
 	lfd fp31,((JB_FPRS+17)*8)(r3)
 	mr r3,r4
 	blr
-END (BP_SYM (__longjmp))
+END (__longjmp)

@@ -2,8 +2,7 @@
    NOTE: getopt is part of the C library, so if you don't know what
    "Keep this file name-space clean" means, talk to drepper@gnu.org
    before changing it!
-   Copyright (C) 1987-1996,1998-2004,2008,2009,2010,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1987-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,9 +16,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
@@ -229,7 +227,7 @@ exchange (char **argv, struct _getopt_data *d)
 	{
 	  /* Bottom segment is the short one.  */
 	  int len = middle - bottom;
-	  register int i;
+	  int i;
 
 	  /* Swap it with the top part of the top segment.  */
 	  for (i = 0; i < len; i++)
@@ -246,7 +244,7 @@ exchange (char **argv, struct _getopt_data *d)
 	{
 	  /* Top segment is the short one.  */
 	  int len = top - middle;
-	  register int i;
+	  int i;
 
 	  /* Swap it with the bottom part of the bottom segment.  */
 	  for (i = 0; i < len; i++)

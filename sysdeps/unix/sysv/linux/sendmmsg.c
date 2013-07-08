@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/socket.h>
@@ -27,7 +26,7 @@
 
 #ifdef __NR_sendmmsg
 int
-sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
+__sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
 {
   if (SINGLE_THREAD_P)
     return INLINE_SYSCALL (sendmmsg, 4, fd, vmessages, vlen, flags);
@@ -40,6 +39,8 @@ sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
 
   return result;
 }
+libc_hidden_def (__sendmmsg)
+weak_alias (__sendmmsg, sendmmsg)
 #elif defined __NR_socketcall
 # ifndef __ASSUME_SENDMMSG
 extern int __internal_sendmmsg (int fd, struct mmsghdr *vmessages,
@@ -49,7 +50,7 @@ extern int __internal_sendmmsg (int fd, struct mmsghdr *vmessages,
 static int have_sendmmsg;
 
 int
-sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
+__sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
 {
   if (__builtin_expect (have_sendmmsg >= 0, 1))
     {
@@ -82,15 +83,11 @@ sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
   __set_errno (ENOSYS);
   return -1;
 }
+libc_hidden_def (__sendmmsg)
+weak_alias (__sendmmsg, sendmmsg)
 # else
 /* When __ASSUME_SENDMMSG sendmmsg is defined in internal_sendmmsg.S.  */
 # endif
 #else
-int
-sendmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags)
-{
-  __set_errno (ENOSYS);
-  return -1;
-}
-stub_warning (sendmmsg)
+# include <socket/sendmmsg.c>
 #endif

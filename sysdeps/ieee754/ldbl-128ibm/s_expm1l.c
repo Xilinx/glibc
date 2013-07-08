@@ -48,12 +48,12 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
 /* exp(x) - 1 = x + 0.5 x^2 + x^3 P(x)/Q(x)
@@ -85,7 +85,7 @@ static const long double
 /* ln (2^16384 * (1 - 2^-113)) */
   maxlog = 1.1356523406294143949491931077970764891253E4L,
 /* ln 2^-114 */
-  minarg = -7.9018778583833765273564461846232128760607E1L, big = 2e307L;
+  minarg = -7.9018778583833765273564461846232128760607E1L, big = 1e290L;
 
 
 long double

@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2001, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* clone is even more special than fork as it mucks with stacks
    and invokes a function in the right context after its all over.  */
@@ -53,7 +52,7 @@ error:
 	lhi	%r2,-EINVAL
 	j	SYSCALL_ERROR_LABEL
 PSEUDO_END (__clone)
-	
+
 thread_start:
 #ifdef RESET_PID
 	tmh	%r3,1		/* CLONE_THREAD == 0x00010000 */

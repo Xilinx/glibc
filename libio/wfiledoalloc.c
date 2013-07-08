@@ -1,5 +1,4 @@
-/* Copyright (C) 1993, 1997, 1999, 2000, 2002, 2006
-   Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -29,7 +27,7 @@
 /*
    Copyright (C) 1990 The Regents of the University of California.
    All rights reserved.
- 
+
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
@@ -42,7 +40,7 @@
    4. Neither the name of the University nor the names of its contributors
       may be used to endorse or promote products derived from this software
       without specific prior written permission.
-   
+
    THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -63,10 +61,8 @@
 #include "libioP.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef __STDC__
 #include <stdlib.h>
 #include <unistd.h>
-#endif
 
 #ifdef _LIBC
 # undef isatty
@@ -90,7 +86,7 @@ _IO_wfile_doallocate (fp)
 
   /* Allocate room for the external buffer.  */
   if (fp->_IO_buf_base == NULL)
-    INTUSE(_IO_file_doallocate) (fp);
+    _IO_file_doallocate (fp);
 
   /* If narrow buffer is user allocated (set by setvbuf etc.),
      use that size as the size of the wide buffer, when it is
@@ -100,6 +96,6 @@ _IO_wfile_doallocate (fp)
   if ((fp->_flags & _IO_USER_BUF))
     size = (size + sizeof (wchar_t) - 1) / sizeof (wchar_t);
   ALLOC_WBUF (p, size * sizeof (wchar_t), EOF);
-  INTUSE(_IO_wsetb) (fp, p, p + size, 1);
+  _IO_wsetb (fp, p, p + size, 1);
   return 1;
 }

@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* __ieee754_j1(x), __ieee754_y1(x)
  * Bessel function of the first and second kinds of order zero.
@@ -71,8 +71,8 @@
  *	   by method mentioned above.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static long double pone (long double), qone (long double);
 
@@ -203,7 +203,7 @@ __ieee754_y1l (long double x)
       __sincosl (x, &s, &c);
       ss = -s - c;
       cc = s - c;
-      if (ix < 0x7fe00000)
+      if (ix < 0x7ffe)
 	{			/* make sure x+x not overflow */
 	  z = __cosl (x + x);
 	  if ((s * c) > zero)

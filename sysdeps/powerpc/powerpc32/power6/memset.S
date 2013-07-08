@@ -1,5 +1,5 @@
 /* Optimized 32-bit memset implementation for POWER6.
-   Copyright (C) 1997,99,2000,02,03,06,2007,2009 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* __ptr_t [r3] memset (__ptr_t s [r3], int c [r4], size_t n [r5]));
    Returns 's'.
@@ -29,7 +26,7 @@
    to 0, to take advantage of the dcbz instruction.  */
 
 	.machine power6
-EALIGN (BP_SYM (memset), 7, 0)
+EALIGN (memset, 7, 0)
 	CALL_MCOUNT
 
 #define rTMP	r0
@@ -538,5 +535,5 @@ L(medium_28t):
         stw     rCHR, -4(rMEMP)
 	stw	rCHR, -8(rMEMP)
 	blr
-END (BP_SYM (memset))
+END (memset)
 libc_hidden_builtin_def (memset)

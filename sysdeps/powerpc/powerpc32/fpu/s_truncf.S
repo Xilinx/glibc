@@ -1,5 +1,5 @@
 /* truncf function.  PowerPC32 version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 1 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -26,7 +25,7 @@
 
 /* float [fp1] truncf (float x [fp1])
    IEEE 1003.1 trunc function.  IEEE specifies "trunc to the integer
-   value, in floating format, nearest to but no larger in magnitude 
+   value, in floating format, nearest to but no larger in magnitude
    then the argument."
    We set "round toward Zero" mode and trunc by adding +-2**23 then
    subtracting +-2**23.  */
@@ -37,10 +36,9 @@ ENTRY (__truncf)
 #ifdef SHARED
 	mflr	r11
 	cfi_register(lr,r11)
-	bcl	20,31,1f
-1:	mflr	r9
-	addis	r9,r9,.LC0-1b@ha
-	lfs	fp13,.LC0-1b@l(r9)
+	SETUP_GOT_ACCESS(r9,got_label)
+	addis	r9,r9,.LC0-got_label@ha
+	lfs	fp13,.LC0-got_label@l(r9)
 	mtlr	r11
 	cfi_same_value (lr)
 #else

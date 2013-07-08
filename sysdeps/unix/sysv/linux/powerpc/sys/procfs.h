@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997, 1999, 2002, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_PROCFS_H
 #define _SYS_PROCFS_H	1
@@ -32,9 +31,9 @@
 
 __BEGIN_DECLS
 
-/* These definitions are normally provided by ucontext.h via 
-   asm/sigcontext.h, asm/ptrace.h, and asm/elf.h.  Otherwise we define 
-   them here.  */ 
+/* These definitions are normally provided by ucontext.h via
+   asm/sigcontext.h, asm/ptrace.h, and asm/elf.h.  Otherwise we define
+   them here.  */
 #if !defined __PPC64_ELF_H && !defined _ASM_POWERPC_ELF_H
 #define ELF_NGREG       48      /* includes nip, msr, lr, etc. */
 #define ELF_NFPREG      33      /* includes fpscr */
@@ -53,7 +52,7 @@ typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
 /* Altivec registers */
 typedef struct {
   unsigned int u[4];
-} __attribute__ ((aligned (16))) elf_vrreg_t;
+} __attribute__ ((__aligned__ (16))) elf_vrreg_t;
 typedef elf_vrreg_t elf_vrregset_t[ELF_NVRREG];
 #endif
 

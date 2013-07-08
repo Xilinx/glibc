@@ -1,5 +1,5 @@
 /* s390 version of processor capability information handling macros.
-   Copyright (C) 2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2006.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _DL_PROCINFO_H
 #define _DL_PROCINFO_H	1
@@ -34,7 +33,9 @@
 
 /* Hardware capablity bit numbers are derived directly from the
    facility indications as stored by the "store facility list" (STFL)
-   instruction.  */
+   instruction.
+   highgprs is an alien in that list.  It describes a *kernel*
+   capability.  */
 
 enum
 {
@@ -48,13 +49,14 @@ enum
   HWCAP_S390_HPAGE = 1 << 7,
   HWCAP_S390_ETF3EH = 1 << 8,
   HWCAP_S390_HIGH_GPRS = 1 << 9,
+  HWCAP_S390_TE = 1 << 10,
 };
 
 #define HWCAP_IMPORTANT (HWCAP_S390_ZARCH | HWCAP_S390_LDISP \
 			  | HWCAP_S390_EIMM | HWCAP_S390_DFP)
 
 /* We cannot provide a general printing function.  */
-#define _dl_procinfo(word) -1
+#define _dl_procinfo(type, word) -1
 
 static inline const char *
 __attribute__ ((unused))

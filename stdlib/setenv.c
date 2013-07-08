@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,1995-2001,2004, 2008, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -113,8 +112,8 @@ __add_to_environ (name, value, combined, replace)
      const char *combined;
      int replace;
 {
-  register char **ep;
-  register size_t size;
+  char **ep;
+  size_t size;
   const size_t namelen = strlen (name);
   const size_t vallen = value != NULL ? strlen (value) + 1 : 0;
 
@@ -350,7 +349,7 @@ unsetenv (name)
    never made it.  Nevertheless the POSIX.9 standard (POSIX bindings
    for Fortran 77) requires this function.  */
 int
-clearenv ()
+clearenv (void)
 {
   LOCK;
 

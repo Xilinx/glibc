@@ -1,6 +1,5 @@
 /* Standard debugging hooks for `malloc'.
-   Copyright (C) 1990-1997,1999,2000-2002,2007,2010
-   Free Software Foundation, Inc.
+   Copyright (C) 1990-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written May 1989 by Mike Haertel.
 
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_MALLOC_INTERNAL
 # define _MALLOC_INTERNAL
@@ -46,13 +44,12 @@ libc_hidden_proto (__libc_memalign)
 #endif
 
 /* Old hook values.  */
-static void (*old_free_hook) (__ptr_t ptr, __const __ptr_t);
-static __ptr_t (*old_malloc_hook) (__malloc_size_t size, const __ptr_t);
-static __ptr_t (*old_memalign_hook) (__malloc_size_t alignment,
-				     __malloc_size_t size,
+static void (*old_free_hook) (__ptr_t ptr, const __ptr_t);
+static __ptr_t (*old_malloc_hook) (size_t size, const __ptr_t);
+static __ptr_t (*old_memalign_hook) (size_t alignment, size_t size,
 				     const __ptr_t);
-static __ptr_t (*old_realloc_hook) (__ptr_t ptr, __malloc_size_t size,
-				    __const __ptr_t);
+static __ptr_t (*old_realloc_hook) (__ptr_t ptr, size_t size,
+				    const __ptr_t);
 
 /* Function to call when something awful happens.  */
 static void (*abortfunc) (enum mcheck_status);
@@ -66,7 +63,7 @@ static void (*abortfunc) (enum mcheck_status);
 
 struct hdr
   {
-    __malloc_size_t size;	/* Exact size requested by user.  */
+    size_t size;		/* Exact size requested by user.  */
     unsigned long int magic;	/* Magic number to check header integrity.  */
     struct hdr *prev;
     struct hdr *next;
@@ -87,12 +84,12 @@ static int pedantic;
 # include <string.h>
 # define flood memset
 #else
-static void flood (__ptr_t, int, __malloc_size_t);
+static void flood (__ptr_t, int, size_t);
 static void
 flood (ptr, val, size)
      __ptr_t ptr;
      int val;
-     __malloc_size_t size;
+     size_t size;
 {
   char *cp = ptr;
   while (size--)
@@ -139,7 +136,7 @@ checkhdr (const struct hdr *hdr)
 void
 mcheck_check_all (void)
 {
-  /* Walk through all the active blocks and test whether they were tempered
+  /* Walk through all the active blocks and test whether they were tampered
      with.  */
   struct hdr *runp = root;
 
@@ -220,7 +217,7 @@ freehook (__ptr_t ptr, const __ptr_t caller)
 }
 
 static __ptr_t
-mallochook (__malloc_size_t size, const __ptr_t caller)
+mallochook (size_t size, const __ptr_t caller)
 {
   struct hdr *hdr;
 
@@ -253,11 +250,11 @@ mallochook (__malloc_size_t size, const __ptr_t caller)
 }
 
 static __ptr_t
-memalignhook (__malloc_size_t alignment, __malloc_size_t size,
+memalignhook (size_t alignment, size_t size,
 	      const __ptr_t caller)
 {
   struct hdr *hdr;
-  __malloc_size_t slop;
+  size_t slop;
   char *block;
 
   if (pedantic)
@@ -292,7 +289,7 @@ memalignhook (__malloc_size_t alignment, __malloc_size_t size,
 }
 
 static __ptr_t
-reallochook (__ptr_t ptr, __malloc_size_t size, const __ptr_t caller)
+reallochook (__ptr_t ptr, size_t size, const __ptr_t caller)
 {
   if (size == 0)
     {
@@ -301,7 +298,7 @@ reallochook (__ptr_t ptr, __malloc_size_t size, const __ptr_t caller)
     }
 
   struct hdr *hdr;
-  __malloc_size_t osize;
+  size_t osize;
 
   if (pedantic)
     mcheck_check_all ();
@@ -387,6 +384,10 @@ mabort (enum mcheck_status status)
 #endif
 }
 
+/* Memory barrier so that GCC does not optimize out the argument.  */
+#define malloc_opt_barrier(x) \
+({ __typeof (x) __x = x; __asm ("" : "+m" (__x)); __x; })
+
 int
 mcheck (func)
      void (*func) (enum mcheck_status);
@@ -397,8 +398,10 @@ mcheck (func)
   if (__malloc_initialized <= 0 && !mcheck_used)
     {
       /* We call malloc() once here to ensure it is initialized.  */
-      void *p = __libc_malloc (0);
-      __libc_free (p);
+      void *p = malloc (0);
+      /* GCC might optimize out the malloc/free pair without a barrier.  */
+      p = malloc_opt_barrier (p);
+      free (p);
 
       old_free_hook = __free_hook;
       __free_hook = freehook;

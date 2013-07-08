@@ -1,6 +1,5 @@
 /* ix87 specific implementation of pow function.
-   Copyright (C) 1996, 1997, 1999, 2001, 2004, 2005, 2007, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -15,43 +14,36 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 
-#ifdef __ELF__
 	.section .rodata.cst8,"aM",@progbits,8
-#else
-	.text
-#endif
+
 	.p2align 3
-	ASM_TYPE_DIRECTIVE(one,@object)
+	.type one,@object
 one:	.double 1.0
 	ASM_SIZE_DIRECTIVE(one)
-	ASM_TYPE_DIRECTIVE(limit,@object)
+	.type limit,@object
 limit:	.double 0.29
 	ASM_SIZE_DIRECTIVE(limit)
-	ASM_TYPE_DIRECTIVE(p31,@object)
+	.type p31,@object
 p31:	.byte 0, 0, 0, 0, 0, 0, 0xe0, 0x41
 	ASM_SIZE_DIRECTIVE(p31)
 
-#ifdef __ELF__
 	.section .rodata.cst16,"aM",@progbits,16
-#else
-	.text
-#endif
+
 	.p2align 3
-	ASM_TYPE_DIRECTIVE(infinity,@object)
+	.type infinity,@object
 inf_zero:
 infinity:
 	.byte 0, 0, 0, 0, 0, 0, 0xf0, 0x7f
 	ASM_SIZE_DIRECTIVE(infinity)
-	ASM_TYPE_DIRECTIVE(zero,@object)
+	.type zero,@object
 zero:	.double 0.0
 	ASM_SIZE_DIRECTIVE(zero)
-	ASM_TYPE_DIRECTIVE(minf_mzero,@object)
+	.type minf_mzero,@object
 minf_mzero:
 minfinity:
 	.byte 0, 0, 0, 0, 0, 0, 0xf0, 0xff
@@ -121,7 +113,7 @@ ENTRY(__ieee754_powf)
 	fucomp	%st(1)		// y : x
 	fnstsw
 	sahf
-	jne	2f
+	jne	3f
 
 	/* OK, we have an integer value for y.  */
 	popl	%edx
@@ -158,7 +150,12 @@ ENTRY(__ieee754_powf)
 
 	cfi_adjust_cfa_offset (4)
 	.align ALIGNARG(4)
-2:	/* y is a real number.  */
+2:	/* y is a large integer (so even).  */
+	fxch			// x : y
+	fabs			// |x| : y
+	fxch			// y : x
+	.align ALIGNARG(4)
+3:	/* y is a real number.  */
 	fxch			// x : y
 	fldl	MO(one)		// 1.0 : x : y
 	fldl	MO(limit)	// 0.29 : 1.0 : x : y
@@ -231,6 +228,16 @@ ENTRY(__ieee754_powf)
 	testb	$2, %dh
 	jz	16f		// jump if x == +inf
 
+	// fistpl raises invalid exception for |y| >= 1L<<31, so test
+	// that (in which case y is certainly even) before testing
+	// whether y is odd.
+	fld	%st		// y : y
+	fabs			// |y| : y
+	fcompl	MO(p31)		// y
+	fnstsw
+	sahf
+	jnc	16f
+
 	// We must find out whether y is an odd integer.
 	fld	%st		// y : y
 	fistpl	(%esp)		// y
@@ -240,18 +247,11 @@ ENTRY(__ieee754_powf)
 	sahf
 	jne	17f
 
-	// OK, the value is an integer, but is the number of bits small
-	// enough so that all are coming from the mantissa?
+	// OK, the value is an integer.
 	popl	%edx
 	cfi_adjust_cfa_offset (-4)
 	testb	$1, %dl
 	jz	18f		// jump if not odd
-	movl	%edx, %eax
-	orl	%edx, %edx
-	jns	155f
-	negl	%eax
-155:	cmpl	$0x01000000, %eax
-	ja	18f		// does not fit in mantissa bits
 	// It's an odd integer.
 	shrl	$31, %edx
 	fldl	MOX(minf_mzero, %edx, 8)
@@ -288,6 +288,16 @@ ENTRY(__ieee754_powf)
 	testb	$2, %dh
 	jz	25f
 
+	// fistpl raises invalid exception for |y| >= 1L<<31, so test
+	// that (in which case y is certainly even) before testing
+	// whether y is odd.
+	fld	%st		// y : y
+	fabs			// |y| : y
+	fcompl	MO(p31)		// y
+	fnstsw
+	sahf
+	jnc	25f
+
 	fld	%st		// y : y
 	fistpl	(%esp)		// y
 	fildl	(%esp)		// int(y) : y
@@ -296,14 +306,11 @@ ENTRY(__ieee754_powf)
 	sahf
 	jne	26f
 
-	// OK, the value is an integer, but is the number of bits small
-	// enough so that all are coming from the mantissa?
+	// OK, the value is an integer.
 	popl	%edx
 	cfi_adjust_cfa_offset (-4)
 	testb	$1, %dl
 	jz	27f		// jump if not odd
-	cmpl	$0xff000000, %edx
-	jbe	27f		// does not fit in mantissa bits
 	// It's an odd integer.
 	// Raise divide-by-zero exception and get minus infinity value.
 	fldl	MO(one)
@@ -326,6 +333,14 @@ ENTRY(__ieee754_powf)
 21:	testb	$2, %dh
 	jz	22f
 
+	// fistpl raises invalid exception for |y| >= 1L<<31, so test
+	// that (in which case y is certainly even) before testing
+	// whether y is odd.
+	fcoml	MO(p31)		// y
+	fnstsw
+	sahf
+	jnc	22f
+
 	fld	%st		// y : y
 	fistpl	(%esp)		// y
 	fildl	(%esp)		// int(y) : y
@@ -334,14 +349,11 @@ ENTRY(__ieee754_powf)
 	sahf
 	jne	23f
 
-	// OK, the value is an integer, but is the number of bits small
-	// enough so that all are coming from the mantissa?
+	// OK, the value is an integer.
 	popl	%edx
 	cfi_adjust_cfa_offset (-4)
 	testb	$1, %dl
 	jz	24f		// jump if not odd
-	cmpl	$0xff000000, %edx
-	jae	24f		// does not fit in mantissa bits
 	// It's an odd integer.
 	fldl	MO(mzero)
 	ret

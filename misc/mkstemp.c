@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 1999, 2001, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,3 +32,7 @@ mkstemp (template)
 {
   return __gen_tempname (template, 0, 0, __GT_FILE);
 }
+
+#if !defined O_LARGEFILE || O_LARGEFILE == 0
+weak_alias (mkstemp, mkstemp64)
+#endif

@@ -1,6 +1,5 @@
 /* Get file-specific information about descriptor FD.  Linux version.
-   Copyright (C) 1991,1995,1996,1998-2003,2008,2010,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fcntl.h>
 #include "pathconf.h"
@@ -35,7 +33,6 @@ __fpathconf (fd, name)
      int name;
 {
   struct statfs fsbuf;
-  int r;
 
   switch (name)
     {
@@ -50,12 +47,6 @@ __fpathconf (fd, name)
 
     case _PC_CHOWN_RESTRICTED:
       return __statfs_chown_restricted (__fstatfs (fd, &fsbuf), &fsbuf);
-
-    case _PC_PIPE_BUF:
-      r = __fcntl (fd, F_GETPIPE_SZ);
-      if (r > 0)
-	return r;
-      /* FALLTHROUGH */
 
     default:
       return posix_fpathconf (fd, name);

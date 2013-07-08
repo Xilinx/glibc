@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This test checks behavior not required by POSIX.  */
 #include <errno.h>
@@ -94,6 +93,8 @@ tf (void *arg)
 static int
 check_type (const char *mas, pthread_mutexattr_t *ma)
 {
+  int e __attribute__((unused));
+
   if (pthread_mutex_init (m, ma) != 0)
     {
       printf ("1st mutex_init failed for %s\n", mas);
@@ -118,7 +119,10 @@ check_type (const char *mas, pthread_mutexattr_t *ma)
       return 1;
     }
 
-  int e = pthread_mutex_destroy (m);
+  /* Elided mutexes don't fail destroy. If elision is not explicitly disabled
+     we don't know, so can also not check this.  */
+#ifndef ENABLE_LOCK_ELISION
+  e = pthread_mutex_destroy (m);
   if (e == 0)
     {
       printf ("mutex_destroy of self-locked mutex succeeded for %s\n", mas);
@@ -130,6 +134,7 @@ check_type (const char *mas, pthread_mutexattr_t *ma)
 	      mas);
       return 1;
     }
+#endif
 
   if (pthread_mutex_unlock (m) != 0)
     {
@@ -143,6 +148,8 @@ check_type (const char *mas, pthread_mutexattr_t *ma)
       return 1;
     }
 
+  /* Elided mutexes don't fail destroy.  */
+#ifndef ENABLE_LOCK_ELISION
   e = pthread_mutex_destroy (m);
   if (e == 0)
     {
@@ -156,6 +163,7 @@ mutex_destroy of self-trylocked mutex did not return EBUSY %s\n",
 	      mas);
       return 1;
     }
+#endif
 
   if (pthread_mutex_unlock (m) != 0)
     {
@@ -190,6 +198,8 @@ mutex_destroy of self-trylocked mutex did not return EBUSY %s\n",
       return 1;
     }
 
+  /* Elided mutexes don't fail destroy.  */
+#ifndef ENABLE_LOCK_ELISION
   e = pthread_mutex_destroy (m);
   if (e == 0)
     {
@@ -202,6 +212,7 @@ mutex_destroy of self-trylocked mutex did not return EBUSY %s\n",
 mutex_destroy of condvar-used mutex did not return EBUSY for %s\n", mas);
       return 1;
     }
+#endif
 
   done = true;
   if (pthread_cond_signal (&c) != 0)
@@ -260,6 +271,8 @@ mutex_destroy of condvar-used mutex did not return EBUSY for %s\n", mas);
       return 1;
     }
 
+  /* Elided mutexes don't fail destroy.  */
+#ifndef ENABLE_LOCK_ELISION
   e = pthread_mutex_destroy (m);
   if (e == 0)
     {
@@ -274,6 +287,7 @@ mutex_destroy of condvar-used mutex did not return EBUSY for %s\n", mas);
 	      mas);
       return 1;
     }
+#endif
 
   if (pthread_cancel (th) != 0)
     {
@@ -334,6 +348,13 @@ do_test (void)
       puts ("1st mutexattr_settype failed");
       return 1;
     }
+#ifdef ENABLE_PI
+  if (pthread_mutexattr_setprotocol (&ma, PTHREAD_PRIO_INHERIT))
+    {
+      puts ("1st pthread_mutexattr_setprotocol failed");
+      return 1;
+    }
+#endif
   puts ("check recursive mutex");
   res |= check_type ("recursive", &ma);
   if (pthread_mutexattr_destroy (&ma) != 0)
@@ -352,6 +373,13 @@ do_test (void)
       puts ("2nd mutexattr_settype failed");
       return 1;
     }
+#ifdef ENABLE_PI
+  if (pthread_mutexattr_setprotocol (&ma, PTHREAD_PRIO_INHERIT))
+    {
+      puts ("2nd pthread_mutexattr_setprotocol failed");
+      return 1;
+    }
+#endif
   puts ("check error-checking mutex");
   res |= check_type ("error-checking", &ma);
   if (pthread_mutexattr_destroy (&ma) != 0)

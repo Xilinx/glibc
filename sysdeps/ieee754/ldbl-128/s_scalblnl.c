@@ -1,7 +1,7 @@
 /* s_scalblnl.c -- long double version of s_scalbn.c.
  * Conversion to IEEE quad long double by Jakub Jelinek, jj@ultra.linux.cz.
  */
-   
+
 /* @(#)s_scalbn.c 5.1 93/09/24 */
 /*
  * ====================================================
@@ -25,25 +25,16 @@ static char rcsid[] = "$NetBSD: $";
  * exponentiation or a multiplication.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
 two114 = 2.0769187434139310514121985316880384E+34L, /* 0x4071000000000000, 0 */
 twom114 = 4.8148248609680896326399448564623183E-35L, /* 0x3F8D000000000000, 0 */
 huge   = 1.0E+4900L,
 tiny   = 1.0E-4900L;
 
-#ifdef __STDC__
-	long double __scalblnl (long double x, long int n)
-#else
-	long double __scalblnl (x,n)
-	long double x; long int n;
-#endif
+long double __scalblnl (long double x, long int n)
 {
 	int64_t k,hx,lx;
 	GET_LDOUBLE_WORDS64(hx,lx,x);
@@ -55,10 +46,12 @@ tiny   = 1.0E-4900L;
 	    k = ((hx>>48)&0x7fff) - 114;
 	}
         if (k==0x7fff) return x+x;		/* NaN or Inf */
-        k = k+n;
-        if (n> 50000 || k > 0x7ffe)
-	  return huge*__copysignl(huge,x); /* overflow  */
 	if (n< -50000) return tiny*__copysignl(tiny,x); /*underflow*/
+        if (n> 50000 || k+n > 0x7ffe)
+	  return huge*__copysignl(huge,x); /* overflow  */
+	/* Now k and n are bounded we know that k = k+n does not
+	   overflow.  */
+        k = k+n;
         if (k > 0) 				/* normal result */
 	    {SET_LDOUBLE_MSW64(x,(hx&0x8000ffffffffffffULL)|(k<<48)); return x;}
         if (k <= -114)

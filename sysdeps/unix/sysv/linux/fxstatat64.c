@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -26,21 +25,8 @@
 
 #include <sysdep.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 #include <kernel-features.h>
-
-#if __ASSUME_STAT64_SYSCALL == 0
-# include <xstatconv.h>
-#endif
-
-#ifdef __NR_stat64
-# if  __ASSUME_STAT64_SYSCALL == 0
-/* The variable is shared between all wrappers around *stat64 calls.
-   This is the definition.  */
-extern int __have_no_stat64;
-# endif
-#endif
 
 /* Get information about the file NAME in BUF.  */
 
@@ -111,60 +97,18 @@ __fxstatat64 (int vers, int fd, const char *file, struct stat64 *st, int flag)
       file = buf;
     }
 
-# if __ASSUME_STAT64_SYSCALL > 0
   if (flag & AT_SYMLINK_NOFOLLOW)
-    result = INTERNAL_SYSCALL (lstat64, err, 2, CHECK_STRING (file),
-			       CHECK_1 (st));
+    result = INTERNAL_SYSCALL (lstat64, err, 2, file, st);
   else
-    result = INTERNAL_SYSCALL (stat64, err, 2, CHECK_STRING (file),
-			       CHECK_1 (st));
+    result = INTERNAL_SYSCALL (stat64, err, 2, file, st);
   if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
     {
-#  if defined _HAVE_STAT64___ST_INO && __ASSUME_ST_INO_64_BIT == 0
+# if defined _HAVE_STAT64___ST_INO && __ASSUME_ST_INO_64_BIT == 0
       if (st->__st_ino != (__ino_t) st->st_ino)
 	st->st_ino = st->__st_ino;
-#  endif
+# endif
       return result;
     }
-# else
-  struct kernel_stat kst;
-#  ifdef __NR_stat64
-  if (! __have_no_stat64)
-    {
-      if (flag & AT_SYMLINK_NOFOLLOW)
-	result = INTERNAL_SYSCALL (lstat64, err, 2, CHECK_STRING (file),
-				   CHECK_1 (st));
-      else
-	result = INTERNAL_SYSCALL (stat64, err, 2, CHECK_STRING (file),
-				   CHECK_1 (st));
-
-      if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
-	{
-#   if defined _HAVE_STAT64___ST_INO && __ASSUME_ST_INO_64_BIT == 0
-	  if (st->__st_ino != (__ino_t) st->st_ino)
-	    st->st_ino = st->__st_ino;
-#   endif
-	  return result;
-	}
-      if (INTERNAL_SYSCALL_ERRNO (result, err) != ENOSYS)
-	goto fail;
-
-      __have_no_stat64 = 1;
-    }
-#  endif
-
-  if (flag & AT_SYMLINK_NOFOLLOW)
-    result = INTERNAL_SYSCALL (lstat, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&kst));
-  else
-    result = INTERNAL_SYSCALL (stat, err, 2, CHECK_STRING (file),
-			       __ptrvalue (&kst));
-
-  if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
-    return __xstat64_conv (vers, &kst, st);
-
- fail:
-# endif
   __atfct_seterrno (INTERNAL_SYSCALL_ERRNO (result, err), fd, buf);
 
   return -1;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2003,2004,2006,2007,2011 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <endian.h>
 #include <errno.h>
@@ -26,7 +25,6 @@
 
 #include <shlib-compat.h>
 #include <stap-probe.h>
-
 
 struct _condvar_cleanup_buffer
 {
@@ -45,7 +43,7 @@ __condvar_cleanup (void *arg)
     (struct _condvar_cleanup_buffer *) arg;
   unsigned int destroying;
   int pshared = (cbuffer->cond->__data.__mutex == (void *) ~0l)
-  		? LLL_SHARED : LLL_PRIVATE;
+		? LLL_SHARED : LLL_PRIVATE;
 
   /* We are going to modify shared data.  */
   lll_lock (cbuffer->cond->__data.__lock, pshared);
@@ -86,8 +84,15 @@ __condvar_cleanup (void *arg)
     lll_futex_wake (&cbuffer->cond->__data.__futex, INT_MAX, pshared);
 
   /* Get the mutex before returning unless asynchronous cancellation
-     is in effect.  */
-  __pthread_mutex_cond_lock (cbuffer->mutex);
+     is in effect.  We don't try to get the mutex if we already own it.  */
+  if (!(USE_REQUEUE_PI (cbuffer->mutex))
+      || ((cbuffer->mutex->__data.__lock & FUTEX_TID_MASK)
+	  != THREAD_GETMEM (THREAD_SELF, tid)))
+  {
+    __pthread_mutex_cond_lock (cbuffer->mutex);
+  }
+  else
+    __pthread_mutex_cond_lock_adjust (cbuffer->mutex);
 }
 
 
@@ -100,7 +105,14 @@ __pthread_cond_wait (cond, mutex)
   struct _condvar_cleanup_buffer cbuffer;
   int err;
   int pshared = (cond->__data.__mutex == (void *) ~0l)
-  		? LLL_SHARED : LLL_PRIVATE;
+		? LLL_SHARED : LLL_PRIVATE;
+
+#if (defined lll_futex_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+  int pi_flag = 0;
+#endif
+
+  LIBC_PROBE (cond_wait, 2, cond, mutex);
 
   LIBC_PROBE (cond_wait, 2, cond, mutex);
 
@@ -145,15 +157,36 @@ __pthread_cond_wait (cond, mutex)
   do
     {
       unsigned int futex_val = cond->__data.__futex;
-
       /* Prepare to wait.  Release the condvar futex.  */
       lll_unlock (cond->__data.__lock, pshared);
 
       /* Enable asynchronous cancellation.  Required by the standard.  */
       cbuffer.oldtype = __pthread_enable_asynccancel ();
 
-      /* Wait until woken by signal or broadcast.  */
-      lll_futex_wait (&cond->__data.__futex, futex_val, pshared);
+#if (defined lll_futex_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+      /* If pi_flag remained 1 then it means that we had the lock and the mutex
+	 but a spurious waker raced ahead of us.  Give back the mutex before
+	 going into wait again.  */
+      if (pi_flag)
+	{
+	  __pthread_mutex_cond_lock_adjust (mutex);
+	  __pthread_mutex_unlock_usercnt (mutex, 0);
+	}
+      pi_flag = USE_REQUEUE_PI (mutex);
+
+      if (pi_flag)
+	{
+	  err = lll_futex_wait_requeue_pi (&cond->__data.__futex,
+					   futex_val, &mutex->__data.__lock,
+					   pshared);
+
+	  pi_flag = (err == 0);
+	}
+      else
+#endif
+	  /* Wait until woken by signal or broadcast.  */
+	lll_futex_wait (&cond->__data.__futex, futex_val, pshared);
 
       /* Disable asynchronous cancellation.  */
       __pthread_disable_asynccancel (cbuffer.oldtype);
@@ -190,8 +223,17 @@ __pthread_cond_wait (cond, mutex)
   /* The cancellation handling is back to normal, remove the handler.  */
   __pthread_cleanup_pop (&buffer, 0);
 
-  /* Get the mutex before returning.  */
-  return __pthread_mutex_cond_lock (mutex);
+  /* Get the mutex before returning.  Not needed for PI.  */
+#if (defined lll_futex_wait_requeue_pi \
+     && defined __ASSUME_REQUEUE_PI)
+  if (pi_flag)
+    {
+      __pthread_mutex_cond_lock_adjust (mutex);
+      return 0;
+    }
+  else
+#endif
+    return __pthread_mutex_cond_lock (mutex);
 }
 
 versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,

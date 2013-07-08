@@ -1,4 +1,5 @@
-#if !defined __ASSEMBLER__ && !defined _ISOMAC && !defined __OPTIMIZE__
+#if !defined IS_IN_build && !defined __ASSEMBLER__ && !defined _ISOMAC \
+    && !defined __OPTIMIZE__
 # error "glibc cannot be compiled without optimization"
 #endif
 
@@ -8,11 +9,6 @@
 # error "glibc must not be compiled with -ffast-math"
 #endif
 
-/* Define if using ELF, which supports weak symbols.
-   This implies HAVE_ASM_WEAK_DIRECTIVE and NO_UNDERSCORES; set by
-   --with-elf.  */
-#undef	HAVE_ELF
-
 /* Define if building with SELinux support.  Set by --with-selinux.  */
 #undef	HAVE_SELINUX
 
@@ -21,13 +17,6 @@
 
 /* Defined if building with SELinux support & libcap libs are detected.  */
 #undef  HAVE_LIBCAP
-
-/* Define if using XCOFF. Set by --with-xcoff.  */
-#undef	HAVE_XCOFF
-
-/* Define if C symbols are asm symbols.  Don't define if C symbols
-   have a `_' prepended to make the asm symbol.  */
-#undef	NO_UNDERSCORES
 
 /* Define if weak symbols are available via the `.weak' directive.  */
 #undef	HAVE_ASM_WEAK_DIRECTIVE
@@ -42,22 +31,11 @@
    assembler instructions per line.  Default is `;'  */
 #undef ASM_LINE_SEP
 
-/* Define if not using ELF, but `.init' and `.fini' sections are available.  */
-#undef	HAVE_INITFINI
-
 /* Define if __attribute__((section("foo"))) puts quotes around foo.  */
 #undef  HAVE_SECTION_QUOTES
 
 /* Define if the assembler supports the `.set' directive.  */
 #undef	HAVE_ASM_SET_DIRECTIVE
-
-/* Define to the name of the assembler's directive for
-   declaring a symbol global (default `.globl').  */
-#undef	ASM_GLOBAL_DIRECTIVE
-
-/* Define to the prefix before `object' or `function' in the
-   assembler's `.type' directive, if it has one.  */
-#undef	ASM_TYPE_DIRECTIVE_PREFIX
 
 /* Define if the assembler supports the gnu_unique_object symbol type.  */
 #undef	HAVE_ASM_UNIQUE_OBJECT
@@ -67,9 +45,6 @@
 
 /* On powerpc64, use overlapping .opd entries.  */
 #undef  USE_PPC64_OVERLAPPING_OPD
-
-/* Define if the assembler generates debugging information directly.  */
-#undef	HAVE_CPP_ASM_DEBUGINFO
 
 /* Define if _Unwind_Find_FDE should be exported from glibc.  */
 #undef  EXPORT_UNWIND_FIND_FDE
@@ -94,6 +69,9 @@
 /* Define if the compiler supports __builtin_memset.  */
 #undef	HAVE_BUILTIN_MEMSET
 
+/* Define if compiler accepts -ftree-loop-distribute-patterns.  */
+#undef  HAVE_CC_INHIBIT_LOOP_TO_LIBCALL
+
 /* Define if the regparm attribute shall be used for local functions
    (gcc on ix86 only).  */
 #undef	USE_REGPARMS
@@ -102,9 +80,11 @@
    certain registers (CR0, MQ, CTR, LR) in asm statements.  */
 #undef	BROKEN_PPC_ASM_CR0
 
-/* Defined on SPARC if ld doesn't handle R_SPARC_WDISP22 against .hidden
-   symbol.  sysdeps/sparc/sparc32/elf/configure.  */
-#undef	BROKEN_SPARC_WDISP22
+/* Defined on SPARC if GCC emits GOTDATA relocations.  */
+#undef  HAVE_GCC_GOTDATA
+
+/* Define on SPARC if AS supports VIS3 instructions.  */
+#undef  HAVE_AS_VIS3_SUPPORT
 
 /* Define if the linker supports the -z combreloc option.  */
 #undef	HAVE_Z_COMBRELOC
@@ -118,24 +98,27 @@
 /* Define if gcc supports AVX.  */
 #undef	HAVE_AVX_SUPPORT
 
+/* Define if gcc supports VEX encoding.  */
+#undef	HAVE_SSE2AVX_SUPPORT
+
 /* Define if gcc supports FMA4.  */
 #undef	HAVE_FMA4_SUPPORT
 
-/* Define if the compiler's exception support is based on libunwind.  */
+/* Define if the compiler\'s exception support is based on libunwind.  */
 #undef	HAVE_CC_WITH_LIBUNWIND
 
 /* Define if the access to static and hidden variables is position independent
    and does not need relocations.  */
 #undef	PI_STATIC_AND_HIDDEN
 
-/* Define this to disable the `hidden_proto' et al macros in
+/* Define this to disable the 'hidden_proto' et al macros in
    include/libc-symbols.h that avoid PLT slots in the shared objects.  */
 #undef	NO_HIDDEN
 
 
 /* Defined to some form of __attribute__ ((...)) if the compiler supports
    a different, more efficient calling convention.  */
-#if defined USE_REGPARMS && !defined PROF && !defined __BOUNDED_POINTERS__
+#if defined USE_REGPARMS && !defined PROF
 # define internal_function __attribute__ ((regparm (3), stdcall))
 #endif
 
@@ -181,14 +164,36 @@
 /* Define if __stack_chk_guard canary should be randomized at program startup.  */
 #undef ENABLE_STACKGUARD_RANDOMIZE
 
+/* Define if lock elision should be enabled by default.  */
+#undef ENABLE_LOCK_ELISION
+
+/* Package description.  */
+#undef PKGVERSION
+
+/* Bug reporting address.  */
+#undef REPORT_BUGS_TO
+
 /* Define if multi-arch DSOs should be generated.  */
 #undef USE_MULTIARCH
 
 /* Define if `.ctors' and `.dtors' sections shouldn't be used.  */
 #undef	NO_CTORS_DTORS_SECTIONS
 
+/* Define if obsolete RPC code should be made available for user-level code
+   to link against.  */
+#undef LINK_OBSOLETE_RPC
+
 /* Define if Systemtap <sys/sdt.h> probes should be defined.  */
 #undef USE_STAP_PROBE
+
+/* Define if library functions should try to contact the nscd daemon.  */
+#undef USE_NSCD
+
+/* Define if the dynamic linker should consult an ld.so.cache file.  */
+#undef USE_LDCONFIG
+
+/* Define if STT_GNU_IFUNC support actually works.  */
+#undef HAVE_IFUNC
 
 /*
  */
@@ -229,5 +234,8 @@
 /* The locale code needs these definitions.  */
 
 #define HAVE_REGEX 1
+
+/* The ARM hard-float ABI is being used.  */
+#undef HAVE_ARM_PCS_VFP
 
 #endif

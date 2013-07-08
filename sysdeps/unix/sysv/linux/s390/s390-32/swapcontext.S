@@ -1,4 +1,4 @@
-/* Copyright (C) 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <features.h>
@@ -35,12 +34,13 @@
 
 ENTRY(__swapcontext)
 	lr	%r1,%r2
-	lr      %r5,%r3
+	lr      %r0,%r3
 
 	/* sigprocmask (SIG_BLOCK, NULL, &sc->sc_mask).  */
 	la      %r2,SIG_BLOCK
 	slr	%r3,%r3
 	la	%r4,SC_MASK(%r1)
+	lhi	%r5,_NSIG8
 	svc	SYS_ify(rt_sigprocmask)
 
 	/* Store fpu context.  */
@@ -70,14 +70,17 @@ ENTRY(__swapcontext)
 
 	/* Store general purpose registers.  */
 	stm     %r0,%r15,SC_GPRS(%r1)
-	
+
 	/* sigprocmask (SIG_SETMASK, &sc->sc_mask, NULL).  */
 	la      %r2,SIG_BLOCK
+	lr	%r5,%r0
 	la	%r3,SC_MASK(%r5)
 	slr	%r4,%r4
+	lhi	%r5,_NSIG8
 	svc	SYS_ify(rt_sigprocmask)
 
 	/* Load fpu context.  */
+	lr	%r5,%r0
 	lfpc	SC_FPC(%r5)
 	ld	%f0,SC_FPRS(%r5)
 	ld      %f1,SC_FPRS+8(%r5)
@@ -95,7 +98,7 @@ ENTRY(__swapcontext)
 	ld      %f13,SC_FPRS+104(%r5)
 	ld      %f14,SC_FPRS+112(%r5)
 	ld      %f15,SC_FPRS+120(%r5)
- 
+
 	/* Don't touch %a0, used for thread purposes.  */
 	lam	%a1,%a15,SC_ACRS+4(%r5)
 
@@ -104,5 +107,5 @@ ENTRY(__swapcontext)
 
 	/* Return.  */
 	br	%r14
-END(__swapcontext)	
+END(__swapcontext)
 weak_alias (__swapcontext, swapcontext)

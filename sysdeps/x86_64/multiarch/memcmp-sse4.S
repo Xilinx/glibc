@@ -1,5 +1,5 @@
 /* memcmp with SSE4.1, wmemcmp with SSE4.1
-   Copyright (C) 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef NOT_IN_libc
 
@@ -320,9 +319,9 @@ L(less32bytesin256):
 	ALIGN (4)
 L(512bytesormore):
 # ifdef DATA_CACHE_SIZE_HALF
-	mov	$DATA_CACHE_SIZE_HALF, %r8
+	mov	$DATA_CACHE_SIZE_HALF, %R8_LP
 # else
-	mov	__x86_64_data_cache_size_half(%rip), %r8
+	mov	__x86_data_cache_size_half(%rip), %R8_LP
 # endif
 	mov	%r8, %r9
 	shr	$1, %r8
@@ -636,9 +635,9 @@ L(less32bytesin256in2alinged):
 	ALIGN (4)
 L(512bytesormorein2aligned):
 # ifdef DATA_CACHE_SIZE_HALF
-	mov	$DATA_CACHE_SIZE_HALF, %r8
+	mov	$DATA_CACHE_SIZE_HALF, %R8_LP
 # else
-	mov	__x86_64_data_cache_size_half(%rip), %r8
+	mov	__x86_data_cache_size_half(%rip), %R8_LP
 # endif
 	mov	%r8, %r9
 	shr	$1, %r8

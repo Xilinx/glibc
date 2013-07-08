@@ -1,5 +1,4 @@
-/* Copyright (C) 1997, 2002, 2003, 2004, 2006, 2008, 2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Miguel de Icaza <miguel@gnu.ai.mit.edu>, January 1997.
 
@@ -14,14 +13,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LINUX_SPARC32_SYSDEP_H
 #define _LINUX_SPARC32_SYSDEP_H 1
 
-#include <sysdeps/unix/sparc/sysdep.h>
+#include <sysdeps/unix/sysv/linux/sparc/sysdep.h>
 
 #ifdef IS_IN_rtld
 # include <dl-sysdep.h>		/* Defines RTLD_PRIVATE_ERRNO.  */
@@ -35,28 +33,7 @@
 
 #define LOADSYSCALL(x) mov __NR_##x, %g1
 
-/* Linux/SPARC uses a different trap number */
 #undef PSEUDO
-#undef PSEUDO_NOERRNO
-#undef PSEUDO_ERRVAL
-#undef PSEUDO_END
-#undef ENTRY
-#undef END
-#undef LOC
-
-#define ENTRY(name)			\
-	.align	4;			\
-	.global	C_SYMBOL_NAME(name);	\
-	.type	name, @function;	\
-C_LABEL(name)				\
-	cfi_startproc;
-
-#define END(name)			\
-	cfi_endproc;			\
-	.size name, . - name
-
-#define LOC(name)  .L##name
-
 #define PSEUDO(name, syscall_name, args)	\
 	.text;					\
 ENTRY(name);					\
@@ -67,18 +44,21 @@ ENTRY(name);					\
 	SYSCALL_ERROR_HANDLER			\
 1:
 
+#undef PSEUDO_NOERRNO
 #define PSEUDO_NOERRNO(name, syscall_name, args)\
 	.text;					\
 ENTRY(name);					\
 	LOADSYSCALL(syscall_name);		\
 	ta		0x10;
 
+#undef PSEUDO_ERRVAL
 #define PSEUDO_ERRVAL(name, syscall_name, args)	\
 	.text;					\
 ENTRY(name);					\
 	LOADSYSCALL(syscall_name);		\
 	ta		0x10;
 
+#undef PSEUDO_END
 #define PSEUDO_END(name)			\
 	END(name)
 
@@ -90,10 +70,10 @@ ENTRY(name);					\
 #else
 # if RTLD_PRIVATE_ERRNO
 #  define SYSCALL_ERROR_HANDLER			\
-0:	SETUP_PIC_REG(o2,g1)			\
-	sethi	%hi(rtld_errno), %g1;		\
-	or	%g1, %lo(rtld_errno), %g1;	\
-	ld	[%o2 + %g1], %g1;		\
+0:	SETUP_PIC_REG_LEAF(o2,g1)		\
+	sethi	%gdop_hix22(rtld_errno), %g1;	\
+	xor	%g1, %gdop_lox10(rtld_errno), %g1;\
+	ld	[%o2 + %g1], %g1, %gdop(rtld_errno); \
 	st	%o0, [%g1];			\
 	jmp	%o7 + 8;			\
 	 mov	-1, %o0;
@@ -104,8 +84,8 @@ ENTRY(name);					\
 #  else
 #   define SYSCALL_ERROR_ERRNO errno
 #  endif
-#  define SYSCALL_ERROR_HANDLER				\
-0:	SETUP_PIC_REG(o2,g1)					\
+#  define SYSCALL_ERROR_HANDLER					\
+0:	SETUP_PIC_REG_LEAF(o2,g1)				\
 	sethi	%tie_hi22(SYSCALL_ERROR_ERRNO), %g1;		\
 	add	%g1, %tie_lo10(SYSCALL_ERROR_ERRNO), %g1;	\
 	ld	[%o2 + %g1], %g1, %tie_ld(SYSCALL_ERROR_ERRNO);	\
@@ -114,10 +94,10 @@ ENTRY(name);					\
 	 mov	-1, %o0;
 # else
 #  define SYSCALL_ERROR_HANDLER		\
-0:	SETUP_PIC_REG(o2,g1)		\
-	sethi	%hi(errno), %g1;	\
-	or	%g1, %lo(errno), %g1;	\
-	ld	[%o2 + %g1], %g1;	\
+0:	SETUP_PIC_REG_LEAF(o2,g1)	\
+	sethi	%gdop_hix22(errno), %g1;\
+	xor	%g1, %gdop_lox10(errno), %g1;\
+	ld	[%o2 + %g1], %g1, %gdop(errno);\
 	st	%o0, [%g1];		\
 	jmp	%o7 + 8;		\
 	 mov	-1, %o0;
@@ -141,8 +121,6 @@ ENTRY(name);					\
 	"f16", "f17", "f18", "f19", "f20", "f21", "f22", "f23",		\
 	"f24", "f25", "f26", "f27", "f28", "f29", "f30", "f31",		\
 	"cc", "memory"
-
-#include <sysdeps/unix/sysv/linux/sparc/sysdep.h>
 
 #endif	/* __ASSEMBLER__ */
 

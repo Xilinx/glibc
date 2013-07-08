@@ -14,8 +14,9 @@
  * no branching!
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
+#include <stdint.h>
 
 #undef __finite
 int

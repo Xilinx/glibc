@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 2000, 2001, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <string.h>
 #include <time.h>
@@ -175,7 +174,9 @@ __nis_findfastest_with_timeout (dir_binding *bind,
 			(xdrproc_t) xdr_void, (caddr_t) 0,
 			*timeout);
     if (RPC_SUCCESS == rc) {
-      fastest = *((u_int32_t *) (cu->cu_inbuf)) - xid_seed;
+      u_int32_t val;
+      memcpy (&val, cu->cu_inbuf, sizeof (u_int32_t));
+      fastest = val - xid_seed;
       if (fastest < pings_count) {
 	bind->server_used = pings[fastest].server_nr;
 	bind->current_ep = pings[fastest].server_ep;

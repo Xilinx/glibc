@@ -1,5 +1,5 @@
 /* Internal macros for atomic operations for GNU C Library.
-   Copyright (C) 2002-2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _ATOMIC_H
 #define _ATOMIC_H	1
@@ -199,8 +198,12 @@
 
 
 /* Add VALUE to *MEM and return the old value of *MEM.  */
-#ifndef atomic_exchange_and_add
-# define atomic_exchange_and_add(mem, value) \
+#ifndef atomic_exchange_and_add_acq
+# ifdef atomic_exchange_and_add
+#  define atomic_exchange_and_add_acq(mem, value) \
+  atomic_exchange_and_add (mem, value)
+# else
+#  define atomic_exchange_and_add_acq(mem, value) \
   ({ __typeof (*(mem)) __atg6_oldval;					      \
      __typeof (mem) __atg6_memp = (mem);				      \
      __typeof (*(mem)) __atg6_value = (value);				      \
@@ -214,8 +217,18 @@
 						   __atg6_oldval), 0));	      \
 									      \
      __atg6_oldval; })
+# endif
 #endif
 
+#ifndef atomic_exchange_and_add_rel
+# define atomic_exchange_and_add_rel(mem, value) \
+  atomic_exchange_and_add_acq(mem, value)
+#endif
+
+#ifndef atomic_exchange_and_add
+# define atomic_exchange_and_add(mem, value) \
+  atomic_exchange_and_add_acq(mem, value)
+#endif
 
 #ifndef catomic_exchange_and_add
 # define catomic_exchange_and_add(mem, value) \

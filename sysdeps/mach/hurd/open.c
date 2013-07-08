@@ -1,4 +1,4 @@
-/* Copyright (C) 1992,93,94,95,97,2000,2002,2006 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -53,20 +52,9 @@ weak_alias (__libc_open, __open)
 libc_hidden_weak (__open)
 weak_alias (__libc_open, open)
 
-int
-__open_2 (file, oflag)
-     const char *file;
-     int oflag;
-{
-  if (oflag & O_CREAT)
-    __fortify_fail ("invalid open call: O_CREAT without mode");
-
-  return __open (file, oflag);
-}
 
 /* open64 is just the same as open for us.  */
 weak_alias (__libc_open, __libc_open64)
 weak_alias (__libc_open, __open64)
 libc_hidden_weak (_open64)
 weak_alias (__libc_open, open64)
-strong_alias (__open_2, __open64_2)

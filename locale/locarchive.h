@@ -1,5 +1,5 @@
 /* Definitions for locale archive handling.
-   Copyright (C) 2002, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LOCARCHIVE_H
 #define _LOCARCHIVE_H 1
@@ -85,6 +84,13 @@ struct locarhandle
   void *addr;
   size_t mmaped;
   size_t reserved;
+  /* If this mmap required adjustment (such as re-aligning), then this is the
+     real address that was returned from mmap and thus should be passed to the
+     munmap call.  The addr field above is the first usable address.  */
+  void *mmap_base;
+  /* Same as above for mmap_base vs addr, but this is the real length of the
+     map rather than the usable (which is what reserved represents).  */
+  size_t mmap_len;
 };
 
 

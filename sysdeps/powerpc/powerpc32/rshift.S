@@ -1,5 +1,5 @@
 /* Shift a limb right, low level routine.
-   Copyright (C) 1995, 1997, 1999, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* INPUT PARAMETERS
    res_ptr	r3
@@ -27,12 +24,7 @@
    size		r5
    cnt		r6  */
 
-ENTRY (BP_SYM (__mpn_rshift))
-#if __BOUNDED_POINTERS__
-	slwi r10,r5,2		/* convert limbs to bytes */
-	CHECK_BOUNDS_BOTH_WIDE (r3, r8, r9, r10)
-	CHECK_BOUNDS_BOTH_WIDE (r4, r8, r9, r10)
-#endif
+ENTRY (__mpn_rshift)
 	mtctr	r5		# copy size into CTR
 	addi	r7,r3,-4	# move adjusted res_ptr to free return reg
 	subfic	r8,r6,32
@@ -60,4 +52,4 @@ L(1):	srw	r0,r11,r6
 L(2):	srw	r0,r10,r6
 	stw	r0,4(r7)
 	blr
-END (BP_SYM (__mpn_rshift))
+END (__mpn_rshift)

@@ -1,6 +1,5 @@
 /* Call the termination functions of loaded shared objects.
-   Copyright (C) 1995,96,1998-2002,2004-2005,2009,2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <assert.h>
@@ -39,7 +37,7 @@ _dl_sort_fini (struct link_map **maps, size_t nmaps, char *used, Lmid_t ns)
   /* We can skip looking for the binary itself which is at the front
      of the search list for the main namespace.  */
   unsigned int i = ns == LM_ID_BASE;
-  char seen[nmaps];
+  uint16_t seen[nmaps];
   memset (seen, 0, nmaps * sizeof (seen[0]));
   while (1)
     {
@@ -79,13 +77,13 @@ _dl_sort_fini (struct link_map **maps, size_t nmaps, char *used, Lmid_t ns)
 		      used[k] = here_used;
 		    }
 
-		  if (seen[i + 1] > 1)
+		  if (seen[i + 1] > nmaps - i)
 		    {
 		      ++i;
 		      goto next_clear;
 		    }
 
-		  char this_seen = seen[i];
+		  uint16_t this_seen = seen[i];
 		  memmove (&seen[i], &seen[i + 1], (k - i) * sizeof (seen[0]));
 		  seen[k] = this_seen;
 
@@ -239,7 +237,7 @@ _dl_fini (void)
 		  if (__builtin_expect (GLRO(dl_debug_mask)
 					& DL_DEBUG_IMPCALLS, 0))
 		    _dl_debug_printf ("\ncalling fini: %s [%lu]\n\n",
-				      l->l_name[0] ? l->l_name : rtld_progname,
+				      DSO_FILENAME (l->l_name),
 				      ns);
 
 		  /* First see whether an array is given.  */

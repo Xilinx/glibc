@@ -1,5 +1,5 @@
 /* Test for AIO POSIX compliance.
-   Copyright (C) 2001,02, 03 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <aio.h>
 #include <error.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -78,7 +78,7 @@ do_test (void)
       puts ("aio_cancel( -1, {-2..} ) did not return -1 or errno != EBADF");
   }
 
-  /* Test for aio_fsync() detecting bad fd, and fd not open for writing.  */
+  /* Test for aio_fsync() detecting bad fd.  */
   {
     struct aiocb cb;
     int fd = -1;
@@ -98,21 +98,6 @@ do_test (void)
 	puts ("aio_fsync( op, {-1..} ) did not return -1 or errno != EBADF");
 	++result;
       }
-
-    if ((fd = open ("/dev/null", O_RDONLY)) < 0)
-      error (1, errno, "opening /dev/null");
-
-    cb.aio_fildes = fd;
-    errno = 0;
-
-    /* Case two: valid fd but open for read only.  */
-    if (aio_fsync (O_SYNC, &cb) != -1 || errno != EBADF)
-      {
-	puts ("aio_fsync( op, {RO..} ) did not return -1 or errno != EBADF");
-	++result;
-      }
-
-    close (fd);
   }
 
   /* Test for aio_suspend() suspending even if completed elements in list.  */

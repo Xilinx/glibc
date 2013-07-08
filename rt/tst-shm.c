@@ -1,5 +1,5 @@
 /* Test program for POSIX shm_* functions.
-   Copyright (C) 2000, 2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 2000.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <error.h>
@@ -74,7 +73,7 @@ worker (int write_now)
     error (EXIT_FAILURE, 0, "size incorrect");
 
   mem = mmap (NULL, 4000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  if (mem == NULL)
+  if (mem == MAP_FAILED)
     error (EXIT_FAILURE, 0, "mmap failed");
 
   ts.tv_sec = 0;

@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (C) 1997, 1998, 1999, 2004, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1997-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Andreas Jaeger <aj@arthur.rhein-neckar.de>, 1997.
 
@@ -14,9 +14,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 
 $PACKAGE = "libc";
@@ -25,6 +24,11 @@ if ($ENV{CC}) {
   $CC = $ENV{CC};
 } else {
   $CC= "gcc";
+}
+if ($ENV{LD_SO}) {
+  $LD_SO = $ENV{LD_SO};
+} else {
+  $LD_SO = "";
 }
 
 sub usage {
@@ -55,7 +59,7 @@ arglist: while (@ARGV) {
       $ARGV[0] eq "--vers" || $ARGV[0] eq "--versi" ||
       $ARGV[0] eq "--versio" || $ARGV[0] eq "--version") {
     print "test-installation (GNU $PACKAGE)\n";
-    print "Copyright (C) 1997, 1998 Free Software Foundation, Inc.\n";
+    print "Copyright (C) 2013 Free Software Foundation, Inc.\n";
     print "This is free software; see the source for copying conditions.  There is NO\n";
     print "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
     print "Written by Andreas Jaeger <aj\@arthur.rhein-neckar.de>\n";
@@ -106,12 +110,15 @@ while (<SOVERSIONS>) {
     # - libnss1_* from glibc-compat add-on
     # - libthread_db since it contains unresolved references
     # - it's just a test NSS module
+    # - We don't provide the libgcc so we don't test it
     if ($name ne "nss_ldap" && $name ne "db1"
 	&& !($name =~/^nss1_/) && $name ne "thread_db"
-	&& $name ne "nss_test1") {
+	&& $name ne "nss_test1" && $name ne "libgcc_s") {
       $link_libs .= " -l$name";
       $versions{$name} = $version;
     }
+  } elsif ($LD_SO ne "") {
+    ($ld_so_name, $ld_so_version) = split ('\.so\.', $LD_SO);
   } else {
     if (/^ld\.so/) {
       ($ld_so_name, $ld_so_version)= /=(.*)\.so\.(.*)$/;

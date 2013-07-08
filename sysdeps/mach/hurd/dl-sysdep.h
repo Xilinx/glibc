@@ -1,5 +1,5 @@
 /* System-specific settings for dynamic linker code.  Hurd version.
-   Copyright (C) 2002, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* The private errno doesn't make sense on the Hurd.  errno is always the
    thread-local slot shared with libc, and it matters to share the cell
@@ -25,7 +24,8 @@
 #define RTLD_PRIVATE_ERRNO 0
 
 #ifdef SHARED
-/* _dl_argv cannot be attribute_relro, because the stack-switching
+/* _dl_argv and __libc_stack_end cannot be attribute_relro, because the stack-switching
    libc initializer for using cthreads might write into it.  */
 # define DL_ARGV_NOT_RELRO 1
+# define LIBC_STACK_END_NOT_RELRO 1
 #endif

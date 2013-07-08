@@ -1,5 +1,4 @@
-/* Copyright (c) 1998, 1999, 2000, 2003, 2004, 2005, 2006, 2007, 2009, 2011
-   Free Software Foundation, Inc.
+/* Copyright (c) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1998.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This file defines everything that client code should need to
    know to talk to the nscd daemon.  */
@@ -323,6 +321,25 @@ struct locked_map_ptr
 };
 #define libc_locked_map_ptr(class, name) class struct locked_map_ptr name
 
+/* Try acquiring lock for mapptr, returns true if it succeeds, false
+   if not.  */
+static inline bool
+__nscd_acquire_maplock (volatile struct locked_map_ptr *mapptr)
+{
+  int cnt = 0;
+  while (__builtin_expect (atomic_compare_and_exchange_val_acq (&mapptr->lock,
+								1, 0) != 0, 0))
+    {
+      // XXX Best number of rounds?
+      if (__builtin_expect (++cnt > 5, 0))
+	return false;
+
+      atomic_delay ();
+    }
+
+  return true;
+}
+
 
 /* Open socket connection to nscd server.  */
 extern int __nscd_open_socket (const char *key, size_t keylen,
@@ -345,8 +362,9 @@ extern struct mapped_database *__nscd_get_map_ref (request_type type,
 extern void __nscd_unmap (struct mapped_database *mapped);
 
 /* Drop reference of mapping.  */
-static inline int __nscd_drop_map_ref (struct mapped_database *map,
-				       int *gc_cycle)
+static int
+__attribute__ ((unused))
+__nscd_drop_map_ref (struct mapped_database *map, int *gc_cycle)
 {
   if (map != NO_MAPPING)
     {

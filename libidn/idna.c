@@ -1,5 +1,5 @@
 /* idna.c	Convert to or from IDN strings.
- * Copyright (C) 2002, 2003, 2004  Simon Josefsson
+ * Copyright (C) 2002, 2003, 2004, 2011  Simon Josefsson
  *
  * This file is part of GNU Libidn.
  *
@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with GNU Libidn; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * License along with GNU Libidn; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
@@ -27,6 +25,7 @@
 #include <string.h>
 #include <stringprep.h>
 #include <punycode.h>
+#include <stdint.h>
 
 #include "idna.h"
 
@@ -614,7 +613,6 @@ idna_to_unicode_4z4z (const uint32_t * input, uint32_t ** output, int flags)
   size_t buflen;
   uint32_t *out = NULL;
   size_t outlen = 0;
-  int rc;
 
   *output = NULL;
 
@@ -630,8 +628,8 @@ idna_to_unicode_4z4z (const uint32_t * input, uint32_t ** output, int flags)
       if (!buf)
 	return IDNA_MALLOC_ERROR;
 
-      rc = idna_to_unicode_44i (start, end - start, buf, &buflen, flags);
-      /* don't check rc as per specification! */
+      idna_to_unicode_44i (start, end - start, buf, &buflen, flags);
+      /* don't check return value as per specification! */
 
       if (out)
 	{

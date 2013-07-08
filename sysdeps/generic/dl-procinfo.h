@@ -1,5 +1,5 @@
 /* Stub version of processor capability information handling macros.
-   Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,15 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _DL_PROCINFO_H
 #define _DL_PROCINFO_H	1
 
 /* We cannot provide a general printing function.  */
-#define _dl_procinfo(word) -1
+#define _dl_procinfo(type, word) -1
 
 /* There are no hardware capabilities defined.  */
 #define _dl_hwcap_string(idx) ""

@@ -1,5 +1,5 @@
 /* Return arc tangent of complex float value.
-   Copyright (C) 1997, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,14 +14,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <complex.h>
 #include <math.h>
 #include <math_private.h>
-
+#include <float.h>
 
 __complex__ float
 __catanf (__complex__ float x)
@@ -62,21 +61,84 @@ __catanf (__complex__ float x)
     }
   else
     {
-      float r2, num, den;
+      if (fabsf (__real__ x) >= 16.0f / FLT_EPSILON
+	  || fabsf (__imag__ x) >= 16.0f / FLT_EPSILON)
+	{
+	  __real__ res = __copysignf ((float) M_PI_2, __real__ x);
+	  if (fabsf (__real__ x) <= 1.0f)
+	    __imag__ res = 1.0f / __imag__ x;
+	  else if (fabsf (__imag__ x) <= 1.0f)
+	    __imag__ res = __imag__ x / __real__ x / __real__ x;
+	  else
+	    {
+	      float h = __ieee754_hypotf (__real__ x / 2.0f,
+					  __imag__ x / 2.0f);
+	      __imag__ res = __imag__ x / h / h / 4.0f;
+	    }
+	}
+      else
+	{
+	  float den, absx, absy;
 
-      r2 = __real__ x * __real__ x;
+	  absx = fabsf (__real__ x);
+	  absy = fabsf (__imag__ x);
+	  if (absx < absy)
+	    {
+	      float t = absx;
+	      absx = absy;
+	      absy = t;
+	    }
 
-      den = 1 - r2 - __imag__ x * __imag__ x;
+	  if (absy < FLT_EPSILON / 2.0f)
+	    den = (1.0f - absx) * (1.0f + absx);
+	  else if (absx >= 1.0f)
+	    den = (1.0f - absx) * (1.0f + absx) - absy * absy;
+	  else if (absx >= 0.75f || absy >= 0.5f)
+	    den = -__x2y2m1f (absx, absy);
+	  else
+	    den = (1.0f - absx) * (1.0f + absx) - absy * absy;
 
-      __real__ res = 0.5 * __ieee754_atan2f (2.0 * __real__ x, den);
+	  __real__ res = 0.5f * __ieee754_atan2f (2.0f * __real__ x, den);
 
-      num = __imag__ x + 1.0;
-      num = r2 + num * num;
+	  if (fabsf (__imag__ x) == 1.0f
+	      && fabsf (__real__ x) < FLT_EPSILON * FLT_EPSILON)
+	    __imag__ res = (__copysignf (0.5f, __imag__ x)
+			    * ((float) M_LN2
+			       - __ieee754_logf (fabsf (__real__ x))));
+	  else
+	    {
+	      float r2 = 0.0f, num, f;
 
-      den = __imag__ x - 1.0;
-      den = r2 + den * den;
+	      if (fabsf (__real__ x) >= FLT_EPSILON * FLT_EPSILON)
+		r2 = __real__ x * __real__ x;
 
-      __imag__ res = 0.25 * __ieee754_logf (num / den);
+	      num = __imag__ x + 1.0f;
+	      num = r2 + num * num;
+
+	      den = __imag__ x - 1.0f;
+	      den = r2 + den * den;
+
+	      f = num / den;
+	      if (f < 0.5f)
+		__imag__ res = 0.25f * __ieee754_logf (f);
+	      else
+		{
+		  num = 4.0f * __imag__ x;
+		  __imag__ res = 0.25f * __log1pf (num / den);
+		}
+	    }
+	}
+
+      if (fabsf (__real__ res) < FLT_MIN)
+	{
+	  volatile float force_underflow = __real__ res * __real__ res;
+	  (void) force_underflow;
+	}
+      if (fabsf (__imag__ res) < FLT_MIN)
+	{
+	  volatile float force_underflow = __imag__ res * __imag__ res;
+	  (void) force_underflow;
+	}
     }
 
   return res;

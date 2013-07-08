@@ -1,6 +1,5 @@
 /* Operating system support for run-time dynamic linker.  Hurd version.
-   Copyright (C) 1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2010
-	Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,12 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+/* In the static library, this is all handled by dl-support.c
+   or by the vanilla definitions in the rest of the C library.  */
+#ifdef SHARED
 
 #include <hurd.h>
 #include <link.h>
@@ -121,7 +123,6 @@ _dl_sysdep_start (void **start_argptr,
 {
   void go (intptr_t *argdata)
     {
-      extern unsigned int _dl_skip_args; /* rtld.c */
       char **p;
 
       /* Cache the information in various global variables.  */
@@ -316,7 +317,7 @@ open_file (const char *file_name, int flags,
       return MACH_PORT_NULL;
     }
 
-  assert (!(flags & ~O_READ));
+  assert (!(flags & ~(O_READ | O_CLOEXEC)));
 
   startdir = _dl_hurd_data->portarray[file_name[0] == '/' ?
 				      INIT_PORT_CRDIR : INIT_PORT_CWDIR];
@@ -552,7 +553,7 @@ __access (const char *file, int type)
 }
 
 pid_t weak_function
-__getpid ()
+__getpid (void)
 {
   pid_t pid, ppid;
   int orphaned;
@@ -644,28 +645,10 @@ _dl_show_auxv (void)
 }
 
 
-/* Return an array of useful/necessary hardware capability names.  */
-const struct r_strlenpair *
-internal_function
-_dl_important_hwcaps (const char *platform, size_t platform_len, size_t *sz,
-		      size_t *max_capstrlen)
-{
-  struct r_strlenpair *result;
-
-  /* Return an empty array.  Hurd has no hardware capabilities.  */
-  result = (struct r_strlenpair *) malloc (sizeof (*result));
-  if (result == NULL)
-    _dl_signal_error (ENOMEM, NULL, NULL, "cannot create capability list");
-
-  result[0].str = (char *) result;	/* Does not really matter.  */
-  result[0].len = 0;
-
-  *sz = 1;
-  return result;
-}
-
 void weak_function
 _dl_init_first (int argc, ...)
 {
   /* This no-op definition only gets used if libc is not linked in.  */
 }
+
+#endif /* SHARED */

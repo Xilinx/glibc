@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Basic two-word fraction declaration and manipulation.
-   Copyright (C) 1997,1998,1999,2006,2007 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz),
@@ -27,9 +27,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define _FP_FRAC_DECL_2(X)	_FP_W_TYPE X##_f0, X##_f1
 #define _FP_FRAC_COPY_2(D,S)	(D##_f0 = S##_f0, D##_f1 = S##_f1)
@@ -135,6 +134,8 @@
 #define _FP_FRAC_ZEROP_2(X)	((X##_f1 | X##_f0) == 0)
 #define _FP_FRAC_OVERP_2(fs,X)	(_FP_FRAC_HIGH_##fs(X) & _FP_OVERFLOW_##fs)
 #define _FP_FRAC_CLEAR_OVERP_2(fs,X)	(_FP_FRAC_HIGH_##fs(X) &= ~_FP_OVERFLOW_##fs)
+#define _FP_FRAC_HIGHBIT_DW_2(fs,X)	\
+  (_FP_FRAC_HIGH_DW_##fs(X) & _FP_HIGHBIT_DW_##fs)
 #define _FP_FRAC_EQ_2(X, Y)	(X##_f1 == Y##_f1 && X##_f0 == Y##_f0)
 #define _FP_FRAC_GT_2(X, Y)	\
   (X##_f1 > Y##_f1 || (X##_f1 == Y##_f1 && X##_f0 > Y##_f0))
@@ -146,7 +147,7 @@
 #define _FP_MAXFRAC_2		(~(_FP_WS_TYPE)0), (~(_FP_WS_TYPE)0)
 
 /*
- * Internals 
+ * Internals
  */
 
 #define __FP_FRAC_SET_2(X,I1,I0)	(X##_f0 = I0, X##_f1 = I1)
@@ -258,23 +259,30 @@
 
 /* Given a 1W * 1W => 2W primitive, do the extended multiplication.  */
 
-#define _FP_MUL_MEAT_2_wide(wfracbits, R, X, Y, doit)			\
+#define _FP_MUL_MEAT_DW_2_wide(wfracbits, R, X, Y, doit)		\
   do {									\
-    _FP_FRAC_DECL_4(_z); _FP_FRAC_DECL_2(_b); _FP_FRAC_DECL_2(_c);	\
+    _FP_FRAC_DECL_2(_b); _FP_FRAC_DECL_2(_c);				\
 									\
-    doit(_FP_FRAC_WORD_4(_z,1), _FP_FRAC_WORD_4(_z,0), X##_f0, Y##_f0);	\
+    doit(_FP_FRAC_WORD_4(R,1), _FP_FRAC_WORD_4(R,0), X##_f0, Y##_f0);	\
     doit(_b_f1, _b_f0, X##_f0, Y##_f1);					\
     doit(_c_f1, _c_f0, X##_f1, Y##_f0);					\
-    doit(_FP_FRAC_WORD_4(_z,3), _FP_FRAC_WORD_4(_z,2), X##_f1, Y##_f1);	\
+    doit(_FP_FRAC_WORD_4(R,3), _FP_FRAC_WORD_4(R,2), X##_f1, Y##_f1);	\
 									\
-    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1), 0, _b_f1, _b_f0,		\
-		    _FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1));				\
-    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1), 0, _c_f1, _c_f0,		\
-		    _FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1));				\
+    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1), 0, _b_f1, _b_f0,		\
+		    _FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1));				\
+    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1), 0, _c_f1, _c_f0,		\
+		    _FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1));				\
+  } while (0)
+
+#define _FP_MUL_MEAT_2_wide(wfracbits, R, X, Y, doit)			\
+  do {									\
+    _FP_FRAC_DECL_4(_z);						\
+									\
+    _FP_MUL_MEAT_DW_2_wide(wfracbits, _z, X, Y, doit);			\
 									\
     /* Normalize since we know where the msb of the multiplicands	\
        were (bit B), we know that the msb of the of the product is	\
@@ -288,9 +296,9 @@
    Do only 3 multiplications instead of four. This one is for machines
    where multiplication is much more expensive than subtraction.  */
 
-#define _FP_MUL_MEAT_2_wide_3mul(wfracbits, R, X, Y, doit)		\
+#define _FP_MUL_MEAT_DW_2_wide_3mul(wfracbits, R, X, Y, doit)		\
   do {									\
-    _FP_FRAC_DECL_4(_z); _FP_FRAC_DECL_2(_b); _FP_FRAC_DECL_2(_c);	\
+    _FP_FRAC_DECL_2(_b); _FP_FRAC_DECL_2(_c);				\
     _FP_W_TYPE _d;							\
     int _c1, _c2;							\
 									\
@@ -298,27 +306,34 @@
     _c1 = _b_f0 < X##_f0;						\
     _b_f1 = Y##_f0 + Y##_f1;						\
     _c2 = _b_f1 < Y##_f0;						\
-    doit(_d, _FP_FRAC_WORD_4(_z,0), X##_f0, Y##_f0);			\
-    doit(_FP_FRAC_WORD_4(_z,2), _FP_FRAC_WORD_4(_z,1), _b_f0, _b_f1);	\
+    doit(_d, _FP_FRAC_WORD_4(R,0), X##_f0, Y##_f0);			\
+    doit(_FP_FRAC_WORD_4(R,2), _FP_FRAC_WORD_4(R,1), _b_f0, _b_f1);	\
     doit(_c_f1, _c_f0, X##_f1, Y##_f1);					\
 									\
     _b_f0 &= -_c2;							\
     _b_f1 &= -_c1;							\
-    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1), (_c1 & _c2), 0, _d,		\
-		    0, _FP_FRAC_WORD_4(_z,2), _FP_FRAC_WORD_4(_z,1));	\
-    __FP_FRAC_ADDI_2(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
+    __FP_FRAC_ADD_3(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1), (_c1 & _c2), 0, _d,		\
+		    0, _FP_FRAC_WORD_4(R,2), _FP_FRAC_WORD_4(R,1));	\
+    __FP_FRAC_ADDI_2(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
 		     _b_f0);						\
-    __FP_FRAC_ADDI_2(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
+    __FP_FRAC_ADDI_2(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
 		     _b_f1);						\
-    __FP_FRAC_DEC_3(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1),				\
-		    0, _d, _FP_FRAC_WORD_4(_z,0));			\
-    __FP_FRAC_DEC_3(_FP_FRAC_WORD_4(_z,3),_FP_FRAC_WORD_4(_z,2),	\
-		    _FP_FRAC_WORD_4(_z,1), 0, _c_f1, _c_f0);		\
-    __FP_FRAC_ADD_2(_FP_FRAC_WORD_4(_z,3), _FP_FRAC_WORD_4(_z,2),	\
+    __FP_FRAC_DEC_3(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1),				\
+		    0, _d, _FP_FRAC_WORD_4(R,0));			\
+    __FP_FRAC_DEC_3(_FP_FRAC_WORD_4(R,3),_FP_FRAC_WORD_4(R,2),		\
+		    _FP_FRAC_WORD_4(R,1), 0, _c_f1, _c_f0);		\
+    __FP_FRAC_ADD_2(_FP_FRAC_WORD_4(R,3), _FP_FRAC_WORD_4(R,2),		\
 		    _c_f1, _c_f0,					\
-		    _FP_FRAC_WORD_4(_z,3), _FP_FRAC_WORD_4(_z,2));	\
+		    _FP_FRAC_WORD_4(R,3), _FP_FRAC_WORD_4(R,2));	\
+  } while (0)
+
+#define _FP_MUL_MEAT_2_wide_3mul(wfracbits, R, X, Y, doit)		\
+  do {									\
+    _FP_FRAC_DECL_4(_z);						\
+									\
+    _FP_MUL_MEAT_DW_2_wide_3mul(wfracbits, _z, X, Y, doit);		\
 									\
     /* Normalize since we know where the msb of the multiplicands	\
        were (bit B), we know that the msb of the of the product is	\
@@ -328,14 +343,20 @@
     R##_f1 = _FP_FRAC_WORD_4(_z,1);					\
   } while (0)
 
-#define _FP_MUL_MEAT_2_gmp(wfracbits, R, X, Y)				\
+#define _FP_MUL_MEAT_DW_2_gmp(wfracbits, R, X, Y)			\
   do {									\
-    _FP_FRAC_DECL_4(_z);						\
     _FP_W_TYPE _x[2], _y[2];						\
     _x[0] = X##_f0; _x[1] = X##_f1;					\
     _y[0] = Y##_f0; _y[1] = Y##_f1;					\
 									\
-    mpn_mul_n(_z_f, _x, _y, 2);						\
+    mpn_mul_n(R##_f, _x, _y, 2);					\
+  } while (0)
+
+#define _FP_MUL_MEAT_2_gmp(wfracbits, R, X, Y)				\
+  do {									\
+    _FP_FRAC_DECL_4(_z);						\
+									\
+    _FP_MUL_MEAT_DW_2_gmp(wfracbits, _z, X, Y);				\
 									\
     /* Normalize since we know where the msb of the multiplicands	\
        were (bit B), we know that the msb of the of the product is	\
@@ -349,7 +370,7 @@
    point multiplication.  This is useful if floating point
    multiplication has much bigger throughput than integer multiply.
    It is supposed to work for _FP_W_TYPE_SIZE 64 and wfracbits
-   between 106 and 120 only.  
+   between 106 and 120 only.
    Caller guarantees that X and Y has (1LLL << (wfracbits - 1)) set.
    SETFETZ is a macro which will disable all FPU exceptions and set rounding
    towards zero,  RESETFE should optionally reset it back.  */
@@ -434,10 +455,10 @@
     R##_f1 = (_t240 << (128 - (wfracbits - 1)))					\
 	     | ((_u240 & 0xffffff) >> ((wfracbits - 1) - 104));			\
     R##_f0 = ((_u240 & 0xffffff) << (168 - (wfracbits - 1)))			\
-    	     | ((_v240 & 0xffffff) << (144 - (wfracbits - 1)))			\
-    	     | ((_w240 & 0xffffff) << (120 - (wfracbits - 1)))			\
-    	     | ((_x240 & 0xffffff) >> ((wfracbits - 1) - 96))			\
-    	     | _y240;								\
+	     | ((_v240 & 0xffffff) << (144 - (wfracbits - 1)))			\
+	     | ((_w240 & 0xffffff) << (120 - (wfracbits - 1)))			\
+	     | ((_x240 & 0xffffff) >> ((wfracbits - 1) - 96))			\
+	     | _y240;								\
     resetfe;									\
   } while (0)
 
@@ -545,7 +566,7 @@
  * We have just one right now, maybe Newton approximation
  * should be added for those machines where division is fast.
  */
- 
+
 #define _FP_SQRT_MEAT_2(R, S, T, X, q)			\
   do {							\
     while (q)						\
@@ -587,7 +608,7 @@
 
 
 /*
- * Assembly/disassembly for converting to/from integral types.  
+ * Assembly/disassembly for converting to/from integral types.
  * No shifting or overflow handled here.
  */
 

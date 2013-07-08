@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <stdlib.h>
@@ -33,7 +32,7 @@ __nss_getent (getent_r_function func, void **resbuf, char **buffer,
       *buffer = malloc (*buffer_size);
     }
 
-  while (buffer != NULL
+  while (*buffer != NULL
 	 && func (resbuf, *buffer, *buffer_size, &result, h_errnop) == ERANGE
 	 && (h_errnop == NULL || *h_errnop == NETDB_INTERNAL))
     {

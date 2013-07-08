@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2004,2006,2007,2009,2010 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <atomic.h>
@@ -52,7 +51,7 @@
 |*								   *|
 |* EXTRA_VARIABLES - names of optional parameter		   *|
 |*								   *|
-|* FUNCTION_NAME - alternative name of the non-reentrant function  *|
+|* FUNCTION2_NAME - alternative name of the non-reentrant function *|
 |*								   *|
 |* NEED_H_ERRNO  - an extra parameter will be passed to point to   *|
 |*		   the global `h_errno' variable.		   *|
@@ -180,6 +179,9 @@ INTERNAL (REENTRANT_NAME) (ADD_PARAMS, LOOKUP_TYPE *resbuf, char *buffer,
     case -1:
       return errno;
     case 1:
+#ifdef NEED_H_ERRNO
+      any_service = true;
+#endif
       goto done;
     }
 #endif
@@ -205,7 +207,9 @@ INTERNAL (REENTRANT_NAME) (ADD_PARAMS, LOOKUP_TYPE *resbuf, char *buffer,
       if (no_more)
 	{
 	  void *tmp_ptr = (service_user *) -1l;
+#ifdef PTR_MANGLE
 	  PTR_MANGLE (tmp_ptr);
+#endif
 	  startp = tmp_ptr;
 	}
       else
@@ -226,10 +230,14 @@ INTERNAL (REENTRANT_NAME) (ADD_PARAMS, LOOKUP_TYPE *resbuf, char *buffer,
 #endif /* need _res_hconf */
 
 	  void *tmp_ptr = fct.l;
+#ifdef PTR_MANGLE
 	  PTR_MANGLE (tmp_ptr);
+#endif
 	  start_fct = tmp_ptr;
 	  tmp_ptr = nip;
+#ifdef PTR_MANGLE
 	  PTR_MANGLE (tmp_ptr);
+#endif
 	  startp = tmp_ptr;
 	}
 
@@ -241,9 +249,11 @@ INTERNAL (REENTRANT_NAME) (ADD_PARAMS, LOOKUP_TYPE *resbuf, char *buffer,
   else
     {
       fct.l = start_fct;
-      PTR_DEMANGLE (fct.l);
       nip = startp;
+#ifdef PTR_DEMANGLE
+      PTR_DEMANGLE (fct.l);
       PTR_DEMANGLE (nip);
+#endif
       no_more = nip == (service_user *) -1l;
     }
 
@@ -277,7 +287,12 @@ done:
 #endif
   *result = status == NSS_STATUS_SUCCESS ? resbuf : NULL;
 #ifdef NEED_H_ERRNO
-  if (status != NSS_STATUS_SUCCESS && ! any_service)
+  if (status == NSS_STATUS_UNAVAIL && !any_service && errno != ENOENT)
+    /* This happens when we weren't able to use a service for reasons other
+       than the module not being found.  In such a case, we'd want to tell the
+       caller that errno has the real reason for failure.  */
+    *h_errnop = NETDB_INTERNAL;
+  else if (status != NSS_STATUS_SUCCESS && !any_service)
     /* We were not able to use any service.  */
     *h_errnop = NO_RECOVERY;
 #endif
@@ -342,4 +357,4 @@ do_default_symbol_version (NEW (REENTRANT_NAME),
 			   REENTRANT_NAME, GLIBC_2_1_2);
 #endif
 
-static_link_warning (REENTRANT_NAME)
+nss_interface_function (REENTRANT_NAME)

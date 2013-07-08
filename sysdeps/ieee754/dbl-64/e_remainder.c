@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001, 2011 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /**************************************************************************/
 /*  MODULE_NAME urem.c                                                    */
@@ -34,7 +33,7 @@
 #include "mydefs.h"
 #include "urem.h"
 #include "MathLib.h"
-#include "math_private.h"
+#include <math_private.h>
 
 /**************************************************************************/
 /* An ultimate remainder routine. Given two IEEE double machine numbers x */
@@ -43,13 +42,7 @@
 double __ieee754_remainder(double x, double y)
 {
   double z,d,xx;
-#if 0
-  double yy;
-#endif
   int4 kx,ky,n,nn,n1,m1,l;
-#if 0
-  int4 m;
-#endif
   mynumber u,t,w={{0,0}},v={{0,0}},ww={{0,0}},r;
   u.x=x;
   t.x=y;
@@ -58,6 +51,7 @@ double __ieee754_remainder(double x, double y)
   ky=t.i[HIGH_HALF];
   /*------ |x| < 2^1023  and   2^-970 < |y| < 2^1024 ------------------*/
   if (kx<0x7fe00000 && ky<0x7ff00000 && ky>=0x03500000) {
+    SET_RESTORE_ROUND_NOEX (FE_TONEAREST);
     if (kx+0x00100000<ky) return x;
     if ((kx-0x01500000)<ky) {
       z=x/t.x;
@@ -118,12 +112,14 @@ double __ieee754_remainder(double x, double y)
       else return (z>0)?z-y:z+y;
     }
     else { /* if x is too big */
-      if (kx == 0x7ff00000 && u.i[LOW_HALF] == 0 && y == 1.0)
-	return x / x;
-      if (kx>=0x7ff00000||(ky==0&&t.i[LOW_HALF]==0)||ky>0x7ff00000||
-	  (ky==0x7ff00000&&t.i[LOW_HALF]!=0))
-	return (u.i[HIGH_HALF]&0x80000000)?nNAN.x:NAN.x;
-      else return x;
+      if (ky==0 && t.i[LOW_HALF] == 0)		/* y = 0 */
+	return (x * y) / (x * y);
+      else if (kx >= 0x7ff00000			/* x not finite */
+	       || (ky>0x7ff00000		/* y is NaN */
+		   || (ky == 0x7ff00000 && t.i[LOW_HALF] != 0)))
+	return (x * y) / (x * y);
+      else
+	return x;
     }
    }
   }

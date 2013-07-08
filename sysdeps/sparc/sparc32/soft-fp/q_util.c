@@ -1,7 +1,7 @@
 /* Software floating-point emulation.
    Helper routine for _Q_* routines.
    Simulate exceptions using double arithmetics.
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek (jj@ultra.linux.cz).
 
@@ -16,42 +16,47 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
+#include <float.h>
+#include <math.h>
+#include <assert.h>
 #include "soft-fp.h"
 
-unsigned long long ___Q_numbers [] = {
-0x0000000000000000ULL, /* Zero */
-0x0010100000000000ULL, /* Very tiny number */
-0x0010000000000000ULL, /* Minimum normalized number */
-0x7fef000000000000ULL, /* A huge double number */
-};
+unsigned long long ___Q_zero = 0x0000000000000000ULL;
 
-double ___Q_simulate_exceptions(int exceptions)
+void ___Q_simulate_exceptions(int exceptions)
 {
-  double d, *p = (double *)___Q_numbers;
   if (exceptions & FP_EX_INVALID)
-    d = p[0]/p[0];
+    {
+      float f = 0.0;
+      __asm__ __volatile__ ("fdivs %0, %0, %0" : "+f" (f));
+    }
+  if (exceptions & FP_EX_DIVZERO)
+    {
+      float f = 1.0, g = 0.0;
+      __asm__ __volatile__ ("fdivs %0, %1, %0"
+			    : "+f" (f)
+			    : "f" (g));
+    }
   if (exceptions & FP_EX_OVERFLOW)
     {
-      d = p[3] + p[3];
+      float f = FLT_MAX;
+      __asm__ __volatile__("fmuls %0, %0, %0" : "+f" (f));
       exceptions &= ~FP_EX_INEXACT;
     }
   if (exceptions & FP_EX_UNDERFLOW)
     {
-      if (exceptions & FP_EX_INEXACT)
-        {
-	  d = p[2] * p[2];
-	  exceptions &= ~FP_EX_INEXACT;
-	}
-      else
-	d = p[1] - p[2];
+      float f = FLT_MIN;
+      __asm__ __volatile__("fmuls %0, %0, %0" : "+f" (f));
+      exceptions &= ~FP_EX_INEXACT;
     }
-  if (exceptions & FP_EX_DIVZERO)
-    d = 1.0/p[0];
   if (exceptions & FP_EX_INEXACT)
-    d = p[3] - p[2];
-  return d;
+    {
+      double d = 1.0, e = M_PI;
+      __asm__ __volatile__ ("fdivd %0, %1, %0"
+			    : "+f" (d)
+			    : "f" (e));
+    }
 }

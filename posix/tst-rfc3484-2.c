@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ifaddrs.h>
+#include <stdint.h>
 
 /* Internal definitions used in the libc code.  */
 #define __getservbyname_r getservbyname_r
@@ -53,6 +54,7 @@ _res_hconf_init (void)
 {
 }
 
+#undef	USE_NSCD
 #include "../sysdeps/posix/getaddrinfo.c"
 
 service_user *__nss_hosts_database attribute_hidden;

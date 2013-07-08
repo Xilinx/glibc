@@ -1,5 +1,4 @@
-/* Copyright (C) 1991-1993,1996-2001,2003-2005,2007,2010,2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <stdint.h>
 
 struct STRUCT
 {
@@ -47,8 +47,8 @@ FCT (pattern, string, string_end, no_leading_period, flags, ends, alloca_used)
      struct STRUCT *ends;
      size_t alloca_used;
 {
-  register const CHAR *p = pattern, *n = string;
-  register UCHAR c;
+  const CHAR *p = pattern, *n = string;
+  UCHAR c;
 #ifdef _LIBC
 # if WIDE_CHAR_VERSION
   const char *collseq = (const char *)
@@ -237,7 +237,7 @@ FCT (pattern, string, string_end, no_leading_period, flags, ends, alloca_used)
 	    /* Nonzero if the sense of the character class is inverted.  */
 	    const CHAR *p_init = p;
 	    const CHAR *n_init = n;
-	    register int not;
+	    int not;
 	    CHAR cold;
 	    UCHAR fn;
 
@@ -412,7 +412,7 @@ FCT (pattern, string, string_end, no_leading_period, flags, ends, alloca_used)
 			  _NL_CURRENT (LC_COLLATE, _NL_COLLATE_INDIRECTMB);
 # endif
 
-			idx = findidx (&cp);
+			idx = findidx (&cp, 1);
 			if (idx != 0)
 			  {
 			    /* We found a table entry.  Now see whether the
@@ -422,7 +422,7 @@ FCT (pattern, string, string_end, no_leading_period, flags, ends, alloca_used)
 			    int32_t idx2;
 			    const UCHAR *np = (const UCHAR *) n;
 
-			    idx2 = findidx (&np);
+			    idx2 = findidx (&np, string_end - n);
 			    if (idx2 != 0
 				&& (idx >> 24) == (idx2 >> 24)
 				&& len == weights[idx2 & 0xffffff])

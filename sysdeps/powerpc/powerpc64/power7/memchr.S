@@ -1,5 +1,5 @@
 /* Optimized memchr implementation for PowerPC64/POWER7 using cmpb insn.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,43 +14,45 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int [r3] memchr (char *s [r3], int byte [r4], int size [r5])  */
 	.machine  power7
-ENTRY (BP_SYM (__memchr))
+ENTRY (__memchr)
 	CALL_MCOUNT 2
 	dcbt	0,r3
 	clrrdi  r8,r3,3
 	rlwimi	r4,r4,8,16,23
 	rlwimi	r4,r4,16,0,15
-	insrdi  r4,r4,32,0
 	add	r7,r3,r5      /* Calculate the last acceptable address.  */
 	cmpldi	r5,32
+	insrdi  r4,r4,32,0
 	ble	L(small_range)
 
-	cmpld	cr7,r3,r7     /* Is the address equal or less than r3?  If
-				 it's equal or less, it means size is either 0
-				 or a negative number.  */
+	cmpld	cr7,r3,r7     /* Compare the starting address (r3) with the
+				 ending address (r7).  If (r3 >= r7),
+				 the size passed in was zero or negative.  */
 	ble	cr7,L(proceed)
 
-	li	r7,-1	      /* Make r11 the biggest if r4 <= 0.  */
+	li	r7,-1         /* Artificially set our ending address (r7)
+				 such that we will exit early.  */
+
 L(proceed):
 	rlwinm	r6,r3,3,26,28 /* Calculate padding.  */
+	cmpldi	cr6,r6,0      /* cr6 == Do we have padding?  */
 	ld	r12,0(r8)     /* Load doubleword from memory.  */
-	cmpb	r10,r12,r4    /* Check for BYTE's in DWORD1.  */
+	cmpb	r10,r12,r4    /* Check for BYTEs in DWORD1.  */
+	beq	cr6,L(proceed_no_padding)
 	sld	r10,r10,r6
 	srd	r10,r10,r6
-	cmpldi	cr7,r10,0     /* If r10 == 0, no BYTE's's have been found.  */
+L(proceed_no_padding):
+	cmpldi	cr7,r10,0     /* Does r10 indicate we got a hit?  */
 	bne	cr7,L(done)
 
-	/* Are we done already?  */
+	/* See if we are at the last acceptable address yet.  */
 	addi	r9,r8,8
 	cmpld	cr6,r9,r7
 	bge	cr6,L(null)
@@ -75,7 +77,7 @@ L(proceed):
 L(loop_setup):
 	sub	r5,r7,r9
 	srdi	r6,r5,4	      /* Number of loop iterations.  */
-	mtctr	r6	      /* Setup the counter.  */
+	mtctr	r6            /* Setup the counter.  */
 	b	L(loop)
 	/* Main loop to look for BYTE backwards in the string.  Since
 	   it's a small loop (< 8 instructions), align it to 32-bytes.  */
@@ -84,7 +86,6 @@ L(loop):
 	/* Load two doublewords, compare and merge in a
 	   single register for speed.  This is an attempt
 	   to speed up the byte-checking process for bigger strings.  */
-
 	ld	r12,8(r8)
 	ldu	r11,16(r8)
 	cmpb	r10,r12,r4
@@ -93,11 +94,11 @@ L(loop):
 	cmpldi	cr7,r5,0
 	bne	cr7,L(found)
 	bdnz	L(loop)
+
 	/* We're here because the counter reached 0, and that means we
-	   didn't have any matches for BYTE in the whole range.  Just return
-	   the original range.  */
-	addi	r9,r8,8
-	cmpld	cr6,r9,r7
+	   didn't have any matches for BYTE in the whole range.  */
+	subi	r11,r7,8
+	cmpld	cr6,r8,r11
 	blt	cr6,L(loop_small)
 	b	L(null)
 
@@ -120,8 +121,7 @@ L(found):
 	/* r10 has the output of the cmpb instruction, that is, it contains
 	   0xff in the same position as BYTE in the original
 	   doubleword from the string.  Use that to calculate the pointer.
-	   We need to make sure BYTE is *before* the end of the
-	   range.  */
+	   We need to make sure BYTE is *before* the end of the range.  */
 L(done):
 	cntlzd	r0,r10	      /* Count leading zeroes before the match.  */
 	srdi	r0,r0,3	      /* Convert leading zeroes to bytes.  */
@@ -139,13 +139,16 @@ L(null):
 	.align	4
 L(small_range):
 	cmpldi	r5,0
-	beq	L(null)
-
 	rlwinm	r6,r3,3,26,28 /* Calculate padding.  */
+	beq	L(null)       /* This branch is for the cmpldi r5,0 above.  */
 	ld	r12,0(r8)     /* Load word from memory.  */
+	cmpldi	cr6,r6,0      /* cr6 == Do we have padding?  */
 	cmpb	r10,r12,r4    /* Check for BYTE in DWORD1.  */
+			      /* If no padding, skip the shifts.  */
+	beq	cr6,L(small_no_padding)
 	sld	r10,r10,r6
 	srd	r10,r10,r6
+L(small_no_padding):
 	cmpldi	cr7,r10,0
 	bne	cr7,L(done)
 
@@ -153,19 +156,50 @@ L(small_range):
 	addi    r9,r8,8
 	cmpld	r9,r7
 	bge	L(null)
-	b	L(loop_small)
+	/* If we're not done, drop through into loop_small.  */
 
-	.p2align  5
-L(loop_small):
+L(loop_small):                /* loop_small has been unrolled.  */
 	ldu	r12,8(r8)
 	cmpb	r10,r12,r4
 	addi	r9,r8,8
 	cmpldi	cr6,r10,0
-	bne	cr6,L(done)
 	cmpld	r9,r7
-	bge	L(null)
-	b	L(loop_small)
+	bne	cr6,L(done)   /* Found something.  */
+	bge	L(null)       /* Hit end of string (length).  */
 
-END (BP_SYM (__memchr))
-weak_alias (BP_SYM (__memchr), BP_SYM(memchr))
+	ldu	r12,8(r8)
+	cmpb	r10,r12,r4
+	addi	r9,r8,8
+	cmpldi	cr6,r10,0
+	cmpld	r9,r7
+	bne	cr6,L(done)   /* Found something.  */
+	bge	L(null)
+
+	ldu	r12,8(r8)
+	subi	r11,r7,8
+	cmpb	r10,r12,r4
+	cmpldi	cr6,r10,0
+	ori	r2,r2,0       /* Force a dispatch group.  */
+	bne	cr6,L(done)
+
+	cmpld	r8,r11        /* At end of range?  */
+	bge	L(null)
+
+	/* For most cases we will never get here.  Under some combinations of
+	   padding + length there is a leftover double that still needs to be
+	   checked.  */
+	ldu	r12,8(r8)
+	cmpb	r10,r12,r4
+	addi	r9,r8,8
+	cmpldi	cr6,r10,0
+	cmpld	r9,r7
+	bne	cr6,L(done)   /* Found something.  */
+
+	/* Save a branch and exit directly.  */
+	li	r3,0
+	blr
+
+
+END (__memchr)
+weak_alias (__memchr, memchr)
 libc_hidden_builtin_def (memchr)

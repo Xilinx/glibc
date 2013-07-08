@@ -1,5 +1,4 @@
-/* Copyright (C) 1996, 1997, 1998, 1999, 2000, 2002, 2004, 2005
-   Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 1996.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <dlfcn.h>
@@ -73,7 +71,11 @@ __mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
   inbuf = (const unsigned char *) s;
   endbuf = inbuf + n;
   if (__builtin_expect (endbuf < inbuf, 0))
-    endbuf = (const unsigned char *) ~(uintptr_t) 0;
+    {
+      endbuf = (const unsigned char *) ~(uintptr_t) 0;
+      if (endbuf == inbuf)
+	goto ilseq;
+    }
   __gconv_fct fct = fcts->towc->__fct;
 #ifdef PTR_DEMANGLE
   if (fcts->towc->__shlib_handle != NULL)
@@ -108,6 +110,7 @@ __mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
     result = (size_t) -2;
   else
     {
+    ilseq:
       result = (size_t) -1;
       __set_errno (EILSEQ);
     }
@@ -117,3 +120,8 @@ __mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
 libc_hidden_def (__mbrtowc)
 weak_alias (__mbrtowc, mbrtowc)
 libc_hidden_weak (mbrtowc)
+
+/* There should be no difference between the UTF-32 handling required
+   by mbrtoc32 and the wchar_t handling which has long since been
+   implemented in mbrtowc.  */
+weak_alias (__mbrtowc, mbrtoc32)

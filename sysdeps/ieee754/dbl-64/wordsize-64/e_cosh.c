@@ -31,8 +31,8 @@
  *	only cosh(0)=1 is exact for finite x.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const double one = 1.0, half=0.5, huge = 1.0e300;
 
@@ -67,6 +67,7 @@ __ieee754_cosh (double x)
     /* |x| in [log(maxdouble), overflowthresold] */
 	int64_t fix;
 	EXTRACT_WORDS64(fix, x);
+	fix &= UINT64_C(0x7fffffffffffffff);
 	if (fix <= UINT64_C(0x408633ce8fb9f87d)) {
 	    w = __ieee754_exp(half*fabs(x));
 	    t = half*w;

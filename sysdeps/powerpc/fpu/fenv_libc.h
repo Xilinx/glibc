@@ -1,5 +1,5 @@
 /* Internal libc stuff for floating point environment routines.
-   Copyright (C) 1997, 2006, 2008, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _FENV_LIBC_H
 #define _FENV_LIBC_H	1
@@ -117,7 +116,7 @@ enum {
   FPSCR_UX,        /* underflow */
   FPSCR_ZX,        /* zero divide */
   FPSCR_XX,        /* inexact */
-  FPSCR_VXSNAN,    /* invalid operation for SNaN */
+  FPSCR_VXSNAN,    /* invalid operation for sNaN */
   FPSCR_VXISI,     /* invalid operation for Inf-Inf */
   FPSCR_VXIDI,     /* invalid operation for Inf/Inf */
   FPSCR_VXZDZ,     /* invalid operation for 0/0 */
@@ -153,7 +152,7 @@ enum {
 #endif /* _ARCH_PWR6 */
 
 /* This operation (i) sets the appropriate FPSCR bits for its
-   parameter, (ii) converts SNaN to the corresponding NaN, and (iii)
+   parameter, (ii) converts sNaN to the corresponding qNaN, and (iii)
    otherwise passes its parameter through unchanged (in particular, -0
    and +0 stay as they were).  The `obvious' way to do this is optimised
    out by gcc.  */

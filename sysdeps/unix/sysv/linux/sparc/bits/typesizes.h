@@ -1,5 +1,5 @@
 /* bits/typesizes.h -- underlying types for *_t.  Linux/SPARC version.
-   Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _BITS_TYPES_H
 # error "Never include <bits/typesizes.h> directly; use <sys/types.h> instead."
@@ -45,19 +44,31 @@
 #define	__FSBLKCNT64_T_TYPE	__UQUAD_TYPE
 #define	__FSFILCNT_T_TYPE	__ULONGWORD_TYPE
 #define	__FSFILCNT64_T_TYPE	__UQUAD_TYPE
+#define	__FSWORD_T_TYPE		__SWORD_TYPE
 #define	__ID_T_TYPE		__U32_TYPE
 #define __CLOCK_T_TYPE		__SLONGWORD_TYPE
 #define __TIME_T_TYPE		__SLONGWORD_TYPE
 #define __USECONDS_T_TYPE	__U32_TYPE
 #define __SUSECONDS_T_TYPE	__S32_TYPE
 #define __DADDR_T_TYPE		__S32_TYPE
-#define __SWBLK_T_TYPE		__SLONGWORD_TYPE
 #define __KEY_T_TYPE		__S32_TYPE
 #define __CLOCKID_T_TYPE	__S32_TYPE
 #define __TIMER_T_TYPE		void *
 #define __BLKSIZE_T_TYPE	__SLONGWORD_TYPE
 #define __FSID_T_TYPE		struct { int __val[2]; }
 #define __SSIZE_T_TYPE		__SWORD_TYPE
+#define __SYSCALL_SLONG_TYPE	__SLONGWORD_TYPE
+#define __SYSCALL_ULONG_TYPE	__ULONGWORD_TYPE
+
+#if defined __arch64__ || defined __sparcv9
+/* Tell the libc code that off_t and off64_t are actually the same type
+   for all ABI purposes, even if possibly expressed as different base types
+   for C type-checking purposes.  */
+# define __OFF_T_MATCHES_OFF64_T	1
+
+/* Same for ino_t and ino64_t.  */
+# define __INO_T_MATCHES_INO64_T	1
+#endif
 
 /* Number of descriptors that can fit in an `fd_set'.  */
 #define	__FD_SETSIZE		1024

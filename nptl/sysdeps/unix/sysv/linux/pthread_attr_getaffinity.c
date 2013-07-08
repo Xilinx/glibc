@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -43,7 +42,12 @@ __pthread_attr_getaffinity_new (const pthread_attr_t *attr, size_t cpusetsize,
 	if (((char *) iattr->cpuset)[cnt] != 0)
 	  return EINVAL;
 
-      void *p = mempcpy (cpuset, iattr->cpuset, iattr->cpusetsize);
+      /* Copy over the cpuset from the thread attribute object.  Limit the copy
+	 to the minimum of the source and destination sizes to prevent a buffer
+	 overrun.  If the destination is larger, fill the remaining space with
+	 zeroes.  */
+      void *p = mempcpy (cpuset, iattr->cpuset,
+			 MIN (iattr->cpusetsize, cpusetsize));
       if (cpusetsize > iattr->cpusetsize)
 	memset (p, '\0', cpusetsize - iattr->cpusetsize);
     }

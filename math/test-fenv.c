@@ -1,5 +1,4 @@
-/* Copyright (C) 1997, 1998, 2000, 2001, 2003, 2007
-   Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de> and
    Ulrich Drepper <drepper@cygnus.com>, 1997.
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Tests for ISO C99 7.6: Floating-point environment  */
 
@@ -665,9 +663,11 @@ feholdexcept_tests (void)
     }
 #endif
   test_exceptions ("feholdexcept_tests 0 test", NO_EXC, 0);
+#ifdef FE_INVALID
   feraiseexcept (FE_INVALID);
   test_exceptions ("feholdexcept_tests FE_INVALID test",
 		   INVALID_EXC, 0);
+#endif
   res = feupdateenv (&saved);
   if (res != 0)
     {
@@ -685,7 +685,9 @@ feholdexcept_tests (void)
   test_exceptions ("feholdexcept_tests FE_DIVBYZERO|FE_INVALID test",
 		   DIVBYZERO_EXC | INVALID_EXC, 0);
   feclearexcept (FE_ALL_EXCEPT);
+#ifdef FE_INVALID
   feraiseexcept (FE_INVALID);
+#endif
 #if defined FE_TONEAREST && defined FE_UPWARD
   res = fesetround (FE_UPWARD);
   if (res != 0)
@@ -709,9 +711,11 @@ feholdexcept_tests (void)
     }
 #endif
   test_exceptions ("feholdexcept_tests 0 2nd test", NO_EXC, 0);
+#ifdef FE_INEXACT
   feraiseexcept (FE_INEXACT);
   test_exceptions ("feholdexcept_tests FE_INEXACT test",
 		   INEXACT_EXC, 0);
+#endif
   res = feupdateenv (&saved2);
   if (res != 0)
     {

@@ -1,4 +1,4 @@
-/* Copyright (C) 1995,1997,1998,1999,2000,2002 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/shm.h>
@@ -24,7 +23,6 @@
 #include <sysdep.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 /* Attach the shared memory segment associated with SHMID to the data
    segment of the calling process.  SHMADDR and SHMFLG determine how
@@ -36,24 +34,19 @@ shmat (shmid, shmaddr, shmflg)
      const void *shmaddr;
      int shmflg;
 {
-  void *__unbounded result;
-  void *__unbounded raddr;
+  INTERNAL_SYSCALL_DECL(err);
+  unsigned long resultvar;
+  void *raddr;
 
-#if __BOUNDED_POINTERS__
-  size_t length = ~0;
-  struct shmid_ds shmds;
-  /* It's unfortunate that we need to make another system call to get
-     the shared memory segment length...  */
-  if (shmctl (shmid, IPC_STAT, &shmds) == 0)
-    length = shmds.shm_segsz;
-#endif
+  resultvar = INTERNAL_SYSCALL (ipc, err, 5, IPCOP_shmat,
+				shmid, shmflg,
+				(long int) &raddr,
+				(void *) shmaddr);
+  if (INTERNAL_SYSCALL_ERROR_P (resultvar, err))
+    {
+      __set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, err));
+      return (void *) -1l;
+    }
 
-  result = (void *__unbounded) INLINE_SYSCALL (ipc, 5, IPCOP_shmat,
-					       shmid, shmflg,
-					       (long int) __ptrvalue (&raddr),
-					       __ptrvalue ((void *) shmaddr));
-  if ((unsigned long) result <= -(unsigned long) SHMLBA)
-    result = raddr;
-
-  return BOUNDED_N (result, length);
+  return raddr;
 }

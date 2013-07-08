@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,34 +13,22 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 #include <math_private.h>
-
-static const float
-o_threshold=  8.8722831726e+01,  /* 0x42b17217 */
-u_threshold= -1.0397208405e+02;  /* 0xc2cff1b5 */
-
 
 /* wrapper expf */
 float
 __expf (float x)
 {
-  if (__builtin_expect (x > o_threshold, 0))
-    {
-      if (_LIB_VERSION != _IEEE_)
-	return __kernel_standard_f (x, x, 106);
-    }
-  else if (__builtin_expect (x < u_threshold, 0))
-    {
-      if (_LIB_VERSION != _IEEE_)
-	return __kernel_standard_f (x, x, 107);
-    }
+  float z = __ieee754_expf (x);
+  if (__builtin_expect (!__finitef (z) || z == 0, 0)
+      && __finitef (x) && _LIB_VERSION != _IEEE_)
+    return __kernel_standard_f (x, x, 106 + !!__signbitf (x));
 
-  return __ieee754_expf (x);
+  return z;
 }
 hidden_def (__expf)
 weak_alias (__expf, expf)

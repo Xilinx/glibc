@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2006, 2010 Free Software Foundation, Inc.
+# Copyright (C) 1995-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 subdir		:= dlfcn
 headers		:= bits/dlfcn.h dlfcn.h
@@ -23,12 +22,6 @@ libdl-routines	:= dlopen dlclose dlsym dlvsym dlerror dladdr dladdr1 dlinfo \
 		   dlmopen dlfcn
 routines	:= $(patsubst %,s%,$(filter-out dlfcn,$(libdl-routines)))
 elide-routines.os := $(routines)
-distribute	:= dlopenold.c glreflib1.c glreflib2.c glreflib3.c \
-		   failtestmod.c \
-		   defaultmod1.c defaultmod2.c errmsg1mod.c modatexit.c \
-		   modcxaatexit.c modstatic.c modstatic2.c \
-		   bug-dlsym1-lib1.c bug-dlsym1-lib2.c bug-atexit1-lib.c \
-		   bug-atexit2-lib.c
 
 extra-libs-others := libdl
 
@@ -53,12 +46,15 @@ failtestmod.so-no-z-defs = yes
 glreflib2.so-no-z-defs = yes
 errmsg1mod.so-no-z-defs = yes
 
-ifeq (yesyesyes,$(build-static)$(build-shared)$(elf))
-tests += tststatic tststatic2
-tests-static += tststatic tststatic2
-modules-names += modstatic modstatic2
+ifeq (yes,$(build-shared))
+tests += tststatic tststatic2 tststatic3 tststatic4 tststatic5
+tests-static += tststatic tststatic2 tststatic3 tststatic4 tststatic5
+modules-names += modstatic modstatic2 modstatic3 modstatic5
 tststatic-ENV = LD_LIBRARY_PATH=$(objpfx):$(common-objpfx):$(common-objpfx)elf
-tststatic2-ENV = LD_LIBRARY_PATH=$(objpfx):$(common-objpfx):$(common-objpfx)elf
+tststatic2-ENV = $(tststatic-ENV)
+tststatic3-ENV = $(tststatic-ENV)
+tststatic4-ENV = $(tststatic-ENV)
+tststatic5-ENV = $(tststatic-ENV)
 endif
 
 extra-test-objs += $(modules-names:=.os)
@@ -111,6 +107,15 @@ $(objpfx)tststatic2.out: $(objpfx)tststatic2 $(objpfx)modstatic.so \
 
 $(objpfx)modstatic2.so: $(libdl)
 
+$(objpfx)tststatic3: $(objpfx)libdl.a
+$(objpfx)tststatic3.out: $(objpfx)tststatic3 $(objpfx)modstatic3.so
+
+$(objpfx)tststatic4: $(objpfx)libdl.a
+$(objpfx)tststatic4.out: $(objpfx)tststatic4 $(objpfx)modstatic3.so
+
+$(objpfx)tststatic5: $(objpfx)libdl.a
+$(objpfx)tststatic5.out: $(objpfx)tststatic5 $(objpfx)modstatic5.so
+
 $(objpfx)bug-dlopen1: $(libdl)
 
 $(objpfx)bug-dlsym1: $(libdl) $(objpfx)bug-dlsym1-lib2.so
@@ -124,14 +129,6 @@ $(objpfx)bug-atexit1.out: $(objpfx)bug-atexit1-lib.so
 $(objpfx)bug-atexit2: $(libdl)
 $(objpfx)bug-atexit2.out: $(objpfx)bug-atexit2-lib.so
 
-LDLIBS-bug-atexit3-lib.so = -lstdc++ -lgcc_eh $(elfobjdir)/ld.so \
-			    $(common-objpfx)libc_nonshared.a
+LDLIBS-bug-atexit3-lib.so = -lstdc++ -lgcc_eh
 $(objpfx)bug-atexit3: $(libdl)
 $(objpfx)bug-atexit3.out: $(objpfx)bug-atexit3-lib.so
-
-
-# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
-# This ensures they will load libc.so for needed symbols if loaded by
-# a statically-linked program that hasn't already loaded it.
-$(objpfx)libdl.so: $(common-objpfx)libc.so $(common-objpfx)libc_nonshared.a \
-		   $(if $(filter yes,$(elf)), $(elfobjdir)/ld.so)

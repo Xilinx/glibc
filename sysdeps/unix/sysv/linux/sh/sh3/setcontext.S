@@ -1,5 +1,5 @@
 /* Install given context.
-   Copyright (C) 2005 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -42,7 +41,7 @@ ENTRY(__setcontext)
 	not	r1, r1			// r1=0 means r0 = -1 to -4095
 	tst	r1, r1			// i.e. error in linux
 	bf	.Lsetcontext_restore
-.Lsyscall_error:	
+.Lsyscall_error:
 	SYSCALL_ERROR_HANDLER
 .Lpseudo_end:
 	rts
@@ -91,6 +90,7 @@ ENTRY(__setcontext)
 	mov.l	@(oR7,r0), r7
 	mov.l	@(oR8,r0), r8
 	mov.l	@r15+, r0
+	cfi_adjust_cfa_offset(-4)
 	jmp	@r0
 	 mov.l	@r15+, r0
 

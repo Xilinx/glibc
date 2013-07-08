@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <math.h>
@@ -26,7 +25,8 @@
 double
 j0 (double x)
 {
-  if (__builtin_expect (fabs (x) > X_TLOSS, 0) && _LIB_VERSION != _IEEE_)
+  if (__builtin_expect (isgreater (fabs (x), X_TLOSS), 0)
+      && _LIB_VERSION != _IEEE_ && _LIB_VERSION != _POSIX_)
     /* j0(|x|>X_TLOSS) */
     return __kernel_standard (x, x, 34);
 
@@ -41,7 +41,8 @@ strong_alias (j0, j0l)
 double
 y0 (double x)
 {
-  if (__builtin_expect (x <= 0.0 || x > X_TLOSS, 0) && _LIB_VERSION != _IEEE_)
+  if (__builtin_expect (islessequal (x, 0.0) || isgreater (x, X_TLOSS), 0)
+      && _LIB_VERSION != _IEEE_)
     {
       if (x < 0.0)
 	{
@@ -52,7 +53,7 @@ y0 (double x)
       else if (x == 0.0)
 	/* d = -one/(x-x) */
 	return __kernel_standard (x, x, 8);
-      else
+      else if (_LIB_VERSION != _POSIX_)
 	/* y0(x>X_TLOSS) */
 	return __kernel_standard (x, x, 35);
     }

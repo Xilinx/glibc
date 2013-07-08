@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* double erf(double x)
  * double erfc(double x)
@@ -72,6 +72,8 @@
  *              z=1/x^2
  *         The interval is partitioned into several segments
  *         of width 1/8 in 1/x.
+ *	erf(x) = 1.0 - erfc(x) if x < 25.6283 else
+ *	erf(x) = sign(x)*(1.0 - tiny)
  *
  *      Note1:
  *	   To compute exp(-x*x-0.5625+R/S), let s be a single
@@ -85,6 +87,9 @@
  *		erfc(x) ~ ---------- * ( 1 + Poly(1/x^2) )
  *			  x*sqrt(pi)
  *
+ *      Note3:
+ * 	   For x higher than 25.6283, erf(x) underflows.
+ *
  *      5. For inf > x >= 107
  *	erf(x)  = sign(x) *(1 - tiny)  (raise inexact)
  *	erfc(x) = tiny*tiny (raise underflow) if x > 0
@@ -96,8 +101,8 @@
  *		erfc/erf(NaN) is NaN
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
 /* Evaluate P[n] x^n  +  P[n-1] x^(n-1)  +  ...  +  P[0] */
@@ -137,11 +142,7 @@ deval (long double x, const long double *p, int n)
 
 
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
 tiny = 1e-300L,
   half = 0.5L,
   one = 1.0L,
@@ -755,14 +756,8 @@ static const long double RDr1[NRDr1 + 1] =
 };
 
 
-#ifdef __STDC__
 long double
 __erfl (long double x)
-#else
-double
-__erfl (x)
-     long double x;
-#endif
 {
   long double a, y, z;
   int32_t i, ix, sign;
@@ -780,9 +775,19 @@ __erfl (x)
 
   if (ix >= 0x3ff00000) /* |x| >= 1.0 */
     {
-      y = __erfcl (x);
-      return (one - y);
-      /*    return (one - __erfcl (x)); */
+      if (ix >= 0x4039A0DE)
+	{
+	/* __erfcl (x) underflows if x > 25.6283 */
+	  if (sign)
+	    return one-tiny;
+	  else
+	    return tiny-one;
+	}
+      else
+	{
+	  y = __erfcl (x);
+	  return (one - y);
+	}
     }
   u.parts32.w0 = ix;
   a = u.value;
@@ -815,15 +820,8 @@ __erfl (x)
 }
 
 long_double_symbol (libm, __erfl, erfl);
-#ifdef __STDC__
-     long double
-     __erfcl (long double x)
-#else
-     long double
-     __erfcl (x)
-     double
-       x;
-#endif
+long double
+__erfcl (long double x)
 {
   long double y, z, p, r;
   int32_t i, ix, sign;
@@ -937,7 +935,8 @@ long_double_symbol (libm, __erfl, erfl);
 	}
       u.value = x;
       u.parts32.w3 = 0;
-      u.parts32.w2 &= 0xffffe000;
+      u.parts32.w2 = 0;
+      u.parts32.w1 &= 0xf8000000;
       z = u.value;
       r = __ieee754_expl (-z * z - 0.5625) *
 	__ieee754_expl ((z - x) * (z + x) + p);

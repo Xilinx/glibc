@@ -1,5 +1,5 @@
 /* Create new context.
-   Copyright (C) 2002, 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <kernel-features.h>
@@ -27,7 +26,6 @@
 
 ENTRY(__makecontext)
 	CALL_MCOUNT 3
-#ifdef __ASSUME_NEW_RT_SIGRETURN_SYSCALL
   /* Save parameters into the parameter save area of callers frame.  */
   std  r3,FRAME_PARM1_SAVE(r1) /* ucontext_t *ucp  */
   std  r4,FRAME_PARM2_SAVE(r1) /* void (*func)(void)  */
@@ -136,26 +134,26 @@ L(noparms):
 	   'makecontext' call.  If the pointer is NULL the process must
 	   terminate.  */
 L(exitcode):
-   /* Recover the ucontext and TOC from the dummy frame.  */
-  ld    r1,FRAME_BACKCHAIN(r1)  /* Unstack the parameter save area frame.  */
-  ld    r3,FRAME_PARM1_SAVE(r1)
-  ld    r2,FRAME_TOC_SAVE(r1)
-  ld    r3,UCONTEXT_LINK(r3)  /* Load the resume context.  */
-  cmpdi r3,0
-  beq   L(BADSTATUS)
+	/* Recover the ucontext and TOC from the dummy frame.  */
+	ld    r1,FRAME_BACKCHAIN(r1)  /* Unstack the parameter save area frame.  */
+	ld    r3,FRAME_PARM1_SAVE(r1)
+	ld    r2,FRAME_TOC_SAVE(r1)
+	ld    r3,UCONTEXT_LINK(r3)  /* Load the resume context.  */
+	cmpdi r3,0
+	beq   L(do_exit)
 	bl    JUMPTARGET(__setcontext)
 	nop
-
-L(BADSTATUS):
-/* If setcontext returns (which can happen if the syscall fails) we will
-   exit the program with error status (-1).  */
-  li    r3,-1
+	/* If setcontext returns (which can happen if the syscall fails) we will
+	   exit the program with error status (-1).  */
+	li    r3,-1
+L(do_exit):
 #ifdef SHARED
-  b     JUMPTARGET(__GI_exit);
+	b     JUMPTARGET(__GI_exit);
 #else
-  b     JUMPTARGET(exit);
-  nop
+	b     JUMPTARGET(exit);
+	nop
 #endif
+	b    L(do_exit)
 
   /* The address of the exit code is in the link register.  Store the lr
      in the ucontext as LNK so the target function will return to our
@@ -167,22 +165,6 @@ L(gotexitcodeaddr):
   addi  r1,r1,128
   mtlr  r0
   blr
-#else
-  /* If the kernel is not at least 2.4.21 then generate a ENOSYS stub.  */
-  mflr r0
-  std  r0,FRAME_LR_SAVE(r1)
-  cfi_offset (lr, FRAME_LR_SAVE)
-  stdu r1,-128(r1)
-  cfi_adjust_cfa_offset (128)
-  li   r3,ENOSYS
-  bl   JUMPTARGET(__syscall_error)
-  nop
-  li   r3,-1
-  ld   r0,128+FRAME_LR_SAVE(r1)
-  addi r1,r1,128
-  mtlr r0
-  blr
-#endif
 END(__makecontext)
 
 weak_alias (__makecontext, makecontext)

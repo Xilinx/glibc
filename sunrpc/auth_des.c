@@ -33,6 +33,7 @@
  */
 
 #include <string.h>
+#include <stdint.h>
 #include <rpc/des_crypt.h>
 #include <rpc/types.h>
 #include <rpc/auth.h>
@@ -117,7 +118,7 @@ authdes_create (const char *servername, u_int window,
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (authdes_create)
 #else
-libc_hidden_nolink (authdes_create, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (authdes_create, GLIBC_2_1)
 #endif
 
 AUTH *
@@ -211,7 +212,7 @@ failed:
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (authdes_pk_create)
 #else
-libc_hidden_nolink (authdes_pk_create, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (authdes_pk_create, GLIBC_2_1)
 #endif
 
 /*

@@ -1,4 +1,4 @@
-# Copyright (C) 1996-1998,2001,2004,2006,2011 Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for NIS/NIS+ part.
@@ -23,9 +22,11 @@ subdir	:= nis
 
 aux			:= nis_hash
 
+include ../Makeconfig
+
+ifeq ($(link-obsolete-rpc),yes)
 headers			:= $(wildcard rpcsvc/*.[hx])
-distribute		:= nss-nis.h nss-nisplus.h nis_intern.h Banner \
-			   nisplus-parser.h nis_xdr.h nss
+endif
 
 # These are the databases available for the nis (and perhaps later nisplus)
 # service.  This must be a superset of the services in nss.
@@ -77,12 +78,12 @@ $(objpfx)libnss_nis.so: $(objpfx)libnsl.so$(libnsl.so-version) \
 			$(common-objpfx)nss/libnss_files.so
 $(objpfx)libnss_nisplus.so: $(objpfx)libnsl.so$(libnsl.so-version)
 
-# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
-# This ensures they will load libc.so for needed symbols if loaded by
-# a statically-linked program that hasn't already loaded it.
 libnsl-libc = $(common-objpfx)linkobj/libc.so
-$(services:%=$(objpfx)libnss_%.so) $(objpfx)libnsl.so: $(libnsl-libc) \
-					       $(common-objpfx)libc_nonshared.a
+# Target-specific variable setting to link objects using deprecated
+# RPC interfaces with the version of libc.so that makes them available
+# for new links:
+$(services:%=$(objpfx)libnss_%.so) $(objpfx)libnsl.so: \
+  libc-for-link = $(libnsl-libc)
 
 
 ifeq ($(build-shared),yes)

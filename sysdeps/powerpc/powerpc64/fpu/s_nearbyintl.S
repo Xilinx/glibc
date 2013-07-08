@@ -1,6 +1,6 @@
 /* nearbyint long double.
    IBM extended format long double version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -27,16 +26,16 @@
 	.section	".text"
 
 /* long double [fp1,fp2] nearbyintl (long double x [fp1,fp2])
-   IEEE 1003.1 nearbyintl function.  nearbyintl is simular to the rintl
+   IEEE 1003.1 nearbyintl function.  nearbyintl is similar to the rintl
    but does raise the "inexact" exception.  This implementation is
-   based on rintl but explicitly maskes the inexact exception on entry
+   based on rintl but explicitly masks the inexact exception on entry
    and clears any pending inexact before restoring the exception mask
    on exit.
 
    PowerPC64 long double uses the IBM extended format which is
    represented two 64-floating point double values. The values are
    non-overlapping giving an effective precision of 106 bits. The first
-   double contains the high order bits of mantisa and is always rounded
+   double contains the high order bits of mantissa and is always rounded
    to represent a normal rounding of long double to double. Since the
    long double value is sum of the high and low values, the low double
    normally has the opposite sign to compensate for the this rounding.
@@ -45,7 +44,7 @@
    1) |x| < 2**52, all the integer bits are in the high double.
       floor the high double and set the low double to -0.0.
    2) |x| >= 2**52, Rounding involves both doubles.
-      See the comment before lable .L2 for details.
+      See the comment before label .L2 for details.
    */
 ENTRY (__nearbyintl)
 	mffs	fp11		/* Save current FPSCR.  */

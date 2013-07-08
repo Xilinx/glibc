@@ -1,5 +1,5 @@
 /* Optimized strcmp implementation for PowerPC32.
-   Copyright (C) 2003, 2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,28 +13,22 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* See strlen.s for comments on how the end-of-string testing works.  */
 
 /* int [r3] strncmp (const char *s1 [r3], const char *s2 [r4], size_t size [r5])  */
 
-EALIGN (BP_SYM(strncmp), 4, 0)
+EALIGN (strncmp, 4, 0)
 
 #define rTMP	r0
 #define rRTN	r3
 #define rSTR1	r3	/* first string arg */
 #define rSTR2	r4	/* second string arg */
 #define rN	r5	/* max string length */
-/* Note:  The Bounded pointer support in this code is broken.  This code
-   was inherited from PPC32 and that support was never completed.
-   Current PPC gcc does not support -fbounds-check or -fbounded-pointers.  */
 #define rWORD1	r6	/* current word in s1 */
 #define rWORD2	r7	/* current word in s2 */
 #define rWORD3  r10
@@ -52,7 +46,7 @@ EALIGN (BP_SYM(strncmp), 4, 0)
 	cmplwi	cr1, rN, 0
 	lis	rFEFE, -0x101
 	bne	L(unaligned)
-/* We are word alligned so set up for two loops.  first a word
+/* We are word aligned so set up for two loops.  first a word
    loop, then fall into the byte loop if any residual.  */
 	srwi.	rTMP, rN, 2
 	clrlwi	rN, rN, 30
@@ -172,5 +166,5 @@ L(u4):	sub	rRTN, rWORD1, rWORD2
 L(ux):
 	li	rRTN, 0
 	blr
-END (BP_SYM (strncmp))
+END (strncmp)
 libc_hidden_builtin_def (strncmp)

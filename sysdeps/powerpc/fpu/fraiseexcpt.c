@@ -1,5 +1,5 @@
 /* Raise given exceptions.
-   Copyright (C) 1997,1999-2002, 2008 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,12 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv_libc.h>
-#include <bp-sym.h>
 
 #undef feraiseexcept
 int
@@ -62,8 +60,8 @@ __feraiseexcept (int excepts)
 #include <shlib-compat.h>
 #if SHLIB_COMPAT (libm, GLIBC_2_1, GLIBC_2_2)
 strong_alias (__feraiseexcept, __old_feraiseexcept)
-compat_symbol (libm, BP_SYM (__old_feraiseexcept), BP_SYM (feraiseexcept), GLIBC_2_1);
+compat_symbol (libm, __old_feraiseexcept, feraiseexcept, GLIBC_2_1);
 #endif
 
 libm_hidden_ver (__feraiseexcept, feraiseexcept)
-versioned_symbol (libm, BP_SYM (__feraiseexcept), BP_SYM (feraiseexcept), GLIBC_2_2);
+versioned_symbol (libm, __feraiseexcept, feraiseexcept, GLIBC_2_2);

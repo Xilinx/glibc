@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 2000, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Geoffrey Keating <Geoff.Keating@anu.edu.au>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <math.h>
@@ -65,7 +64,6 @@ sincosx_mpn (mp1 si, mp1 co, mp1 xx, mp1 ix)
    int i;
    mp2 s[4], c[4];
    mp1 tmp, x;
-   mp_limb_t chk, round;
 
    if (ix == NULL)
      {
@@ -80,34 +78,38 @@ sincosx_mpn (mp1 si, mp1 co, mp1 xx, mp1 ix)
    for (i = 0; i < 1 << N; i++)
      {
 #define add_shift_mulh(d,x,s1,s2,sh,n) \
-       /* d = (n ? -1 : 1) * (s1 + (s2>>sh)) * x / (1>>N); */		      \
       do { 								      \
 	 if (s2 != NULL) {						      \
 	    if (sh > 0) {						      \
 	       assert (sh < mpbpl);					      \
 	       mpn_lshift (tmp, s1, SZ, sh);				      \
-	       chk = (n ? mpn_sub_n : mpn_add_n)(tmp,tmp,s2+FRAC/mpbpl,SZ);   \
-	    } else							      \
-	       chk = (n ? mpn_sub_n : mpn_add_n)(tmp,s1,s2+FRAC/mpbpl,SZ);    \
-	    /* assert(chk == 0); */					      \
+	       if (n)							      \
+	         mpn_sub_n (tmp,tmp,s2+FRAC/mpbpl,SZ);			      \
+	       else							      \
+	         mpn_add_n (tmp,tmp,s2+FRAC/mpbpl,SZ);			      \
+	    } else {							      \
+	       if (n)							      \
+	         mpn_sub_n (tmp,s1,s2+FRAC/mpbpl,SZ);			      \
+	       else							      \
+	         mpn_add_n (tmp,s1,s2+FRAC/mpbpl,SZ);			      \
+	    }								      \
 	    mpn_mul_n(d,tmp,x,SZ);					      \
 	 } else 							      \
 	    mpn_mul_n(d,s1,x,SZ);					      \
-	 /* assert(d[SZ*2-1] == 0); */					      \
 	 assert(N+sh < mpbpl);						      \
 	 if (N+sh > 0) mpn_rshift(d,d,2*SZ,N+sh);			      \
       } while(0)
 #define summ(d,ss,s,n) \
-      /* d = ss +/- (s[0]+2*s[1]+2*s[2]+s[3])/6; */			      \
       do { 								      \
-	 chk = mpn_add_n(tmp,s[1]+FRAC/mpbpl,s[2]+FRAC/mpbpl,SZ);	      \
+	 mpn_add_n(tmp,s[1]+FRAC/mpbpl,s[2]+FRAC/mpbpl,SZ);		      \
 	 mpn_lshift(tmp,tmp,SZ,1);					      \
-	 chk |= mpn_add_n(tmp,tmp,s[0]+FRAC/mpbpl,SZ);			      \
-	 chk |= mpn_add_n(tmp,tmp,s[3]+FRAC/mpbpl,SZ);			      \
-	 round = mpn_divmod_1(tmp,tmp,SZ,6);				      \
-	 /* chk |= mpn_add_1(tmp,tmp,SZ, (round > 3) ); */		      \
-         chk |= (n ? mpn_sub_n : mpn_add_n)(d,ss,tmp,SZ);		      \
-	 /* assert(chk == 0); */					      \
+	 mpn_add_n(tmp,tmp,s[0]+FRAC/mpbpl,SZ);				      \
+	 mpn_add_n(tmp,tmp,s[3]+FRAC/mpbpl,SZ);				      \
+	 mpn_divmod_1(tmp,tmp,SZ,6);					      \
+	 if (n)								      \
+           mpn_sub_n (d,ss,tmp,SZ);					      \
+	 else								      \
+           mpn_add_n (d,ss,tmp,SZ);					      \
       } while (0)
 
       add_shift_mulh (s[0], x, co, NULL, 0, 0); /* s0 = h * c; */

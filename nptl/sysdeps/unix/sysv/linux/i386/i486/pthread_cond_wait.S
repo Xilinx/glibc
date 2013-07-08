@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2004,2006-2007,2009,2010 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -141,17 +140,33 @@ __pthread_cond_wait:
 	movl	%ebp, %edx
 	xorl	%esi, %esi
 	addl	$cond_futex, %ebx
+.Ladd_cond_futex_pi:
 	movl	$SYS_futex, %eax
 	ENTER_KERNEL
 	subl	$cond_futex, %ebx
+.Lsub_cond_futex_pi:
 	/* Set the pi-requeued flag only if the kernel has returned 0. The
 	   kernel does not hold the mutex on error.  */
 	cmpl	$0, %eax
 	sete	16(%esp)
 	je	19f
 
-	/* Normal and PI futexes dont mix. Use normal futex functions only
-	   if the kernel does not support the PI futex functions.  */
+	/* When a futex syscall with FUTEX_WAIT_REQUEUE_PI returns
+	   successfully, it has already locked the mutex for us and the
+	   pi_flag (16(%esp)) is set to denote that fact.  However, if another
+	   thread changed the futex value before we entered the wait, the
+	   syscall may return an EAGAIN and the mutex is not locked.  We go
+	   ahead with a success anyway since later we look at the pi_flag to
+	   decide if we got the mutex or not.  The sequence numbers then make
+	   sure that only one of the threads actually wake up.  We retry using
+	   normal FUTEX_WAIT only if the kernel returned ENOSYS, since normal
+	   and PI futexes don't mix.
+
+	   Note that we don't check for EAGAIN specifically; we assume that the
+	   only other error the futex function could return is EAGAIN since
+	   anything else would mean an error in our function.  It is too
+	   expensive to do that check for every call (which is 	quite common in
+	   case of a large number of threads), so it has been skipped.  */
 	cmpl	$-ENOSYS, %eax
 	jne	19f
 	xorl	%ecx, %ecx
@@ -201,12 +216,12 @@ __pthread_cond_wait:
 	cmpl	8(%esp), %edx
 	jne	7f
 	cmpl	4(%esp), %edi
-	je	8b
+	je	22f
 
 7:	cmpl	%ecx, %edx
 	jne	9f
 	cmp	%eax, %edi
-	je	8b
+	je	22f
 
 9:	addl	$1, woken_seq(%ebx)
 	adcl	$0, woken_seq+4(%ebx)
@@ -282,6 +297,22 @@ __pthread_cond_wait:
 	jmp	20b
 
 	cfi_adjust_cfa_offset(-FRAME_SIZE);
+
+	/* We need to go back to futex_wait.  If we're using requeue_pi, then
+	   release the mutex we had acquired and go back.  */
+22:	movl	16(%esp), %edx
+	test	%edx, %edx
+	jz	8b
+
+	/* Adjust the mutex values first and then unlock it.  The unlock
+	   should always succeed or else the kernel did not lock the mutex
+	   correctly.  */
+	movl	dep_mutex(%ebx), %eax
+	call    __pthread_mutex_cond_lock_adjust
+	xorl	%edx, %edx
+	call	__pthread_mutex_unlock_usercnt
+	jmp	8b
+
 	/* Initial locking failed.  */
 1:
 #if cond_lock == 0
@@ -394,6 +425,7 @@ __pthread_cond_wait:
 #endif
 	call	__lll_unlock_wake
 	jmp	11b
+
 	.size	__pthread_cond_wait, .-__pthread_cond_wait
 versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
 		  GLIBC_2_3_2)
@@ -534,10 +566,27 @@ __condvar_w_cleanup:
 	movl	$0x7fffffff, %edx
 	ENTER_KERNEL
 
+	/* Lock the mutex only if we don't own it already.  This only happens
+	   in case of PI mutexes, if we got cancelled after a successful
+	   return of the futex syscall and before disabling async
+	   cancellation.  */
 5:	movl	24+FRAME_SIZE(%esp), %eax
-	call	__pthread_mutex_cond_lock
+	movl	MUTEX_KIND(%eax), %ebx
+	andl	$(ROBUST_BIT|PI_BIT), %ebx
+	cmpl	$PI_BIT, %ebx
+	jne	8f
 
-	movl	%esi, (%esp)
+	movl	(%eax), %ebx
+	andl	$TID_MASK, %ebx
+	cmpl	%ebx, %gs:TID
+	jne	8f
+	/* We managed to get the lock.  Fix it up before returning.  */
+	call	__pthread_mutex_cond_lock_adjust
+	jmp	9f
+
+8:	call	__pthread_mutex_cond_lock
+
+9:	movl	%esi, (%esp)
 .LcallUR:
 	call	_Unwind_Resume
 	hlt
@@ -555,7 +604,15 @@ __condvar_w_cleanup:
 	.uleb128 .Lcstend-.Lcstbegin
 .Lcstbegin:
 	.long	.LcleanupSTART-.LSTARTCODE
-	.long	.Ladd_cond_futex-.LcleanupSTART
+	.long	.Ladd_cond_futex_pi-.LcleanupSTART
+	.long	__condvar_w_cleanup-.LSTARTCODE
+	.uleb128  0
+	.long	.Ladd_cond_futex_pi-.LSTARTCODE
+	.long	.Lsub_cond_futex_pi-.Ladd_cond_futex_pi
+	.long	__condvar_w_cleanup2-.LSTARTCODE
+	.uleb128  0
+	.long	.Lsub_cond_futex_pi-.LSTARTCODE
+	.long	.Ladd_cond_futex-.Lsub_cond_futex_pi
 	.long	__condvar_w_cleanup-.LSTARTCODE
 	.uleb128  0
 	.long	.Ladd_cond_futex-.LSTARTCODE
@@ -571,17 +628,6 @@ __condvar_w_cleanup:
 	.long	0
 	.uleb128  0
 .Lcstend:
-
-#ifdef PIC
-	.section .gnu.linkonce.t.__i686.get_pc_thunk.cx,"ax",@progbits
-	.globl	__i686.get_pc_thunk.cx
-	.hidden	__i686.get_pc_thunk.cx
-	.type	__i686.get_pc_thunk.cx,@function
-__i686.get_pc_thunk.cx:
-	movl (%esp), %ecx;
-	ret
-	.size	__i686.get_pc_thunk.cx,.-__i686.get_pc_thunk.cx
-#endif
 
 #ifdef SHARED
 	.hidden DW.ref.__gcc_personality_v0

@@ -1,5 +1,5 @@
 /* brk system call for Linux/ppc.
-   Copyright (C) 1995-97, 1999, 2000, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,20 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 	.comm	__curbrk,4,4
 	.section ".text"
-ENTRY (BP_SYM (__brk))
-	DISCARD_BOUNDS (r3)	/* the bounds are meaningless, so toss 'em */
+ENTRY (__brk)
 	mflr	r0
 	stwu    r1,-16(r1)
 	cfi_adjust_cfa_offset (16)
@@ -36,10 +32,9 @@ ENTRY (BP_SYM (__brk))
 	DO_CALL(SYS_ify(brk))
 	lwz     r6,8(r1)
 #ifdef PIC
-	bcl	20,31,1f
-1:	mflr	r5
-	addis	r5,r5,__curbrk-1b@ha
-	stw	r3,__curbrk-1b@l(r5)
+	SETUP_GOT_ACCESS(r5,got_label)
+	addis	r5,r5,__curbrk-got_label@ha
+	stw	r3,__curbrk-got_label@l(r5)
 #else
 	lis     r4,__curbrk@ha
 	stw     r3,__curbrk@l(r4)
@@ -52,6 +47,6 @@ ENTRY (BP_SYM (__brk))
 	blelr+
 	li      r3,ENOMEM
 	b	__syscall_error@local
-END (BP_SYM (__brk))
+END (__brk)
 
-weak_alias (BP_SYM (__brk), BP_SYM (brk))
+weak_alias (__brk, brk)

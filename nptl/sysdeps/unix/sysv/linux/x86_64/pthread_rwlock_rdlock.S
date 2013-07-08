@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <lowlevellock.h>
@@ -32,7 +31,7 @@
 __pthread_rwlock_rdlock:
 	cfi_startproc
 
-        LIBC_PROBE (rdlock_entry, 1, %rdi)
+	LIBC_PROBE (rdlock_entry, 1, %rdi)
 
 	xorq	%r10, %r10
 
@@ -174,8 +173,5 @@ __pthread_rwlock_rdlock:
 	cfi_endproc
 	.size	__pthread_rwlock_rdlock,.-__pthread_rwlock_rdlock
 
-	.globl	pthread_rwlock_rdlock
-pthread_rwlock_rdlock = __pthread_rwlock_rdlock
-
-	.globl	__pthread_rwlock_rdlock_internal
-__pthread_rwlock_rdlock_internal = __pthread_rwlock_rdlock
+strong_alias (__pthread_rwlock_rdlock, pthread_rwlock_rdlock)
+hidden_def (__pthread_rwlock_rdlock)

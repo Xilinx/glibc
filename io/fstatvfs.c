@@ -1,5 +1,5 @@
 /* Return information about the filesystem on which FD resides.
-   Copyright (C) 1996, 1997, 1998, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/statvfs.h>
@@ -30,4 +29,3 @@ __fstatvfs (int fd, struct statvfs *buf)
 stub_warning (fstatvfs)
 weak_alias (__fstatvfs, fstatvfs)
 libc_hidden_weak (fstatvfs)
-#include <stub-tag.h>

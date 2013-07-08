@@ -1,5 +1,5 @@
 /* Macros for defining Systemtap <sys/sdt.h> static probe points.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2012-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _STAP_PROBE_H
 #define _STAP_PROBE_H 1
@@ -61,79 +60,20 @@
 #else  /* Not USE_STAP_PROBE.  */
 
 # ifndef __ASSEMBLER__
-#  define LIBC_PROBE(name, n, ...)		DUMMY_PROBE##n (__VA_ARGS__)
+/* Evaluate all the arguments and verify that N matches their number.  */
+#  define LIBC_PROBE(name, n, ...)					      \
+  do {									      \
+    _Bool __libc_probe_args[] = { 0, ## __VA_ARGS__ };			      \
+    _Bool __libc_probe_verify_n[(sizeof __libc_probe_args / sizeof (_Bool))   \
+                                == n + 1 ? 1 : -1];			      \
+    (void) __libc_probe_verify_n;					      \
+  } while (0)
 # else
 #  define LIBC_PROBE(name, n, ...)		/* Nothing.  */
 # endif
 
 # define LIBC_PROBE_ASM(name, template)		/* Nothing.  */
 # define LIBC_PROBE_ASM_OPERANDS(n, ...)	/* Nothing.  */
-
-/* This silliness lets us evaluate all the arguments for each arity
-   of probe.  My kingdom for a real macro system.  */
-
-# define DUMMY_PROBE0()			do {} while (0)
-# define DUMMY_PROBE1(a1)		do {} while ((void) (a1), 0)
-# define DUMMY_PROBE2(a1, a2)		do {} while ((void) (a1), \
-						     (void) (a2), 0)
-# define DUMMY_PROBE3(a1, a2, a3)	do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), 0)
-# define DUMMY_PROBE4(a1, a2, a3, a4)	do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), 0)
-# define DUMMY_PROBE5(a1, a2, a3, a4, a5)			  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), 0)
-# define DUMMY_PROBE6(a1, a2, a3, a4, a5, a6)			  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), \
-						     (void) (a6), 0)
-# define DUMMY_PROBE7(a1, a2, a3, a4, a5, a6, a7)		  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), \
-						     (void) (a6), \
-						     (void) (a7), 0)
-# define DUMMY_PROBE8(a1, a2, a3, a4, a5, a6, a7, a8)		  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), \
-						     (void) (a6), \
-						     (void) (a7), \
-						     (void) (a8), 0)
-# define DUMMY_PROBE9(a1, a2, a3, a4, a5, a6, a7, a8, a9)	  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), \
-						     (void) (a6), \
-						     (void) (a7), \
-						     (void) (a8), \
-						     (void) (a9), 0)
-# define DUMMY_PROBE10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)	  \
-					do {} while ((void) (a1), \
-						     (void) (a2), \
-						     (void) (a3), \
-						     (void) (a4), \
-						     (void) (a5), \
-						     (void) (a6), \
-						     (void) (a7), \
-						     (void) (a8), \
-						     (void) (a9), \
-						     (void) (a10), 0)
 
 #endif	/* USE_STAP_PROBE.  */
 

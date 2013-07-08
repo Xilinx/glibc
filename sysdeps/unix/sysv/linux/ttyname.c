@@ -1,5 +1,4 @@
-/* Copyright (C) 1991-1993,1996-2002,2006,2009,2010
-   Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <limits.h>
@@ -28,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 #include <kernel-features.h>
 
 #if 0
@@ -150,18 +148,7 @@ ttyname (int fd)
     }
 
   ssize_t len = __readlink (procname, ttyname_buf, buflen);
-  if (__builtin_expect (len == -1 && errno == ENOENT, 0))
-    {
-      __set_errno (EBADF);
-      return NULL;
-    }
-
-  if (__builtin_expect (len != -1
-#ifndef __ASSUME_PROC_SELF_FD_SYMLINK
-			/* This is for Linux 2.0.  */
-			&& ttyname_buf[0] != '['
-#endif
-			, 1))
+  if (__builtin_expect (len != -1, 1))
     {
       if ((size_t) len >= buflen)
 	return NULL;

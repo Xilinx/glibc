@@ -1,5 +1,4 @@
-/* Copyright (C) 1991,93,95,96,97,98,2000,2002,2006,2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <libintl.h>
 #include <stdbool.h>
@@ -23,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/param.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* It is critical here that we always use the `dcgettext' function for
    the message translation.  Since <libintl.h> only defines the macro

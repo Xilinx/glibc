@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing, layered over getopt
-   Copyright (C) 1995-2000, 2002, 2003, 2004, 2010 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -52,7 +51,7 @@ char *alloca ();
 #  ifdef _LIBC
 #   undef dgettext
 #   define dgettext(domain, msgid) \
-  INTUSE(__dcgettext) (domain, msgid, LC_MESSAGES)
+  __dcgettext (domain, msgid, LC_MESSAGES)
 #  endif
 # else
 #  define dgettext(domain, msgid) (msgid)
@@ -101,9 +100,10 @@ static const struct argp_option argp_default_options[] =
 {
   {"help",	  '?',	  	0, 0,  N_("Give this help list"), -1},
   {"usage",	  OPT_USAGE,	0, 0,  N_("Give a short usage message")},
-  {"program-name",OPT_PROGNAME,"NAME", OPTION_HIDDEN, N_("Set the program name")},
-  {"HANG",	  OPT_HANG,    "SECS", OPTION_ARG_OPTIONAL | OPTION_HIDDEN,
-     N_("Hang for SECS seconds (default 3600)")},
+  {"program-name",OPT_PROGNAME, N_("NAME"), OPTION_HIDDEN,
+   N_("Set the program name")},
+  {"HANG",	  OPT_HANG,    N_("SECS"), OPTION_ARG_OPTIONAL | OPTION_HIDDEN,
+   N_("Hang for SECS seconds (default 3600)")},
   {0, 0}
 };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002,2003,2007,2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Default stack size.  */
 #define ARCH_STACK_DEFAULT_SIZE	(2 * 1024 * 1024)
@@ -42,7 +41,7 @@
 
 /* Location of current stack frame.  The frame pointer is not usable.  */
 #define CURRENT_STACK_FRAME \
-  ({ char *frame; asm ("movq %%rsp, %0" : "=r" (frame)); frame; })
+  ({ register char *frame __asm__("rsp"); frame; })
 
 
 /* XXX Until we have a better place keep the definitions here.  */

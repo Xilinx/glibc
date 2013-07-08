@@ -2,22 +2,22 @@
 @c %MENU% How to make the program speak the user's language
 @chapter Message Translation
 
-The program's interface with the human should be designed in a way to
-ease the human the task.  One of the possibilities is to use messages in
-whatever language the user prefers.
+The program's interface with the user should be designed to ease the user's
+task.  One way to ease the user's task is to use messages in whatever
+language the user prefers.
 
 Printing messages in different languages can be implemented in different
 ways.  One could add all the different languages in the source code and
-add among the variants every time a message has to be printed.  This is
-certainly no good solution since extending the set of languages is
-difficult (the code must be changed) and the code itself can become
+choose among the variants every time a message has to be printed.  This is
+certainly not a good solution since extending the set of languages is
+cumbersome (the code must be changed) and the code itself can become
 really big with dozens of message sets.
 
-A better solution is to keep the message sets for each language are kept
+A better solution is to keep the message sets for each language
 in separate files which are loaded at runtime depending on the language
 selection of the user.
 
-The GNU C Library provides two different sets of functions to support
+@Theglibc{} provides two different sets of functions to support
 message translation.  The problem is that neither of the interfaces is
 officially defined by the POSIX standard.  The @code{catgets} family of
 functions is defined in the X/Open standard but this is derived from
@@ -32,7 +32,7 @@ of the message handling functions are
 
 @itemize @bullet
 @item
-locate the external data file with the appropriate translations.
+locate the external data file with the appropriate translations
 @item
 load the data and make it possible to address the messages
 @item
@@ -40,7 +40,7 @@ map a given key to the translated message
 @end itemize
 
 The two approaches mainly differ in the implementation of this last
-step.  The design decisions made for this influences the whole rest.
+step.  Decisions made in the last step influence the rest of the design.
 
 @menu
 * Message catalogs a la X/Open::  The @code{catgets} family of functions.
@@ -170,8 +170,8 @@ is
 @end smallexample
 
 @noindent
-where @var{prefix} is given to @code{configure} while installing the GNU
-C Library (this value is in many cases @code{/usr} or the empty string).
+where @var{prefix} is given to @code{configure} while installing @theglibc{}
+(this value is in many cases @code{/usr} or the empty string).
 
 The remaining problem is to decide which must be used.  The value
 decides about the substitution of the format elements mentioned above.
@@ -439,11 +439,11 @@ detail in the next section.
 Files in this other format are not human readable.  To be easy to use by
 programs it is a binary file.  But the format is byte order independent
 so translation files can be shared by systems of arbitrary architecture
-(as long as they use the GNU C Library).
+(as long as they use @theglibc{}).
 
 Details about the binary file format are not important to know since
 these files are always created by the @code{gencat} program.  The
-sources of the GNU C Library also provide the sources for the
+sources of @theglibc{} also provide the sources for the
 @code{gencat} program and so the interested reader can look through
 these source files to learn about the file format.
 
@@ -699,7 +699,6 @@ Now we can start building the program (assume the message catalog source
 file is named @file{hello.msg} and the program source file @file{hello.c}):
 
 @smallexample
-@cartouche
 % gencat -H msgnrs.h -o hello.cat hello.msg
 % cat msgnrs.h
 #define MainSet 0x1     /* hello.msg:4 */
@@ -711,7 +710,6 @@ de
 % ./hello
 Hallo, Welt!
 %
-@end cartouche
 @end smallexample
 
 The call of the @code{gencat} program creates the missing header file
@@ -727,14 +725,13 @@ for @code{catopen} presented in the description above.
 
 Sun Microsystems tried to standardize a different approach to message
 translation in the Uniforum group.  There never was a real standard
-defined but still the interface was used in Sun's operation systems.
+defined but still the interface was used in Sun's operating systems.
 Since this approach fits better in the development process of free
 software it is also used throughout the GNU project and the GNU
-@file{gettext} package provides support for this outside the GNU C
-Library.
+@file{gettext} package provides support for this outside @theglibc{}.
 
 The code of the @file{libintl} from GNU @file{gettext} is the same as
-the code in the GNU C Library.  So the documentation in the GNU
+the code in @theglibc{}.  So the documentation in the GNU
 @file{gettext} manual is also valid for the functionality here.  The
 following text will describe the library functions in detail.  But the
 numerous helper programs are not described in this manual.  Instead
@@ -982,7 +979,7 @@ As the functions described in the last sections already mention separate
 sets of messages can be selected by a @dfn{domain name}.  This is a
 simple string which should be unique for each program part with uses a
 separate domain.  It is possible to use in one program arbitrary many
-domains at the same time.  E.g., the GNU C Library itself uses a domain
+domains at the same time.  E.g., @theglibc{} itself uses a domain
 named @code{libc} while the program using the C Library could use a
 domain named @code{foo}.  The important point is that at any time
 exactly one domain is active.  This is controlled with the following
@@ -1128,7 +1125,7 @@ form, the second the plural form.
 
 This has the consequence that programs without language catalogs can
 display the correct strings only if the program itself is written using
-a Germanic language.  This is a limitation but since the GNU C library
+a Germanic language.  This is a limitation but since @theglibc{}
 (as well as the GNU @code{gettext} package) are written as part of the
 GNU package and the coding standards for the GNU project require program
 being written in English, this solution nevertheless fulfills its
@@ -1444,7 +1441,8 @@ string containing the name of the selected codeset.  The string is
 allocated internally in the function and must not be changed by the
 user.  If the system went out of core during the execution of
 @code{bind_textdomain_codeset}, the return value is @code{NULL} and the
-global variable @var{errno} is set accordingly.  @end deftypefun
+global variable @var{errno} is set accordingly.
+@end deftypefun
 
 
 @node GUI program problems
@@ -1552,7 +1550,7 @@ functions as well which look almost identical, except for the parameters
 and the call to the underlying function.
 
 Now there is of course the question why such functions do not exist in
-the GNU C library?  There are two parts of the answer to this question.
+@theglibc{}?  There are two parts of the answer to this question.
 
 @itemize @bullet
 @item
@@ -1666,8 +1664,8 @@ The @var{domain_name} part is the name which was either registered using
 the @code{textdomain} function or which was given to @code{dgettext} or
 @code{dcgettext} as the first parameter.  Now it becomes obvious that a
 good choice for the domain name in the program code is a string which is
-closely related to the program/package name.  E.g., for the GNU C
-Library the domain name is @code{libc}.
+closely related to the program/package name.  E.g., for @theglibc{}
+the domain name is @code{libc}.
 
 @noindent
 A limit piece of example code should show how the programmer is supposed
@@ -1787,7 +1785,7 @@ different character sets the user has to be careful.
 @node Helper programs for gettext
 @subsection Programs to handle message catalogs for @code{gettext}
 
-The GNU C Library does not contain the source code for the programs to
+@Theglibc{} does not contain the source code for the programs to
 handle message catalogs for the @code{gettext} functions.  As part of
 the GNU project the GNU gettext package contains everything the
 developer needs.  The functionality provided by the tools in this
@@ -1802,16 +1800,16 @@ available.
 
 The @code{xgettext} program can be used to automatically extract the
 translatable messages from a source file.  I.e., the programmer need not
-take care for the translations and the list of messages which have to be
+take care of the translations and the list of messages which have to be
 translated.  S/He will simply wrap the translatable string in calls to
 @code{gettext} et.al and the rest will be done by @code{xgettext}.  This
-program has a lot of option which help to customize the output or do
+program has a lot of options which help to customize the output or
 help to understand the input better.
 
-Other programs help to manage development cycle when new messages appear
-in the source files or when a new translation of the messages appear.
+Other programs help to manage the development cycle when new messages appear
+in the source files or when a new translation of the messages appears.
 Here it should only be noted that using all the tools in GNU gettext it
 is possible to @emph{completely} automate the handling of message
-catalog.  Beside marking the translatable string in the source code and
+catalogs.  Beside marking the translatable strings in the source code and
 generating the translations the developers do not have anything to do
 themselves.

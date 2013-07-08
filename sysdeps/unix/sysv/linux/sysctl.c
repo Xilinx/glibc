@@ -1,5 +1,5 @@
 /* Read or write system information.  Linux version.
-   Copyright (C) 1996-2000,2002,2003,2005 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <string.h>	/* For the real memset prototype.  */
@@ -23,13 +22,11 @@
 
 #include <sysdep.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 int
 __sysctl (int *name, int nlen, void *oldval, size_t *oldlenp,
 	  void *newval, size_t newlen)
 {
-  /* GKM FIXME: force __sysctl_args decl to have unbounded pointers.  */
   struct __sysctl_args args =
   {
     .name = name,
@@ -39,11 +36,8 @@ __sysctl (int *name, int nlen, void *oldval, size_t *oldlenp,
     .newval = newval,
     .newlen = newlen
   };
-  (void) CHECK_N (name, nlen);
-  (void) CHECK_N (oldval, *oldlenp);
-  (void) CHECK_N (newval, newlen);
 
-  return INLINE_SYSCALL (_sysctl, 1, __ptrvalue (&args));
+  return INLINE_SYSCALL (_sysctl, 1, &args);
 }
 libc_hidden_def (__sysctl)
 weak_alias (__sysctl, sysctl)

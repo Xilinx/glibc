@@ -1,6 +1,5 @@
 /* Definitions for POSIX 1003.1b-1993 (aka POSIX.4) scheduling interface.
-   Copyright (C) 1996,1997,1999,2001-2004,2007,2010
-   Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SCHED_H
 #define	_SCHED_H	1
@@ -48,7 +46,7 @@ typedef __pid_t pid_t;
 __BEGIN_DECLS
 
 /* Set scheduling parameters for a process.  */
-extern int sched_setparam (__pid_t __pid, __const struct sched_param *__param)
+extern int sched_setparam (__pid_t __pid, const struct sched_param *__param)
      __THROW;
 
 /* Retrieve scheduling parameters for a particular process.  */
@@ -56,7 +54,7 @@ extern int sched_getparam (__pid_t __pid, struct sched_param *__param) __THROW;
 
 /* Set scheduling algorithm and/or parameters for a process.  */
 extern int sched_setscheduler (__pid_t __pid, int __policy,
-			       __const struct sched_param *__param) __THROW;
+			       const struct sched_param *__param) __THROW;
 
 /* Retrieve scheduling algorithm for a particular purpose.  */
 extern int sched_getscheduler (__pid_t __pid) __THROW;
@@ -116,7 +114,7 @@ extern int sched_rr_get_interval (__pid_t __pid, struct timespec *__t) __THROW;
 
 /* Set the CPU affinity for a task */
 extern int sched_setaffinity (__pid_t __pid, size_t __cpusetsize,
-			      __const cpu_set_t *__cpuset) __THROW;
+			      const cpu_set_t *__cpuset) __THROW;
 
 /* Get the CPU affinity for a task */
 extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,

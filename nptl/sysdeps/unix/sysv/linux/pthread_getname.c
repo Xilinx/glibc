@@ -1,5 +1,5 @@
 /* pthread_getname_np -- Get  thread name.  Linux version
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -57,6 +56,15 @@ pthread_getname_np (th, buf, len)
   ssize_t n = TEMP_FAILURE_RETRY (read_not_cancel (fd, buf, len));
   if (n < 0)
     res = errno;
+  else
+    {
+      if (buf[n - 1] == '\n')
+	buf[n - 1] = '\0';
+      else if (n == len)
+	res = ERANGE;
+      else
+	buf[n] = '\0';
+    }
 
   close_not_cancel_no_status (fd);
 

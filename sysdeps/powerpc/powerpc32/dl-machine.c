@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation functions.  PowerPC version.
-   Copyright (C) 1995-2006, 2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <unistd.h>
 #include <string.h>
@@ -24,7 +23,7 @@
 #include <ldsodefs.h>
 #include <elf/dynamic-link.h>
 #include <dl-machine.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* The value __cache_line_size is defined in dl-sysdep.c and is initialised
    by _dl_sysdep_start via DL_PLATFORM_INIT.  */
@@ -114,7 +113,7 @@ __elf_preferred_address (struct link_map *loader, size_t maplength,
   /* Otherwise, quickly look for a suitable gap between 0x3FFFF and
      0x70000000.  0x3FFFF is so that references off NULL pointers will
      cause a segfault, 0x70000000 is just paranoia (it should always
-     be superceded by the program's load address).  */
+     be superseded by the program's load address).  */
   low =  0x0003FFFF;
   high = 0x70000000;
   for (nsid = 0; nsid < DL_NNS; ++nsid)
@@ -129,7 +128,7 @@ __elf_preferred_address (struct link_map *loader, size_t maplength,
 	   _dl_loaded does not work for static binaries loading
 	   e.g. libnss_*.so.  */
 	if ((mapend >= high || l->l_type == lt_executable)
-  	    && high >= mapstart)
+	    && high >= mapstart)
 	  high = mapstart;
 	else if (mapend >= low && low >= mapstart)
 	  low = mapend;
@@ -236,16 +235,21 @@ __elf_machine_runtime_setup (struct link_map *map, int lazy, int profile)
       if (lazy)
 	{
 	  Elf32_Word *tramp = plt + PLT_TRAMPOLINE_ENTRY_WORDS;
-	  Elf32_Word dlrr = (Elf32_Word)(profile
-					 ? _dl_prof_resolve
-					 : _dl_runtime_resolve);
+	  Elf32_Word dlrr;
 	  Elf32_Word offset;
 
+#ifndef PROF
+	  dlrr = (Elf32_Word) (profile
+			       ? _dl_prof_resolve
+			       : _dl_runtime_resolve);
 	  if (profile && GLRO(dl_profile) != NULL
 	      && _dl_name_match_p (GLRO(dl_profile), map))
 	    /* This is the object we are looking for.  Say that we really
 	       want profiling and the timers are started.  */
 	    GL(dl_profile_map) = map;
+#else
+	  dlrr = (Elf32_Word) _dl_runtime_resolve;
+#endif
 
 	  /* For the long entries, subtract off data_words.  */
 	  tramp[0] = OPCODE_ADDIS_HI (11, 11, -data_words);
@@ -506,8 +510,7 @@ __process_machine_rela (struct link_map *map,
 	  strtab = (const void *) D_PTR (map, l_info[DT_STRTAB]);
 	  _dl_error_printf ("\
 %s: Symbol `%s' has different size in shared object, consider re-linking\n",
-			    rtld_progname ?: "<program name unknown>",
-			    strtab + refsym->st_name);
+			    RTLD_PROGNAME, strtab + refsym->st_name);
 	}
       memcpy (reloc_addr, (char *) finaladdr, MIN (sym->st_size,
 						   refsym->st_size));

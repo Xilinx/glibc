@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2003, 2005, 2008, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1995-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 # Makefile for intl subdirectory: message handling code from GNU gettext.
 
@@ -24,15 +23,6 @@ routines = bindtextdom dcgettext dgettext gettext	\
 	   dcigettext dcngettext dngettext ngettext \
 	   finddomain loadmsgcat localealias textdomain
 aux =	   l10nflist explodename plural plural-exp hash-string
-distribute = gmo.h gettextP.h hash-string.h loadinfo.h locale.alias \
-	     plural.y plural-exp.h plural-eval.c po2test.sed \
-	     tst-gettext.sh \
-	     tst-translit.sh translit.po \
-	     tst-gettext2.sh tstlang1.po tstlang2.po \
-	     tst-codeset.sh tstcodeset.po \
-	     tst-gettext3.sh \
-	     tst-gettext4.sh tst-gettext4-de.po tst-gettext4-fr.po \
-	     tst-gettext5.sh tst-gettext6.sh
 
 include ../Makeconfig
 
@@ -58,7 +48,7 @@ $(objpfx)plural.o: plural.c
 
 include ../Rules
 
-ifeq (no,$(cross-compiling))
+ifeq ($(run-built-tests),yes)
 ifeq (yes,$(build-shared))
 ifneq ($(strip $(MSGFMT)),:)
 tests: $(objpfx)tst-translit.out $(objpfx)tst-gettext2.out \
@@ -71,31 +61,41 @@ ifneq (no,$(PERL))
 tests: $(objpfx)mtrace-tst-gettext
 endif
 endif
+
+# Multiple tests use this data.  Create it once to avoid racing and
+# spurious test failures.
+codeset_mo = $(objpfx)domaindir/de_DE/LC_MESSAGES/codeset.mo
+
+$(codeset_mo): tstcodeset.po
+	$(make-target-directory)
+	msgfmt -o $@T $<
+	mv -f $@T $@
+
 $(objpfx)mtrace-tst-gettext: $(objpfx)tst-gettext.out
 	$(common-objpfx)malloc/mtrace $(objpfx)tst-gettext.mtrace > $@
 $(objpfx)tst-gettext.out: tst-gettext.sh $(objpfx)tst-gettext
-	$(SHELL) -e $< $(common-objpfx) $(common-objpfx)intl/ \
-	  $(objpfx)tst-gettext.mtrace
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
+	  $(common-objpfx)intl/ $(objpfx)tst-gettext.mtrace
 $(objpfx)tst-translit.out: tst-translit.sh $(objpfx)tst-translit
-	$(SHELL) -e $< $(common-objpfx) $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
+	  $(common-objpfx)intl/
 $(objpfx)tst-gettext2.out: tst-gettext2.sh $(objpfx)tst-gettext2
-	$(SHELL) -e $< $(common-objpfx) $(common-objpfx)intl/
-$(objpfx)tst-codeset.out: tst-codeset.sh $(objpfx)tst-codeset
-	$(SHELL) -e $< $(common-objpfx) $(common-objpfx)intl/
-$(objpfx)tst-gettext3.out: tst-gettext3.sh $(objpfx)tst-gettext3
-	$(SHELL) -e $< $(common-objpfx) $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
+	  $(common-objpfx)intl/
 $(objpfx)tst-gettext4.out: tst-gettext4.sh $(objpfx)tst-gettext4
-	$(SHELL) -e $< $(common-objpfx) '$(run-program-prefix)' $(common-objpfx)intl/
-$(objpfx)tst-gettext5.out: tst-gettext5.sh $(objpfx)tst-gettext5
-	$(SHELL) -e $< $(common-objpfx) '$(run-program-prefix)' $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/
 $(objpfx)tst-gettext6.out: tst-gettext6.sh $(objpfx)tst-gettext6
-	$(SHELL) -e $< $(common-objpfx) '$(run-program-prefix)' $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/
+
+$(objpfx)tst-codeset.out: $(codeset_mo)
+$(objpfx)tst-gettext3.out: $(codeset_mo)
+$(objpfx)tst-gettext5.out: $(codeset_mo)
 endif
 endif
 
-$(objpfx)msgs.h: po2test.sed ../po/de.po
+$(objpfx)msgs.h: po2test.awk ../po/de.po
 	$(make-target-directory)
-	LC_ALL=C sed -f $^ > $@
+	LC_ALL=C $(AWK) -f $^ > $@
 
 CFLAGS-tst-gettext.c = -DTESTSTRS_H=\"$(objpfx)msgs.h\"
 CFLAGS-tst-translit.c = -DOBJPFX=\"$(objpfx)\"
@@ -106,14 +106,16 @@ CFLAGS-tst-gettext4.c = -DOBJPFX=\"$(objpfx)\"
 CFLAGS-tst-gettext5.c = -DOBJPFX=\"$(objpfx)\"
 CFLAGS-tst-gettext6.c = -DOBJPFX=\"$(objpfx)\"
 
+LOCPATH-ENV = LOCPATH=$(common-objpfx)localedata
+tst-codeset-ENV = $(LOCPATH-ENV)
+tst-gettext3-ENV = $(LOCPATH-ENV)
+tst-gettext5-ENV = $(LOCPATH-ENV)
+
 ifeq ($(have-thread-library),yes)
 ifeq (yes,$(build-shared))
 $(addprefix $(objpfx),$(multithread-test-srcs)): $(shared-thread-library)
 else
 $(addprefix $(objpfx),$(multithread-test-srcs)): $(static-thread-library)
-endif
-ifeq (yes,$(build-bounded))
-$(multithread-test-srcs:%=$(objpfx)%-bp): $(bounded-thread-library)
 endif
 endif
 

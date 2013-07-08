@@ -1,5 +1,5 @@
 #ifndef _TIME_H
-#if defined __need_time_t  || defined __need_clock_t || defined __need_timespec
+#if defined __need_time_t  || defined __need_clock_t || defined __need_timespec || defined _ISOMAC
 # include <time/time.h>
 #else
 # include <time/time.h>
@@ -19,7 +19,12 @@ libc_hidden_proto (localtime)
 libc_hidden_proto (strftime)
 libc_hidden_proto (strptime)
 
-librt_hidden_proto (clock_gettime)
+extern __typeof (clock_getres) __clock_getres;
+extern __typeof (clock_gettime) __clock_gettime;
+libc_hidden_proto (__clock_gettime)
+extern __typeof (clock_settime) __clock_settime;
+extern __typeof (clock_nanosleep) __clock_nanosleep;
+extern __typeof (clock_getcpuclockid) __clock_getcpuclockid;
 
 /* Now define the internal interfaces.  */
 struct tm;
@@ -57,10 +62,10 @@ extern time_t __mktime_internal (struct tm *__tp,
 				 struct tm *(*__func) (const time_t *,
 						       struct tm *),
 				 time_t *__offset);
-extern struct tm *__localtime_r (__const time_t *__timer,
+extern struct tm *__localtime_r (const time_t *__timer,
 				 struct tm *__tp) attribute_hidden;
 
-extern struct tm *__gmtime_r (__const time_t *__restrict __timer,
+extern struct tm *__gmtime_r (const time_t *__restrict __timer,
 			      struct tm *__restrict __tp);
 libc_hidden_proto (__gmtime_r)
 
@@ -68,11 +73,11 @@ libc_hidden_proto (__gmtime_r)
    offset OFFSET seconds east of UTC,
    and store year, yday, mon, mday, wday, hour, min, sec into *TP.
    Return nonzero if successful.  */
-extern int __offtime (__const time_t *__timer,
+extern int __offtime (const time_t *__timer,
 		      long int __offset,
 		      struct tm *__tp);
 
-extern char *__asctime_r (__const struct tm *__tp, char *__buf);
+extern char *__asctime_r (const struct tm *__tp, char *__buf);
 extern void __tzset (void);
 
 /* Prototype for the internal function to get information based on TZ.  */
@@ -82,13 +87,13 @@ extern struct tm *__tz_convert (const time_t *timer, int use_localtime, struct t
    This is what `sysconf (_SC_TZNAME_MAX)' does.  */
 extern long int __tzname_max (void);
 
-extern int __nanosleep (__const struct timespec *__requested_time,
+extern int __nanosleep (const struct timespec *__requested_time,
 			struct timespec *__remaining);
 libc_hidden_proto (__nanosleep)
-extern int __nanosleep_nocancel (__const struct timespec *__requested_time,
+extern int __nanosleep_nocancel (const struct timespec *__requested_time,
 				 struct timespec *__remaining)
   attribute_hidden;
-extern int __getdate_r (__const char *__string, struct tm *__resbufp);
+extern int __getdate_r (const char *__string, struct tm *__resbufp);
 
 
 /* Determine CLK_TCK value.  */
@@ -106,9 +111,7 @@ extern double __difftime (time_t time1, time_t time0);
 
 /* Use in the clock_* functions.  Size of the field representing the
    actual clock ID.  */
-#ifndef _ISOMAC
-# define CLOCK_IDFIELD_SIZE	3
-#endif
+#define CLOCK_IDFIELD_SIZE	3
 
 __END_DECLS
 

@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001, 2002, 2004, 2011 Free Software Foundation
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /***************************************************************************/
 /*  MODULE_NAME: upow.c                                                    */
@@ -41,12 +40,14 @@
 #include "mydefs.h"
 #include "MathLib.h"
 #include "upow.tbl"
-#include "math_private.h"
+#include <math_private.h>
+#include <fenv.h>
 
 #ifndef SECTION
 # define SECTION
 #endif
 
+static const double huge = 1.0e300, tiny = 1.0e-300;
 
 double __exp1(double x, double xx, double error);
 static double log1(double x, double *delta, double *error);
@@ -63,9 +64,6 @@ double
 SECTION
 __ieee754_pow(double x, double y) {
   double z,a,aa,error, t,a1,a2,y1,y2;
-#if 0
-  double gor=1.0;
-#endif
   mynumber u,v;
   int k;
   int4 qx,qy;
@@ -73,8 +71,9 @@ __ieee754_pow(double x, double y) {
   u.x=x;
   if (v.i[LOW_HALF] == 0) { /* of y */
     qx = u.i[HIGH_HALF]&0x7fffffff;
-    /* Checking  if x is not too small to compute */
-    if (((qx==0x7ff00000)&&(u.i[LOW_HALF]!=0))||(qx>0x7ff00000)) return NaNQ.x;
+    /* Is x a NaN?  */
+    if (((qx == 0x7ff00000) && (u.i[LOW_HALF] != 0)) || (qx > 0x7ff00000))
+      return x;
     if (y == 1.0) return x;
     if (y == 2.0) return x*x;
     if (y == -1.0) return 1.0/x;
@@ -85,11 +84,19 @@ __ieee754_pow(double x, double y) {
        (u.i[HIGH_HALF]==0 && u.i[LOW_HALF]!=0))  &&
 				      /*   2^-1023< x<= 2^-1023 * 0x1.0000ffffffff */
       (v.i[HIGH_HALF]&0x7fffffff) < 0x4ff00000) {              /* if y<-1 or y>1   */
+    double retval;
+
+    SET_RESTORE_ROUND (FE_TONEAREST);
+
+    /* Avoid internal underflow for tiny y.  The exact value of y does
+       not matter if |y| <= 2**-64.  */
+    if (ABS (y) < 0x1p-64)
+      y = y < 0 ? -0x1p-64 : 0x1p-64;
     z = log1(x,&aa,&error);                                 /* x^y  =e^(y log (X)) */
-    t = y*134217729.0;
+    t = y*CN;
     y1 = t - (t-y);
     y2 = y - y1;
-    t = z*134217729.0;
+    t = z*CN;
     a1 = t - (t-z);
     a2 = (z - a1)+aa;
     a = y1*a1;
@@ -98,27 +105,30 @@ __ieee754_pow(double x, double y) {
     a2 = (a-a1)+aa;
     error = error*ABS(y);
     t = __exp1(a1,a2,1.9e16*error);     /* return -10 or 0 if wasn't computed exactly */
-    return (t>0)?t:power1(x,y);
+    retval = (t>0)?t:power1(x,y);
+
+    return retval;
   }
 
   if (x == 0) {
     if (((v.i[HIGH_HALF] & 0x7fffffff) == 0x7ff00000 && v.i[LOW_HALF] != 0)
-	|| (v.i[HIGH_HALF] & 0x7fffffff) > 0x7ff00000)
+	|| (v.i[HIGH_HALF] & 0x7fffffff) > 0x7ff00000) /* NaN */
       return y;
-    if (ABS(y) > 1.0e20) return (y>0)?0:INF.x;
+    if (ABS(y) > 1.0e20) return (y>0)?0:1.0/0.0;
     k = checkint(y);
     if (k == -1)
       return y < 0 ? 1.0/x : x;
     else
-      return y < 0 ? 1.0/ABS(x) : 0.0;                               /* return 0 */
+      return y < 0 ? 1.0/0.0 : 0.0;                               /* return 0 */
   }
 
   qx = u.i[HIGH_HALF]&0x7fffffff;  /*   no sign   */
   qy = v.i[HIGH_HALF]&0x7fffffff;  /*   no sign   */
 
-  if (qx >= 0x7ff00000 && (qx > 0x7ff00000 || u.i[LOW_HALF] != 0)) return NaNQ.x;
-  if (qy >= 0x7ff00000 && (qy > 0x7ff00000 || v.i[LOW_HALF] != 0))
-    return x == 1.0 ? 1.0 : NaNQ.x;
+  if (qx >= 0x7ff00000 && (qx > 0x7ff00000 || u.i[LOW_HALF] != 0)) /* NaN */
+    return x;
+  if (qy >= 0x7ff00000 && (qy > 0x7ff00000 || v.i[LOW_HALF] != 0)) /* NaN */
+    return x == 1.0 ? 1.0 : y;
 
   /* if x<0 */
   if (u.i[HIGH_HALF] < 0) {
@@ -131,7 +141,7 @@ __ieee754_pow(double x, double y) {
       }
       else if (qx == 0x7ff00000)
 	return y < 0 ? 0.0 : INF.x;
-      return NaNQ.x;                              /* y not integer and x<0 */
+      return (x - x) / (x - x);                   /* y not integer and x<0 */
     }
     else if (qx == 0x7ff00000)
       {
@@ -145,13 +155,12 @@ __ieee754_pow(double x, double y) {
   /* x>0 */
 
   if (qx == 0x7ff00000)                              /* x= 2^-0x3ff */
-    {if (y == 0) return NaNQ.x;
-    return (y>0)?x:0; }
+    return y > 0 ? x : 0;
 
   if (qy > 0x45f00000 && qy < 0x7ff00000) {
     if (x == 1.0) return 1.0;
-    if (y>0) return (x>1.0)?INF.x:0;
-    if (y<0) return (x<1.0)?INF.x:0;
+    if (y>0) return (x>1.0)?huge*huge:tiny*tiny;
+    if (y<0) return (x<1.0)?huge*huge:tiny*tiny;
   }
 
   if (x == 1.0) return 1.0;
@@ -171,10 +180,10 @@ SECTION
 power1(double x, double y) {
   double z,a,aa,error, t,a1,a2,y1,y2;
   z = my_log2(x,&aa,&error);
-  t = y*134217729.0;
+  t = y*CN;
   y1 = t - (t-y);
   y2 = y - y1;
-  t = z*134217729.0;
+  t = z*CN;
   a1 = t - (t-z);
   a2 = z - a1;
   a = y*z;
@@ -195,13 +204,7 @@ static double
 SECTION
 log1(double x, double *delta, double *error) {
   int i,j,m;
-#if 0
-  int n;
-#endif
   double uu,vv,eps,nx,e,e1,e2,t,t1,t2,res,add=0;
-#if 0
-  double cor;
-#endif
   mynumber u,v;
 #ifdef BIG_ENDI
   mynumber
@@ -289,13 +292,7 @@ static double
 SECTION
 my_log2(double x, double *delta, double *error) {
   int i,j,m;
-#if 0
-  int n;
-#endif
   double uu,vv,eps,nx,e,e1,e2,t,t1,t2,res,add=0;
-#if 0
-  double cor;
-#endif
   double ou1,ou2,lu1,lu2,ov,lv1,lv2,a,a1,a2;
   double y,yy,z,zz,j1,j2,j7,j8;
 #ifndef DLA_FMS
@@ -386,9 +383,6 @@ SECTION
 checkint(double x) {
   union {int4 i[2]; double x;} u;
   int k,m,n;
-#if 0
-  int l;
-#endif
   u.x = x;
   m = u.i[HIGH_HALF]&0x7fffffff;    /* no sign */
   if (m >= 0x7ff00000) return 0;    /*  x is +/-inf or NaN  */

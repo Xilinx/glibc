@@ -1,5 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007
-   Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -26,7 +24,7 @@
 
 #include <stap-probe.h>
 
-static const struct pthread_mutexattr default_attr =
+static const struct pthread_mutexattr default_mutexattr =
   {
     /* Default is a normal mutex, not shared between processes.  */
     .mutexkind = PTHREAD_MUTEX_NORMAL
@@ -47,7 +45,8 @@ __pthread_mutex_init (mutex, mutexattr)
 
   assert (sizeof (pthread_mutex_t) <= __SIZEOF_PTHREAD_MUTEX_T);
 
-  imutexattr = (const struct pthread_mutexattr *) mutexattr ?: &default_attr;
+  imutexattr = ((const struct pthread_mutexattr *) mutexattr
+		?: &default_mutexattr);
 
   /* Sanity checks.  */
   switch (__builtin_expect (imutexattr->mutexkind
@@ -142,4 +141,4 @@ __pthread_mutex_init (mutex, mutexattr)
   return 0;
 }
 strong_alias (__pthread_mutex_init, pthread_mutex_init)
-INTDEF(__pthread_mutex_init)
+hidden_def (__pthread_mutex_init)

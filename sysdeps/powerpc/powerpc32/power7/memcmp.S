@@ -1,5 +1,5 @@
 /* Optimized memcmp implementation for POWER7/PowerPC32.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,20 +13,17 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int [r3] memcmp (const char *s1 [r3],
 		    const char *s2 [r4],
 		    size_t size [r5])  */
 
 	.machine power7
-EALIGN (BP_SYM(memcmp),4,0)
+EALIGN (memcmp,4,0)
 	CALL_MCOUNT
 
 #define rTMP	r0
@@ -74,7 +71,7 @@ EALIGN (BP_SYM(memcmp),4,0)
    Otherwise we know the two strings have the same alignment (but not
    yet word aligned).  So we force the string addresses to the next lower
    word boundary and special case this first word using shift left to
-   eliminate bits preceeding the first byte.  Since we want to join the
+   eliminate bits preceding the first byte.  Since we want to join the
    normal (word aligned) compare loop, starting at the second word,
    we need to adjust the length (rN) and special case the loop
    versioning for the first word. This insures that the loop count is
@@ -521,7 +518,7 @@ L(zeroLength):
    Otherwise we know that rSTR1 is not aready word aligned yet.
    So we can force the string addresses to the next lower word
    boundary and special case this first word using shift left to
-   eliminate bits preceeding the first byte.  Since we want to join the
+   eliminate bits preceding the first byte.  Since we want to join the
    normal (Wualigned) compare loop, starting at the second word,
    we need to adjust the length (rN) and special case the loop
    versioning for the first W. This insures that the loop count is
@@ -983,6 +980,6 @@ L(dureturn25):
 	lwz	r24,20(r1)
 	lwz	1,0(1)
 	blr
-END (BP_SYM (memcmp))
+END (memcmp)
 libc_hidden_builtin_def (memcmp)
 weak_alias (memcmp,bcmp)

@@ -55,12 +55,12 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 
 #include <math.h>
-#include "math_private.h"
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
 /* arctan(k/8), k = 0, ..., 82 */
@@ -193,6 +193,22 @@ __atanl (long double x)
 	return (x + x);
 
       /* Infinity. */
+      if (sign)
+	return -atantbl[83];
+      else
+	return atantbl[83];
+    }
+
+  if (k <= 0x3c800000) /* |x| <= 2**-55.  */
+    {
+      /* Raise inexact.  */
+      if (1e300L + x > 0.0)
+	return x;
+    }
+
+  if (k >= 0x46c00000) /* |x| >= 2**109.  */
+    {
+      /* Saturate result to {-,+}pi/2.  */
       if (sign)
 	return -atantbl[83];
       else

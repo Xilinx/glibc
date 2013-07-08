@@ -1,5 +1,5 @@
 /* Test and measure memcmp functions.
-   Copyright (C) 1999, 2002, 2003, 2005, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
    Added wmemcmp support by Liubov Dmitrieva <liubov.dmitrieva@gmail.com>, 2011.
@@ -15,11 +15,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#ifdef WIDE
+# define TEST_NAME "wmemcmp"
+#else
+# define TEST_NAME "memcmp"
+#endif
 #include "test-string.h"
 #ifdef WIDE
 # include <inttypes.h>
@@ -45,6 +49,8 @@ simple_wmemcmp (const wchar_t *s1, const wchar_t *s2, size_t n)
   return ret;
 }
 #else
+# include <limits.h>
+
 # define MEMCMP memcmp
 # define MEMCPY memcpy
 # define SIMPLE_MEMCMP simple_memcmp
@@ -94,24 +100,6 @@ do_one_test (impl_t *impl, const CHAR *s1, const CHAR *s2, size_t len,
 {
   if (check_result (impl, s1, s2, len, exp_result) < 0)
     return;
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, s1, s2, len);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
-    }
 }
 
 static void
@@ -141,14 +129,8 @@ do_test (size_t align1, size_t align2, size_t len, int exp_result)
   s2[len] = align2;
   s2[len - 1] -= exp_result;
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, alignment %2zd/%2zd:", len, align1, align2);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, s1, s2, len, exp_result);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void
@@ -466,6 +448,29 @@ check1 (void)
     }
 }
 
+/* This test checks that memcmp doesn't overrun buffers.  */
+static void
+check2 (void)
+{
+  size_t max_length = page_size / sizeof (CHAR);
+
+  /* Initialize buf2 to the same values as buf1.  The bug requires the
+     last compared byte to be different.  */
+  memcpy (buf2, buf1, page_size);
+  ((char *) buf2)[page_size - 1] ^= 0x11;
+
+  for (size_t length = 1; length < max_length; length++)
+    {
+      CHAR *s1 = (CHAR *) buf1 + max_length - length;
+      CHAR *s2 = (CHAR *) buf2 + max_length - length;
+
+      const int exp_result = SIMPLE_MEMCMP (s1, s2, length);
+
+      FOR_EACH_IMPL (impl, 0)
+	check_result (impl, s1, s2, length, exp_result);
+    }
+}
+
 int
 test_main (void)
 {
@@ -474,6 +479,7 @@ test_main (void)
   test_init ();
 
   check1 ();
+  check2 ();
 
   printf ("%23s", "");
   FOR_EACH_IMPL (impl, 0)

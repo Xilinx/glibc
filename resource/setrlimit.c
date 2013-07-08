@@ -1,4 +1,5 @@
-/* Copyright (C) 1991, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+/* Set process resource limits.  Stub version.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/resource.h>
@@ -24,14 +24,11 @@
    Only the super-user can increase hard limits.
    Return 0 if successful, -1 if not (and sets errno).  */
 int
-setrlimit (resource, rlimits)
-     enum __rlimit_resource resource;
-     const struct rlimit *rlimits;
+__setrlimit (enum __rlimit_resource resource, const struct rlimit *rlimits)
 {
   __set_errno (ENOSYS);
   return -1;
 }
-
+weak_alias (__setrlimit, setrlimit)
 
 stub_warning (setrlimit)
-#include <stub-tag.h>

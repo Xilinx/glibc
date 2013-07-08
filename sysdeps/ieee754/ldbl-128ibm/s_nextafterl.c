@@ -28,15 +28,11 @@ static char rcsid[] = "$NetBSD: $";
 #include <math_private.h>
 #include <math_ldbl_opt.h>
 
-#ifdef __STDC__
-	long double __nextafterl(long double x, long double y)
-#else
-	long double __nextafterl(x,y)
-	long double x,y;
-#endif
+long double __nextafterl(long double x, long double y)
 {
 	int64_t hx,hy,ihx,ihy,ilx;
-	u_int64_t lx,ly;
+	u_int64_t lx;
+	u_int64_t ly __attribute__ ((unused));
 
 	GET_LDOUBLE_WORDS64(hx,lx,x);
 	GET_LDOUBLE_WORDS64(hy,ly,y);
@@ -60,7 +56,7 @@ static char rcsid[] = "$NetBSD: $";
 	    math_force_eval (u);		/* raise underflow flag */
 	    return x;
 	}
-	
+
 	long double u;
 	if(x > y) {	/* x > y, x -= ulp */
 	    if((hx==0xffefffffffffffffLL)&&(lx==0xfc8ffffffffffffeLL))

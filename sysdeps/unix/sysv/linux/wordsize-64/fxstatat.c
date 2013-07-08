@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Ho hum, since fxstatat == fxstatat64 we must get rid of the
    prototype or gcc will complain since they don't strictly match.  */
@@ -30,7 +29,6 @@
 #include <sysdep.h>
 #include <kernel-features.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 
 /* Get information about the file NAME relative to FD in ST.  */
@@ -96,9 +94,9 @@ __fxstatat (int vers, int fd, const char *file, struct stat *st, int flag)
   INTERNAL_SYSCALL_DECL (err);
 
   if (flag & AT_SYMLINK_NOFOLLOW)
-    res = INTERNAL_SYSCALL (lstat, err, 2, file, CHECK_1 (st));
+    res = INTERNAL_SYSCALL (lstat, err, 2, file, st);
   else
-    res = INTERNAL_SYSCALL (stat, err, 2, file, CHECK_1 (st));
+    res = INTERNAL_SYSCALL (stat, err, 2, file, st);
 
   if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (res, err), 0))
     {

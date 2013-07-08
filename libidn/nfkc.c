@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with GNU Libidn; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * License along with GNU Libidn; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
@@ -25,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "stringprep.h"
 
@@ -527,7 +526,7 @@ err_out:
  * @string: a UCS-4 encoded string.
  * @len: the maximum length of @string to use.
  *
- * Computes the canonical ordering of a string in-place. 
+ * Computes the canonical ordering of a string in-place.
  * This rearranges decomposed characters in the string
  * according to their combining classes.  See the Unicode
  * manual for more information.

@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -17,14 +17,10 @@
 static char rcsid[] = "$NetBSD: k_cosf.c,v 1.4 1995/05/10 20:46:23 jtc Exp $";
 #endif
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-static const float 
-#else
-static float 
-#endif
+static const float
 one =  1.0000000000e+00, /* 0x3f800000 */
 C1  =  4.1666667908e-02, /* 0x3d2aaaab */
 C2  = -1.3888889225e-03, /* 0xbab60b61 */
@@ -33,12 +29,7 @@ C4  = -2.7557314297e-07, /* 0xb493f27c */
 C5  =  2.0875723372e-09, /* 0x310f74f6 */
 C6  = -1.1359647598e-11; /* 0xad47d74e */
 
-#ifdef __STDC__
-	float __kernel_cosf(float x, float y)
-#else
-	float __kernel_cosf(x, y)
-	float x,y;
-#endif
+float __kernel_cosf(float x, float y)
 {
 	float a,hz,z,r,qx;
 	int32_t ix;
@@ -49,7 +40,7 @@ C6  = -1.1359647598e-11; /* 0xad47d74e */
 	}
 	z  = x*x;
 	r  = z*(C1+z*(C2+z*(C3+z*(C4+z*(C5+z*C6)))));
-	if(ix < 0x3e99999a) 			/* if |x| < 0.3 */ 
+	if(ix < 0x3e99999a) 			/* if |x| < 0.3 */
 	    return one - ((float)0.5*z - (z*r - x*y));
 	else {
 	    if(ix > 0x3f480000) {		/* x > 0.78125 */

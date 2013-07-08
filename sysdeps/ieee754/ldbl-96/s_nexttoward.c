@@ -25,17 +25,11 @@ static char rcsid[] = "$NetBSD: $";
  *   Special cases:
  */
 
-#include "math.h"
+#include <math.h>
 #include <math_private.h>
 #include <float.h>
 
-#ifdef __STDC__
-	double __nexttoward(double x, long double y)
-#else
-	double __nexttoward(x,y)
-	double x;
-	long double y;
-#endif
+double __nexttoward(double x, long double y)
 {
 	int32_t hx,ix,iy;
 	u_int32_t lx,hy,ly,esy;
@@ -58,11 +52,7 @@ static char rcsid[] = "$NetBSD: $";
 	    return x;
 	}
 	if(hx>=0) {				/* x > 0 */
-	    if (esy>=0x8000||((ix>>20)&0x7ff)>iy-0x3c00
-		|| (((ix>>20)&0x7ff)==iy-0x3c00
-		    && (((hx<<11)|(lx>>21))>(hy&0x7fffffff)
-			|| (((hx<<11)|(lx>>21))==(hy&0x7fffffff)
-			    && (lx<<11)>ly)))) {	/* x > y, x -= ulp */
+	    if (x > y) {			/* x -= ulp */
 		if(lx==0) hx -= 1;
 		lx -= 1;
 	    } else {				/* x < y, x += ulp */
@@ -70,11 +60,7 @@ static char rcsid[] = "$NetBSD: $";
 		if(lx==0) hx += 1;
 	    }
 	} else {				/* x < 0 */
-	    if (esy<0x8000||((ix>>20)&0x7ff)>iy-0x3c00
-		|| (((ix>>20)&0x7ff)==iy-0x3c00
-		    && (((hx<<11)|(lx>>21))>(hy&0x7fffffff)
-			|| (((hx<<11)|(lx>>21))==(hy&0x7fffffff)
-			    && (lx<<11)>ly))))	{/* x < y, x -= ulp */
+	    if (x < y) {			/* x -= ulp */
 		if(lx==0) hx -= 1;
 		lx -= 1;
 	    } else {				/* x > y, x += ulp */

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1992, 1995-2010, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -12,8 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <unistd.h>
 #include <errno.h>
@@ -1044,7 +1043,7 @@ usage (void)
 static void
 print_all (const char *path)
 {
-  register const struct conf *c;
+  const struct conf *c;
   size_t clen;
   long int value;
   char *cvalue;
@@ -1088,7 +1087,7 @@ print_all (const char *path)
 int
 main (int argc, char *argv[])
 {
-  register const struct conf *c;
+  const struct conf *c;
 
   /* Set locale.  Do not set LC_ALL because the other categories must
      not be affected (according to POSIX.2).  */
@@ -1100,12 +1099,12 @@ main (int argc, char *argv[])
 
   if (argc > 1 && strcmp (argv[1], "--version") == 0)
     {
-      printf ("getconf (GNU %s) %s\n", PACKAGE, VERSION);
+      printf ("getconf %s%s\n", PKGVERSION, VERSION);
       printf (gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2011");
+"), "2013");
       printf (gettext ("Written by %s.\n"), "Roland McGrath");
       return 0;
     }
@@ -1119,8 +1118,8 @@ Usage: getconf [-v SPEC] VAR\n\
 Get the configuration value for variable VAR, or for variable PATH_VAR\n\
 for path PATH.  If SPEC is given, give values for compilation\n\
 environment SPEC.\n\n"));
-      fputs (gettext ("For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"), stdout);
+      printf (gettext ("For bug reporting instructions, please see:\n\
+%s.\n"), REPORT_BUGS_TO);
       return 0;
     }
 

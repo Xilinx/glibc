@@ -1,5 +1,5 @@
 /* PLT trampolines.  x86-64 version.
-   Copyright (C) 2004, 2005, 2007, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 #include <sysdep.h>
 #include <link-defines.h>
+
+#if (RTLD_SAVESPACE_SSE % 32) != 0
+# error RTLD_SAVESPACE_SSE must be aligned to 32 bytes
+#endif
 
 	.text
 	.globl _dl_runtime_resolve

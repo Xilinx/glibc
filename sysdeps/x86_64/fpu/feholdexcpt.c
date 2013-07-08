@@ -1,5 +1,5 @@
 /* Store current floating-point environment and clear exceptions.
-   Copyright (C) 2001, 2005, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 
@@ -23,20 +22,13 @@ int
 feholdexcept (fenv_t *envp)
 {
   unsigned int mxcsr;
-  fenv_t temp;
 
-  /* Store the environment.  */
-  __asm__ ("fnstenv %0\n"
-	   "stmxcsr %1" : "=m" (temp), "=m" (temp.__mxcsr));
-  *envp = temp;
-
-  /* Now set all exceptions to non-stop, first the x87 FPU.  */
-  temp.__control_word |= 0x3f;
-
-  /* And clear all exceptions.  */
-  temp.__status_word &= ~0x3f;
-
-  __asm__ ("fldenv %0" : : "m" (temp));
+  /* Store the environment.  Recall that fnstenv has a side effect of
+     masking all exceptions.  Then clear all exceptions.  */
+  __asm__ ("fnstenv %0\n\t"
+	   "stmxcsr %1\n\t"
+	   "fnclex"
+	   : "=m" (*envp), "=m" (envp->__mxcsr));
 
   /* Set the SSE MXCSR register.  */
   mxcsr = (envp->__mxcsr | 0x1f80) & ~0x3f;

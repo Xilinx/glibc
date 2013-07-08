@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <tls.h>
@@ -72,6 +71,7 @@
     CDISABLE; \
     mov.l @r15+,r0; \
     cfi_adjust_cfa_offset (-4); \
+    cfi_restore (r0); \
     lds.l @r15+,pr; \
     cfi_adjust_cfa_offset (-4); \
     cfi_restore (pr); \
@@ -98,10 +98,10 @@
 # define SAVE_ARGS_6	SAVE_ARGS_5
 
 # define LOAD_ARGS_0	/* Nothing.  */
-# define LOAD_ARGS_1	LOAD_ARGS_0; mov.l @(0,r15),r4
-# define LOAD_ARGS_2	LOAD_ARGS_1; mov.l @(4,r15),r5
-# define LOAD_ARGS_3	LOAD_ARGS_2; mov.l @(8,r15),r6
-# define LOAD_ARGS_4	LOAD_ARGS_3; mov.l @(12,r15),r7
+# define LOAD_ARGS_1	LOAD_ARGS_0; mov.l @(0,r15),r4; cfi_restore (r4)
+# define LOAD_ARGS_2	LOAD_ARGS_1; mov.l @(4,r15),r5; cfi_restore (r5)
+# define LOAD_ARGS_3	LOAD_ARGS_2; mov.l @(8,r15),r6; cfi_restore (r6)
+# define LOAD_ARGS_4	LOAD_ARGS_3; mov.l @(12,r15),r7; cfi_restore (r7)
 # define LOAD_ARGS_5	LOAD_ARGS_4
 # define LOAD_ARGS_6	LOAD_ARGS_5
 

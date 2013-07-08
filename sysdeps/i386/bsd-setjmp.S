@@ -1,6 +1,5 @@
 /* BSD `setjmp' entry point to `sigsetjmp (..., 1)'.  i386 version.
-   Copyright (C) 1994-1997,2000,2001,2005,2006,2011
-	Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This just does a tail-call to `__sigsetjmp (ARG, 1)'.
    We cannot do it in C because it must be a tail-call, so frame-unwinding
@@ -24,24 +22,20 @@
 
 #include <sysdep.h>
 #include <jmpbuf-offsets.h>
-#include "bp-sym.h"
-#include "bp-asm.h"
 #include <stap-probe.h>
 
-#define PARMS  LINKAGE		/* no space for saved regs */
+#define PARMS  4		/* no space for saved regs */
 #define JMPBUF PARMS
-#define SIGMSK JMPBUF+PTR_SIZE
+#define SIGMSK JMPBUF+4
 
-ENTRY (BP_SYM (setjmp))
+ENTRY (setjmp)
 	/* Note that we have to use a non-exported symbol in the next
 	   jump since otherwise gas will emit it as a jump through the
 	   PLT which is what we cannot use here.  */
-	ENTER
 
 	movl JMPBUF(%esp), %eax
-	CHECK_BOUNDS_BOTH_WIDE (%eax, JMPBUF(%esp), $JB_SIZE)
 
-     	/* Save registers.  */
+	/* Save registers.  */
 	movl %ebx, (JB_BX*4)(%eax)
 	movl %esi, (JB_SI*4)(%eax)
 	movl %edi, (JB_DI*4)(%eax)
@@ -49,14 +43,13 @@ ENTRY (BP_SYM (setjmp))
 #ifdef PTR_MANGLE
 	PTR_MANGLE (%ecx)
 #endif
-     	movl %ecx, (JB_SP*4)(%eax)
-	movl PCOFF(%esp), %ecx	/* Save PC we are returning to now.  */
+	movl %ecx, (JB_SP*4)(%eax)
+	movl 0(%esp), %ecx	/* Save PC we are returning to now.  */
 	LIBC_PROBE (setjmp, 3, 4@%eax, -4@$1, 4@%ecx)
 #ifdef PTR_MANGLE
 	PTR_MANGLE (%ecx)
 #endif
-     	movl %ecx, (JB_PC*4)(%eax)
-	LEAVE /* pop frame pointer to prepare for tail-call.  */
+	movl %ecx, (JB_PC*4)(%eax)
 	movl %ebp, (JB_BP*4)(%eax) /* Save caller's frame pointer.  */
 
 	/* Call __sigjmp_save.  */
@@ -64,10 +57,10 @@ ENTRY (BP_SYM (setjmp))
 	cfi_adjust_cfa_offset (4)
 	pushl 8(%esp)
 	cfi_adjust_cfa_offset (4)
-	call BP_SYM (__sigjmp_save)
+	call __sigjmp_save
 	popl %ecx
 	cfi_adjust_cfa_offset (-4)
 	popl %edx
 	cfi_adjust_cfa_offset (-4)
 	ret
-END (BP_SYM (setjmp))
+END (setjmp)

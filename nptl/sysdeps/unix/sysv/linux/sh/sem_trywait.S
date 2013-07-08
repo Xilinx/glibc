@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2007, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -28,10 +27,17 @@
 	.globl	__new_sem_trywait
 	.type	__new_sem_trywait,@function
 	.align	5
+	cfi_startproc
 __new_sem_trywait:
 	mov.l	r12, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r12, 0)
 	mov.l	r8, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r8, 0)
 	sts.l	pr, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (pr, 0)
 	mov	r4, r8
 	mov.l	@r8, r0
 2:
@@ -45,11 +51,19 @@ __new_sem_trywait:
 	bf/s	2b
 	 mov	r2, r0
 
+	cfi_remember_state
 	lds.l	@r15+, pr
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (pr)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	rts
 	 mov	#0, r0
+	cfi_restore_state
 
 1:
 	mov	#EAGAIN, r8
@@ -68,10 +82,18 @@ __new_sem_trywait:
 .Lexit:
 	mov.l	r8, @r0
 	lds.l	@r15+, pr
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (pr)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	rts
 	 mov	#-1, r0
+
+	cfi_endproc
 
 	.align	2
 .Lgot1:

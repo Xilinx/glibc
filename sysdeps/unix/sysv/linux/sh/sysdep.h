@@ -1,5 +1,4 @@
-/* Copyright (C) 1992,1993,1995-2000,2002-2006,2009,2011
-	Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.ai.mit.edu>, August 1995.
    Changed by Kaz Kojima, <kkojima@rr.iij4u.or.jp>.
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LINUX_SH_SYSDEP_H
 #define _LINUX_SH_SYSDEP_H 1
@@ -101,11 +99,15 @@
 # if RTLD_PRIVATE_ERRNO
 #  define SYSCALL_ERROR_HANDLER	\
 	neg r0,r1; \
+	mov r12,r2; \
+	cfi_register (r12, r2); \
 	mov.l 0f,r12; \
 	mova 0f,r0; \
 	add r0,r12; \
 	mov.l 1f,r0; \
 	mov.l r1,@(r0,r12); \
+	mov r2,r12; \
+	cfi_restore (r12); \
 	bra .Lpseudo_end; \
 	 mov _IMM1,r0; \
 	.align 2; \
@@ -122,6 +124,7 @@
 #  define SYSCALL_ERROR_HANDLER \
 	neg r0,r1; \
 	mov r12,r2; \
+	cfi_register (r12, r2); \
 	mov.l 0f,r12; \
 	mova 0f,r0; \
 	add r0,r12; \
@@ -129,6 +132,7 @@
 	stc gbr, r4; \
 	mov.l @(r0,r12),r0; \
 	mov r2,r12; \
+	cfi_restore (r12); \
 	add r4,r0; \
 	mov.l r1,@r0; \
 	bra .Lpseudo_end; \
@@ -141,12 +145,14 @@
 #  define SYSCALL_ERROR_HANDLER						      \
 	neg r0,r1; \
 	mov r12,r2; \
+	cfi_register (r12, r2); \
 	mov.l 0f,r12; \
 	mova 0f,r0; \
 	add r0,r12; \
 	mov.l 1f,r0; \
 	mov.l @(r0,r12),r0; \
 	mov r2,r12; \
+	cfi_restore (r12); \
 	mov.l r1,@r0; \
 	bra .Lpseudo_end; \
 	 mov _IMM1,r0; \

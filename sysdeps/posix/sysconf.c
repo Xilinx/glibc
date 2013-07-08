@@ -1,5 +1,4 @@
-/* Copyright (C) 1991,1993,1995-1997,1999-2003,2004,2006,2009
-	Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <limits.h>
@@ -792,80 +790,31 @@ __sysconf (name)
       return -1;
 #endif
 
-    case _SC_XBS5_ILP32_OFF32:
-#ifdef _XBS5_ILP32_OFF32
-      return _XBS5_ILP32_OFF32;
-#else
-      return __sysconf_check_spec ("ILP32_OFF32");
-#endif
-    case _SC_XBS5_ILP32_OFFBIG:
-#ifdef _XBS5_ILP32_OFFBIG
-      return _XBS5_ILP32_OFFBIG;
-#else
-      return __sysconf_check_spec ("ILP32_OFFBIG");
-#endif
-    case _SC_XBS5_LP64_OFF64:
-#ifdef _XBS5_LP64_OFF64
-      return _XBS5_LP64_OFF64;
-#else
-      return __sysconf_check_spec ("LP64_OFF64");
-#endif
-    case _SC_XBS5_LPBIG_OFFBIG:
-#ifdef _XBS5_LPBIG_OFFBIG
-      return _XBS5_LPBIG_OFFBIG;
-#else
-      return __sysconf_check_spec ("LPBIG_OFFBIG");
-#endif
+#define START_ENV_GROUP(VERSION)		\
+      /* Empty.  */
 
-    case _SC_V6_ILP32_OFF32:
-#ifdef _POSIX_V6_ILP32_OFF32
-      return _POSIX_V6_ILP32_OFF32;
-#else
-      return __sysconf_check_spec ("ILP32_OFF32");
-#endif
-    case _SC_V6_ILP32_OFFBIG:
-#ifdef _POSIX_V6_ILP32_OFFBIG
-      return _POSIX_V6_ILP32_OFFBIG;
-#else
-      return __sysconf_check_spec ("ILP32_OFFBIG");
-#endif
-    case _SC_V6_LP64_OFF64:
-#ifdef _POSIX_V6_LP64_OFF64
-      return _POSIX_V6_LP64_OFF64;
-#else
-      return __sysconf_check_spec ("LP64_OFF64");
-#endif
-    case _SC_V6_LPBIG_OFFBIG:
-#ifdef _POSIX_V6_LPBIG_OFFBIG
-      return _POSIX_V6_LPBIG_OFFBIG;
-#else
-      return __sysconf_check_spec ("LPBIG_OFFBIG");
-#endif
+#define END_ENV_GROUP(VERSION)			\
+      /* Empty.  */
 
-    case _SC_V7_ILP32_OFF32:
-#ifdef _POSIX_V7_ILP32_OFF32
-      return _POSIX_V7_ILP32_OFF32;
-#else
-      return __sysconf_check_spec ("ILP32_OFF32");
-#endif
-    case _SC_V7_ILP32_OFFBIG:
-#ifdef _POSIX_V7_ILP32_OFFBIG
-      return _POSIX_V7_ILP32_OFFBIG;
-#else
-      return __sysconf_check_spec ("ILP32_OFFBIG");
-#endif
-    case _SC_V7_LP64_OFF64:
-#ifdef _POSIX_V7_LP64_OFF64
-      return _POSIX_V7_LP64_OFF64;
-#else
-      return __sysconf_check_spec ("LP64_OFF64");
-#endif
-    case _SC_V7_LPBIG_OFFBIG:
-#ifdef _POSIX_V7_LPBIG_OFFBIG
-      return _POSIX_V7_LPBIG_OFFBIG;
-#else
-      return __sysconf_check_spec ("LPBIG_OFFBIG");
-#endif
+#define KNOWN_ABSENT_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+    case _SC_##SC_PREFIX##_##SUFFIX:				\
+      return _##ENV_PREFIX##_##SUFFIX;
+
+#define KNOWN_PRESENT_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+    case _SC_##SC_PREFIX##_##SUFFIX:					\
+      return _##ENV_PREFIX##_##SUFFIX;
+
+#define UNKNOWN_ENVIRONMENT(SC_PREFIX, ENV_PREFIX, SUFFIX)	\
+    case _SC_##SC_PREFIX##_##SUFFIX:				\
+      return __sysconf_check_spec (#SUFFIX);
+
+#include <posix/posix-envs.def>
+
+#undef START_ENV_GROUP
+#undef END_ENV_GROUP
+#undef KNOWN_ABSENT_ENVIRONMENT
+#undef KNOWN_PRESENT_ENVIRONMENT
+#undef UNKNOWN_ENVIRONMENT
 
     case _SC_XOPEN_LEGACY:
       return _XOPEN_LEGACY;
@@ -1229,6 +1178,7 @@ __sysconf (name)
     case _SC_LEVEL3_CACHE_LINESIZE:
     case _SC_LEVEL4_CACHE_SIZE:
     case _SC_LEVEL4_CACHE_ASSOC:
+    case _SC_LEVEL4_CACHE_LINESIZE:
       /* In general we cannot determine these values.  Therefore we
 	 return zero which indicates that no information is
 	 available.  */
@@ -1260,7 +1210,7 @@ __sysconf_check_spec (const char *spec)
 {
   int save_errno = errno;
 
-  const char *getconf_dir = __secure_getenv ("GETCONF_DIR") ?: GETCONF_DIR;
+  const char *getconf_dir = __libc_secure_getenv ("GETCONF_DIR") ?: GETCONF_DIR;
   size_t getconf_dirlen = strlen (getconf_dir);
   size_t speclen = strlen (spec);
 

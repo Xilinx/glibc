@@ -1,5 +1,5 @@
 /* roundf  function.  PowerPC32 version.
-   Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 1 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -27,11 +26,11 @@
 	.long 0x3f000000
 
 /* float [fp1] roundf  (float x [fp1])
-   IEEE 1003.1 round function.  IEEE specifies "round to the nearest 
+   IEEE 1003.1 round function.  IEEE specifies "round to the nearest
    integer value, rounding halfway cases away from zero, regardless of
    the current rounding mode."  However PowerPC Architecture defines
-   "Round to Nearest" as "Choose the best approximation. In case of a 
-   tie, choose the one that is even (least significant bit o).". 
+   "Round to Nearest" as "Choose the best approximation. In case of a
+   tie, choose the one that is even (least significant bit o).".
    So we can't use the PowerPC "Round to Nearest" mode. Instead we set
    "Round toward Zero" mode and round by adding +-0.5 before rounding
    to the integer value.  */
@@ -42,10 +41,9 @@ ENTRY (__roundf )
 #ifdef SHARED
 	mflr	r11
 	cfi_register(lr,r11)
-	bcl	20,31,1f
-1:	mflr	r9
-	addis	r9,r9,.LC0-1b@ha
-	addi	r9,r9,.LC0-1b@l
+	SETUP_GOT_ACCESS(r9,got_label)
+	addis	r9,r9,.LC0-got_label@ha
+	addi	r9,r9,.LC0-got_label@l
 	mtlr	r11
 	cfi_same_value (lr)
 	lfs	fp13,0(r9)

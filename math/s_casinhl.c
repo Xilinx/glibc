@@ -1,5 +1,5 @@
 /* Return arc hyperbole sine for long double value.
-   Copyright (C) 1997, 1998, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,14 +14,12 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <complex.h>
 #include <math.h>
 #include <math_private.h>
-
 
 __complex__ long double
 __casinhl (__complex__ long double x)
@@ -63,17 +61,7 @@ __casinhl (__complex__ long double x)
     }
   else
     {
-      __complex__ long double y;
-
-      __real__ y = (__real__ x - __imag__ x) * (__real__ x + __imag__ x) + 1.0;
-      __imag__ y = 2.0 * __real__ x * __imag__ x;
-
-      y = __csqrtl (y);
-
-      __real__ y += __real__ x;
-      __imag__ y += __imag__ x;
-
-      res = __clogl (y);
+      res = __kernel_casinhl (x, 0);
     }
 
   return res;

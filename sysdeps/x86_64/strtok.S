@@ -1,6 +1,6 @@
 /* strtok (str, delim) -- Return next DELIM separated token from STR.
    For AMD x86-64.
-   Copyright (C) 1998,2000-2003,2005,2006 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Based on i686 version contributed by Ulrich Drepper
    <drepper@cygnus.com>, 1998.
@@ -16,14 +16,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
 /* This file can be used for the strtok and strtok_r functions:
 
@@ -45,10 +42,10 @@
 #else
 	.bss
 	.local save_ptr
-	ASM_TYPE_DIRECTIVE (save_ptr, @object)
-	.size save_ptr, 8
+	.type save_ptr, @object
+	.size save_ptr, LP_SIZE
 save_ptr:
-	.space 8
+	.space LP_SIZE
 
 # ifdef PIC
 #  define SAVE_PTR save_ptr(%rip)
@@ -60,7 +57,7 @@ save_ptr:
 #endif
 
 	.text
-ENTRY (BP_SYM (FUNCTION))
+ENTRY (FUNCTION)
 	/* First we create a table with flags for all possible characters.
 	   For the ASCII (7bit/8bit) or ISO-8859-X character sets which are
 	   supported by the C string functions we have 256 characters.
@@ -80,13 +77,12 @@ ENTRY (BP_SYM (FUNCTION))
 
 #ifdef USE_AS_STRTOK_R
 	/* The value is stored in the third argument.  */
-	movq %rdx, %rax
-	movq %rdx, %r9		/* Save value - see def. of SAVE_PTR.  */
-	movq (%rax), %rax
+	mov %RDX_LP, %R9_LP	/* Save value - see def. of SAVE_PTR.  */
+	mov (%rdx), %RAX_LP
 #else
 	/* The value is in the local variable defined above.  But
 	   we have to take care for PIC code.  */
-	movq SAVE_PTR, %rax
+	mov SAVE_PTR, %RAX_LP
 #endif
 	movq %r8, %rdx		/* Get start of string.  */
 
@@ -195,7 +191,7 @@ L(8):	cmpq %rax, %rdx
 	cmovne %rcx, %rdx
 
 	/* Store the pointer to the next character.  */
-	movq %rdx, SAVE_PTR
+	mov %RDX_LP, SAVE_PTR
 
 L(epilogue):
 	/* Remove the stopset table.  */
@@ -206,7 +202,7 @@ L(epilogue):
 L(returnNULL):
 	xorl %eax, %eax
 	/* Store the pointer to the next character.  */
-	movq %rdx, SAVE_PTR
+	mov %RDX_LP, SAVE_PTR
 	jmp L(epilogue)
 
-END (BP_SYM (FUNCTION))
+END (FUNCTION)

@@ -1,5 +1,5 @@
 /* Compare two memory blocks for differences in the first COUNT bytes.
-   Copyright (C) 1995,1996,1997,2000,2004,2005 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,23 +13,19 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+4	/* space for 1 saved reg */
+#define PARMS	4+4	/* space for 1 saved reg */
 #define BLK1	PARMS
-#define BLK2	BLK1+PTR_SIZE
-#define LEN	BLK2+PTR_SIZE
+#define BLK2	BLK1+4
+#define LEN	BLK2+4
 
 	.text
-ENTRY (BP_SYM (memcmp))
-	ENTER
+ENTRY (memcmp)
 
 	pushl %esi		/* Save callee-safe registers.  */
 	cfi_adjust_cfa_offset (4)
@@ -41,8 +37,6 @@ ENTRY (BP_SYM (memcmp))
 	cfi_rel_offset (esi, 0)
 	movl BLK2(%esp), %edi
 	movl LEN(%esp), %ecx
-	CHECK_BOUNDS_LOW (%esi, BLK1(%esp))
-	CHECK_BOUNDS_LOW (%edi, BLK2(%esp))
 
 	cld			/* Set direction of comparison.  */
 
@@ -65,18 +59,15 @@ ENTRY (BP_SYM (memcmp))
 	   Note that the following operation does not change 0xffffffff.  */
 	orb $1, %al		/* Change 0 to 1.  */
 
-L(1):	CHECK_BOUNDS_HIGH (%esi, BLK1(%esp), jbe)
-	CHECK_BOUNDS_HIGH (%edi, BLK2(%esp), jbe)
-	popl %esi		/* Restore registers.  */
+L(1):	popl %esi		/* Restore registers.  */
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (esi)
 	movl %edx, %edi
 	cfi_restore (edi)
 
-	LEAVE
 	ret
-END (BP_SYM (memcmp))
+END (memcmp)
 
 #undef bcmp
-weak_alias (BP_SYM (memcmp), BP_SYM (bcmp))
-libc_hidden_builtin_def (BP_SYM (memcmp))
+weak_alias (memcmp, bcmp)
+libc_hidden_builtin_def (memcmp)

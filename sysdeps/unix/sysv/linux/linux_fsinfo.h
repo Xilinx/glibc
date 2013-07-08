@@ -1,5 +1,5 @@
 /* Constants from kernel header for various FSes.
-   Copyright (C) 1998-2003,2005,2010,2011 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LINUX_FSINFO_H
 #define _LINUX_FSINFO_H	1
@@ -62,8 +61,14 @@
 #define EFS_SUPER_MAGIC		0x414a53
 #define EFS_MAGIC		0x072959
 
+/* Constants that identifies the `evivar' filesystem.  */
+#define EFIVARFS_MAGIC		0xde5e81e4
+
 /* Constant that identifies the `ext2' and `ext3' filesystems.  */
 #define EXT2_SUPER_MAGIC	0xef53
+
+/* Constant that identifies the `f2fs' filesystem.  */
+#define F2FS_SUPER_MAGIC	0xf2f52010
 
 /* Constant that identifies the `hpfs' filesystem.  */
 #define HPFS_SUPER_MAGIC	0xf995e849
@@ -154,6 +159,7 @@
 #define COH_LINK_MAX		10000
 #define EXT2_LINK_MAX		32000
 #define EXT4_LINK_MAX		65000
+#define F2FS_LINK_MAX		32000
 #define LUSTRE_LINK_MAX		EXT4_LINK_MAX
 #define MINIX2_LINK_MAX		65530
 #define MINIX_LINK_MAX		250

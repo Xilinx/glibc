@@ -1,5 +1,5 @@
 /* Quad-precision floating point argument reduction.
-   Copyright (C) 1999,2004,2006 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>
 
@@ -14,12 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <ieee754.h>
 
 /*
@@ -186,13 +185,13 @@ static const int32_t two_over_pi[] = {
 };
 
 static const long double c[] = {
-/* 93 bits of pi/2 */
+/* 106 bits of pi/2 */
 #define PI_2_1 c[0]
- 1.57079632679489661923132169155131424e+00L, /* 3fff921fb54442d18469898cc5100000 */
+ 0x1.921fb54442d18469898cc517018p+0L,
 
 /* pi/2 - PI_2_1 */
 #define PI_2_1t c[1]
- 8.84372056613570112025531863263659260e-29L, /* 3fa1c06e0e68948127044533e63a0106 */
+ 0x3.839a252049c1114cf98e804178p-108L,
 };
 
 int32_t __ieee754_rem_pio2l(long double x, long double *y)
@@ -201,7 +200,8 @@ int32_t __ieee754_rem_pio2l(long double x, long double *y)
   double tx[8];
   int exp;
   int64_t n, ix, hx, ixd;
-  u_int64_t lx, lxd;
+  u_int64_t lx __attribute__ ((unused));
+  u_int64_t lxd;
 
   GET_LDOUBLE_WORDS64 (hx, lx, x);
   ix = hx & 0x7fffffffffffffffLL;
@@ -216,7 +216,7 @@ int32_t __ieee754_rem_pio2l(long double x, long double *y)
     {
       if (hx > 0)
 	{
-	  /* 113 + 93 bit PI is ok */
+	  /* 106 + 106 bit PI is ok */
 	  z = x - PI_2_1;
 	  y[0] = z - PI_2_1t;
 	  y[1] = (z - y[0]) - PI_2_1t;
@@ -224,7 +224,7 @@ int32_t __ieee754_rem_pio2l(long double x, long double *y)
 	}
       else
         {
-	  /* 113 + 93 bit PI is ok */
+	  /* 106 + 106 bit PI is ok */
 	  z = x + PI_2_1;
 	  y[0] = z + PI_2_1t;
 	  y[1] = (z - y[0]) + PI_2_1t;

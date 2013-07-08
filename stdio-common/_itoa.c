@@ -1,6 +1,5 @@
 /* Internal function for converting integers to ASCII.
-   Copyright (C) 1994, 1995, 1996, 1999, 2000, 2002, 2003, 2004, 2007
-   Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund <tege@matematik.su.se>
    and Ulrich Drepper <drepper@gnu.org>.
@@ -16,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <gmp-mparam.h>
 #include <gmp.h>
@@ -26,7 +24,7 @@
 #include <stdlib/gmp-impl.h>
 #include <stdlib/longlong.h>
 
-#include "_itoa.h"
+#include <_itoa.h>
 
 
 /* Canonize environment.  For some architectures not all values might
@@ -80,7 +78,7 @@ struct base_table_t
 
 
 /* We do not compile _itoa if we always can use _itoa_word.  */
-#if LLONG_MAX != LONG_MAX
+#if _ITOA_NEEDED
 /* Local variables.  */
 const struct base_table_t _itoa_base_table[] attribute_hidden =
 {
@@ -161,27 +159,13 @@ const struct base_table_t _itoa_base_table[] attribute_hidden =
 };
 #endif
 
-/* Lower-case digits.  */
-extern const char _itoa_lower_digits[];
-extern const char _itoa_lower_digits_internal[] attribute_hidden;
-/* Upper-case digits.  */
-extern const char _itoa_upper_digits[];
-extern const char _itoa_upper_digits_internal[] attribute_hidden;
-
-
 char *
-_itoa_word (unsigned long value, char *buflim,
+_itoa_word (_ITOA_WORD_TYPE value, char *buflim,
 	    unsigned int base, int upper_case)
 {
   const char *digits = (upper_case
-#if !defined NOT_IN_libc || defined IS_IN_rtld
-			? INTUSE(_itoa_upper_digits)
-			: INTUSE(_itoa_lower_digits)
-#else
 			? _itoa_upper_digits
-			: _itoa_lower_digits
-#endif
-		       );
+			: _itoa_lower_digits);
 
   switch (base)
     {
@@ -205,7 +189,7 @@ _itoa_word (unsigned long value, char *buflim,
 #undef SPECIAL
 
 
-#if LLONG_MAX != LONG_MAX
+#if _ITOA_NEEDED
 char *
 _itoa (value, buflim, base, upper_case)
      unsigned long long int value;
@@ -214,15 +198,15 @@ _itoa (value, buflim, base, upper_case)
      int upper_case;
 {
   const char *digits = (upper_case
-			? INTUSE(_itoa_upper_digits)
-			: INTUSE(_itoa_lower_digits));
+			? _itoa_upper_digits
+			: _itoa_lower_digits);
   const struct base_table_t *brec = &_itoa_base_table[base - 2];
 
   switch (base)
     {
 # define RUN_2N(BITS) \
       do								      \
-        {								      \
+	{								      \
 	  /* `unsigned long long int' always has 64 bits.  */		      \
 	  mp_limb_t work_hi = value >> (64 - BITS_PER_MP_LIMB);		      \
 									      \
@@ -280,7 +264,8 @@ _itoa (value, buflim, base, upper_case)
 	if (brec->flag)
 	  while (value != 0)
 	    {
-	      mp_limb_t quo, rem, x, dummy;
+	      mp_limb_t quo, rem, x;
+	      mp_limb_t dummy __attribute__ ((unused));
 
 	      umul_ppmm (x, dummy, value, base_multiplier);
 	      quo = (x + ((value - x) >> 1)) >> (brec->post_shift - 1);
@@ -291,7 +276,8 @@ _itoa (value, buflim, base, upper_case)
 	else
 	  while (value != 0)
 	    {
-	      mp_limb_t quo, rem, x, dummy;
+	      mp_limb_t quo, rem, x;
+	      mp_limb_t dummy __attribute__ ((unused));
 
 	      umul_ppmm (x, dummy, value, base_multiplier);
 	      quo = x >> brec->post_shift;
@@ -417,7 +403,8 @@ _itoa (value, buflim, base, upper_case)
 	    if (brec->flag)
 	      while (ti != 0)
 		{
-		  mp_limb_t quo, rem, x, dummy;
+		  mp_limb_t quo, rem, x;
+		  mp_limb_t dummy __attribute__ ((unused));
 
 		  umul_ppmm (x, dummy, ti, base_multiplier);
 		  quo = (x + ((ti - x) >> 1)) >> (brec->post_shift - 1);
@@ -429,7 +416,8 @@ _itoa (value, buflim, base, upper_case)
 	    else
 	      while (ti != 0)
 		{
-		  mp_limb_t quo, rem, x, dummy;
+		  mp_limb_t quo, rem, x;
+		  mp_limb_t dummy __attribute__ ((unused));
 
 		  umul_ppmm (x, dummy, ti, base_multiplier);
 		  quo = x >> brec->post_shift;
@@ -471,7 +459,8 @@ _itoa (value, buflim, base, upper_case)
 #endif
 
 char *
-_fitoa_word (unsigned long value, char *buf, unsigned int base, int upper_case)
+_fitoa_word (_ITOA_WORD_TYPE value, char *buf, unsigned int base,
+	     int upper_case)
 {
   char tmpbuf[sizeof (value) * 4];	      /* Worst case length: base 2.  */
   char *cp = _itoa_word (value, tmpbuf + sizeof (value) * 4, base, upper_case);
@@ -480,7 +469,7 @@ _fitoa_word (unsigned long value, char *buf, unsigned int base, int upper_case)
   return buf;
 }
 
-#if LLONG_MAX != LONG_MAX
+#if _ITOA_NEEDED
 char *
 _fitoa (unsigned long long value, char *buf, unsigned int base, int upper_case)
 {

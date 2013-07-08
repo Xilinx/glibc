@@ -1,4 +1,4 @@
-# Copyright (C) 2002,2003,2004,2005,2006,2007 Free Software Foundation, Inc.
+# Copyright (C) 2002-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.  */
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 ifeq ($(subdir),nptl)
 sysdep_routines += register-atfork unregister-atfork libc_pthread_init \
@@ -30,7 +29,7 @@ gen-as-const-headers += lowlevelcond.sym lowlevelrwlock.sym \
 endif
 
 ifeq ($(subdir),posix)
-CFLAGS-fork.c = -D_IO_MTSAFE_IO
+CFLAGS-fork.c = $(libio-mtsafe)
 CFLAGS-getpid.o = -fomit-frame-pointer
 CFLAGS-getpid.os = -fomit-frame-pointer
 endif

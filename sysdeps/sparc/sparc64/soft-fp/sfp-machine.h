@@ -1,6 +1,6 @@
 /* Machine-dependent software floating-point definitions.
    Sparc64 userland (_Q_* and _Qp_*) version.
-   Copyright (C) 1997, 1998, 1999, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz) and
@@ -17,10 +17,9 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
-   
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
 #include <fpu_control.h>
 #include <fenv.h>
 #include <stdlib.h>
@@ -39,7 +38,7 @@ do {								\
 #ifndef _FP_MUL_MEAT_RESET_FE
 #define _FP_MUL_MEAT_RESET_FE _FPU_SETCW(_fcw)
 #endif
-      
+
 #define _FP_MUL_MEAT_S(R,X,Y)					\
   _FP_MUL_MEAT_1_imm(_FP_WFRACBITS_S,R,X,Y)
 #define _FP_MUL_MEAT_D(R,X,Y)					\
@@ -61,6 +60,7 @@ do {								\
 #define _FP_NANSIGN_Q		0
 
 #define _FP_KEEPNANFRACP 1
+#define _FP_QNANNEGATEDP 0
 
 /* If one NaN is signaling and the other is not,
  * we choose that one, otherwise we choose Y.
@@ -93,17 +93,19 @@ do {								\
 #define FP_EX_DIVZERO		(1 << 1)
 #define FP_EX_INEXACT		(1 << 0)
 
-#define _FP_DECL_EX	fpu_control_t _fcw
+#define _FP_DECL_EX \
+  fpu_control_t _fcw __attribute__ ((unused)) = (FP_RND_NEAREST << 30)
 
 #define FP_INIT_ROUNDMODE					\
 do {								\
   _FPU_GETCW(_fcw);						\
 } while (0)
 
+#define FP_TRAPPING_EXCEPTIONS ((_fcw >> 23) & 0x1f)
 #define FP_INHIBIT_RESULTS ((_fcw >> 23) & _fex)
 
 /* Simulate exceptions using double arithmetics. */
-extern double __Qp_handle_exceptions(int exc);
+extern void __Qp_handle_exceptions(int exc);
 
 #define FP_HANDLE_EXCEPTIONS					\
 do {								\
@@ -112,10 +114,9 @@ do {								\
       /* This is the common case, so we do it inline.		\
        * We need to clear cexc bits if any.			\
        */							\
-      __asm__ __volatile__("\n"					\
-"      	fzero %%f62\n"						\
-"      	faddd %%f62, %%f62, %%f62\n"				\
-"      	" : : : "f62");						\
+      __asm__ __volatile__("fzero %%f62\n\t"			\
+			   "faddd %%f62, %%f62, %%f62"		\
+			   : : : "f62");			\
     }								\
   else								\
     {								\
@@ -137,8 +138,8 @@ do {								\
 } while (0)
 
 #define QP_NO_EXCEPTIONS					\
-  __asm ("fzero %%f62\n"					\
-"	  faddd %%f62, %%f62, %%f62" : : : "f62")
-                              
+  __asm ("fzero %%f62\n\t"					\
+	 "faddd %%f62, %%f62, %%f62" : : : "f62")
+
 #define QP_CLOBBER "memory", "f52", "f54", "f56", "f58", "f60", "f62"
 #define QP_CLOBBER_CC QP_CLOBBER , "cc"

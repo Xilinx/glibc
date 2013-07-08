@@ -1,5 +1,4 @@
-/* Copyright (C) 1995,1997,1999-2002,2004,2006,2009
-   Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -61,7 +59,7 @@ _IO_vasprintf (result_ptr, format, args)
   sf._sbf._f._flags &= ~_IO_USER_BUF;
   sf._s._allocate_buffer = (_IO_alloc_type) malloc;
   sf._s._free_buffer = (_IO_free_type) free;
-  ret = INTUSE(_IO_vfprintf) (&sf._sbf._f, format, args);
+  ret = _IO_vfprintf (&sf._sbf._f, format, args);
   if (ret < 0)
     {
       free (sf._sbf._f._IO_buf_base);

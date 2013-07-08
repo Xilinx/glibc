@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <string.h>
 #include <unistd.h>
@@ -47,19 +46,22 @@ __symlink (from, to)
   err = __dir_mkfile (dir, O_WRITE, 0777 & ~_hurd_umask, &node);
 
   if (! err)
-    /* Set the node's translator to make it a symlink.  */
-    err = __file_set_translator (node,
-				 FS_TRANS_EXCL|FS_TRANS_SET,
-				 FS_TRANS_EXCL|FS_TRANS_SET, 0,
-				 buf, sizeof (_HURD_SYMLINK) + len,
-				 MACH_PORT_NULL, MACH_MSG_TYPE_COPY_SEND);
+    {
+      /* Set the node's translator to make it a symlink.  */
+      err = __file_set_translator (node,
+                                   FS_TRANS_EXCL|FS_TRANS_SET,
+                                   FS_TRANS_EXCL|FS_TRANS_SET, 0,
+                                   buf, sizeof (_HURD_SYMLINK) + len,
+                                   MACH_PORT_NULL, MACH_MSG_TYPE_COPY_SEND);
 
-  if (! err)
-    /* Link the node, now a valid symlink, into the target directory.  */
-    err = __dir_link (dir, node, name, 1);
+      if (! err)
+        /* Link the node, now a valid symlink, into the target directory.  */
+        err = __dir_link (dir, node, name, 1);
+
+      __mach_port_deallocate (__mach_task_self (), node);
+    }
 
   __mach_port_deallocate (__mach_task_self (), dir);
-  __mach_port_deallocate (__mach_task_self (), node);
 
   if (err)
     return __hurd_fail (err);

@@ -1,5 +1,5 @@
 /* Determine various system internal values, Linux version.
-   Copyright (C) 1996-2003,2006,2007,2009,2010,2011 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <assert.h>
@@ -49,8 +48,6 @@
 
    But not all systems have support for the /proc filesystem.  If it
    is not available we simply return 1 since there is no way.  */
-
-#include <not-cancel.h>
 
 
 /* Other architectures use different formats for /proc/cpuinfo.  This
@@ -127,7 +124,7 @@ next_line (int fd, char *const buffer, char **cp, char **re,
 
 
 int
-__get_nprocs ()
+__get_nprocs (void)
 {
   static int cached_result;
   static time_t timestamp;
@@ -237,7 +234,7 @@ weak_alias (__get_nprocs, get_nprocs)
 /* On some architectures it is possible to distinguish between configured
    and active cpus.  */
 int
-__get_nprocs_conf ()
+__get_nprocs_conf (void)
 {
   /* XXX Here will come a test for the new system call.  */
 
@@ -336,7 +333,7 @@ phys_pages_info (const char *format)
    But not all systems have support for the /proc filesystem.  If it
    is not available we return -1 as an error signal.  */
 long int
-__get_phys_pages ()
+__get_phys_pages (void)
 {
   /* XXX Here will come a test for the new system call.  */
 
@@ -357,7 +354,7 @@ weak_alias (__get_phys_pages, get_phys_pages)
    But not all systems have support for the /proc filesystem.  If it
    is not available we return -1 as an error signal.  */
 long int
-__get_avphys_pages ()
+__get_avphys_pages (void)
 {
   /* XXX Here will come a test for the new system call.  */
 

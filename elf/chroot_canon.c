@@ -1,6 +1,5 @@
 /* Return the canonical absolute name of a given file inside chroot.
-   Copyright (C) 1996,1997,1998,1999,2000,2001,2004,2005,2010,2011
-	Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -14,19 +13,18 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-#include <sys/param.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 
+#include <eloop-threshold.h>
 #include <ldconfig.h>
 
 #ifndef PATH_MAX
@@ -128,7 +126,7 @@ chroot_canon (const char *chroot, const char *name)
 	      char *buf = alloca (PATH_MAX);
 	      size_t len;
 
-	      if (++num_links > MAXSYMLINKS)
+	      if (++num_links > __eloop_threshold ())
 		{
 		  __set_errno (ELOOP);
 		  goto error;

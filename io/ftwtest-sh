@@ -1,4 +1,23 @@
 #! /bin/sh
+# Test for nftw(3).
+# Copyright (C) 1997-2013 Free Software Foundation, Inc.
+# This file is part of the GNU C Library.
+
+# The GNU C Library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+# The GNU C Library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
+
+set -e
 
 # The common objpfx, used to find libraries and the dynamic loader.
 objpfx=$1
@@ -25,10 +44,8 @@ LANG=C
 export LANG
 
 # First create our scenario:
-tmp=`echo ${TMPDIR:-/tmp} | sed 's|\(.\)/*$|\1|'`
+tmp=${objpfx}io
 tmpdir=$tmp/ftwtest.d
-
-[ -f ${objpfx}elf/ld.so ] && ldso=${objpfx}elf/ld.so
 
 trap 'chmod -fR a+x $tmpdir; rm -fr $tmpdir $testout' 1 2 3 15
 
@@ -52,9 +69,9 @@ ln -s $tmpdir/foo/lvl1/lvl2/lvl3/lvl4 $tmpdir/foo/lvl1/link@1
 echo > $tmpdir/bar/xo
 chmod a-x,a+r $tmpdir/bar
 
-testout=${TMPDIR:-/tmp}/ftwtest.out
+testout=$tmp/ftwtest.out
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram $tmpdir |
+$testprogram $tmpdir |
     sort > $testout
 
 cat <<EOF | cmp $testout - || exit 1
@@ -73,7 +90,7 @@ base = "$tmp/ftwtest.d/foo/lvl1/lvl2/lvl3/", file = "file@3", flag = FTW_F, leve
 EOF
 rm $testout
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --depth $tmpdir |
+$testprogram --depth $tmpdir |
     sort > $testout
 
 cat <<EOF | cmp $testout - || exit 1
@@ -92,7 +109,7 @@ base = "$tmp/ftwtest.d/foo/lvl1/lvl2/lvl3/", file = "file@3", flag = FTW_F, leve
 EOF
 rm $testout
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --phys $tmpdir |
+$testprogram --phys $tmpdir |
     sort > $testout
 
 cat <<EOF | cmp $testout - || exit 1
@@ -116,7 +133,7 @@ rm $testout
 # For the next test everything must be readable.
 chmod -fR a+x $tmpdir
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --chdir $tmpdir |
+$testprogram --chdir $tmpdir |
     sort > $testout
 
 # perhaps $tmp involves some symlinks...
@@ -140,7 +157,7 @@ rm $testout
 
 curwd=`/bin/pwd 2>/dev/null || /usr/bin/pwd`
 cd "$tmp"
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --chdir ftwtest.d |
+$testprogram --chdir ftwtest.d |
     sort > $testout
 cd "$curwd"
 
@@ -162,7 +179,7 @@ rm $testout
 
 curwd=`/bin/pwd 2>/dev/null || /usr/bin/pwd`
 cd "$tmp"
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --chdir ftwtest.d/. |
+$testprogram --chdir ftwtest.d/. |
     sort > $testout
 cd "$curwd"
 
@@ -184,7 +201,7 @@ rm $testout
 
 curwd=`/bin/pwd 2>/dev/null || /usr/bin/pwd`
 cd "$tmp"
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --chdir ftwtest.d/foo/lvl1/link@1 |
+$testprogram --chdir ftwtest.d/foo/lvl1/link@1 |
     sort > $testout
 cd "$curwd"
 
@@ -193,7 +210,7 @@ base = "ftwtest.d/foo/lvl1/", file = "link@1", flag = FTW_SLN, cwd = $tmpreal/ft
 EOF
 rm $testout
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --early-exit $tmpdir |
+$testprogram --early-exit $tmpdir |
     sort > $testout
 
 cat <<EOF | cmp $testout - || exit 1
@@ -207,7 +224,7 @@ echo > $tmpdir/foo/lvl1b/file@1b
 echo > $tmpdir/foo/lvl1b/file2@1b
 echo > $tmpdir/foo/lvl1b/file3@1b
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --skip-subtree=lvl1 $tmpdir |
+$testprogram --skip-subtree=lvl1 $tmpdir |
     sort > $testout
 
 cat <<EOF | diff -u $testout - || exit 1
@@ -224,7 +241,7 @@ base = "$tmp/ftwtest.d/foo/lvl1b/", file = "file@1b", flag = FTW_F, level = 3
 EOF
 rm $testout
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --skip-siblings=lvl1 $tmpdir |
+$testprogram --skip-siblings=lvl1 $tmpdir |
     sort > $testout
 
 # The filesystem is not required to put lvl1 before lvl1b.
@@ -248,7 +265,7 @@ base = "$tmp/ftwtest.d/foo/lvl1b/", file = "file@1b", flag = FTW_F, level = 3
 EOF
 rm $testout
 
-LD_LIBRARY_PATH=$objpfx $ldso $testprogram --skip-siblings=file@1b $tmpdir |
+$testprogram --skip-siblings=file@1b $tmpdir |
     sort > $testout
 
 # The filesystem is not required to put file2@1b and file3@1b after file@1b.

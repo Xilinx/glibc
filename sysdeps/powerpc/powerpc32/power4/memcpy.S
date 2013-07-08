@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for PowerPC32 on PowerPC64.
-   Copyright (C) 2003, 2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
    Returns 'dst'.
@@ -35,7 +32,7 @@
    Each case has an optimized unrolled loop.   */
 
 	.machine power4
-EALIGN (BP_SYM (memcpy), 5, 0)
+EALIGN (memcpy, 5, 0)
 	CALL_MCOUNT
 
     stwu  1,-32(1)
@@ -421,6 +418,6 @@ EALIGN (BP_SYM (memcpy), 5, 0)
     lwz  31,24(1)
     addi 1,1,32
     blr
-END (BP_SYM (memcpy))
+END (memcpy)
 
 libc_hidden_builtin_def (memcpy)

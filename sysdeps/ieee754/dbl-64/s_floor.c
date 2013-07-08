@@ -19,21 +19,12 @@
  *	Inexact flag raised if x not equal to floor(x).
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
 static const double huge = 1.0e300;
-#else
-static double huge = 1.0e300;
-#endif
 
-#ifdef __STDC__
-	double __floor(double x)
-#else
-	double __floor(x)
-	double x;
-#endif
+double __floor(double x)
 {
 	int32_t i0,i1,j0;
 	u_int32_t i,j;

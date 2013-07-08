@@ -1,5 +1,5 @@
 /* finite().  PowerPC64/POWER7 version.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -60,8 +59,13 @@ strong_alias (__finite, __finitef)
 hidden_def (__finitef)
 weak_alias (__finitef, finitef)
 
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
+#ifdef IS_IN_libm
+# if LONG_DOUBLE_COMPAT (libm, GLIBC_2_0)
+compat_symbol (libm, __finite, __finitel, GLIBC_2_0)
+compat_symbol (libm, finite, finitel, GLIBC_2_0)
+# endif
+#else
+# if LONG_DOUBLE_COMPAT (libc, GLIBC_2_0)
 compat_symbol (libc, __finite, __finitel, GLIBC_2_0);
 compat_symbol (libc, finite, finitel, GLIBC_2_0);
 # endif

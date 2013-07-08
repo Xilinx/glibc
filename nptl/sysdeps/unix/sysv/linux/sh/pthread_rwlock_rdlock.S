@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <lowlevellock.h>
@@ -30,11 +29,20 @@
 	.globl	__pthread_rwlock_rdlock
 	.type	__pthread_rwlock_rdlock,@function
 	.align	5
+	cfi_startproc
 __pthread_rwlock_rdlock:
 	mov.l	r12, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r12, 0)
 	mov.l	r9, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r9, 0)
 	mov.l	r8, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (r8, 0)
 	sts.l	pr, @-r15
+	cfi_adjust_cfa_offset (4)
+	cfi_rel_offset (pr, 0)
 	mov	r4, r8
 
 	/* Get the lock.  */
@@ -135,12 +143,22 @@ __pthread_rwlock_rdlock:
 	tst	r2, r2
 	bf	6f
 7:
+	cfi_remember_state
 	lds.l	@r15+, pr
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (pr)
 	mov.l	@r15+, r8
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r8)
 	mov.l	@r15+, r9
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r9)
 	mov.l	@r15+, r12
+	cfi_adjust_cfa_offset (-4)
+	cfi_restore (r12)
 	rts
 	 mov	r3, r0
+	cfi_restore_state
 
 #ifndef __ASSUME_PRIVATE_FUTEX
 .Lpfoff:
@@ -174,7 +192,7 @@ __pthread_rwlock_rdlock:
 
 .Ltidoff:
 	.word	TID - TLS_PRE_TCB_SIZE
-	
+
 6:
 	mov	r8, r4
 #if MUTEX != 0
@@ -235,6 +253,7 @@ __pthread_rwlock_rdlock:
 .Lwait1b:
 	bra	13b
 	 nop
+	cfi_endproc
 
 	.align	2
 .Lwait0:
@@ -247,8 +266,5 @@ __pthread_rwlock_rdlock:
 	.long	__lll_unlock_wake-.Lwake1b
 	.size	__pthread_rwlock_rdlock,.-__pthread_rwlock_rdlock
 
-	.globl	pthread_rwlock_rdlock
-pthread_rwlock_rdlock = __pthread_rwlock_rdlock
-
-	.globl	__pthread_rwlock_rdlock_internal
-__pthread_rwlock_rdlock_internal = __pthread_rwlock_rdlock
+strong_alias (__pthread_rwlock_rdlock, pthread_rwlock_rdlock)
+hidden_def (__pthread_rwlock_rdlock)

@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /*
  * __ieee754_jn(n, x), __ieee754_yn(n, x)
@@ -56,8 +56,9 @@
  *
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <errno.h>
+#include <math.h>
+#include <math_private.h>
 
 static const long double
   invsqrtpi = 5.64189583547756286948079e-1L, two = 2.0e0L, one = 1.0e0L;
@@ -360,7 +361,8 @@ __ieee754_ynl (int n, long double x)
       b = __ieee754_y1l (x);
       /* quit if b is -inf */
       GET_LDOUBLE_WORDS (se, i0, i1, b);
-      for (i = 1; i < n && se != 0xffff; i++)
+      /* Use 0xffffffff since GET_LDOUBLE_WORDS sign-extends SE.  */
+      for (i = 1; i < n && se != 0xffffffff; i++)
 	{
 	  temp = b;
 	  b = ((long double) (i + i) / x) * b - a;
@@ -368,6 +370,9 @@ __ieee754_ynl (int n, long double x)
 	  a = temp;
 	}
     }
+  /* If B is +-Inf, set up errno accordingly.  */
+  if (! __finitel (b))
+    __set_errno (ERANGE);
   if (sign > 0)
     return b;
   else

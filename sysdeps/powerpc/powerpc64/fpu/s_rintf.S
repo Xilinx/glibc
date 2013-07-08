@@ -1,5 +1,5 @@
 /* Round float to int floating-point values.  PowerPC64 version.
-   Copyright (C) 2004 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -31,14 +30,14 @@ EALIGN (__rintf, 4, 0)
 	fsubs	fp12,fp13,fp13	/* generate 0.0  */
 	fcmpu	cr7,fp0,fp13	/* if (fabs(x) > TWO23)  */
 	fcmpu	cr6,fp1,fp12	/* if (x > 0.0)  */
-	bnllr-	cr7
-	bng-	cr6,.L4
+	bnllr	cr7
+	bng	cr6,.L4
 	fadds	fp1,fp1,fp13	/* x+= TWO23;  */
 	fsubs	fp1,fp1,fp13	/* x-= TWO23;  */
 	fabs	fp1,fp1		/* if (x == 0.0)  */
 	blr			/* x = 0.0; */
 .L4:
-	bnllr-	cr6		/* if (x < 0.0)  */
+	bnllr	cr6		/* if (x < 0.0)  */
 	fsubs	fp1,fp1,fp13	/* x-= TWO23;  */
 	fadds	fp1,fp1,fp13	/* x+= TWO23;  */
 	fnabs	fp1,fp1		/* if (x == 0.0)  */

@@ -1,5 +1,5 @@
 /* Copy SIZE bytes from SRC to DEST.  For SUN4V Niagara-2.
-   Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller (davem@davemloft.net)
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
@@ -59,49 +58,49 @@
 	faligndata	%x7, %x8, %f14;
 
 #define FREG_MOVE_1(x0) \
-	fmovd		%x0, %f0;
+	fsrc2		%x0, %f0;
 #define FREG_MOVE_2(x0, x1) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2;
 #define FREG_MOVE_3(x0, x1, x2) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4;
 #define FREG_MOVE_4(x0, x1, x2, x3) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4; \
-	fmovd		%x3, %f6;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4; \
+	fsrc2		%x3, %f6;
 #define FREG_MOVE_5(x0, x1, x2, x3, x4) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4; \
-	fmovd		%x3, %f6; \
-	fmovd		%x4, %f8;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4; \
+	fsrc2		%x3, %f6; \
+	fsrc2		%x4, %f8;
 #define FREG_MOVE_6(x0, x1, x2, x3, x4, x5) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4; \
-	fmovd		%x3, %f6; \
-	fmovd		%x4, %f8; \
-	fmovd		%x5, %f10;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4; \
+	fsrc2		%x3, %f6; \
+	fsrc2		%x4, %f8; \
+	fsrc2		%x5, %f10;
 #define FREG_MOVE_7(x0, x1, x2, x3, x4, x5, x6) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4; \
-	fmovd		%x3, %f6; \
-	fmovd		%x4, %f8; \
-	fmovd		%x5, %f10; \
-	fmovd		%x6, %f12;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4; \
+	fsrc2		%x3, %f6; \
+	fsrc2		%x4, %f8; \
+	fsrc2		%x5, %f10; \
+	fsrc2		%x6, %f12;
 #define FREG_MOVE_8(x0, x1, x2, x3, x4, x5, x6, x7) \
-	fmovd		%x0, %f0; \
-	fmovd		%x1, %f2; \
-	fmovd		%x2, %f4; \
-	fmovd		%x3, %f6; \
-	fmovd		%x4, %f8; \
-	fmovd		%x5, %f10; \
-	fmovd		%x6, %f12; \
-	fmovd		%x7, %f14;
+	fsrc2		%x0, %f0; \
+	fsrc2		%x1, %f2; \
+	fsrc2		%x2, %f4; \
+	fsrc2		%x3, %f6; \
+	fsrc2		%x4, %f8; \
+	fsrc2		%x5, %f10; \
+	fsrc2		%x6, %f12; \
+	fsrc2		%x7, %f14;
 #define FREG_LOAD_1(base, x0) \
 	LOAD(ldd, base + 0x00, %x0)
 #define FREG_LOAD_2(base, x0, x1) \
@@ -146,13 +145,19 @@
 
 	.text
 
+ENTRY(__mempcpy_niagara2)
+	ba,pt		%XCC, 101f
+	 add		%o0, %o2, %g5
+END(__mempcpy_niagara2)
+
 	.align		32
 ENTRY(__memcpy_niagara2)
+100:	/* %o0=dst, %o1=src, %o2=len */
+	mov		%o0, %g5
+101:
 # ifndef USE_BPR
 	srl		%o2, 0, %o2
 # endif
-100:	/* %o0=dst, %o1=src, %o2=len */
-	mov		%o0, %g5
 	cmp		%o2, 0
 	be,pn		%XCC, 85f
 218:	 or		%o0, %o1, %o3

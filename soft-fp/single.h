@@ -1,6 +1,6 @@
 /* Software floating-point emulation.
    Definitions for IEEE Single Precision.
-   Copyright (C) 1997,1998,1999,2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz),
@@ -27,15 +27,20 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #if _FP_W_TYPE_SIZE < 32
 #error "Here's a nickel kid.  Go buy yourself a real computer."
 #endif
 
 #define _FP_FRACTBITS_S		_FP_W_TYPE_SIZE
+
+#if _FP_W_TYPE_SIZE < 64
+# define _FP_FRACTBITS_DW_S	(2 * _FP_W_TYPE_SIZE)
+#else
+# define _FP_FRACTBITS_DW_S	_FP_W_TYPE_SIZE
+#endif
 
 #define _FP_FRACBITS_S		24
 #define _FP_FRACXBITS_S		(_FP_FRACTBITS_S - _FP_FRACBITS_S)
@@ -50,6 +55,11 @@
 #define _FP_IMPLBIT_SH_S	((_FP_W_TYPE)1 << (_FP_FRACBITS_S-1+_FP_WORKBITS))
 #define _FP_OVERFLOW_S		((_FP_W_TYPE)1 << (_FP_WFRACBITS_S))
 
+#define _FP_WFRACBITS_DW_S	(2 * _FP_WFRACBITS_S)
+#define _FP_WFRACXBITS_DW_S	(_FP_FRACTBITS_DW_S - _FP_WFRACBITS_DW_S)
+#define _FP_HIGHBIT_DW_S	\
+  ((_FP_W_TYPE)1 << (_FP_WFRACBITS_DW_S - 1) % _FP_W_TYPE_SIZE)
+
 /* The implementation of _FP_MUL_MEAT_S and _FP_DIV_MEAT_S should be
    chosen by the target machine.  */
 
@@ -58,7 +68,7 @@ typedef float SFtype __attribute__((mode(SF)));
 union _FP_UNION_S
 {
   SFtype flt;
-  struct {
+  struct _FP_STRUCT_LAYOUT {
 #if __BYTE_ORDER == __BIG_ENDIAN
     unsigned sign : 1;
     unsigned exp  : _FP_EXPBITS_S;
@@ -140,6 +150,12 @@ union _FP_UNION_S
 #define FP_SQRT_S(R,X)			_FP_SQRT(S,1,R,X)
 #define _FP_SQRT_MEAT_S(R,S,T,X,Q)	_FP_SQRT_MEAT_1(R,S,T,X,Q)
 
+#if _FP_W_TYPE_SIZE < 64
+# define FP_FMA_S(R, X, Y, Z)	_FP_FMA(S, 1, 2, R, X, Y, Z)
+#else
+# define FP_FMA_S(R, X, Y, Z)	_FP_FMA(S, 1, 1, R, X, Y, Z)
+#endif
+
 #define FP_CMP_S(r,X,Y,un)	_FP_CMP(S,1,r,X,Y,un)
 #define FP_CMP_EQ_S(r,X,Y)	_FP_CMP_EQ(S,1,r,X,Y)
 #define FP_CMP_UNORD_S(r,X,Y)	_FP_CMP_UNORD(S,1,r,X,Y)
@@ -149,3 +165,9 @@ union _FP_UNION_S
 
 #define _FP_FRAC_HIGH_S(X)	_FP_FRAC_HIGH_1(X)
 #define _FP_FRAC_HIGH_RAW_S(X)	_FP_FRAC_HIGH_1(X)
+
+#if _FP_W_TYPE_SIZE < 64
+# define _FP_FRAC_HIGH_DW_S(X)	_FP_FRAC_HIGH_2(X)
+#else
+# define _FP_FRAC_HIGH_DW_S(X)	_FP_FRAC_HIGH_1(X)
+#endif

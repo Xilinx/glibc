@@ -1,6 +1,5 @@
 /* Startup support for ELF initializers/finalizers in the main executable.
-   Copyright (C) 2002,2003,2004,2005,2009,2011
-	Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,26 +30,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stddef.h>
 
-#if defined USE_MULTIARCH && !defined LIBC_NONSHARED
-# include <link.h>
-# include <dl-irel.h>
-
-# ifdef ELF_MACHINE_IRELA
-extern const ElfW(Rela) __rela_iplt_start [];
-extern const ElfW(Rela) __rela_iplt_end [];
-# endif
-
-# ifdef ELF_MACHINE_IREL
-extern const ElfW(Rel) __rel_iplt_start [];
-extern const ElfW(Rel) __rel_iplt_end [];
-# endif
-#endif	/* LIBC_NONSHARED */
 
 /* These magic symbols are provided by the linker.  */
 extern void (*__preinit_array_start []) (int, char **, char **)
@@ -82,41 +66,18 @@ hidden_undef (__init_array_end)
 hidden_undef (__fini_array_start)
 hidden_undef (__fini_array_end)
 
+#ifndef NO_INITFINI
 /* These function symbols are provided for the .init/.fini section entry
    points automagically by the linker.  */
 extern void _init (void);
 extern void _fini (void);
+#endif
+
 
 /* These functions are passed to __libc_start_main by the startup code.
    These get statically linked into each program.  For dynamically linked
    programs, this module will come from libc_nonshared.a and differs from
-   the libc.a module in that it doesn't call the preinit array and performs
-   explicit IREL{,A} relocations.  */
-
-
-#ifndef LIBC_NONSHARED
-void
-__libc_csu_irel (void)
-{
-# ifdef USE_MULTIARCH
-#  ifdef ELF_MACHINE_IRELA
-  {
-    const size_t size = __rela_iplt_end - __rela_iplt_start;
-    for (size_t i = 0; i < size; i++)
-      elf_irela (&__rela_iplt_start [i]);
-  }
-#  endif
-
-#  ifdef ELF_MACHINE_IREL
-  {
-    const size_t size = __rel_iplt_end - __rel_iplt_start;
-    for (size_t i = 0; i < size; i++)
-      elf_irel (&__rel_iplt_start [i]);
-  }
-#  endif
-# endif
-}
-#endif
+   the libc.a module in that it doesn't call the preinit array.  */
 
 
 void
@@ -135,7 +96,9 @@ __libc_csu_init (int argc, char **argv, char **envp)
   }
 #endif
 
+#ifndef NO_INITFINI
   _init ();
+#endif
 
   const size_t size = __init_array_end - __init_array_start;
   for (size_t i = 0; i < size; i++)
@@ -153,6 +116,8 @@ __libc_csu_fini (void)
   while (i-- > 0)
     (*__fini_array_start [i]) ();
 
+# ifndef NO_INITFINI
   _fini ();
+# endif
 #endif
 }

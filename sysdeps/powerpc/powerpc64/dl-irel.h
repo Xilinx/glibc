@@ -1,6 +1,6 @@
 /* Machine-dependent ELF indirect relocation inline functions.
    PowerPC64 version.
-   Copyright (C) 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _DL_IREL_H
 #define _DL_IREL_H
@@ -32,7 +31,7 @@ static inline Elf64_Addr
 __attribute ((always_inline))
 elf_ifunc_invoke (Elf64_Addr addr)
 {
-  return ((Elf64_Addr (*) (void)) (addr)) ();
+  return ((Elf64_Addr (*) (unsigned long int)) (addr)) (GLRO(dl_hwcap));
 }
 
 static inline void

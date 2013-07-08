@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2006, 2010, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -29,7 +28,7 @@
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
 #include "linux_fsinfo.h"
-#include "kernel-features.h"
+#include <kernel-features.h>
 
 
 /* Special internal-only bit value.  */
@@ -117,6 +116,12 @@ __statvfs_getflags (const char *name, int fstype, struct stat64 *st)
       break;
     case LUSTRE_SUPER_MAGIC:
       fsname = "lustre";
+      break;
+    case F2FS_SUPER_MAGIC:
+      fsname = "f2fs";
+      break;
+    case EFIVARFS_MAGIC:
+      fsname = "efivarfs";
       break;
     }
 

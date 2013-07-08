@@ -11,9 +11,9 @@
 
 /* Modifications and expansions for 128-bit long double are
    Copyright (C) 2001 Stephen L. Moshier <moshier@na-net.ornl.gov>
-   and are incorporated herein by permission of the author.  The author 
+   and are incorporated herein by permission of the author.  The author
    reserves the right to distribute this material elsewhere under different
-   copying permissions.  These modifications are distributed here under 
+   copying permissions.  These modifications are distributed here under
    the following terms:
 
     This library is free software; you can redistribute it and/or
@@ -27,8 +27,8 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 /* double erf(double x)
  * double erfc(double x)
@@ -96,8 +96,8 @@
  *		erfc/erf(NaN) is NaN
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 /* Evaluate P[n] x^n  +  P[n-1] x^(n-1)  +  ...  +  P[0] */
 
@@ -136,11 +136,7 @@ deval (long double x, const long double *p, int n)
 
 
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
 tiny = 1e-4931L,
   half = 0.5L,
   one = 1.0L,
@@ -754,14 +750,8 @@ static const long double RDr1[NRDr1 + 1] =
 };
 
 
-#ifdef __STDC__
 long double
 __erfl (long double x)
-#else
-double
-__erfl (x)
-     long double x;
-#endif
 {
   long double a, y, z;
   int32_t i, ix, sign;
@@ -808,15 +798,8 @@ __erfl (x)
 }
 
 weak_alias (__erfl, erfl)
-#ifdef __STDC__
-     long double
-     __erfcl (long double x)
-#else
-     long double
-     __erfcl (x)
-     double
-       x;
-#endif
+long double
+__erfcl (long double x)
 {
   long double y, z, p, r;
   int32_t i, ix, sign;

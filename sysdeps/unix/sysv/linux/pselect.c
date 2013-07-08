@@ -1,4 +1,4 @@
-/* Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2006.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <signal.h>
@@ -53,11 +52,11 @@ __pselect (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
      be created.  */
   struct
   {
-    const sigset_t *ss;
-    size_t ss_len;
+    __syscall_ulong_t ss;
+    __syscall_ulong_t ss_len;
   } data;
 
-  data.ss = sigmask;
+  data.ss = (__syscall_ulong_t) (uintptr_t) sigmask;
   data.ss_len = _NSIG / 8;
 
   int result;

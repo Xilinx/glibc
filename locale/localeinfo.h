@@ -1,6 +1,5 @@
 /* Declarations for internal libc locale interfaces
-   Copyright (C) 1995-2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _LOCALEINFO_H
 #define _LOCALEINFO_H 1
@@ -216,7 +214,7 @@ __libc_tsd_define (extern, __locale_t, LOCALE)
    unused.  We can manage this playing some tricks with weak references.
    But with thread-local locale settings, it becomes quite ungainly unless
    we can use __thread variables.  So only in that case do we attempt this.  */
-#if !defined SHARED && defined HAVE_WEAK_SYMBOLS
+#ifndef SHARED
 # include <tls.h>
 # define NL_CURRENT_INDIRECT	1
 #endif
@@ -256,11 +254,8 @@ extern __thread struct __locale_data *const *_nl_current_##category \
 #define _NL_CURRENT_DEFINE(category) \
   __thread struct __locale_data *const *_nl_current_##category \
     attribute_hidden = &_nl_global_locale.__locales[category]; \
-  asm (_NL_CURRENT_DEFINE_STRINGIFY (ASM_GLOBAL_DIRECTIVE) \
-       " " __SYMBOL_PREFIX "_nl_current_" #category "_used\n" \
+  asm (".globl " __SYMBOL_PREFIX "_nl_current_" #category "_used\n" \
        _NL_CURRENT_DEFINE_ABS (_nl_current_##category##_used, 1));
-#define _NL_CURRENT_DEFINE_STRINGIFY(x) _NL_CURRENT_DEFINE_STRINGIFY_1 (x)
-#define _NL_CURRENT_DEFINE_STRINGIFY_1(x) #x
 #ifdef HAVE_ASM_SET_DIRECTIVE
 # define _NL_CURRENT_DEFINE_ABS(sym, val) ".set " #sym ", " #val
 #else

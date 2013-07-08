@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 1999, 2000, 2002, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _STROPTS_H
 #define _STROPTS_H	1
@@ -33,6 +32,7 @@ typedef __uid_t uid_t;
 # define __uid_t_defined
 #endif
 
+typedef __t_scalar_t t_scalar_t;
 typedef __t_uscalar_t t_uscalar_t;
 
 /* Get system specific contants.  */
@@ -70,22 +70,22 @@ extern int ioctl (int __fd, unsigned long int __request, ...) __THROW;
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int putmsg (int __fildes, __const struct strbuf *__ctlptr,
-		   __const struct strbuf *__dataptr, int __flags);
+extern int putmsg (int __fildes, const struct strbuf *__ctlptr,
+		   const struct strbuf *__dataptr, int __flags);
 
 /* Send a message on a STREAM to the BAND.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-extern int putpmsg (int __fildes, __const struct strbuf *__ctlptr,
-		    __const struct strbuf *__dataptr, int __band, int __flags);
+extern int putpmsg (int __fildes, const struct strbuf *__ctlptr,
+		    const struct strbuf *__dataptr, int __band, int __flags);
 
 /* Attach a STREAMS-based file descriptor FILDES to a file PATH in the
    file system name space.  */
-extern int fattach (int __fildes, __const char *__path) __THROW;
+extern int fattach (int __fildes, const char *__path) __THROW;
 
 /* Detach a name PATH from a STREAMS-based file descriptor.  */
-extern int fdetach (__const char *__path) __THROW;
+extern int fdetach (const char *__path) __THROW;
 
 __END_DECLS
 

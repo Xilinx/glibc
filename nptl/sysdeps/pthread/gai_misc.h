@@ -1,4 +1,4 @@
-/* Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* We define a special synchronization primitive for AIO.  POSIX
    conditional variables would be ideal but the pthread_cond_*wait
@@ -97,7 +96,9 @@ __gai_create_helper_thread (pthread_t *threadp, void *(*tf) (void *),
   pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
   /* The helper thread needs only very little resources.  */
-  (void) pthread_attr_setstacksize (&attr, 4 * PTHREAD_STACK_MIN);
+  (void) pthread_attr_setstacksize (&attr,
+				    __pthread_get_minstack (&attr)
+				    + 4 * PTHREAD_STACK_MIN);
 
   /* Block all signals in the helper thread.  To do this thoroughly we
      temporarily have to block all signals here.  */

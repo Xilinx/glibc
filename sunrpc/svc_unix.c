@@ -1,6 +1,23 @@
 /*
  * svc_unix.c, Server side for TCP/IP based RPC.
  *
+ * Copyright (C) 2012-2013 Free Software Foundation, Inc.
+ * This file is part of the GNU C Library.
+ *
+ * The GNU C Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * The GNU C Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with the GNU C Library; if not, see
+ * <http://www.gnu.org/licenses/>.
+ *
  * Copyright (c) 2010, Oracle America, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -184,7 +201,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
   xprt_register (xprt);
   return xprt;
 }
-libc_hidden_nolink (svcunix_create, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (svcunix_create, GLIBC_2_1)
 
 /*
  * Like svunix_create(), except the routine takes any *open* UNIX file
@@ -195,7 +212,7 @@ svcunixfd_create (int fd, u_int sendsize, u_int recvsize)
 {
   return makefd_xprt (fd, sendsize, recvsize);
 }
-libc_hidden_nolink (svcunixfd_create, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (svcunixfd_create, GLIBC_2_1)
 
 static SVCXPRT *
 internal_function
@@ -244,6 +261,7 @@ again:
     {
       if (errno == EINTR)
 	goto again;
+      __svc_accept_failed ();
       return FALSE;
     }
   /*

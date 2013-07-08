@@ -8,7 +8,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -21,15 +21,10 @@ static char rcsid[] = "$NetBSD: s_fabsf.c,v 1.4 1995/05/10 20:47:15 jtc Exp $";
  * fabsf(x) returns the absolute value of x.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	float __fabsf(float x)
-#else
-	float __fabsf(x)
-	float x;
-#endif
+float __fabsf(float x)
 {
 	u_int32_t ix;
 	GET_FLOAT_WORD(ix,x);

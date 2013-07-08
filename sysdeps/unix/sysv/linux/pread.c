@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2000,2002,2003,2004,2006 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -24,7 +23,6 @@
 
 #include <sysdep-cancel.h>
 #include <sys/syscall.h>
-#include <bp-checks.h>
 
 #include <kernel-features.h>
 
@@ -35,13 +33,6 @@
 # define __NR_pread __NR_pread64
 #endif
 
-#if defined __NR_pread || __ASSUME_PREAD_SYSCALL > 0
-
-# if __ASSUME_PREAD_SYSCALL == 0
-static ssize_t __emulate_pread (int fd, void *buf, size_t count,
-				off_t offset) internal_function;
-# endif
-
 
 static ssize_t
 #ifdef NO_CANCELLATION
@@ -51,15 +42,9 @@ do_pread (int fd, void *buf, size_t count, off_t offset)
 {
   ssize_t result;
 
-  /* First try the syscall.  */
   assert (sizeof (offset) == 4);
-  result = INLINE_SYSCALL (pread, 5, fd, CHECK_N (buf, count), count,
+  result = INLINE_SYSCALL (pread, 5, fd, buf, count,
 			   __LONG_LONG_PAIR (offset >> 31, offset));
-# if __ASSUME_PREAD_SYSCALL == 0
-  if (result == -1 && errno == ENOSYS)
-    /* No system call available.  Use the emulation.  */
-    result = __emulate_pread (fd, buf, count, offset);
-# endif
 
   return result;
 }
@@ -86,11 +71,3 @@ __libc_pread (fd, buf, count, offset)
 
 strong_alias (__libc_pread, __pread)
 weak_alias (__libc_pread, pread)
-
-# define __libc_pread(fd, buf, count, offset) \
-     static internal_function __emulate_pread (fd, buf, count, offset)
-#endif
-
-#if __ASSUME_PREAD_SYSCALL == 0
-# include <sysdeps/posix/pread.c>
-#endif

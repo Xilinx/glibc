@@ -1,5 +1,5 @@
 /* _memcopy.c -- subroutines for memory copy functions.
-   Copyright (C) 1991, 1996 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund (tege@sics.se).
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* BE VERY CAREFUL IF YOU CHANGE THIS CODE...!  */
 
@@ -38,7 +37,7 @@ _wordcopy_fwd_aligned (dstp, srcp, len)
   if (len & 1)
   {
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     srcp += OPSIZ;
@@ -89,10 +88,10 @@ _wordcopy_fwd_dest_aligned (dstp, srcp, len)
   {
     a1 = ((op_t *) srcp)[1];
     ((op_t *) dstp)[0] = MERGE (a0, sh_1, a1, sh_2);
-    
+
     if (len == 1)
       return;
-    
+
     a0 = a1;
     srcp += OPSIZ;
     dstp += OPSIZ;
@@ -132,7 +131,7 @@ _wordcopy_bwd_aligned (dstp, srcp, len)
     srcp -= OPSIZ;
     dstp -= OPSIZ;
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     len -= 1;

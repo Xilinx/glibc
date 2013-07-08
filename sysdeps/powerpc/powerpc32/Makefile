@@ -6,8 +6,9 @@ sysdep-LDFLAGS += -msoft-float
 endif
 
 ifeq ($(subdir),gmon)
-sysdep_routines += ppc-mcount
+sysdep_routines += ppc-mcount compat-ppc-mcount
 static-only-routines += ppc-mcount
+shared-only-routines += compat-ppc-mcount
 endif
 
 ifeq ($(subdir),misc)
@@ -23,16 +24,11 @@ pic-ccflag = -fpic
 endif
 
 ifeq ($(subdir),csu)
-ifneq ($(elf),no)
-# The initfini generation code doesn't work in the presence of -fPIC, so
-# we use -fpic instead which is much better.
-CFLAGS-initfini.s += -fpic -O1
-
 # There is no benefit to using sdata for these objects, and the user
 # of the library should be able to control what goes into sdata.
 CFLAGS-init.o = -G0
 CFLAGS-gmon-start.o = -G0
-endif
+
 ifeq (yes,$(build-shared))
 # Compatibility
 ifeq (yes,$(have-protected))

@@ -1,4 +1,4 @@
-# Copyright (C) 1997, 1999, 2000  Free Software Foundation, Inc.
+# Copyright (C) 1997-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 
@@ -13,9 +13,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for software floating-point routines
@@ -35,11 +34,5 @@ gcc-quad-routines := negtf2 addtf3 subtf3 multf3 divtf3 eqtf2 \
 	letf2 getf2 unordtf2 fixtfsi fixunstfsi floatsitf fixtfdi      \
 	fixunstfdi floatditf extendsftf2 trunctfsf2 extenddftf2 \
 	trunctfdf2 sqrttf2 floatunsitf floatunditf
-
-distribute := double.h op-1.h op-2.h op-4.h op-common.h quad.h \
-	single.h soft-fp.h extended.h Banner op-8.h testit.c \
-	$(addsuffix .c,$(gcc-single-routines)) \
-	$(addsuffix .c,$(gcc-double-routines)) \
-	$(addsuffix .c,$(gcc-quad-routines))
 
 include ../Rules

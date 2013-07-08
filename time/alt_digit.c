@@ -1,5 +1,5 @@
 /* Helper functions used by strftime/strptime to handle alternate digits.
-   Copyright (C) 1995-2002, 2008, 2010 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,15 +13,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include "../locale/localeinfo.h"
 #include <bits/libc-lock.h>
 #include <stdlib.h>
 #include <wchar.h>
 #include <string.h>
+#include <stdint.h>
 
 /* Some of the functions here must not be used while setlocale is called.  */
 __libc_rwlock_define (extern, __libc_setlocale_lock attribute_hidden)

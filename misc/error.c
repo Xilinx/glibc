@@ -1,5 +1,5 @@
 /* Error handler for noninteractive utilities
-   Copyright (C) 1990-1998, 2000-2006, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1990-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Written by David MacKenzie <djm@gnu.ai.mit.edu>.  */
 
@@ -70,9 +69,9 @@ extern void __error_at_line (int status, int errnum, const char *file_name,
 # define error_at_line __error_at_line
 
 # include <libio/iolibio.h>
-# define fflush(s) INTUSE(_IO_fflush) (s)
+# define fflush(s) _IO_fflush (s)
 # undef putc
-# define putc(c, fp) INTUSE(_IO_putc) (c, fp)
+# define putc(c, fp) _IO_putc (c, fp)
 
 # include <bits/libc-lock.h>
 
@@ -131,7 +130,6 @@ error_tail (int status, int errnum, const char *message, va_list args)
 #if _LIBC
   if (_IO_fwide (stderr, 0) > 0)
     {
-# define ALLOCA_LIMIT 2000
       size_t len = strlen (message) + 1;
       wchar_t *wmessage = NULL;
       mbstate_t st;

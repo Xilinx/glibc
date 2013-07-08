@@ -50,15 +50,10 @@ static char rcsid[] = "$NetBSD: $";
  */
 
 #include <errno.h>
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	long double __cosl(long double x)
-#else
-	long double __cosl(x)
-	long double x;
-#endif
+long double __cosl(long double x)
 {
 	long double y[2],z=0.0;
 	int32_t n, se, i0, i1;
@@ -73,7 +68,7 @@ static char rcsid[] = "$NetBSD: $";
 
     /* cos(Inf or NaN) is NaN */
 	else if (se==0x7fff) {
-	  if ((i0 | i1) == 0)
+	  if (i1 == 0 && i0 == 0x80000000)
 	    __set_errno (EDOM);
 	  return x-x;
 	}

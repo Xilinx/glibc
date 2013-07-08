@@ -1,5 +1,5 @@
 /* Extended tar format from POSIX.1.
-   Copyright (C) 1992, 1996 Free Software Foundation, Inc.
+   Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by David J. MacKenzie.
 
@@ -14,12 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_TAR_H
 #define	_TAR_H	1
+
+#include <features.h>
+
 
 /* A tar archive consists of 512-byte blocks.
    Each file in the archive has a header block followed by 0+ data blocks.
@@ -71,7 +73,9 @@
 /* The bits in mode: */
 #define TSUID	04000
 #define TSGID	02000
-#define TSVTX	01000
+#ifdef __USE_XOPEN
+# define TSVTX	01000
+#endif
 #define TUREAD	00400
 #define TUWRITE	00200
 #define TUEXEC	00100

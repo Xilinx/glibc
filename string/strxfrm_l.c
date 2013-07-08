@@ -1,5 +1,4 @@
-/* Copyright (C) 1995-1997,2002,2004-2006,2010,2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@gnu.org>, 1995.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <langinfo.h>
@@ -176,7 +174,7 @@ STRXFRM (STRING_TYPE *dest, const STRING_TYPE *src, size_t n, __locale_t l)
   idxmax = 0;
   do
     {
-      int32_t tmp = findidx (&usrc);
+      int32_t tmp = findidx (&usrc, -1);
       rulearr[idxmax] = tmp >> 24;
       idxarr[idxmax] = tmp & 0xffffff;
 

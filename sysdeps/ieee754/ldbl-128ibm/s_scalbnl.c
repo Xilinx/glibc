@@ -25,32 +25,19 @@ static char rcsid[] = "$NetBSD: $";
  * exponentiation or a multiplication.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
-#ifdef __STDC__
 static const long double
-#else
-static long double
-#endif
 twolm54 = 5.55111512312578270212e-17, /* 0x3C90000000000000, 0 */
 huge   = 1.0E+300L,
 tiny   = 1.0E-300L;
-#ifdef __STDC__
 static const double
-#else
-static double
-#endif
 two54 = 1.80143985094819840000e+16, /* 0x4350000000000000 */
 twom54 = 5.55111512312578270212e-17; /* 0x3C90000000000000 */
 
-#ifdef __STDC__
-	long double __scalbnl (long double x, int n)
-#else
-	long double __scalbnl (x,n)
-	long double x; int n;
-#endif
+long double __scalbnl (long double x, int n)
 {
 	int64_t k,l,hx,lx;
 	union { int64_t i; double d; } u;
@@ -65,21 +52,23 @@ twom54 = 5.55111512312578270212e-17; /* 0x3C90000000000000 */
 	    k = ((hx>>52)&0x7ff) - 54;
 	}
 	else if (k==0x7ff) return x+x;		/* NaN or Inf */
-	k = k+n;
-	if (n> 50000 || k > 0x7fe)
-	  return huge*__copysignl(huge,x); /* overflow */
 	if (n< -50000) return tiny*__copysignl(tiny,x); /*underflow */
+	if (n> 50000 || k+n > 0x7fe)
+	  return huge*__copysignl(huge,x); /* overflow */
+	/* Now k and n are bounded we know that k = k+n does not
+	   overflow.  */
+	k = k+n;
 	if (k > 0) {				/* normal result */
 	    hx = (hx&0x800fffffffffffffULL)|(k<<52);
 	    if ((lx & 0x7fffffffffffffffULL) == 0) { /* low part +-0 */
-	    	SET_LDOUBLE_WORDS64(x,hx,lx);
-	    	return x;
+		SET_LDOUBLE_WORDS64(x,hx,lx);
+		return x;
 	    }
 	    if (l == 0) { /* low part subnormal */
-	    	u.i = lx;
-	    	u.d *= two54;
-	    	lx = u.i;
-	    	l = ((lx>>52)&0x7ff) - 54;
+		u.i = lx;
+		u.d *= two54;
+		lx = u.i;
+		l = ((lx>>52)&0x7ff) - 54;
 	    }
 	    l = l + n;
 	    if (l > 0)
@@ -87,10 +76,10 @@ twom54 = 5.55111512312578270212e-17; /* 0x3C90000000000000 */
 	    else if (l <= -54)
 		lx = (lx&0x8000000000000000ULL);
 	    else {
-	    	l += 54;
-	    	u.i = (lx&0x800fffffffffffffULL)|(l<<52);
-	    	u.d *= twom54;
-	    	lx = u.i;
+		l += 54;
+		u.i = (lx&0x800fffffffffffffULL)|(l<<52);
+		u.d *= twom54;
+		lx = u.i;
 	    }
 	    SET_LDOUBLE_WORDS64(x,hx,lx);
 	    return x;

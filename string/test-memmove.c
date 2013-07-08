@@ -1,5 +1,5 @@
 /* Test and measure memmove functions.
-   Copyright (C) 1999, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -14,20 +14,40 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#ifdef TEST_BCOPY
+# define TEST_NAME "bcopy"
+#else
+# define TEST_NAME "memmove"
+#endif
 #include "test-string.h"
 
-typedef char *(*proto_t) (char *, const char *, size_t);
 char *simple_memmove (char *, const char *, size_t);
+
+#ifdef TEST_BCOPY
+typedef void (*proto_t) (const char *, char *, size_t);
+void simple_bcopy (const char *, char *, size_t);
+
+IMPL (simple_bcopy, 0)
+IMPL (bcopy, 1)
+
+void
+simple_bcopy (const char *src, char *dst, size_t n)
+{
+  simple_memmove (dst, src, n);
+}
+#else
+typedef char *(*proto_t) (char *, const char *, size_t);
 
 IMPL (simple_memmove, 0)
 IMPL (memmove, 1)
+#endif
 
 char *
+inhibit_loop_to_libcall
 simple_memmove (char *dst, const char *src, size_t n)
 {
   char *ret = dst;
@@ -48,9 +68,12 @@ static void
 do_one_test (impl_t *impl, char *dst, char *src, const char *orig_src,
 	     size_t len)
 {
+  memcpy (src, orig_src, len);
+#ifdef TEST_BCOPY
+  CALL (impl, src, dst, len);
+#else
   char *res;
 
-  memcpy (src, orig_src, len);
   res = CALL (impl, dst, src, len);
   if (res != dst)
     {
@@ -59,6 +82,7 @@ do_one_test (impl_t *impl, char *dst, char *src, const char *orig_src,
       ret = 1;
       return;
     }
+#endif
 
   if (memcmp (dst, orig_src, len) != 0)
     {
@@ -66,24 +90,6 @@ do_one_test (impl_t *impl, char *dst, char *src, const char *orig_src,
 	     impl->name, dst, src);
       ret = 1;
       return;
-    }
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, dst, src, len);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
     }
 }
 
@@ -107,14 +113,8 @@ do_test (size_t align1, size_t align2, size_t len)
   for (i = 0, j = 1; i < len; i++, j += 23)
     s1[i] = j;
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, alignment %2zd/%2zd:", len, align1, align2);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, s2, (char *) (buf2 + align1), s1, len);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void
@@ -124,7 +124,9 @@ do_random_tests (void)
   size_t srcstart, srcend, dststart, dstend;
   int c;
   unsigned char *p1, *p2;
+#ifndef TEST_BCOPY
   unsigned char *res;
+#endif
 
   for (n = 0; n < ITERATIONS; n++)
     {
@@ -179,6 +181,9 @@ do_random_tests (void)
 	{
 	  memset (p2 + dststart, c, dstend - dststart);
 	  memcpy (p2 + srcstart, p1 + srcstart, srcend - srcstart);
+#ifdef TEST_BCOPY
+	  CALL (impl, (char *) (p2 + align1), (char *) (p2 + align2), len);
+#else
 	  res = (unsigned char *) CALL (impl,
 					(char *) (p2 + align2),
 					(char *) (p2 + align1), len);
@@ -188,6 +193,7 @@ do_random_tests (void)
 		     n, impl->name, align1, align2, len, res, p2 + align2);
 	      ret = 1;
 	    }
+#endif
 	  if (memcmp (p1 + align1, p2 + align2, len))
 	    {
 	      error (0, 0, "Iteration %zd - different strings, %s (%zd, %zd, %zd)",

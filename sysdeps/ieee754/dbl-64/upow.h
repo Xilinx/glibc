@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * Written by International Business Machines Corp.
- * Copyright (C) 2001, 2002 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2013 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,8 +14,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /******************************************************************/
@@ -35,7 +34,6 @@
 /**/ nZERO	    = {{0x80000000, 0}},	  /* -0.0          */
 /**/ INF            = {{0x7ff00000, 0x00000000}}, /* INF           */
 /**/ nINF           = {{0xfff00000, 0x00000000}}, /* -INF          */
-/**/ NaNQ           = {{0x7ff80000, 0x00000000}}, /* NaNQ          */
 /**/ sqrt_2         = {{0x3ff6a09e, 0x667f3bcc}}, /* sqrt(2)       */
 /**/ ln2a           = {{0x3fe62e42, 0xfefa3800}}, /* ln(2) 43 bits */
 /**/ ln2b           = {{0x3d2ef357, 0x93c76730}}, /* ln(2)-ln2a    */
@@ -50,7 +48,6 @@
 /**/ nZERO	    = {{0, 0x80000000}},	  /* -0.0          */
 /**/ INF            = {{0x00000000, 0x7ff00000}}, /* INF           */
 /**/ nINF           = {{0x00000000, 0xfff00000}}, /* -INF           */
-/**/ NaNQ           = {{0x00000000, 0x7ff80000}}, /* NaNQ          */
 /**/ sqrt_2         = {{0x667f3bcc, 0x3ff6a09e}}, /* sqrt(2)       */
 /**/ ln2a           = {{0xfefa3800, 0x3fe62e42}}, /* ln(2) 43 bits */
 /**/ ln2b           = {{0x93c76730, 0x3d2ef357}}, /* ln(2)-ln2a    */

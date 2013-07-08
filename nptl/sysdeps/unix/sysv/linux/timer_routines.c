@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <setjmp.h>
@@ -40,7 +39,6 @@ struct thread_start_data
 };
 
 
-#ifdef __NR_timer_create
 /* Helper thread to call the user-provided function.  */
 static void *
 timer_sigev_thread (void *arg)
@@ -165,7 +163,7 @@ __start_helper_thread (void)
      and should go away automatically when canceled.  */
   pthread_attr_t attr;
   (void) pthread_attr_init (&attr);
-  (void) pthread_attr_setstacksize (&attr, PTHREAD_STACK_MIN);
+  (void) pthread_attr_setstacksize (&attr, __pthread_get_minstack (&attr));
 
   /* Block all signals in the helper thread but SIGSETXID.  To do this
      thoroughly we temporarily have to block all signals here.  The
@@ -197,8 +195,3 @@ __start_helper_thread (void)
      be created.  */
   pthread_atfork (NULL, NULL, reset_helper_control);
 }
-#endif
-
-#ifndef __ASSUME_POSIX_TIMERS
-# include <nptl/sysdeps/pthread/timer_routines.c>
-#endif

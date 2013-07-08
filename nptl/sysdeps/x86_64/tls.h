@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/x86_64 version.
-   Copyright (C) 2002-2007, 2008, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _TLS_H
 #define _TLS_H	1
@@ -27,9 +26,16 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <sysdep.h>
+# include <libc-internal.h>
 # include <kernel-features.h>
-# include <bits/wordsize.h>
-# include <xmmintrin.h>
+
+/* Replacement type for __m128 since this file is included by ld.so,
+   which is compiled with -mno-sse.  It must not change the alignment
+   of rtld_savespace_sse.  */
+typedef struct
+{
+  int i[4];
+} __128bits;
 
 
 /* Type for the dtv.  */
@@ -61,18 +67,16 @@ typedef struct
 # else
   int __unused1;
 # endif
-# if __WORDSIZE == 64
   int rtld_must_xmm_save;
-# endif
   /* Reservation of some values for the TM ABI.  */
-  void *__private_tm[5];
-# if __WORDSIZE == 64
+  void *__private_tm[4];
+  /* GCC split stack support.  */
+  void *__private_ss;
   long int __unused2;
   /* Have space for the post-AVX register size.  */
-  __m128 rtld_savespace_sse[8][4];
+  __128bits rtld_savespace_sse[8][4] __attribute__ ((aligned (32)));
 
   void *__padding[8];
-# endif
 } tcbhead_t;
 
 #else /* __ASSEMBLER__ */
@@ -134,13 +138,6 @@ typedef struct
   (((tcbhead_t *) (descr))->dtv)
 
 
-/* Macros to load from and store into segment registers.  */
-# define TLS_GET_FS() \
-  ({ int __seg; __asm ("movl %%fs, %0" : "=q" (__seg)); __seg; })
-# define TLS_SET_FS(val) \
-  __asm ("movl %0, %%fs" :: "q" (val))
-
-
 /* Code to initially initialize the thread pointer.  This might need
    special attention since 'errno' is not yet available and if the
    operation can cause a failure 'errno' must not be touched.
@@ -182,7 +179,7 @@ typedef struct
    do not get optimized away.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;						      \
-     asm ("movq %%fs:%c1,%q0" : "=r" (__self)				      \
+     asm ("mov %%fs:%c1,%0" : "=r" (__self)				      \
 	  : "i" (offsetof (struct pthread, header.self)));	 	      \
      __self;})
 
@@ -269,7 +266,7 @@ typedef struct
 	   abort ();							      \
 									      \
 	 asm volatile ("movq %q0,%%fs:%P1" :				      \
-		       : IMM_MODE ((unsigned long int) value),		      \
+		       : IMM_MODE ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member)));	      \
        }})
 
@@ -294,7 +291,7 @@ typedef struct
 	   abort ();							      \
 									      \
 	 asm volatile ("movq %q0,%%fs:%P1(,%q2,8)" :			      \
-		       : IMM_MODE ((unsigned long int) value),		      \
+		       : IMM_MODE ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member[0])),	      \
 			 "r" (idx));					      \
        }})

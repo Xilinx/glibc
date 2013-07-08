@@ -1,5 +1,4 @@
-/* Copyright (C) 1993,1995,1996,1997,1998,2000,2001,2002, 2003, 2008, 2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -34,13 +32,14 @@
 
 #include <fd_to_filename.h>
 
+#include <kernel-features.h>
+
 FILE *
 freopen64 (filename, mode, fp)
      const char* filename;
      const char* mode;
      FILE *fp;
 {
-#ifdef _G_OPEN64
   FILE *result;
   CHECK_FILE (fp, NULL);
   if (!(fp->_flags & _IO_IS_FILEBUF))
@@ -50,11 +49,11 @@ freopen64 (filename, mode, fp)
   const char *gfilename = (filename == NULL && fd >= 0
 			   ? fd_to_filename (fd) : filename);
   fp->_flags2 |= _IO_FLAGS2_NOCLOSE;
-  INTUSE(_IO_file_close_it) (fp);
+  _IO_file_close_it (fp);
   _IO_JUMPS ((struct _IO_FILE_plus *) fp) = &_IO_file_jumps;
   if (_IO_vtable_offset (fp) == 0 && fp->_wide_data != NULL)
     fp->_wide_data->_wide_vtable = &_IO_wfile_jumps;
-  result = INTUSE(_IO_file_fopen) (fp, gfilename, mode, 0);
+  result = _IO_file_fopen (fp, gfilename, mode, 0);
   fp->_flags2 &= ~_IO_FLAGS2_NOCLOSE;
   if (result != NULL)
     result = __fopen_maybe_mmap (result);
@@ -73,9 +72,9 @@ freopen64 (filename, mode, fp)
 	  else
 	    newfd =
 # endif
-	      dup3 (_IO_fileno (result), fd,
-		    (result->_flags2 & _IO_FLAGS2_CLOEXEC) != 0
-		    ? O_CLOEXEC : 0);
+	      __dup3 (_IO_fileno (result), fd,
+                      (result->_flags2 & _IO_FLAGS2_CLOEXEC) != 0
+                      ? O_CLOEXEC : 0);
 #else
 # define newfd 1
 #endif
@@ -101,8 +100,4 @@ freopen64 (filename, mode, fp)
     free ((char *) gfilename);
   _IO_release_lock (fp);
   return result;
-#else
-  __set_errno (ENOSYS);
-  return NULL;
-#endif
 }

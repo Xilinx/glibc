@@ -1,5 +1,5 @@
 /* ix87 specific implementation of arcsinh.
-   Copyright (C) 1996, 1997, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -14,33 +14,28 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 
-#ifdef __ELF__
 	.section .rodata
-#else
-	.text
-#endif
 
 	.align ALIGNARG(4)
-	ASM_TYPE_DIRECTIVE(huge,@object)
+	.type huge,@object
 huge:	.tfloat 1e+4930
 	ASM_SIZE_DIRECTIVE(huge)
 	.align ALIGNARG(4)
 	/* Please note that we use double value for 1.0.  This number
 	   has an exact representation and so we don't get accuracy
 	   problems.  The advantage is that the code is simpler.  */
-	ASM_TYPE_DIRECTIVE(one,@object)
+	.type one,@object
 one:	.double 1.0
 	ASM_SIZE_DIRECTIVE(one)
 	/* It is not important that this constant is precise.  It is only
 	   a value which is known to be on the safe side for using the
 	   fyl2xp1 instruction.  */
-	ASM_TYPE_DIRECTIVE(limit,@object)
+	.type limit,@object
 limit:	.double 0.29
 	ASM_SIZE_DIRECTIVE(limit)
 

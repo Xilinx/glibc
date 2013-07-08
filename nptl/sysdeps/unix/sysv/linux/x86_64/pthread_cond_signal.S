@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2005, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -35,7 +34,7 @@
 	.align	16
 __pthread_cond_signal:
 
-        LIBC_PROBE (cond_signal, 1, %rdi)
+	LIBC_PROBE (cond_signal, 1, %rdi)
 
 	/* Get internal lock.  */
 	movq	%rdi, %r8
@@ -59,14 +58,14 @@ __pthread_cond_signal:
 	addl	$1, (%rdi)
 
 	/* Wake up one thread.  */
-	cmpq	$-1, dep_mutex(%r8)
+	LP_OP(cmp) $-1, dep_mutex(%r8)
 	movl	$FUTEX_WAKE_OP, %esi
 	movl	$1, %edx
 	movl	$SYS_futex, %eax
 	je	8f
 
 	/* Get the address of the mutex used.  */
-	movq    dep_mutex(%r8), %rcx
+	mov     dep_mutex(%r8), %RCX_LP
 	movl	MUTEX_KIND(%rcx), %r11d
 	andl	$(ROBUST_BIT|PI_BIT), %r11d
 	cmpl	$PI_BIT, %r11d
@@ -138,7 +137,7 @@ __pthread_cond_signal:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -154,7 +153,7 @@ __pthread_cond_signal:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi

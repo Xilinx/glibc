@@ -1,5 +1,5 @@
 /* Test and measure strncpy functions.
-   Copyright (C) 1999, 2002, 2003, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -14,13 +14,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef STRNCPY_RESULT
 # define STRNCPY_RESULT(dst, len, n) dst
 # define TEST_MAIN
+# define TEST_NAME "strncpy"
 # include "test-string.h"
 
 char *simple_strncpy (char *, const char *, size_t);
@@ -90,24 +90,6 @@ do_one_test (impl_t *impl, char *dst, const char *src, size_t len, size_t n)
 	    return;
 	  }
     }
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute__ ((unused));
-      hp_timing_t stop __attribute__ ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, dst, src, n);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
-    }
 }
 
 static void
@@ -133,14 +115,8 @@ do_test (size_t align1, size_t align2, size_t len, size_t n, int max_char)
   for (i = len + 1; i + align1 < page_size && i < len + 64; ++i)
     s1[i] = 32 + 32 * i % (max_char - 32);
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, n %4zd, alignment %2zd/%2zd:", len, n, align1, align2);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, s2, s1, len, n);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void

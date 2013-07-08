@@ -1,5 +1,4 @@
-# Copyright (C) 1991-2000,2002,2003,2004,2005,2006,2011
-#	Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Rules for making a subdirectory in the GNU C library.
@@ -85,84 +83,112 @@ common-generated += dummy.o dummy.c
 
 # This makes all the auxiliary and test programs.
 
-.PHONY: others tests
+.PHONY: others tests bench
+ifeq ($(multi-arch),no)
+tests := $(filter-out $(tests-ifunc), $(tests))
+xtests := $(filter-out $(xtests-ifunc), $(xtests))
+endif
+
 ifeq ($(build-programs),yes)
 others: $(addprefix $(objpfx),$(others) $(sysdep-others) $(extra-objs))
 else
 others: $(addprefix $(objpfx),$(extra-objs))
 endif
-ifeq ($(cross-compiling),yes)
+ifeq ($(run-built-tests),no)
 tests: $(addprefix $(objpfx),$(tests) $(test-srcs))
 xtests: tests
 else
-ifeq ($(build-bounded),yes)
-tests-bp.out = $(tests:%=$(objpfx)%-bp.out)
-xtests-bp.out = $(xtests:%=$(objpfx)%-bp.out)
-endif
-tests: $(tests:%=$(objpfx)%.out) $(tests-bp.out)
-xtests: tests $(xtests:%=$(objpfx)%.out) $(xtests-bp.out)
+tests: $(tests:%=$(objpfx)%.out)
+xtests: tests $(xtests:%=$(objpfx)%.out)
 endif
 
 ifeq ($(build-programs),yes)
-binaries-all = $(others) $(sysdep-others) $(tests) $(xtests) $(test-srcs)
-binaries-static = $(others-static) $(tests-static) $(xtests-static)
+binaries-all-notests = $(others) $(sysdep-others)
+binaries-all-tests = $(tests) $(xtests) $(test-srcs)
+binaries-all = $(binaries-all-notests) $(binaries-all-tests)
+binaries-static-notests = $(others-static)
+binaries-static-tests = $(tests-static) $(xtests-static)
+binaries-static = $(binaries-static-notests) $(binaries-static-tests)
 ifeq (yesyes,$(have-fpie)$(build-shared))
-binaries-pie = $(others-pie) $(tests-pie) $(xtests-pie)
+binaries-pie-tests = $(tests-pie) $(xtests-pie)
+binaries-pie-notests = $(others-pie)
 else
-binaries-pie =
+binaries-pie-tests =
+binaries-pie-notests =
 endif
 else
-binaries-all = $(tests) $(xtests) $(test-srcs)
+binaries-all-notests =
+binaries-all-tests = $(tests) $(xtests) $(test-srcs)
+binaries-all = $(binaries-all-tests)
+binaries-static-notests =
+binaries-static-tests =
 binaries-static =
-binaries-pie =
+binaries-pie-tests =
+binaries-pie-notests =
 endif
 
-binaries-shared = $(filter-out $(binaries-pie) $(binaries-static), \
-			       $(binaries-all))
+binaries-pie = $(binaries-pie-tests) $(binaries-pie-notests)
+binaries-shared-tests = $(filter-out $(binaries-pie) $(binaries-static), \
+				     $(binaries-all-tests))
+binaries-shared-notests = $(filter-out $(binaries-pie) $(binaries-static), \
+				       $(binaries-all-notests))
 
-ifneq "$(strip $(binaries-shared))" ""
-$(addprefix $(objpfx),$(binaries-shared)): %: %.o \
+ifneq "$(strip $(binaries-shared-notests))" ""
+$(addprefix $(objpfx),$(binaries-shared-notests)): %: %.o \
   $(sort $(filter $(common-objpfx)lib%,$(link-libc))) \
   $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
 	$(+link)
 endif
 
-ifneq "$(strip $(binaries-pie))" ""
-$(addprefix $(objpfx),$(binaries-pie)): %: %.o \
+ifneq "$(strip $(binaries-shared-tests))" ""
+$(addprefix $(objpfx),$(binaries-shared-tests)): %: %.o \
+  $(sort $(filter $(common-objpfx)lib%,$(link-libc))) \
+  $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
+	$(+link-tests)
+endif
+
+ifneq "$(strip $(binaries-pie-tests))" ""
+$(addprefix $(objpfx),$(binaries-pie-tests)): %: %.o \
+  $(sort $(filter $(common-objpfx)lib%,$(link-libc))) \
+  $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
+	$(+link-pie-tests)
+endif
+
+ifneq "$(strip $(binaries-pie-notests))" ""
+$(addprefix $(objpfx),$(binaries-pie-notests)): %: %.o \
   $(sort $(filter $(common-objpfx)lib%,$(link-libc))) \
   $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
 	$(+link-pie)
 endif
 
-ifneq "$(strip $(binaries-static))" ""
-$(addprefix $(objpfx),$(binaries-static)): %: %.o \
+ifneq "$(strip $(binaries-static-notests))" ""
+$(addprefix $(objpfx),$(binaries-static-notests)): %: %.o \
   $(sort $(filter $(common-objpfx)lib%,$(link-libc-static))) \
   $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
 	$(+link-static)
 endif
 
-ifeq ($(build-bounded),yes)
-binaries-bounded = $(addsuffix -bp,$(tests) $(xtests) $(test-srcs))
-$(addprefix $(objpfx),$(binaries-bounded)): %-bp: %.ob \
-  $(sort $(filter $(common-objpfx)lib%,$(link-libc-bounded))) \
-  $(addprefix $(csu-objpfx),start.ob) $(+preinit) $(+postinit)
-	$(+link-bounded)
+ifneq "$(strip $(binaries-static-tests))" ""
+$(addprefix $(objpfx),$(binaries-static-tests)): %: %.o \
+  $(sort $(filter $(common-objpfx)lib%,$(link-libc-static-tests))) \
+  $(addprefix $(csu-objpfx),start.o) $(+preinit) $(+postinit)
+	$(+link-static-tests)
 endif
 
 ifneq "$(strip $(tests) $(xtests) $(test-srcs))" ""
 # These are the implicit rules for making test outputs
 # from the test programs and whatever input files are present.
 
-make-test-out = GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
-		$($*-ENV) $(built-program-cmd) $($*-ARGS)
-$(objpfx)%-bp.out: %.input $(objpfx)%-bp
-	$(make-test-out) > $@ < $(word 1,$^)
+make-test-out = $(test-wrapper-env) \
+		GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
+		$($*-ENV) $(host-test-program-cmd) $($*-ARGS)
 $(objpfx)%.out: %.input $(objpfx)%
 	$(make-test-out) > $@ < $(word 1,$^)
 $(objpfx)%.out: /dev/null $(objpfx)%	# Make it 2nd arg for canned sequence.
 	$(make-test-out) > $@
 
 endif	# tests
+
 
 .PHONY: distclean realclean subdir_distclean subdir_realclean \
 	subdir_clean subdir_mostlyclean subdir_testclean

@@ -1,6 +1,5 @@
 /* Generate graphic from memory profiling data.
-   Copyright (C) 1998, 1999, 2000, 2005, 2006,
-   2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -15,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #define _FILE_OFFSET_BITS 64
 
@@ -32,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 
@@ -54,12 +53,15 @@
 /* Definitions of arguments for argp functions.  */
 static const struct argp_option options[] =
 {
-  { "output", 'o', "FILE", 0, N_("Name output file") },
-  { "string", 's', "STRING", 0, N_("Title string used in output graphic") },
-  { "time", 't', NULL, 0, N_("Generate output linear to time (default is linear to number of function calls)") },
+  { "output", 'o', N_("FILE"), 0, N_("Name output file") },
+  { "string", 's', N_("STRING"), 0, N_("Title string used in output graphic") },
+  { "time", 't', NULL, 0, N_("\
+Generate output linear to time (default is linear to number of function calls)\
+") },
   { "total", 'T', NULL, 0,
     N_("Also draw graph for total memory consumption") },
-  { "x-size", 'x', "VALUE", 0, N_("Make output graphic VALUE pixels wide") },
+  { "x-size", 'x', N_("VALUE"), 0,
+    N_("Make output graphic VALUE pixels wide") },
   { "y-size", 'y', "VALUE", 0, N_("Make output graphic VALUE pixels high") },
   { NULL, 0, NULL, 0, NULL }
 };
@@ -321,17 +323,26 @@ main (int argc, char *argv[])
 
   for (line = 1; line <= 3; ++line)
     {
-      cnt = ((ysize - 40) * (maxsize_heap / 4 * line / heap_scale)) /
-	(maxsize_heap / heap_scale);
-      gdImageDashedLine (im_out, 40, ysize - 20 - cnt, xsize - 40,
-			 ysize - 20 - cnt, red);
-      snprintf (buf, sizeof (buf), heap_format, maxsize_heap / 4 * line /
-		heap_scale);
-      gdImageString (im_out, gdFontSmall, 39 - strlen (buf) * 6,
-		     ysize - 26 - cnt, (unsigned char *) buf, red);
+      if (maxsize_heap > 0)
+	{
+	  cnt = (((ysize - 40) * (maxsize_heap / 4 * line / heap_scale))
+		 / (maxsize_heap / heap_scale));
+	  gdImageDashedLine (im_out, 40, ysize - 20 - cnt, xsize - 40,
+			     ysize - 20 - cnt, red);
+	  snprintf (buf, sizeof (buf), heap_format,
+		    maxsize_heap / 4 * line / heap_scale);
+	  gdImageString (im_out, gdFontSmall, 39 - strlen (buf) * 6,
+			 ysize - 26 - cnt, (unsigned char *) buf, red);
+	}
+      else
+	cnt = 0;
 
-      cnt2 = ((ysize - 40) * (maxsize_stack / 4 * line / stack_scale)) /
-	(maxsize_stack / stack_scale);
+      if (maxsize_stack > 0)
+	cnt2 = (((ysize - 40) * (maxsize_stack / 4 * line / stack_scale))
+		/ (maxsize_stack / stack_scale));
+      else
+	cnt2 = 0;
+
       if (cnt != cnt2)
 	gdImageDashedLine (im_out, 40, ysize - 20 - cnt2, xsize - 40,
 			   ysize - 20 - cnt2, green);
@@ -374,7 +385,7 @@ main (int argc, char *argv[])
 				    ysize - 14, yellow);
 	  previously = now;
 
-	  if (also_total)
+	  if (also_total && maxsize_heap > 0)
 	    {
 	      size_t new3;
 
@@ -388,21 +399,27 @@ main (int argc, char *argv[])
 	      last_total = new3;
 	    }
 
-	  // assert (entry.heap <= maxsize_heap);
-	  new[0] = (ysize - 20) - ((((unsigned long long int) (ysize - 40))
-				    * entry.heap) / maxsize_heap);
-	  gdImageLine (im_out, 40 + ((xsize - 80) * (cnt - 1)) / total,
-		       last_heap, 40 + ((xsize - 80) * cnt) / total, new[0],
-		       red);
-	  last_heap = new[0];
+	  if (maxsize_heap > 0)
+	    {
+	      new[0] = ((ysize - 20)
+			- ((((unsigned long long int) (ysize - 40))
+			    * entry.heap) / maxsize_heap));
+	      gdImageLine (im_out, 40 + ((xsize - 80) * (cnt - 1)) / total,
+			   last_heap, 40 + ((xsize - 80) * cnt) / total,
+			   new[0], red);
+	      last_heap = new[0];
+	    }
 
-	  // assert (entry.stack <= maxsize_stack);
-	  new[1] = (ysize - 20) - ((((unsigned long long int) (ysize - 40))
-				    * entry.stack) / maxsize_stack);
-	  gdImageLine (im_out, 40 + ((xsize - 80) * (cnt - 1)) / total,
-		       last_stack, 40 + ((xsize - 80) * cnt) / total, new[1],
-		       green);
-	  last_stack = new[1];
+	  if (maxsize_stack > 0)
+	    {
+	      new[1] = ((ysize - 20)
+			- ((((unsigned long long int) (ysize - 40))
+			    * entry.stack) / maxsize_stack));
+	      gdImageLine (im_out, 40 + ((xsize - 80) * (cnt - 1)) / total,
+			   last_stack, 40 + ((xsize - 80) * cnt) / total,
+			   new[1], green);
+	      last_stack = new[1];
+	    }
 	}
 
       cnt = 0;
@@ -450,7 +467,7 @@ main (int argc, char *argv[])
 	      next_tick += MAX (1, total / 20);
 	    }
 
-	  if (also_total)
+	  if (also_total && maxsize_heap > 0)
 	    {
 	      size_t new3;
 
@@ -461,16 +478,24 @@ main (int argc, char *argv[])
 	      last_total = new3;
 	    }
 
-	  new[0] = (ysize - 20) - ((((unsigned long long int) (ysize - 40))
-				    * entry.heap) / maxsize_heap);
-	  gdImageLine (im_out, last_xpos, last_heap, xpos, new[0], red);
-	  last_heap = new[0];
+	  if (maxsize_heap > 0)
+	    {
+	      new[0] = ((ysize - 20)
+			- ((((unsigned long long int) (ysize - 40))
+			    * entry.heap) / maxsize_heap));
+	      gdImageLine (im_out, last_xpos, last_heap, xpos, new[0], red);
+	      last_heap = new[0];
+	    }
 
-	  // assert (entry.stack <= maxsize_stack);
-	  new[1] = (ysize - 20) - ((((unsigned long long int) (ysize - 40))
-				    * entry.stack) / maxsize_stack);
-	  gdImageLine (im_out, last_xpos, last_stack, xpos, new[1], green);
-	  last_stack = new[1];
+	  if (maxsize_stack > 0)
+	    {
+	      new[1] = ((ysize - 20)
+			- ((((unsigned long long int) (ysize - 40))
+			    * entry.stack) / maxsize_stack));
+	      gdImageLine (im_out, last_xpos, last_stack, xpos, new[1],
+			   green);
+	      last_stack = new[1];
+	    }
 
 	  last_xpos = xpos;
 	}
@@ -529,20 +554,17 @@ parse_opt (int key, char *arg, struct argp_state *state)
 static char *
 more_help (int key, const char *text, void *input)
 {
-  char *orig;
-  char *cp;
+  char *tp;
 
   switch (key)
     {
     case ARGP_KEY_HELP_EXTRA:
       /* We print some extra information.  */
-      orig = gettext ("\
+      if (asprintf (&tp, gettext ("\
 For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n");
-      cp = strdup (orig);
-      if (cp == NULL)
-	cp = orig;
-      return cp;
+%s.\n"), REPORT_BUGS_TO) < 0)
+	return NULL;
+      return tp;
     default:
       break;
     }
@@ -553,11 +575,11 @@ For bug reporting instructions, please see:\n\
 static void
 print_version (FILE *stream, struct argp_state *state)
 {
-  fprintf (stream, "memusagestat (GNU %s) %s\n", PACKAGE, VERSION);
+  fprintf (stream, "memusagestat %s%s\n", PKGVERSION, VERSION);
   fprintf (stream, gettext ("\
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2009");
+"), "2013");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }

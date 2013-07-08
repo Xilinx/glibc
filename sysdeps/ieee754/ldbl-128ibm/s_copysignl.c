@@ -23,16 +23,11 @@ static char rcsid[] = "$NetBSD: $";
  * with the sign bit of y.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
-#ifdef __STDC__
-	long double __copysignl(long double x, long double y)
-#else
-	long double __copysignl(x,y)
-	long double x,y;
-#endif
+long double __copysignl(long double x, long double y)
 {
   if (signbit (x) != signbit (y))
     x = -x;

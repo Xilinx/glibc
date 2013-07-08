@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-1999, 2002, 2007, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1997.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -55,7 +54,7 @@ user2netname (char netname[MAXNETNAMELEN + 1], const uid_t uid,
     netname[i - 1] = '\0';
   return 1;
 }
-libc_hidden_nolink (user2netname, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (user2netname, GLIBC_2_1)
 
 int
 host2netname (char netname[MAXNETNAMELEN + 1], const char *host,
@@ -119,7 +118,7 @@ host2netname (char netname[MAXNETNAMELEN + 1], const char *host,
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (host2netname)
 #else
-libc_hidden_nolink (host2netname, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (host2netname, GLIBC_2_1)
 #endif
 
 int
@@ -135,7 +134,7 @@ getnetname (char name[MAXNETNAMELEN + 1])
     dummy = user2netname (name, uid, NULL);
   return (dummy);
 }
-libc_hidden_nolink (getnetname, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (getnetname, GLIBC_2_1)
 
 /* Type of the lookup function for netname2user.  */
 typedef int (*netname2user_function) (const char netname[MAXNETNAMELEN + 1],
@@ -188,7 +187,7 @@ netname2user (const char netname[MAXNETNAMELEN + 1], uid_t * uidp, gid_t * gidp,
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (netname2user)
 #else
-libc_hidden_nolink (netname2user, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (netname2user, GLIBC_2_1)
 #endif
 
 int
@@ -215,4 +214,4 @@ netname2host (const char netname[MAXNETNAMELEN + 1], char *hostname,
 
   return 1;
 }
-libc_hidden_nolink (netname2host, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (netname2host, GLIBC_2_1)

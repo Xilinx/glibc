@@ -1,6 +1,6 @@
 /* Multiple versions of memcpy
-   Copyright (C) 2010, 2011
-   Free Software Foundation, Inc.
+   All versions must be listed in ifunc-impl-list.c.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -34,18 +33,21 @@ ENTRY(__new_memcpy)
 	jne	1f
 	call	__init_cpu_features
 1:	leaq	__memcpy_sse2(%rip), %rax
-	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jz	2f
-	leaq	__memcpy_ssse3(%rip), %rax
-	testl	$bit_Fast_Copy_Backward, __cpu_features+FEATURE_OFFSET+index_Fast_Copy_Backward(%rip)
-	jz	2f
-	leaq	__memcpy_ssse3_back(%rip), %rax
-2:	ret
+	testl	$bit_Slow_BSF, __cpu_features+FEATURE_OFFSET+index_Slow_BSF(%rip)
+	jnz	2f
+	leaq	__memcpy_sse2_unaligned(%rip), %rax
+	ret
+2:	testl   $bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
+	jz 3f
+	leaq    __memcpy_ssse3(%rip), %rax
+3:	ret
 END(__new_memcpy)
 
 # undef ENTRY
 # define ENTRY(name) \
 	.type __memcpy_sse2, @function; \
+	.globl __memcpy_sse2; \
+	.hidden __memcpy_sse2; \
 	.p2align 4; \
 	__memcpy_sse2: cfi_startproc; \
 	CALL_MCOUNT

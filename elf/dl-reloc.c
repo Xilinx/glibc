@@ -1,5 +1,5 @@
 /* Relocate a shared object and resolve its references to other loaded objects.
-   Copyright (C) 1995-2006, 2008-2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <libintl.h>
@@ -25,6 +24,7 @@
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/types.h>
+#include <_itoa.h>
 #include "dynamic-link.h"
 
 /* Statistics function.  */
@@ -185,8 +185,7 @@ _dl_relocate_object (struct link_map *l, struct r_scope_elem *scope[],
 
   if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_RELOC, 0))
     _dl_debug_printf ("\nrelocation processing: %s%s\n",
-		      l->l_name[0] ? l->l_name : rtld_progname,
-		      lazy ? " (lazy)" : "");
+		      DSO_FILENAME (l->l_name), lazy ? " (lazy)" : "");
 
   /* DT_TEXTREL is now in level 2 and might phase out at some time.
      But we rewrite the DT_FLAGS entry to a DT_TEXTREL entry to make
@@ -276,7 +275,7 @@ _dl_relocate_object (struct link_map *l, struct r_scope_elem *scope[],
 	    errstring = N_("%s: no PLTREL found in object %s\n");
 	  fatal:
 	    _dl_fatal_printf (errstring,
-			      rtld_progname ?: "<program name unknown>",
+			      RTLD_PROGNAME,
 			      l->l_name);
 	  }
 
@@ -339,8 +338,7 @@ void
 internal_function __attribute_noinline__
 _dl_reloc_bad_type (struct link_map *map, unsigned int type, int plt)
 {
-  extern const char INTUSE(_itoa_lower_digits)[] attribute_hidden;
-#define DIGIT(b)	INTUSE(_itoa_lower_digits)[(b) & 0xf];
+#define DIGIT(b)	_itoa_lower_digits[(b) & 0xf];
 
   /* XXX We cannot translate these messages.  */
   static const char msg[2][32

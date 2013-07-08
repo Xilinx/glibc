@@ -1,5 +1,5 @@
 #! @BASH@
-# Copyright (C) 1999-2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+# Copyright (C) 1999-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Ulrich Drepper <drepper@gnu.org>, 1999.
 
@@ -14,9 +14,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 memusageso='@SLIBDIR@/libmemusage.so'
 memusagestat='@BINDIR@/memusagestat'
@@ -62,18 +61,17 @@ Mandatory arguments to long options are also mandatory for any corresponding
 short options.
 
 "
-  echo $"For bug reporting instructions, please see:
-<http://www.gnu.org/software/libc/bugs.html>.
-"
+  printf $"For bug reporting instructions, please see:\\n%s.\\n" \
+    "@REPORT_BUGS_TO@"
   exit 0
 }
 
 do_version() {
-  echo 'memusage (GNU libc) @VERSION@'
+  echo 'memusage @PKGVERSION@@VERSION@'
   printf $"Copyright (C) %s Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-" "2011"
+" "2013"
   printf $"Written by %s.
 " "Ulrich Drepper"
   exit 0

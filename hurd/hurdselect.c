@@ -1,6 +1,5 @@
 /* Guts of both `select' and `poll' for Hurd.
-   Copyright (C) 1991,92,93,94,95,96,97,98,99,2001
-   	Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sys/types.h>
 #include <sys/poll.h>
@@ -50,10 +48,7 @@ _hurd_select (int nfds,
   error_t err;
   fd_set rfds, wfds, xfds;
   int firstfd, lastfd;
-  mach_msg_timeout_t to = (timeout != NULL ?
-			   (timeout->tv_sec * 1000 +
-			    (timeout->tv_nsec + 999999) / 1000000) :
-			   0);
+  mach_msg_timeout_t to = 0;
   struct
     {
       struct hurd_userlink ulink;
@@ -71,6 +66,24 @@ _hurd_select (int nfds,
     };
   assert (sizeof (union typeword) == sizeof (mach_msg_type_t));
   assert (sizeof (uint32_t) == sizeof (mach_msg_type_t));
+
+  if (nfds < 0 || nfds > FD_SETSIZE)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
+  if (timeout != NULL)
+    {
+      if (timeout->tv_sec < 0 || timeout->tv_nsec < 0)
+	{
+	  errno = EINVAL;
+	  return -1;
+	}
+
+      to = (timeout->tv_sec * 1000 +
+            (timeout->tv_nsec + 999999) / 1000000);
+    }
 
   if (sigmask && __sigprocmask (SIG_SETMASK, sigmask, &oset))
     return -1;
@@ -365,7 +378,7 @@ _hurd_select (int nfds,
 		}
 
 	      /* Look up the respondent's reply port and record its
-                 readiness.  */
+		 readiness.  */
 	      {
 		int had = got;
 		if (firstfd != -1)

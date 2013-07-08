@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2000, 2001, 2002, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Zack Weinberg <zack@rabi.phys.columbia.edu>, 1998.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <paths.h>
@@ -27,7 +26,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* Check if DEV corresponds to a master pseudo terminal device.  */
 #define MASTER_P(Dev)                                                         \
@@ -128,12 +127,6 @@ __ptsname_internal (int fd, char *buf, size_t buflen, struct stat64 *stp)
 	}
 
       ptyno = minor (stp->st_rdev);
-#if __LINUX_KERNEL_VERSION < 131443
-      /* This is for the old BSD pseudo terminals.  As of Linux
-	 2.1.115 these are no longer supported.  */
-      if (major (stp->st_rdev) == 4)
-	ptyno -= 128;
-#endif
 
       if (ptyno / 16 >= strlen (__libc_ptyname1))
 	{

@@ -1,5 +1,4 @@
-/* Copyright (C) 1993, 1995-2001, 2002, 2003, 2004
-   Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -30,13 +28,13 @@
 #include <errno.h>
 #include <shlib-compat.h>
 
+#ifndef __OFF_T_MATCHES_OFF64_T
 
 int
 _IO_new_fgetpos64 (fp, posp)
      _IO_FILE *fp;
      _IO_fpos64_t *posp;
 {
-#ifdef _G_LSEEK64
   _IO_off64_t pos;
   int result = 0;
   CHECK_FILE (fp, EOF);
@@ -67,12 +65,10 @@ _IO_new_fgetpos64 (fp, posp)
     }
   _IO_release_lock (fp);
   return result;
-#else
-  __set_errno (ENOSYS);
-  return EOF;
-#endif
 }
 
 strong_alias (_IO_new_fgetpos64, __new_fgetpos64)
 versioned_symbol (libc, _IO_new_fgetpos64, _IO_fgetpos64, GLIBC_2_2);
 versioned_symbol (libc, __new_fgetpos64, fgetpos64, GLIBC_2_2);
+
+#endif

@@ -1,4 +1,4 @@
-/* Copyright (C) 2005, 2006, 2007, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -30,7 +29,6 @@
 
 #ifndef OPENAT
 # define OPENAT openat
-# define __OPENAT_2 __openat_2
 
 # ifndef __ASSUME_ATFCTS
 /* Set errno after a failed call.  If BUF is not null,
@@ -85,7 +83,6 @@ OPENAT_NOT_CANCEL (fd, file, oflag, mode)
   oflag |= MORE_OFLAGS;
 #endif
 
-  INTERNAL_SYSCALL_DECL (err);
   int res;
 
 #ifdef __NR_openat
@@ -105,6 +102,7 @@ OPENAT_NOT_CANCEL (fd, file, oflag, mode)
 #endif
 
 #ifndef __ASSUME_ATFCTS
+  INTERNAL_SYSCALL_DECL (err);
   char *buf = NULL;
 
   if (fd != AT_FDCWD && file[0] != '/')
@@ -180,18 +178,3 @@ __OPENAT (fd, file, oflag)
 }
 libc_hidden_def (__OPENAT)
 weak_alias (__OPENAT, OPENAT)
-
-
-int
-__OPENAT_2 (fd, file, oflag)
-     int fd;
-     const char *file;
-     int oflag;
-{
-  if (oflag & O_CREAT)
-#define MSG(s) MSG2 (s)
-#define MSG2(s) "invalid " #s " call: O_CREAT without mode"
-    __fortify_fail (MSG (OPENAT));
-
-  return __OPENAT (fd, file, oflag);
-}

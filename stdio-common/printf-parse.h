@@ -1,6 +1,5 @@
 /* Internal header for parsing printf format strings.
-   Copyright (C) 1995-1999, 2000, 2002, 2003, 2007, 2009
-   Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of th GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <printf.h>
 #include <stdint.h>
@@ -69,16 +67,27 @@ union printf_arg
 #ifndef DONT_NEED_READ_INT
 /* Read a simple integer from a string and update the string pointer.
    It is assumed that the first character is a digit.  */
-static unsigned int
+static int
 read_int (const UCHAR_T * *pstr)
 {
-  unsigned int retval = **pstr - L_('0');
+  int retval = **pstr - L_('0');
 
   while (ISDIGIT (*++(*pstr)))
-    {
-      retval *= 10;
-      retval += **pstr - L_('0');
-    }
+    if (retval >= 0)
+      {
+	if (INT_MAX / 10 < retval)
+	  retval = -1;
+	else
+	  {
+	    int digit = **pstr - L_('0');
+
+	    retval *= 10;
+	    if (INT_MAX - digit < retval)
+	      retval = -1;
+	    else
+	      retval += digit;
+	  }
+      }
 
   return retval;
 }

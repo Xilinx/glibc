@@ -1,5 +1,4 @@
-/* Copyright (C) 1992,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006
-	Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Alan Modra <amodra@bigpond.net.au> rewrote the INLINE_SYSCALL macro */
 
@@ -53,18 +51,12 @@
    of the kernel.  But these symbols do not follow the SYS_* syntax
    so we have to redefine the `SYS_ify' macro here.  */
 #undef SYS_ify
-#ifdef __STDC__
-# define SYS_ify(syscall_name)	__NR_##syscall_name
-#else
-# define SYS_ify(syscall_name)	__NR_/**/syscall_name
-#endif
+#define SYS_ify(syscall_name)	__NR_##syscall_name
 
 #ifdef __ASSEMBLER__
 
 /* This seems to always be the case on PPC.  */
 # define ALIGNARG(log2) log2
-/* For ELF we need the `.type' directive to make shared libs work right.  */
-# define ASM_TYPE_DIRECTIVE(name,typearg) .type name,typearg;
 # define ASM_SIZE_DIRECTIVE(name) .size name,.-name
 
 #endif /* __ASSEMBLER__ */
@@ -83,7 +75,8 @@
 									      \
     if (__vdso_##name != NULL)						      \
       {									      \
-	sc_ret = INTERNAL_VSYSCALL_NCS (__vdso_##name, sc_err, nr, ##args);   \
+	sc_ret =							      \
+	  INTERNAL_VSYSCALL_NCS (__vdso_##name, sc_err, long int, nr, ##args);\
 	if (!INTERNAL_SYSCALL_ERROR_P (sc_ret, sc_err))			      \
 	  goto out;							      \
 	if (INTERNAL_SYSCALL_ERRNO (sc_ret, sc_err) != ENOSYS)		      \
@@ -113,7 +106,8 @@
 									      \
     if (__vdso_##name != NULL)						      \
       {									      \
-	v_ret = INTERNAL_VSYSCALL_NCS (__vdso_##name, err, nr, ##args);	      \
+	v_ret =								      \
+	  INTERNAL_VSYSCALL_NCS (__vdso_##name, err, long int, nr, ##args);   \
 	if (!INTERNAL_SYSCALL_ERROR_P (v_ret, err)			      \
 	    || INTERNAL_SYSCALL_ERRNO (v_ret, err) != ENOSYS)		      \
 	  goto out;							      \
@@ -129,12 +123,12 @@
 
 /* This version is for internal uses when there is no desire
    to set errno */
-#define INTERNAL_VSYSCALL_NO_SYSCALL_FALLBACK(name, err, nr, args...)	      \
+#define INTERNAL_VSYSCALL_NO_SYSCALL_FALLBACK(name, err, type, nr, args...)   \
   ({									      \
-    long int sc_ret = ENOSYS;						      \
+    type sc_ret = ENOSYS;						      \
 									      \
     if (__vdso_##name != NULL)						      \
-      sc_ret = INTERNAL_VSYSCALL_NCS (__vdso_##name, err, nr, ##args);	      \
+      sc_ret = INTERNAL_VSYSCALL_NCS (__vdso_##name, err, type, nr, ##args);  \
     else								      \
       err = 1 << 28;							      \
     sc_ret;								      \
@@ -150,7 +144,7 @@
    gave back in the non-error (CR0.SO cleared) case, otherwise (CR0.SO set)
    the negation of the return value in the kernel gets reverted.  */
 
-#define INTERNAL_VSYSCALL_NCS(funcptr, err, nr, args...) \
+#define INTERNAL_VSYSCALL_NCS(funcptr, err, type, nr, args...) \
   ({									\
     register void *r0  __asm__ ("r0");					\
     register long int r3  __asm__ ("r3");				\
@@ -159,20 +153,19 @@
     register long int r6  __asm__ ("r6");				\
     register long int r7  __asm__ ("r7");				\
     register long int r8  __asm__ ("r8");				\
+    register type rval  __asm__ ("r3");				        \
     LOADARGS_##nr (funcptr, args);					\
     __asm__ __volatile__						\
       ("mtctr %0\n\t"							\
        "bctrl\n\t"							\
        "mfcr  %0\n\t"							\
        "0:"								\
-       : "=&r" (r0),							\
-         "=&r" (r3), "=&r" (r4), "=&r" (r5),				\
-         "=&r" (r6), "=&r" (r7), "=&r" (r8)				\
-       : ASM_INPUT_##nr							\
-       : "r9", "r10", "r11", "r12",					\
-         "cr0", "ctr", "lr", "memory");					\
-	  err = (long int) r0;						\
-    r3;								\
+       : "+r" (r0), "+r" (r3), "+r" (r4), "+r" (r5),  "+r" (r6),        \
+         "+r" (r7), "+r" (r8)						\
+       : : "r9", "r10", "r11", "r12", "cr0", "ctr", "lr", "memory");	\
+    err = (long int) r0;						\
+    __asm__ __volatile__ ("" : "=r" (rval) : "r" (r3));		        \
+    rval;								\
   })
 
 #undef INLINE_SYSCALL
@@ -225,7 +218,7 @@
   INTERNAL_SYSCALL_NCS (__NR_##name, err, nr, args)
 
 #undef INTERNAL_SYSCALL_DECL
-#define INTERNAL_SYSCALL_DECL(err) long int err
+#define INTERNAL_SYSCALL_DECL(err) long int err __attribute__ ((unused))
 
 #undef INTERNAL_SYSCALL_ERROR_P
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \

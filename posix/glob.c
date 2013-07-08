@@ -1,5 +1,4 @@
-/* Copyright (C) 1991-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef	HAVE_CONFIG_H
 # include <config.h>
@@ -218,7 +216,7 @@ static int collated_compare (const void *, const void *) __THROW;
 static const char *
 next_brace_sub (const char *cp, int flags)
 {
-  unsigned int depth = 0;
+  size_t depth = 0;
   while (*cp != '\0')
     if ((flags & GLOB_NOESCAPE) == 0 && *cp == '\\')
       {
@@ -961,7 +959,7 @@ glob (pattern, flags, errfunc, pglob)
 		  && S_ISDIR (st.st_mode))
 	       : (__stat64 (dirname, &st64) == 0 && S_ISDIR (st64.st_mode)))))
 	{
-	  int newcount = pglob->gl_pathc + pglob->gl_offs;
+	  size_t newcount = pglob->gl_pathc + pglob->gl_offs;
 	  char **new_gl_pathv;
 
 	  if (newcount > UINTPTR_MAX - (1 + 1)
@@ -1060,7 +1058,7 @@ glob (pattern, flags, errfunc, pglob)
 	 appending the results to PGLOB.  */
       for (i = 0; i < dirs.gl_pathc; ++i)
 	{
-	  int old_pathc;
+	  size_t old_pathc;
 
 #ifdef	SHELL
 	  {
@@ -1115,7 +1113,7 @@ glob (pattern, flags, errfunc, pglob)
 	  /* No matches.  */
 	  if (flags & GLOB_NOCHECK)
 	    {
-	      int newcount = pglob->gl_pathc + pglob->gl_offs;
+	      size_t newcount = pglob->gl_pathc + pglob->gl_offs;
 	      char **new_gl_pathv;
 
 	      if (newcount > UINTPTR_MAX - 2
@@ -1159,7 +1157,7 @@ glob (pattern, flags, errfunc, pglob)
     }
   else
     {
-      int old_pathc = pglob->gl_pathc;
+      size_t old_pathc = pglob->gl_pathc;
       int orig_flags = flags;
 
       if (meta & 2)
@@ -1265,7 +1263,7 @@ libc_hidden_def (glob)
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
 void
 globfree (pglob)
-     register glob_t *pglob;
+     glob_t *pglob;
 {
   if (pglob->gl_pathv != NULL)
     {
@@ -1305,7 +1303,7 @@ collated_compare (const void *a, const void *b)
 static int
 prefix_array (const char *dirname, char **array, size_t n)
 {
-  register size_t i;
+  size_t i;
   size_t dirlen = strlen (dirname);
 #if defined __MSDOS__ || defined WINDOWS32
   int sep_char = '/';
@@ -1364,7 +1362,7 @@ __glob_pattern_type (pattern, quote)
      const char *pattern;
      int quote;
 {
-  register const char *p;
+  const char *p;
   int ret = 0;
 
   for (p = pattern; *p != '\0'; ++p)

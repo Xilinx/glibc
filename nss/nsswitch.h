@@ -1,5 +1,4 @@
-/* Copyright (C) 1996-1999,2001,2002,2003,2004,2007,2010,2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _NSSWITCH_H
 #define _NSSWITCH_H	1
@@ -109,6 +107,14 @@ enum
 /* Flags whether custom rules for database is set.  */
 extern bool __nss_database_custom[NSS_DBSIDX_max];
 
+/* Warning for NSS functions, which don't require dlopen if glibc
+   was built with --enable-static-nss.  */
+#ifdef DO_STATIC_NSS
+# define nss_interface_function(name)
+#else
+# define nss_interface_function(name) static_link_warning (name)
+#endif
+
 
 /* Interface functions for NSS.  */
 
@@ -198,5 +204,9 @@ extern int __nss_hostname_digits_dots (const char *name,
 				       enum nss_status *status, int af,
 				       int *h_errnop);
 libc_hidden_proto (__nss_hostname_digits_dots)
+
+/* Maximum number of aliases we allow.  */
+#define MAX_NR_ALIASES  48
+#define MAX_NR_ADDRS    48
 
 #endif	/* nsswitch.h */

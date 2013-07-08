@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2002,2003,2004,2007,2009 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
 #include <errno.h>
@@ -126,7 +125,7 @@ __tzstring (const char *s)
 size_t __tzname_cur_max;
 
 long int
-__tzname_max ()
+__tzname_max (void)
 {
   __libc_lock_lock (tzset_lock);
 
@@ -301,7 +300,7 @@ __tzset_parse_tz (tz)
   /* Figure out the standard <-> DST rules.  */
   for (unsigned int whichrule = 0; whichrule < 2; ++whichrule)
     {
-      register tz_rule *tzr = &tz_rules[whichrule];
+      tz_rule *tzr = &tz_rules[whichrule];
 
       /* Ignore comma to support string following the incorrect
 	 specification in early POSIX.1 printings.  */
@@ -334,18 +333,24 @@ __tzset_parse_tz (tz)
 	}
       else if (*tz == '\0')
 	{
-	  /* United States Federal Law, the equivalent of "M4.1.0,M10.5.0".  */
+         /* Daylight time rules in the U.S. are defined in the
+            U.S. Code, Title 15, Chapter 6, Subchapter IX - Standard
+            Time.  These dates were established by Congress in the
+            Energy Policy Act of 2005 [Pub. L. no. 109-58, 119 Stat 594
+            (2005)].
+	    Below is the equivalent of "M3.2.0,M11.1.0" [/2 not needed
+	    since 2:00AM is the default].  */
 	  tzr->type = M;
 	  if (tzr == &tz_rules[0])
 	    {
-	      tzr->m = 4;
-	      tzr->n = 1;
+	      tzr->m = 3;
+	      tzr->n = 2;
 	      tzr->d = 0;
 	    }
 	  else
 	    {
-	      tzr->m = 10;
-	      tzr->n = 5;
+	      tzr->m = 11;
+	      tzr->n = 1;
 	      tzr->d = 0;
 	    }
 	}
@@ -395,7 +400,7 @@ tzset_internal (always, explicit)
      int explicit;
 {
   static int is_initialized;
-  register const char *tz;
+  const char *tz;
 
   if (is_initialized && !always)
     return;
@@ -466,7 +471,7 @@ compute_change (rule, year)
      tz_rule *rule;
      int year;
 {
-  register time_t t;
+  time_t t;
 
   if (year != -1 && rule->computed_for == year)
     /* Operations on times in 2 BC will be slower.  Oh well.  */

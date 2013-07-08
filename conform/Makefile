@@ -1,4 +1,4 @@
-# Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+# Copyright (C) 1999-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,16 +12,26 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for conform portion of the library.
 #
 subdir	:= conform
 
-distribute = conformtest.pl $(wildcard data/*.h-data) \
-	   $(wildcard data/*/*.h-data)
-
 include ../Rules
+
+ifneq (yes,$(fast-check))
+ifeq (no,$(cross-compiling))
+tests: $(objpfx)run-conformtest.out
+endif
+endif
+
+$(objpfx)run-conformtest.out: run-conformtest.sh conformtest.pl \
+			      $(wildcard data/*.h-data) \
+			      $(wildcard data/*/*.h-data)
+	-$(BASH) -e $< $(objpfx) $(PERL) '$(CC)' \
+	  '-I../include $(+sysdep-includes) $(sysincludes) -I..'
+
+generated = $(wildcard $(objpfx)conform-*.out)

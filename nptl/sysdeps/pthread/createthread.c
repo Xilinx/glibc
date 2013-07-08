@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007, 2008, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sched.h>
 #include <setjmp.h>
@@ -24,6 +23,7 @@
 #include <atomic.h>
 #include <ldsodefs.h>
 #include <tls.h>
+#include <stdint.h>
 
 #include "kernel-features.h"
 
@@ -110,13 +110,9 @@ do_clone (struct pthread *pd, const struct pthread_attr *attr,
 		 send it the cancellation signal.  */
 	      INTERNAL_SYSCALL_DECL (err2);
 	    err_out:
-#if __ASSUME_TGKILL
 	      (void) INTERNAL_SYSCALL (tgkill, err2, 3,
 				       THREAD_GETMEM (THREAD_SELF, pid),
 				       pd->tid, SIGCANCEL);
-#else
-	      (void) INTERNAL_SYSCALL (tkill, err2, 2, pd->tid, SIGCANCEL);
-#endif
 
 	      /* We do not free the stack here because the canceled thread
 		 itself will do this.  */
@@ -180,18 +176,11 @@ create_thread (struct pthread *pd, const struct pthread_attr *attr,
 	sys_exit() in the location pointed to by the seventh parameter
 	to CLONE.
 
-     CLONE_DETACHED
-	No signal is generated if the thread exists and it is
-	automatically reaped.
-
      The termination signal is chosen to be zero which means no signal
      is sent.  */
   int clone_flags = (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGNAL
 		     | CLONE_SETTLS | CLONE_PARENT_SETTID
 		     | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM
-#if __ASSUME_NO_CLONE_DETACHED == 0
-		     | CLONE_DETACHED
-#endif
 		     | 0);
 
   if (__builtin_expect (THREAD_GETMEM (THREAD_SELF, report_events), 0))

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991,93,96,97,99,2000,2003 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Based on strlen implementation by Torbjorn Granlund (tege@sics.se),
    with help from Dan Sahlin (dan@sics.se) and
@@ -17,26 +17,19 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #undef __ptr_t
-#if defined (__cplusplus) || (defined (__STDC__) && __STDC__)
-# define __ptr_t void *
-#else /* Not C++ or ANSI C.  */
-# define __ptr_t char *
-#endif /* C++ or ANSI C.  */
+#define __ptr_t void *
 
 #if defined _LIBC
 # include <string.h>
 # include <memcopy.h>
-#else
-# define reg_char char
 #endif
 
 #if HAVE_STDLIB_H || defined _LIBC
@@ -54,11 +47,6 @@
 #endif
 
 #include <sys/types.h>
-#if HAVE_BP_SYM_H || defined _LIBC
-#include <bp-sym.h>
-#else
-# define BP_SYM(sym) sym
-#endif
 
 #undef memchr
 #undef __memchr
@@ -73,7 +61,7 @@ __memchr (s, c_in, n)
   const unsigned char *char_ptr;
   const unsigned long int *longword_ptr;
   unsigned long int longword, magic_bits, charmask;
-  unsigned reg_char c;
+  unsigned char c;
 
   c = (unsigned char) c_in;
 
@@ -210,6 +198,6 @@ __memchr (s, c_in, n)
   return 0;
 }
 #ifdef weak_alias
-weak_alias (__memchr, BP_SYM (memchr))
+weak_alias (__memchr, memchr)
 #endif
 libc_hidden_builtin_def (memchr)

@@ -1,5 +1,5 @@
 /* Conversion module for UTF-16.
-   Copyright (C) 1999, 2000-2002, 2003, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <byteswap.h>
 #include <dlfcn.h>
@@ -44,35 +43,42 @@
 #define PREPARE_LOOP \
   enum direction dir = ((struct utf16_data *) step->__data)->dir;	      \
   enum variant var = ((struct utf16_data *) step->__data)->var;		      \
-  if (__builtin_expect (data->__invocation_counter == 0, 0) && var == UTF_16) \
+  if (__builtin_expect (data->__invocation_counter == 0, 0))		      \
     {									      \
-      if (FROM_DIRECTION)						      \
+      if (var == UTF_16)						      \
 	{								      \
-	  /* We have to find out which byte order the file is encoded in.  */ \
-	  if (inptr + 2 > inend)					      \
-	    return (inptr == inend					      \
-		    ? __GCONV_EMPTY_INPUT : __GCONV_INCOMPLETE_INPUT);	      \
-									      \
-	  if (get16u (inptr) == BOM)					      \
-	    /* Simply ignore the BOM character.  */			      \
-	    *inptrp = inptr += 2;					      \
-	  else if (get16u (inptr) == BOM_OE)				      \
+	  if (FROM_DIRECTION)						      \
 	    {								      \
-	      ((struct utf16_data *) step->__data)->swap = 1;		      \
-	      *inptrp = inptr += 2;					      \
+	      /* We have to find out which byte order the file is	      \
+		 encoded in.  */					      \
+	      if (inptr + 2 > inend)					      \
+		return (inptr == inend					      \
+			? __GCONV_EMPTY_INPUT : __GCONV_INCOMPLETE_INPUT);    \
+									      \
+	      if (get16u (inptr) == BOM)				      \
+		/* Simply ignore the BOM character.  */			      \
+		*inptrp = inptr += 2;					      \
+	      else if (get16u (inptr) == BOM_OE)			      \
+		{							      \
+		  data->__flags |= __GCONV_SWAP;			      \
+		  *inptrp = inptr += 2;					      \
+		}							      \
+	    }								      \
+	  else if (!FROM_DIRECTION && !data->__internal_use)		      \
+	    {								      \
+	      /* Emit the Byte Order Mark.  */				      \
+	      if (__builtin_expect (outbuf + 2 > outend, 0))		      \
+		return __GCONV_FULL_OUTPUT;				      \
+									      \
+	      put16u (outbuf, BOM);					      \
+	      outbuf += 2;						      \
 	    }								      \
 	}								      \
-      else if (!FROM_DIRECTION && !data->__internal_use)		      \
-	{								      \
-	  /* Emit the Byte Order Mark.  */				      \
-	  if (__builtin_expect (outbuf + 2 > outend, 0))		      \
-	    return __GCONV_FULL_OUTPUT;					      \
-									      \
-	  put16u (outbuf, BOM);						      \
-	  outbuf += 2;							      \
-	}								      \
+      else if ((var == UTF_16LE && BYTE_ORDER == BIG_ENDIAN)		      \
+	       || (var == UTF_16BE && BYTE_ORDER == LITTLE_ENDIAN))	      \
+	data->__flags |= __GCONV_SWAP;					      \
     }									      \
-  int swap = ((struct utf16_data *) step->__data)->swap;
+  const int swap = data->__flags & __GCONV_SWAP;
 #define EXTRA_LOOP_ARGS		, swap
 
 
@@ -96,7 +102,6 @@ struct utf16_data
 {
   enum direction dir;
   enum variant var;
-  int swap;
 };
 
 
@@ -151,9 +156,6 @@ gconv_init (struct __gconv_step *step)
 	{
 	  new_data->dir = dir;
 	  new_data->var = var;
-	  new_data->swap = ((var == UTF_16LE && BYTE_ORDER == BIG_ENDIAN)
-			    || (var == UTF_16BE
-				&& BYTE_ORDER == LITTLE_ENDIAN));
 	  step->__data = new_data;
 
 	  if (dir == from_utf16)

@@ -43,6 +43,7 @@
 
 #include <limits.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/param.h>
 #include <netinet/in.h>
 #include <rpc/rpc.h>
@@ -583,7 +584,7 @@ authdes_getucred (const struct authdes_cred *adc, uid_t * uid, gid_t * gid,
     groups[i] = cred->groups[i];
   return 1;
 }
-libc_hidden_nolink (authdes_getucred, GLIBC_2_1)
+libc_hidden_nolink_sunrpc (authdes_getucred, GLIBC_2_1)
 
 static void
 internal_function

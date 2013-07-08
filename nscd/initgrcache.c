@@ -1,5 +1,5 @@
 /* Cache handling for host lookup.
-   Copyright (C) 2004-2006, 2008, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -14,8 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -172,15 +171,16 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
 	nip = nip->next;
     }
 
+  bool all_written;
   ssize_t total;
-  ssize_t written;
   time_t timeout;
  out:
+  all_written = true;
   timeout = MAX_TIMEOUT_VALUE;
   if (!any_success)
     {
       /* Nothing found.  Create a negative result record.  */
-      written = total = sizeof (notfound);
+      total = sizeof (notfound);
 
       if (he != NULL && all_tryagain)
 	{
@@ -198,12 +198,14 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
 	{
 	  /* We have no data.  This means we send the standard reply for this
 	     case.  */
-	  if (fd != -1)
-	    written = TEMP_FAILURE_RETRY (send (fd, &notfound, total,
-						MSG_NOSIGNAL));
+	  if (fd != -1
+	      && TEMP_FAILURE_RETRY (send (fd, &notfound, total,
+					   MSG_NOSIGNAL)) != total)
+	    all_written = false;
 
-	  /* If we cannot permanently store the result, so be it.  */
-	  if (__builtin_expect (db->negtimeout == 0, 0))
+	  /* If we have a transient error or cannot permanently store
+	     the result, so be it.  */
+	  if (all_tryagain || __builtin_expect (db->negtimeout == 0, 0))
 	    {
 	      /* Mark the old entry as obsolete.  */
 	      if (dh != NULL)
@@ -251,8 +253,7 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
   else
     {
 
-      written = total = (offsetof (struct dataset, strdata)
-			 + start * sizeof (int32_t));
+      total = offsetof (struct dataset, strdata) + start * sizeof (int32_t);
 
       /* If we refill the cache, first assume the reconrd did not
 	 change.  Allocate memory on the cache since it is likely
@@ -365,20 +366,27 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
 		      <= (sizeof (struct database_pers_head)
 			  + db->head->module * sizeof (ref_t)
 			  + db->head->data_size));
-	      written = sendfileall (fd, db->wr_fd,
-				     (char *) &dataset->resp
-				     - (char *) db->head, dataset->head.recsize);
+	      ssize_t written = sendfileall (fd, db->wr_fd,
+					     (char *) &dataset->resp
+					     - (char *) db->head,
+					     dataset->head.recsize);
+	      if (written != dataset->head.recsize)
+		{
 # ifndef __ASSUME_SENDFILE
-	      if (written == -1 && errno == ENOSYS)
-		goto use_write;
+		  if (written == -1 && errno == ENOSYS)
+		    goto use_write;
 # endif
+		  all_written = false;
+		}
 	    }
 	  else
 # ifndef __ASSUME_SENDFILE
 	  use_write:
 # endif
 #endif
-	    written = writeall (fd, &dataset->resp, dataset->head.recsize);
+	    if (writeall (fd, &dataset->resp, dataset->head.recsize)
+		!= dataset->head.recsize)
+	      all_written = false;
 	}
 
 
@@ -405,7 +413,7 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
 
   free (groups);
 
-  if (__builtin_expect (written != total, 0) && debug_level > 0)
+  if (__builtin_expect (!all_written, 0) && debug_level > 0)
     {
       char buf[256];
       dbg_log (_("short write in %s: %s"), __FUNCTION__,

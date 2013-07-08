@@ -1,6 +1,5 @@
 /* Initialization code run first thing by the ELF startup code.  For i386/Hurd.
-   Copyright (C) 1995,96,97,98,99,2000,01,02,03,04,05
-	Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,11 +13,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <hurd.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -36,9 +35,6 @@ extern void __mach_init (void);
 extern void __init_misc (int, char **, char **);
 #ifdef USE_NONOPTION_FLAGS
 extern void __getopt_clean_environment (char **);
-#endif
-#ifndef SHARED
-extern void _dl_non_dynamic_init (void) internal_function;
 #endif
 extern void __libc_global_ctors (void);
 
@@ -92,6 +88,9 @@ posixland_init (int argc, char **argv, char **envp)
   __getopt_clean_environment (envp);
 #endif
 
+  /* Initialize ctype data.  */
+  __ctype_init ();
+
 #if defined SHARED && !defined NO_CTORS_DTORS_SECTIONS
   __libc_global_ctors ();
 #endif
@@ -104,10 +103,6 @@ init1 (int argc, char *arg0, ...)
   char **argv = &arg0;
   char **envp = &argv[argc + 1];
   struct hurd_startup_data *d;
-#ifndef SHARED
-  extern ElfW(Phdr) *_dl_phdr;
-  extern size_t _dl_phnum;
-#endif
 
   while (*envp)
     ++envp;
@@ -119,14 +114,20 @@ init1 (int argc, char *arg0, ...)
   if ((void *) d == argv[0])
     {
 #ifndef SHARED
-      /* We may need to see our own phdrs, e.g. for TLS setup.
-         Try the usual kludge to find the headers without help from
-	 the exec server.  */
-      extern const void _start;
-      const ElfW(Ehdr) *const ehdr = &_start;
-      _dl_phdr = (ElfW(Phdr) *) ((const void *) ehdr + ehdr->e_phoff);
-      _dl_phnum = ehdr->e_phnum;
-      assert (ehdr->e_phentsize == sizeof (ElfW(Phdr)));
+      /* With a new enough linker (binutils-2.23 or better),
+         the magic __ehdr_start symbol will be available and
+         __libc_start_main will have done this that way already.  */
+      if (_dl_phdr == NULL)
+        {
+          /* We may need to see our own phdrs, e.g. for TLS setup.
+             Try the usual kludge to find the headers without help from
+             the exec server.  */
+          extern const void _start;
+          const ElfW(Ehdr) *const ehdr = &_start;
+          _dl_phdr = (const void *) ehdr + ehdr->e_phoff;
+          _dl_phnum = ehdr->e_phnum;
+          assert (ehdr->e_phentsize == sizeof (ElfW(Phdr)));
+        }
 #endif
       return;
     }
@@ -212,6 +213,8 @@ init (int *data)
 
       void switch_stacks (void);
 
+      __libc_stack_end = newsp;
+
       /* Copy per-thread variables from that temporary
 	 area onto the new cthread stack.  */
       memcpy (__hurd_threadvar_location_from_sp (0, newsp),
@@ -223,7 +226,7 @@ init (int *data)
 
 #ifdef SHARED
       /* And readjust the dynamic linker's idea of where the argument
-         vector lives.  */
+	 vector lives.  */
       assert (_dl_argv == argv);
       _dl_argv = (void *) (newsp + 1);
 #endif
@@ -242,9 +245,16 @@ init (int *data)
       /* Push the user code address on the top of the new stack.  It will
 	 be the return address for `init1'; we will jump there with NEWSP
 	 as the stack pointer.  */
-      *--newsp = data[-1];
-      ((void **) data)[-1] = switch_stacks;
-      /* Force NEWSP into %ecx and &init1 into %eax, which are not restored
+      /* The following expression would typically be written as
+	 ``__builtin_return_address (0)''.  But, for example, GCC 4.4.6 doesn't
+	 recognize that this read operation may alias the following write
+	 operation, and thus is free to reorder the two, clobbering the
+	 original return address.  */
+      *--newsp = *((int *) __builtin_frame_address (0) + 1);
+      /* GCC 4.4.6 also wants us to force loading *NEWSP already here.  */
+      asm volatile ("# %0" : : "X" (*newsp));
+      *((void **) __builtin_frame_address (0) + 1) = &switch_stacks;
+      /* Force NEWSP into %eax and &init1 into %ecx, which are not restored
 	 by function return.  */
       asm volatile ("# a %0 c %1" : : "a" (newsp), "c" (&init1));
     }
@@ -271,8 +281,15 @@ init (int *data)
 
       /* The argument data is just above the stack frame we will unwind by
 	 returning.  Mutate our own return address to run the code below.  */
-      usercode = data[-1];
-      data[-1] = (int) &call_init1;
+      /* The following expression would typically be written as
+	 ``__builtin_return_address (0)''.  But, for example, GCC 4.4.6 doesn't
+	 recognize that this read operation may alias the following write
+	 operation, and thus is free to reorder the two, clobbering the
+	 original return address.  */
+      usercode = *((int *) __builtin_frame_address (0) + 1);
+      /* GCC 4.4.6 also wants us to force loading USERCODE already here.  */
+      asm volatile ("# %0" : : "X" (usercode));
+      *((void **) __builtin_frame_address (0) + 1) = &call_init1;
       /* Force USERCODE into %eax and &init1 into %ecx, which are not
 	 restored by function return.  */
       asm volatile ("# a %0 c %1" : : "a" (usercode), "c" (&init1));
@@ -320,11 +337,12 @@ first_init (void)
    stack set up just as the user will see it, so it can switch stacks.  */
 
 void
-_dl_init_first (void)
+_dl_init_first (int argc, ...)
 {
   first_init ();
 
-  init ((int *) __builtin_frame_address (0) + 2);
+  /* If we use ``__builtin_frame_address (0) + 2'' here, GCC gets confused.  */
+  init (&argc);
 }
 #endif
 
@@ -358,15 +376,17 @@ _hurd_stack_setup (void)
   void doinit (intptr_t *data)
     {
       /* This function gets called with the argument data at TOS.  */
-      void doinit1 (void)
+      void doinit1 (int argc, ...)
 	{
-	  init ((int *) __builtin_frame_address (0) + 2);
+	  /* If we use ``__builtin_frame_address (0) + 2'' here, GCC gets
+	     confused.  */
+	  init ((int *) &argc);
 	}
 
       /* Push the user return address after the argument data, and then
-         jump to `doinit1' (above), so it is as if __libc_init_first's
-         caller had called `doinit1' with the argument data already on the
-         stack.  */
+	 jump to `doinit1' (above), so it is as if __libc_init_first's
+	 caller had called `doinit1' with the argument data already on the
+	 stack.  */
       *--data = caller;
       asm volatile ("movl %0, %%esp\n" /* Switch to new outermost stack.  */
 		    "movl $0, %%ebp\n" /* Clear outermost frame pointer.  */

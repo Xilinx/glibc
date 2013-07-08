@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <shlib-compat.h>
@@ -54,13 +53,13 @@ __pthread_cond_destroy (cond)
   if (nwaiters >= (1 << COND_NWAITERS_SHIFT))
     {
       /* Wake everybody on the associated mutex in case there are
-         threads that have been requeued to it.
-         Without this, pthread_cond_destroy could block potentially
-         for a long time or forever, as it would depend on other
-         thread's using the mutex.
-         When all threads waiting on the mutex are woken up, pthread_cond_wait
-         only waits for threads to acquire and release the internal
-         condvar lock.  */
+	 threads that have been requeued to it.
+	 Without this, pthread_cond_destroy could block potentially
+	 for a long time or forever, as it would depend on other
+	 thread's using the mutex.
+	 When all threads waiting on the mutex are woken up, pthread_cond_wait
+	 only waits for threads to acquire and release the internal
+	 condvar lock.  */
       if (cond->__data.__mutex != NULL
 	  && cond->__data.__mutex != (void *) ~0l)
 	{

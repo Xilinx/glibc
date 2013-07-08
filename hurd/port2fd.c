@@ -1,4 +1,4 @@
-/* Copyright (C) 1994, 1997, 1999, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <hurd.h>
 #include <hurd/fd.h>
@@ -23,7 +22,7 @@
 #include <fcntl.h>
 
 /* Store PORT in file descriptor D, doing appropriate ctty magic.
-   FLAGS are as for `open'; only O_IGNORE_CTTY is meaningful.
+   FLAGS are as for `open'; only O_IGNORE_CTTY and O_CLOEXEC are meaningful.
    D should be locked, and will not be unlocked.  */
 
 void

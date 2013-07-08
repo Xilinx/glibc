@@ -220,7 +220,7 @@ fooy:
 #ifdef EXPORT_RPC_SYMBOLS
 libc_hidden_def (clnttcp_create)
 #else
-libc_hidden_nolink (clnttcp_create, GLIBC_2_0)
+libc_hidden_nolink_sunrpc (clnttcp_create, GLIBC_2_0)
 #endif
 
 static enum clnt_stat
@@ -356,7 +356,7 @@ clnttcp_freeres (cl, xdr_res, res_ptr)
 }
 
 static void
-clnttcp_abort ()
+clnttcp_abort (void)
 {
 }
 
@@ -364,6 +364,8 @@ static bool_t
 clnttcp_control (CLIENT *cl, int request, char *info)
 {
   struct ct_data *ct = (struct ct_data *) cl->cl_private;
+  u_long ul;
+  u_int32_t ui32;
 
 
   switch (request)
@@ -393,11 +395,15 @@ clnttcp_control (CLIENT *cl, int request, char *info)
        * first element in the call structure *.
        * This will get the xid of the PREVIOUS call
        */
-      *(u_long *)info = ntohl (*(u_long *)ct->ct_mcall);
+      memcpy (&ui32, ct->ct_mcall, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_XID:
       /* This will set the xid of the NEXT call */
-      *(u_long *)ct->ct_mcall =  htonl (*(u_long *)info - 1);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul - 1);
+      memcpy (ct->ct_mcall, &ui32, sizeof (ui32));
       /* decrement by 1 as clnttcp_call() increments once */
       break;
     case CLGET_VERS:
@@ -407,12 +413,14 @@ clnttcp_control (CLIENT *cl, int request, char *info)
        * begining of the RPC header. MUST be changed if the
        * call_struct is changed
        */
-      *(u_long *)info = ntohl (*(u_long *)(ct->ct_mcall +
-					   4 * BYTES_PER_XDR_UNIT));
+      memcpy (&ui32, ct->ct_mcall + 4 * BYTES_PER_XDR_UNIT, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_VERS:
-      *(u_long *)(ct->ct_mcall + 4 * BYTES_PER_XDR_UNIT)
-	= htonl (*(u_long *)info);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul);
+      memcpy (ct->ct_mcall + 4 * BYTES_PER_XDR_UNIT, &ui32, sizeof (ui32));
       break;
     case CLGET_PROG:
       /*
@@ -421,12 +429,14 @@ clnttcp_control (CLIENT *cl, int request, char *info)
        * begining of the RPC header. MUST be changed if the
        * call_struct is changed
        */
-      *(u_long *)info = ntohl(*(u_long *)(ct->ct_mcall +
-					  3 * BYTES_PER_XDR_UNIT));
+      memcpy (&ui32, ct->ct_mcall + 3 * BYTES_PER_XDR_UNIT, sizeof (ui32));
+      ul = ntohl (ui32);
+      memcpy (info, &ul, sizeof (ul));
       break;
     case CLSET_PROG:
-      *(u_long *)(ct->ct_mcall + 3 * BYTES_PER_XDR_UNIT)
-	= htonl(*(u_long *)info);
+      memcpy (&ul, info, sizeof (ul));
+      ui32 = htonl (ul);
+      memcpy (ct->ct_mcall + 3 * BYTES_PER_XDR_UNIT, &ui32, sizeof (ui32));
       break;
     /* The following are only possible with TI-RPC */
     case CLGET_RETRY_TIMEOUT:

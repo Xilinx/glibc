@@ -2,18 +2,14 @@
  # Local configure fragment for sysdeps/ieee754/ldbl-opt/.
 
 
-{ $as_echo "$as_me:$LINENO: checking whether $CC $CFLAGS supports -mlong-double-128" >&5
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CC $CFLAGS supports -mlong-double-128" >&5
 $as_echo_n "checking whether $CC $CFLAGS supports -mlong-double-128... " >&6; }
-if test "${libc_cv_mlong_double_128+set}" = set; then
+if ${libc_cv_mlong_double_128+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -mlong-double-128"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 int
@@ -28,39 +24,16 @@ long double foobar (long double x) { return x; }
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext
-if { (ac_try="$ac_compile"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_compile") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest.$ac_objext; then
+if ac_fn_c_try_compile "$LINENO"; then :
   libc_cv_mlong_double_128=yes
 else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	libc_cv_mlong_double_128=no
+  libc_cv_mlong_double_128=no
 fi
-
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 CFLAGS="$save_CFLAGS"
 fi
-{ $as_echo "$as_me:$LINENO: result: $libc_cv_mlong_double_128" >&5
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $libc_cv_mlong_double_128" >&5
 $as_echo "$libc_cv_mlong_double_128" >&6; }
 if test "$libc_cv_mlong_double_128" = no; then
-  { { $as_echo "$as_me:$LINENO: error: this configuration requires -mlong-double-128 support" >&5
-$as_echo "$as_me: error: this configuration requires -mlong-double-128 support" >&2;}
-   { (exit 1); exit 1; }; }
+  as_fn_error $? "this configuration requires -mlong-double-128 support" "$LINENO" 5
 fi

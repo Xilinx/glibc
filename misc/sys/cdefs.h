@@ -1,5 +1,4 @@
-/* Copyright (C) 1992-2001, 2002, 2004, 2005, 2006, 2007, 2009, 2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SYS_CDEFS_H
 #define	_SYS_CDEFS_H	1
@@ -77,10 +75,6 @@
 # define __THROWNL
 # define __NTH(fct)	fct
 
-# define __const	const
-# define __signed	signed
-# define __volatile	volatile
-
 #endif	/* GCC.  */
 
 /* These two macros are not used in glibc anymore.  They are kept here
@@ -134,17 +128,10 @@
 #endif
 
 
-/* Support for bounded pointers.  */
-#ifndef __BOUNDED_POINTERS__
-# define __bounded	/* nothing */
-# define __unbounded	/* nothing */
-# define __ptrvalue	/* nothing */
-#endif
-
-
 /* Fortify support.  */
 #define __bos(ptr) __builtin_object_size (ptr, __USE_FORTIFY_LEVEL > 1)
 #define __bos0(ptr) __builtin_object_size (ptr, 0)
+#define __fortify_function __extern_always_inline __attribute_artificial__
 
 #if __GNUC_PREREQ (4,3) \
     || (defined __GNUC_RH_RELEASE__ && __GNUC__ == 4 \
@@ -228,6 +215,15 @@
 # define __attribute_malloc__ __attribute__ ((__malloc__))
 #else
 # define __attribute_malloc__ /* Ignore */
+#endif
+
+/* Tell the compiler which arguments to an allocation function
+   indicate the size of the allocation.  */
+#if __GNUC_PREREQ (4, 3)
+# define __attribute_alloc_size__(params) \
+  __attribute__ ((__alloc_size__ params))
+#else
+# define __attribute_alloc_size__(params) /* Ignore.  */
 #endif
 
 /* At some point during the gcc 2.96 development the `pure' attribute
@@ -317,33 +313,30 @@
 # define __always_inline __inline
 #endif
 
-/* GCC 4.3 and above with -std=c99 or -std=gnu99 implements ISO C99
-   inline semantics, unless -fgnu89-inline is used.  */
-#if !defined __cplusplus || __GNUC_PREREQ (4,3) \
-    || (defined __GNUC_RH_RELEASE__ && __GNUC__ == 4 \
-	&& __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 2 \
-	&& __GNUC_RH_RELEASE__ >= 31)
-# if defined __GNUC_STDC_INLINE__ || defined __cplusplus
+/* Associate error messages with the source location of the call site rather
+   than with the source location inside the function.  */
+#if __GNUC_PREREQ (4,3)
+# define __attribute_artificial__ __attribute__ ((__artificial__))
+#else
+# define __attribute_artificial__ /* Ignore */
+#endif
+
+#ifdef __GNUC__
+/* One of these will be defined if the __gnu_inline__ attribute is
+   available.  In C++, __GNUC_GNU_INLINE__ will be defined even though
+   __inline does not use the GNU inlining rules.  If neither macro is
+   defined, this version of GCC only supports GNU inline semantics. */
+# if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
 #  define __extern_inline extern __inline __attribute__ ((__gnu_inline__))
-#  if __GNUC_PREREQ (4,3) \
-	|| (defined __GNUC_RH_RELEASE__ && __GNUC__ == 4 \
-	    && __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 2 \
-	    && __GNUC_RH_RELEASE__ >= 31)
-#   define __extern_always_inline \
-  extern __always_inline __attribute__ ((__gnu_inline__, __artificial__))
-#  else
-#   define __extern_always_inline \
+#  define __extern_always_inline \
   extern __always_inline __attribute__ ((__gnu_inline__))
-#  endif
 # else
 #  define __extern_inline extern __inline
-#  if __GNUC_PREREQ (4,3)
-#   define __extern_always_inline \
-  extern __always_inline __attribute__ ((__artificial__))
-#  else
-#   define __extern_always_inline extern __always_inline
-#  endif
+#  define __extern_always_inline extern __always_inline
 # endif
+#else /* Not GCC.  */
+# define __extern_inline  /* Ignore */
+# define __extern_always_inline /* Ignore */
 #endif
 
 /* GCC 4.3 and above allow passing all anonymous arguments of an
@@ -385,6 +378,14 @@
 #   define __restrict_arr	/* Not supported.  */
 #  endif
 # endif
+#endif
+
+#if __GNUC__ >= 3
+# define __glibc_unlikely(cond)	__builtin_expect ((cond), 0)
+# define __glibc_likely(cond)	__builtin_expect ((cond), 1)
+#else
+# define __glibc_unlikely(cond)	(cond)
+# define __glibc_likely(cond)	(cond)
 #endif
 
 #include <bits/wordsize.h>

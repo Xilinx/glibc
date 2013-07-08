@@ -1,5 +1,5 @@
 /* Declaration for error-reporting function
-   Copyright (C) 1995,1996,1997,2003,2006,2007 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _ERROR_H
 #define _ERROR_H 1
@@ -29,11 +28,11 @@ __BEGIN_DECLS
    if ERRNUM is nonzero, follow it with ": " and strerror (ERRNUM).
    If STATUS is nonzero, terminate the program with `exit (STATUS)'.  */
 
-extern void error (int __status, int __errnum, __const char *__format, ...)
+extern void error (int __status, int __errnum, const char *__format, ...)
      __attribute__ ((__format__ (__printf__, 3, 4)));
 
-extern void error_at_line (int __status, int __errnum, __const char *__fname,
-			   unsigned int __lineno, __const char *__format, ...)
+extern void error_at_line (int __status, int __errnum, const char *__fname,
+			   unsigned int __lineno, const char *__format, ...)
      __attribute__ ((__format__ (__printf__, 5, 6)));
 
 /* If NULL, error will flush stdout, then print on stderr the program

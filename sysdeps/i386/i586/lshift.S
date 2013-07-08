@@ -1,5 +1,5 @@
 /* Pentium optimized __mpn_lshift --
-   Copyright (C) 1992,94,95,96,97,98,2000,2005 Free Software Foundation, Inc.
+   Copyright (C) 1992-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,24 +13,20 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include "sysdep.h"
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+16		/* space for 4 saved regs */
+#define PARMS	4+16		/* space for 4 saved regs */
 #define RES	PARMS
-#define S	RES+PTR_SIZE
-#define SIZE	S+PTR_SIZE
+#define S	RES+4
+#define SIZE	S+4
 #define CNT	SIZE+4
 
 	.text
-ENTRY (BP_SYM (__mpn_lshift))
-	ENTER
+ENTRY (__mpn_lshift)
 
 	pushl	%edi
 	cfi_adjust_cfa_offset (4)
@@ -49,12 +45,6 @@ ENTRY (BP_SYM (__mpn_lshift))
 	movl	SIZE(%esp),%ebx
 	cfi_rel_offset (ebx, 0)
 	movl	CNT(%esp),%ecx
-#if __BOUNDED_POINTERS__
-	shll	$2, %ebx		/* convert limbs to bytes */
-	CHECK_BOUNDS_BOTH_WIDE (%edi, RES(%esp), %ebx)
-	CHECK_BOUNDS_BOTH_WIDE (%esi, S(%esp), %ebx)
-	shrl	$2, %ebx
-#endif
 
 /* We can use faster code for shift-by-1 under certain conditions.  */
 	cmp	$1,%ecx
@@ -156,7 +146,6 @@ L(end2):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
 	ret
 
 /* We loop from least significant end of the arrays, which is only
@@ -262,6 +251,5 @@ L(L1):	movl	%edx,(%edi)		/* store last limb */
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
 	ret
-END (BP_SYM (__mpn_lshift))
+END (__mpn_lshift)

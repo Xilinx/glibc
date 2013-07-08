@@ -1,5 +1,5 @@
 /* Wrapper around clone system call.  PowerPC64 version.
-   Copyright (C) 1997,98,99,2000,02,04, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,15 +13,12 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #define CLONE_VM	0x00000100
 #define CLONE_THREAD	0x00010000
@@ -34,11 +31,8 @@
                   int flags [r5], void *arg [r6], void *parent_tid [r7],
                   void *tls [r8], void *child_tid [r9]); */
 
-ENTRY (BP_SYM (__clone))
+ENTRY (__clone)
 	CALL_MCOUNT 7
-	/* GKM FIXME: add bounds checks, where sensible.  */
-	DISCARD_BOUNDS (r4)
-	DISCARD_BOUNDS (r6)
 
 	/* Check for child_stack == NULL || fn == NULL.  */
 	cmpdi	cr0,r4,0
@@ -145,6 +139,6 @@ L(parent):
 	cfi_restore(r31)
 	PSEUDO_RET
 
-END (BP_SYM (__clone))
+END (__clone)
 
-weak_alias (BP_SYM (__clone), BP_SYM (clone))
+weak_alias (__clone, clone)

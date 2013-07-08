@@ -1,5 +1,5 @@
 /* finite().  PowerPC32/POWER7 version.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <math_ldbl_opt.h>
@@ -35,10 +34,9 @@ ENTRY (__finite)
 	mflr	r11
 	cfi_register(lr,r11)
 
-	bcl	20,31,1f
-1:	mflr	r9
-	addis	r9,r9,.LC0-1b@ha
-	lfd	fp0,.LC0-1b@l(r9)
+	SETUP_GOT_ACCESS(r9,got_label)
+	addis	r9,r9,.LC0-got_label@ha
+	lfd	fp0,.LC0-got_label@l(r9)
 
 	mtlr	r11
 	cfi_same_value (lr)
@@ -81,8 +79,15 @@ strong_alias (__finite, __finitel)
 weak_alias (__finite, finitel)
 #endif
 
-#ifndef IS_IN_libm
-# if LONG_DOUBLE_COMPAT(libc, GLIBC_2_0)
+#ifdef IS_IN_libm
+# if LONG_DOUBLE_COMPAT (libm, GLIBC_2_0)
+compat_symbol (libm, finite, finitel, GLIBC_2_0)
+# endif
+# if LONG_DOUBLE_COMPAT (libm, GLIBC_2_1)
+compat_symbol (libm, __finite, __finitel, GLIBC_2_1)
+# endif
+#else
+# if LONG_DOUBLE_COMPAT (libc, GLIBC_2_0)
 compat_symbol (libc, __finite, __finitel, GLIBC_2_0);
 compat_symbol (libc, finite, finitel, GLIBC_2_0);
 # endif

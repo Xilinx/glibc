@@ -1,5 +1,5 @@
 /* Return current rounding direction.
-   Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@arthur.rhein-neckar.de>, 1998.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <fpu_control.h>
@@ -24,10 +23,10 @@
 int
 fegetround (void)
 {
-  int cw;
+  fpu_control_t cw;
 
   /* Get control word.  */
   _FPU_GETCW (cw);
 
-  return cw & 0x3;
+  return cw & 0x1;
 }

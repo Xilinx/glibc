@@ -1,5 +1,5 @@
 /* Optimized strlen implementation for PowerPC32/POWER7 using cmpb insn.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,17 +14,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* int [r3] strlen (char *s [r3])  */
 	.machine  power7
-ENTRY (BP_SYM (strlen))
+ENTRY (strlen)
 	CALL_MCOUNT
 	dcbt	0,r3
 	clrrwi	r4,r3,2	      /* Align the address to word boundary.  */
@@ -94,5 +91,5 @@ L(done):
 	srwi	r0,r0,3	      /* Convert leading zeroes to bytes.  */
 	add	r3,r5,r0      /* Compute final length.  */
 	blr
-END (BP_SYM (strlen))
+END (strlen)
 libc_hidden_builtin_def (strlen)

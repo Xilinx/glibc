@@ -1,5 +1,5 @@
 /* Optimized strcmp implementation for PowerPC64.
-   Copyright (C) 2003, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,19 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* See strlen.s for comments on how the end-of-string testing works.  */
 
 /* int [r3] strncmp (const char *s1 [r3], const char *s2 [r4], size_t size [r5])  */
 
-EALIGN (BP_SYM(strncmp), 4, 0)
+EALIGN (strncmp, 4, 0)
 	CALL_MCOUNT 3
 
 #define rTMP	r0
@@ -33,9 +30,6 @@ EALIGN (BP_SYM(strncmp), 4, 0)
 #define rSTR1	r3	/* first string arg */
 #define rSTR2	r4	/* second string arg */
 #define rN	r5	/* max string length */
-/* Note:  The Bounded pointer support in this code is broken.  This code
-   was inherited from PPC32 and that support was never completed.
-   Current PPC gcc does not support -fbounds-check or -fbounded-pointers.  */
 #define rWORD1	r6	/* current word in s1 */
 #define rWORD2	r7	/* current word in s2 */
 #define rFEFE	r8	/* constant 0xfefefefefefefeff (-0x0101010101010101) */
@@ -51,13 +45,13 @@ EALIGN (BP_SYM(strncmp), 4, 0)
 	cmpldi	cr1, rN, 0
 	lis	rFEFE, -0x101
 	bne	L(unaligned)
-/* We are doubleword alligned so set up for two loops.  first a double word
+/* We are doubleword aligned so set up for two loops.  first a double word
    loop, then fall into the byte loop if any residual.  */
 	srdi.	rTMP, rN, 3
 	clrldi	rN, rN, 61
 	addi	rFEFE, rFEFE, -0x101
 	addi	r7F7F, r7F7F, 0x7f7f
-	cmpldi	cr1, rN, 0	
+	cmpldi	cr1, rN, 0
 	beq	L(unaligned)
 
 	mtctr	rTMP	/* Power4 wants mtctr 1st in dispatch group.  */
@@ -68,7 +62,7 @@ EALIGN (BP_SYM(strncmp), 4, 0)
 	add	rFEFE, rFEFE, rTMP
 	b	L(g1)
 
-L(g0):	
+L(g0):
 	ldu	rWORD1, 8(rSTR1)
 	bne-	cr1, L(different)
 	ldu	rWORD2, 8(rSTR2)
@@ -78,11 +72,11 @@ L(g1):	add	rTMP, rFEFE, rWORD1
 	and.	rTMP, rTMP, rNEG
 	cmpd	cr1, rWORD1, rWORD2
 	beq+	L(g0)
-	
+
 /* OK. We've hit the end of the string. We need to be careful that
    we don't compare two strings as different because of gunk beyond
    the end of the strings...  */
-	
+
 L(endstring):
 	and	rTMP, r7F7F, rWORD1
 	beq	cr1, L(equal)
@@ -158,8 +152,8 @@ L(u1):
 	lbzu	rWORD1, 1(rSTR1)
 	bne+	cr1, L(u0)
 
-L(u2):	lbzu	rWORD1, -1(rSTR1)	
+L(u2):	lbzu	rWORD1, -1(rSTR1)
 L(u3):	sub	rRTN, rWORD1, rWORD2
 	blr
-END (BP_SYM (strncmp))
+END (strncmp)
 libc_hidden_builtin_def (strncmp)

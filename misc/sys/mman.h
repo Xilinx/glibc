@@ -1,5 +1,5 @@
 /* Definitions for BSD-style memory management.
-   Copyright (C) 1994-2000, 2003, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_SYS_MMAN_H
 #define	_SYS_MMAN_H	1
@@ -101,10 +100,10 @@ extern int posix_madvise (void *__addr, size_t __len, int __advice) __THROW;
 
 /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
    be memory resident.  */
-extern int mlock (__const void *__addr, size_t __len) __THROW;
+extern int mlock (const void *__addr, size_t __len) __THROW;
 
 /* Unlock whole pages previously mapped by the range [ADDR,ADDR+LEN).  */
-extern int munlock (__const void *__addr, size_t __len) __THROW;
+extern int munlock (const void *__addr, size_t __len) __THROW;
 
 /* Cause all currently mapped pages of the process to be memory resident
    until unlocked by a call to the `munlockall', until the process exits,
@@ -129,7 +128,7 @@ extern int mincore (void *__start, size_t __len, unsigned char *__vec)
 /* Remap pages mapped by the range [ADDR,ADDR+OLD_LEN) to new length
    NEW_LEN.  If MREMAP_MAYMOVE is set in FLAGS the returned address
    may differ from ADDR.  If MREMAP_FIXED is set in FLAGS the function
-   takes another paramter which is a fixed address at which the block
+   takes another parameter which is a fixed address at which the block
    resides after a successful call.  */
 extern void *mremap (void *__addr, size_t __old_len, size_t __new_len,
 		     int __flags, ...) __THROW;
@@ -142,10 +141,10 @@ extern int remap_file_pages (void *__start, size_t __size, int __prot,
 
 
 /* Open shared memory segment.  */
-extern int shm_open (__const char *__name, int __oflag, mode_t __mode);
+extern int shm_open (const char *__name, int __oflag, mode_t __mode);
 
 /* Remove shared memory segment.  */
-extern int shm_unlink (__const char *__name);
+extern int shm_unlink (const char *__name);
 
 __END_DECLS
 

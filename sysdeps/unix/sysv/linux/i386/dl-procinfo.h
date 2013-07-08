@@ -1,5 +1,5 @@
 /* Linux/i386 version of processor capability information handling macros.
-   Copyright (C) 1998-2002, 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdeps/i386/dl-procinfo.h>
 #include <ldsodefs.h>
@@ -25,11 +24,15 @@
 #undef _dl_procinfo
 static inline int
 __attribute__ ((unused))
-_dl_procinfo (int word)
+_dl_procinfo (unsigned int type, unsigned long int word)
 {
   /* This table should match the information from arch/i386/kernel/setup.c
      in the kernel sources.  */
   int i;
+
+  /* Fallback to unknown output mechanism.  */
+  if (type == AT_HWCAP2)
+    return -1;
 
   _dl_printf ("AT_HWCAP:   ");
 

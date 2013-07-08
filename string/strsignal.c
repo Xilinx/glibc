@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1994-2002, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <signal.h>
 #include <stdio.h>
@@ -23,10 +22,6 @@
 #include <libintl.h>
 #include <bits/libc-lock.h>
 
-
-/* Defined in siglist.c.  */
-extern const char *const _sys_siglist[];
-extern const char *const _sys_siglist_internal[] attribute_hidden;
 static __libc_key_t key;
 
 /* If nonzero the key allocation failed and we should better use a
@@ -56,7 +51,7 @@ strsignal (int signum)
       (signum >= SIGRTMIN && signum <= SIGRTMAX) ||
 #endif
       signum < 0 || signum >= NSIG
-      || (desc = INTUSE(_sys_siglist)[signum]) == NULL)
+      || (desc = _sys_siglist[signum]) == NULL)
     {
       char *buffer = getbuffer ();
       int len;

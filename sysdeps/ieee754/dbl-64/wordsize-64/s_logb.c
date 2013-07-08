@@ -1,5 +1,5 @@
 /* Compute radix independent exponent.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -14,28 +14,32 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <math.h>
 
-#include "math_private.h"
+#include <math_private.h>
 
 
 double
 __logb (double x)
 {
-  int64_t ix;
+  int64_t ix, ex;
 
   EXTRACT_WORDS64 (ix, x);
   ix &= UINT64_C(0x7fffffffffffffff);
   if (ix == 0)
     return -1.0 / fabs (x);
-  unsigned int ex = ix >> 52;
+  ex = ix >> 52;
   if (ex == 0x7ff)
     return x * x;
-  return ex == 0 ? -1022.0 : (double) (ex - 1023);
+  if (__builtin_expect (ex == 0, 0))
+    {
+      int m = __builtin_clzll (ix);
+      ex -= m - 12;
+    }
+  return (double) (ex - 1023);
 }
 weak_alias (__logb, logb)
 #ifdef NO_LONG_DOUBLE

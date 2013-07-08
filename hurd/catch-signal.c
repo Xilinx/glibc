@@ -1,5 +1,5 @@
 /* Convenience function to catch expected signals during an operation.
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <hurd/signal.h>
 #include <hurd/sigpreempt.h>
@@ -28,9 +27,12 @@ hurd_catch_signal (sigset_t sigset,
 		   error_t (*operate) (struct hurd_signal_preemptor *),
 		   sighandler_t handler)
 {
-  jmp_buf buf;
+  /* We need to restore the signal mask, because otherwise the
+     signal-handling code will have blocked the caught signal and for
+     instance calling hurd_catch_signal again would then dump core.  */
+  sigjmp_buf buf;
   void throw (int signo, long int sigcode, struct sigcontext *scp)
-    { longjmp (buf, scp->sc_error ?: EGRATUITOUS); }
+    { siglongjmp (buf, scp->sc_error ?: EGRATUITOUS); }
 
   struct hurd_signal_preemptor preemptor =
     {
@@ -41,12 +43,12 @@ hurd_catch_signal (sigset_t sigset,
   struct hurd_sigstate *const ss = _hurd_self_sigstate ();
   error_t error;
 
-  if (handler == SIG_ERR)
+  if (handler != SIG_ERR)
     /* Not our handler; don't bother saving state.  */
     error = 0;
   else
     /* This returns again with nonzero value when we preempt a signal.  */
-    error = setjmp (buf);
+    error = sigsetjmp (buf, 1);
 
   if (error == 0)
     {

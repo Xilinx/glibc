@@ -1,5 +1,5 @@
 /* Load a shared object at runtime, relocate it, and run its initializer.
-   Copyright (C) 1996-2007, 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <dlfcn.h>
@@ -29,24 +28,18 @@
 #include <sys/param.h>
 #include <bits/libc-lock.h>
 #include <ldsodefs.h>
-#include <bp-sym.h>
 #include <caller.h>
 #include <sysdep-cancel.h>
 #include <tls.h>
+#include <stap-probe.h>
+#include <atomic.h>
 
 #include <dl-dst.h>
 
 
-extern ElfW(Addr) _dl_sysdep_start (void **start_argptr,
-				    void (*dl_main) (const ElfW(Phdr) *phdr,
-						     ElfW(Word) phnum,
-						     ElfW(Addr) *user_entry,
-						     ElfW(auxv_t) *auxv));
-weak_extern (BP_SYM (_dl_sysdep_start))
-
 extern int __libc_multiple_libcs;	/* Defined in init-first.c.  */
 
-/* We must be carefull not to leave us in an inconsistent state.  Thus we
+/* We must be careful not to leave us in an inconsistent state.  Thus we
    catch any error and re-raise it after cleaning up.  */
 
 struct dl_open_args
@@ -55,7 +48,7 @@ struct dl_open_args
   int mode;
   /* This is the caller of the dlopen() function.  */
   const void *caller_dlopen;
-  /* This is the caller if _dl_open().  */
+  /* This is the caller of _dl_open().  */
   const void *caller_dl_open;
   struct link_map *map;
   /* Namespace ID.  */
@@ -165,6 +158,29 @@ add_to_global (struct link_map *new)
   return 0;
 }
 
+/* Search link maps in all namespaces for the DSO that containes the object at
+   address ADDR.  Returns the pointer to the link map of the matching DSO, or
+   NULL if a match is not found.  */
+struct link_map *
+internal_function
+_dl_find_dso_for_object (const ElfW(Addr) addr)
+{
+  struct link_map *l;
+
+  /* Find the highest-addressed object that ADDR is not below.  */
+  for (Lmid_t ns = 0; ns < GL(dl_nns); ++ns)
+    for (l = GL(dl_ns)[ns]._ns_loaded; l != NULL; l = l->l_next)
+      if (addr >= l->l_map_start && addr < l->l_map_end
+	  && (l->l_contiguous
+	      || _dl_addr_inside_object (l, (ElfW(Addr)) addr)))
+	{
+	  assert (ns == l->l_ns);
+	  return l;
+	}
+  return NULL;
+}
+rtld_hidden_def (_dl_find_dso_for_object);
+
 static void
 dl_open_worker (void *a)
 {
@@ -192,30 +208,13 @@ dl_open_worker (void *a)
 	 By default we assume this is the main application.  */
       call_map = GL(dl_ns)[LM_ID_BASE]._ns_loaded;
 
-      struct link_map *l;
-      for (Lmid_t ns = 0; ns < GL(dl_nns); ++ns)
-	for (l = GL(dl_ns)[ns]._ns_loaded; l != NULL; l = l->l_next)
-	  if (caller_dlopen >= (const void *) l->l_map_start
-	      && caller_dlopen < (const void *) l->l_map_end
-	      && (l->l_contiguous
-		  || _dl_addr_inside_object (l, (ElfW(Addr)) caller_dlopen)))
-	    {
-	      assert (ns == l->l_ns);
-	      call_map = l;
-	      goto found_caller;
-	    }
+      struct link_map *l = _dl_find_dso_for_object ((ElfW(Addr)) caller_dlopen);
 
-    found_caller:
+      if (l)
+        call_map = l;
+
       if (args->nsid == __LM_ID_CALLER)
-	{
-#ifndef SHARED
-	  /* In statically linked apps there might be no loaded object.  */
-	  if (call_map == NULL)
-	    args->nsid = LM_ID_BASE;
-	  else
-#endif
-	    args->nsid = call_map->l_ns;
-	}
+	args->nsid = call_map->l_ns;
     }
 
   assert (_dl_debug_initialize (0, args->nsid)->r_state == RT_CONSISTENT);
@@ -292,6 +291,7 @@ dl_open_worker (void *a)
   struct r_debug *r = _dl_debug_initialize (0, args->nsid);
   r->r_state = RT_CONSISTENT;
   _dl_debug_state ();
+  LIBC_PROBE (map_complete, 3, args->nsid, r, new);
 
   /* Print scope information.  */
   if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_SCOPES, 0))
@@ -302,45 +302,118 @@ dl_open_worker (void *a)
   if (GLRO(dl_lazy))
     reloc_mode |= mode & RTLD_LAZY;
 
-  /* Relocate the objects loaded.  We do this in reverse order so that copy
-     relocs of earlier objects overwrite the data written by later objects.  */
-
+  /* Sort the objects by dependency for the relocation process.  This
+     allows IFUNC relocations to work and it also means copy
+     relocation of dependencies are if necessary overwritten.  */
+  size_t nmaps = 0;
   struct link_map *l = new;
-  while (l->l_next)
-    l = l->l_next;
-  while (1)
+  do
     {
       if (! l->l_real->l_relocated)
+	++nmaps;
+      l = l->l_next;
+    }
+  while (l != NULL);
+  struct link_map *maps[nmaps];
+  nmaps = 0;
+  l = new;
+  do
+    {
+      if (! l->l_real->l_relocated)
+	maps[nmaps++] = l;
+      l = l->l_next;
+    }
+  while (l != NULL);
+  if (nmaps > 1)
+    {
+      uint16_t seen[nmaps];
+      memset (seen, '\0', sizeof (seen));
+      size_t i = 0;
+      while (1)
 	{
-#ifdef SHARED
-	  if (__builtin_expect (GLRO(dl_profile) != NULL, 0))
+	  ++seen[i];
+	  struct link_map *thisp = maps[i];
+
+	  /* Find the last object in the list for which the current one is
+	     a dependency and move the current object behind the object
+	     with the dependency.  */
+	  size_t k = nmaps - 1;
+	  while (k > i)
 	    {
-	      /* If this here is the shared object which we want to profile
-		 make sure the profile is started.  We can find out whether
-		 this is necessary or not by observing the `_dl_profile_map'
-		 variable.  If was NULL but is not NULL afterwars we must
-		 start the profiling.  */
-	      struct link_map *old_profile_map = GL(dl_profile_map);
+	      struct link_map **runp = maps[k]->l_initfini;
+	      if (runp != NULL)
+		/* Look through the dependencies of the object.  */
+		while (*runp != NULL)
+		  if (__builtin_expect (*runp++ == thisp, 0))
+		    {
+		      /* Move the current object to the back past the last
+			 object with it as the dependency.  */
+		      memmove (&maps[i], &maps[i + 1],
+			       (k - i) * sizeof (maps[0]));
+		      maps[k] = thisp;
 
-	      _dl_relocate_object (l, l->l_scope, reloc_mode | RTLD_LAZY, 1);
+		      if (seen[i + 1] > nmaps - i)
+			{
+			  ++i;
+			  goto next_clear;
+			}
 
-	      if (old_profile_map == NULL && GL(dl_profile_map) != NULL)
-		{
-		  /* We must prepare the profiling.  */
-		  _dl_start_profile ();
+		      uint16_t this_seen = seen[i];
+		      memmove (&seen[i], &seen[i + 1],
+			       (k - i) * sizeof (seen[0]));
+		      seen[k] = this_seen;
 
-		  /* Prevent unloading the object.  */
-		  GL(dl_profile_map)->l_flags_1 |= DF_1_NODELETE;
-		}
+		      goto next;
+		    }
+
+	      --k;
 	    }
-	  else
-#endif
-	    _dl_relocate_object (l, l->l_scope, reloc_mode, 0);
+
+	  if (++i == nmaps)
+	    break;
+	next_clear:
+	  memset (&seen[i], 0, (nmaps - i) * sizeof (seen[0]));
+	next:;
+	}
+    }
+
+  int relocation_in_progress = 0;
+
+  for (size_t i = nmaps; i-- > 0; )
+    {
+      l = maps[i];
+
+      if (! relocation_in_progress)
+	{
+	  /* Notify the debugger that relocations are about to happen.  */
+	  LIBC_PROBE (reloc_start, 2, args->nsid, r);
+	  relocation_in_progress = 1;
 	}
 
-      if (l == new)
-	break;
-      l = l->l_prev;
+#ifdef SHARED
+      if (__builtin_expect (GLRO(dl_profile) != NULL, 0))
+	{
+	  /* If this here is the shared object which we want to profile
+	     make sure the profile is started.  We can find out whether
+	     this is necessary or not by observing the `_dl_profile_map'
+	     variable.  If it was NULL but is not NULL afterwars we must
+	     start the profiling.  */
+	  struct link_map *old_profile_map = GL(dl_profile_map);
+
+	  _dl_relocate_object (l, l->l_scope, reloc_mode | RTLD_LAZY, 1);
+
+	  if (old_profile_map == NULL && GL(dl_profile_map) != NULL)
+	    {
+	      /* We must prepare the profiling.  */
+	      _dl_start_profile ();
+
+	      /* Prevent unloading the object.  */
+	      GL(dl_profile_map)->l_flags_1 |= DF_1_NODELETE;
+	    }
+	}
+      else
+#endif
+	_dl_relocate_object (l, l->l_scope, reloc_mode, 0);
     }
 
   /* If the file is not loaded now as a dependency, add the search
@@ -448,7 +521,7 @@ dl_open_worker (void *a)
 TLS generation counter wrapped!  Please report this."));
 
   /* We need a second pass for static tls data, because _dl_update_slotinfo
-     must not be run while calls to _dl_add_to_slotinfo are still pending. */
+     must not be run while calls to _dl_add_to_slotinfo are still pending.  */
   for (unsigned int i = first_static_tls; i < new->l_searchlist.r_nlist; ++i)
     {
       struct link_map *imap = new->l_searchlist.r_list[i];
@@ -459,7 +532,7 @@ TLS generation counter wrapped!  Please report this."));
 	{
 	  /* For static TLS we have to allocate the memory here and
 	     now.  This includes allocating memory in the DTV.  But we
-	     cannot change any DTV other than our own. So, if we
+	     cannot change any DTV other than our own.  So, if we
 	     cannot guarantee that there is room in the DTV we don't
 	     even try it and fail the load.
 
@@ -480,6 +553,14 @@ cannot load any more object with static TLS"));
 	  assert (imap->l_need_tls_init == 0);
 	}
     }
+
+  /* Notify the debugger all new objects have been relocated.  */
+  if (relocation_in_progress)
+    LIBC_PROBE (reloc_complete, 3, args->nsid, r, new);
+
+#ifndef SHARED
+  DL_STATIC_INIT (new);
+#endif
 
   /* Run the initializer functions of new objects.  */
   _dl_init (new, args->argc, args->argv, args->env);
@@ -551,12 +632,6 @@ no more namespaces available for dlmopen()"));
 	       || GL(dl_ns)[nsid]._ns_loaded->l_auditing))
     _dl_signal_error (EINVAL, file, NULL,
 		      N_("invalid target namespace in dlmopen()"));
-#ifndef SHARED
-  else if ((nsid == LM_ID_BASE || nsid == __LM_ID_CALLER)
-	   && GL(dl_ns)[LM_ID_BASE]._ns_loaded == NULL
-	   && GL(dl_nns) == 0)
-    GL(dl_nns) = 1;
-#endif
 
   struct dl_open_args args;
   args.file = file;
@@ -575,8 +650,8 @@ no more namespaces available for dlmopen()"));
   int errcode = _dl_catch_error (&objname, &errstring, &malloced,
 				 dl_open_worker, &args);
 
-#ifndef MAP_COPY
-  /* We must munmap() the cache file.  */
+#if defined USE_LDCONFIG && !defined MAP_COPY
+  /* We must unmap the cache file.  */
   _dl_unload_cache ();
 #endif
 
@@ -634,10 +709,6 @@ no more namespaces available for dlmopen()"));
   /* Release the lock.  */
   __rtld_lock_unlock_recursive (GL(dl_load_lock));
 
-#ifndef SHARED
-  DL_STATIC_INIT (args.map);
-#endif
-
   return args.map;
 }
 
@@ -646,7 +717,7 @@ void
 _dl_show_scope (struct link_map *l, int from)
 {
   _dl_debug_printf ("object=%s [%lu]\n",
-		    *l->l_name ? l->l_name : rtld_progname, l->l_ns);
+		    DSO_FILENAME (l->l_name), l->l_ns);
   if (l->l_scope != NULL)
     for (int scope_cnt = from; l->l_scope[scope_cnt] != NULL; ++scope_cnt)
       {
@@ -657,7 +728,7 @@ _dl_show_scope (struct link_map *l, int from)
 	    _dl_debug_printf_c (" %s",
 				l->l_scope[scope_cnt]->r_list[cnt]->l_name);
 	  else
-	    _dl_debug_printf_c (" %s", rtld_progname);
+	    _dl_debug_printf_c (" %s", RTLD_PROGNAME);
 
 	_dl_debug_printf_c ("\n");
       }

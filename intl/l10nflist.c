@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2002, 2004, 2005, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Tell glibc's <string.h> to provide a prototype for stpcpy().
    This must come before <config.h> because <config.h> may include
@@ -86,10 +85,6 @@ argz_count__ (argz, len)
 }
 # undef __argz_count
 # define __argz_count(argz, len) argz_count__ (argz, len)
-#else
-# ifdef _LIBC
-#  define __argz_count(argz, len) INTUSE(__argz_count) (argz, len)
-# endif
 #endif	/* !_LIBC && !HAVE___ARGZ_COUNT */
 
 #if !defined _LIBC && !defined HAVE___ARGZ_STRINGIFY
@@ -114,11 +109,6 @@ argz_stringify__ (argz, len, sep)
 }
 # undef __argz_stringify
 # define __argz_stringify(argz, len, sep) argz_stringify__ (argz, len, sep)
-#else
-# ifdef _LIBC
-#  define __argz_stringify(argz, len, sep) \
-  INTUSE(__argz_stringify) (argz, len, sep)
-# endif
 #endif	/* !_LIBC && !HAVE___ARGZ_STRINGIFY */
 
 #if !defined _LIBC && !defined HAVE___ARGZ_NEXT

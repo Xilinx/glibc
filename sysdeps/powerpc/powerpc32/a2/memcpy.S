@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for PowerPC A2.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Michael Brutman <brutman@us.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -14,19 +14,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #define PREFETCH_AHEAD 4        /* no cache lines SRC prefetching ahead  */
 #define ZERO_AHEAD 2            /* no cache lines DST zeroing ahead  */
 
 	.machine  a2
-EALIGN (BP_SYM (memcpy), 5, 0)
+EALIGN (memcpy, 5, 0)
 	CALL_MCOUNT
 
 	dcbt    0,r4            /* Prefetch ONE SRC cacheline  */
@@ -113,11 +110,9 @@ L(dst_aligned):
 	mflr    r0
 /* Establishes GOT addressability so we can load __cache_line_size
    from static. This value was set from the aux vector during startup.  */
-	bcl     20,31,1f
-1:
-	mflr    r9
-	addis   r9,r9,__cache_line_size-1b@ha
-	lwz     r9,__cache_line_size-1b@l(r9)
+	SETUP_GOT_ACCESS(r9,got_label)
+	addis   r9,r9,__cache_line_size-got_label@ha
+	lwz     r9,__cache_line_size-got_label@l(r9)
 	mtlr    r0
 #else
 /* Load __cache_line_size from static. This value was set from the
@@ -128,8 +123,29 @@ L(dst_aligned):
 
 	cmplwi  cr5, r9, 0
 	bne+    cr5,L(cachelineset)
-	li      r9,64
 
+/* __cache_line_size not set: generic byte copy without much optimization */
+	andi.	r0,r5,1		/* If length is odd copy one byte.  */
+	beq	L(cachelinenotset_align)
+	lbz	r7,0(r4)	/* Read one byte from source.  */
+	addi	r5,r5,-1	/* Update length.  */
+	addi	r4,r4,1		/* Update source pointer address.  */
+	stb	r7,0(r6)	/* Store one byte on dest.  */
+	addi	r6,r6,1		/* Update dest pointer address.  */
+L(cachelinenotset_align):
+	cmpwi   cr7,r5,0	/* If length is 0 return.  */
+	beqlr	cr7
+	ori	r2,r2,0		/* Force a new dispatch group.  */
+L(cachelinenotset_loop):
+	addic.	r5,r5,-2	/* Update length.  */
+	lbz	r7,0(r4)	/* Load 2 bytes from source.  */
+	lbz	r8,1(r4)
+	addi	r4,r4,2		/* Update source pointer address.  */
+	stb	r7,0(r6)	/* Store 2 bytes on dest.  */
+	stb	r8,1(r6)
+	addi	r6,r6,2		/* Update dest pointer address.  */
+	bne	L(cachelinenotset_loop)
+	blr
 
 
 L(cachelineset):
@@ -507,5 +523,5 @@ L(endloop2_128):
 	b       L(lessthancacheline)
 
 
-END (BP_SYM (memcpy))
+END (memcpy)
 libc_hidden_builtin_def (memcpy)

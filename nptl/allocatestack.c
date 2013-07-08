@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007, 2009, 2010, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -341,6 +340,10 @@ change_stack_perm (struct pthread *pd
 }
 
 
+/* Returns a usable stack for a new thread either by allocating a
+   new stack or reusing a cached stack of sufficient size.
+   ATTR must be non-NULL and point to a valid pthread_attr.
+   PDP must be non-NULL.  */
 static int
 allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		ALLOCATE_STACK_PARMS)
@@ -350,13 +353,19 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
   size_t pagesize_m1 = __getpagesize () - 1;
   void *stacktop;
 
-  assert (attr != NULL);
   assert (powerof2 (pagesize_m1 + 1));
   assert (TCB_ALIGNMENT >= STACK_ALIGN);
 
   /* Get the stack size from the attribute if it is set.  Otherwise we
      use the default we determined at start time.  */
-  size = attr->stacksize ?: __default_stacksize;
+  if (attr->stacksize != 0)
+    size = attr->stacksize;
+  else
+    {
+      lll_lock (__default_pthread_attr_lock, LLL_PRIVATE);
+      size = __default_pthread_attr.stacksize;
+      lll_unlock (__default_pthread_attr_lock, LLL_PRIVATE);
+    }
 
   /* Get memory for the stack.  */
   if (__builtin_expect (attr->flags & ATTR_FLAG_STACKADDR, 0))
@@ -435,7 +444,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	{
 	  /* Something went wrong.  */
 	  assert (errno == ENOMEM);
-	  return EAGAIN;
+	  return errno;
 	}
 
 
@@ -496,12 +505,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		      MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
 
 	  if (__builtin_expect (mem == MAP_FAILED, 0))
-	    {
-	      if (errno == ENOMEM)
-		__set_errno (EAGAIN);
-
-	       return errno;
-	    }
+	    return errno;
 
 	  /* SIZE is guaranteed to be greater than zero.
 	     So we can never get a null pointer back from mmap.  */
@@ -581,7 +585,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	      /* Free the stack memory we just allocated.  */
 	      (void) munmap (mem, size);
 
-	      return EAGAIN;
+	      return errno;
 	    }
 
 
@@ -636,10 +640,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 #endif
 	  if (mprotect (guard, guardsize, PROT_NONE) != 0)
 	    {
-	      int err;
 	    mprot_error:
-	      err = errno == ENOMEM ? EAGAIN : errno;
-
 	      lll_lock (stack_cache_lock, LLL_PRIVATE);
 
 	      /* Remove the thread from the list.  */
@@ -657,7 +658,7 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 		 is nothing we could do.  */
 	      (void) munmap (mem, size);
 
-	      return err;
+	      return errno;
 	    }
 
 	  pd->guardsize = guardsize;
@@ -925,8 +926,9 @@ __reclaim_stacks (void)
 
   in_flight_stack = 0;
 
-  /* Initialize the lock.  */
+  /* Initialize locks.  */
   stack_cache_lock = LLL_LOCK_INITIALIZER;
+  __default_pthread_attr_lock = LLL_LOCK_INITIALIZER;
 }
 
 
@@ -1046,18 +1048,8 @@ setxid_signal_thread (struct xid_command *cmdp, struct pthread *t)
 
   int val;
   INTERNAL_SYSCALL_DECL (err);
-#if __ASSUME_TGKILL
   val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
 			  t->tid, SIGSETXID);
-#else
-# ifdef __NR_tgkill
-  val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
-			  t->tid, SIGSETXID);
-  if (INTERNAL_SYSCALL_ERROR_P (val, err)
-      && INTERNAL_SYSCALL_ERRNO (val, err) == ENOSYS)
-# endif
-    val = INTERNAL_SYSCALL (tkill, err, 2, t->tid, SIGSETXID);
-#endif
 
   /* If this failed, it must have had not started yet or else exited.  */
   if (!INTERNAL_SYSCALL_ERROR_P (val, err))

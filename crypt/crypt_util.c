@@ -1,8 +1,7 @@
 /*
  * UFC-crypt: ultra fast crypt(3) implementation
  *
- * Copyright (C) 1991-1993,1996-1998,2000,2010,2011
- * Free Software Foundation, Inc.
+ * Copyright (C) 1991-2013 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,8 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * see <http://www.gnu.org/licenses/>.
  *
  * @(#)crypt_util.c	2.56 12/20/96
  *
@@ -49,7 +47,6 @@
 #include "crypt-private.h"
 
 /* Prototypes for local functions.  */
-#if __STDC__ - 0
 #ifndef __GNU_LIBRARY__
 void _ufc_clearmem (char *start, int cnt);
 void _ufc_copymem (char *from, char *to, int cnt);
@@ -58,7 +55,6 @@ void _ufc_copymem (char *from, char *to, int cnt);
 STATIC void shuffle_sb (long32 *k, ufc_long saltbits);
 #else
 STATIC void shuffle_sb (long64 *k, ufc_long saltbits);
-#endif
 #endif
 
 
@@ -557,7 +553,7 @@ small_tables_done:
 }
 
 void
-__init_des()
+__init_des (void)
 {
   __init_des_r(&_ufc_foobar);
 }
@@ -599,23 +595,55 @@ shuffle_sb(k, saltbits)
 #endif
 
 /*
- * Setup the unit for a new salt
- * Hopefully we'll not see a new salt in each crypt call.
+ * Return false iff C is in the specified alphabet for crypt salt.
  */
 
-void
+static bool
+bad_for_salt (char c)
+{
+  switch (c)
+    {
+    case '0' ... '9':
+    case 'A' ... 'Z':
+    case 'a' ... 'z':
+    case '.': case '/':
+      return false;
+
+    default:
+      return true;
+    }
+}
+
+/*
+ * Setup the unit for a new salt
+ * Hopefully we'll not see a new salt in each crypt call.
+ * Return false if an unexpected character was found in s[0] or s[1].
+ */
+
+bool
 _ufc_setup_salt_r(s, __data)
-     __const char *s;
+     const char *s;
      struct crypt_data * __restrict __data;
 {
   ufc_long i, j, saltbits;
+  char s0, s1;
 
   if(__data->initialized == 0)
     __init_des_r(__data);
 
-  if(s[0] == __data->current_salt[0] && s[1] == __data->current_salt[1])
-    return;
-  __data->current_salt[0] = s[0]; __data->current_salt[1] = s[1];
+  s0 = s[0];
+  if(bad_for_salt (s0))
+    return false;
+
+  s1 = s[1];
+  if(bad_for_salt (s1))
+    return false;
+
+  if(s0 == __data->current_salt[0] && s1 == __data->current_salt[1])
+    return true;
+
+  __data->current_salt[0] = s0;
+  __data->current_salt[1] = s1;
 
   /*
    * This is the only crypt change to DES:
@@ -649,6 +677,8 @@ _ufc_setup_salt_r(s, __data)
   shuffle_sb((LONGG)__data->sb3, __data->current_saltbits ^ saltbits);
 
   __data->current_saltbits = saltbits;
+
+  return true;
 }
 
 void
@@ -758,7 +788,7 @@ _ufc_dofinalperm_r(res, __data)
 void
 _ufc_output_conversion_r(v1, v2, salt, __data)
      ufc_long v1, v2;
-     __const char *salt;
+     const char *salt;
      struct crypt_data * __restrict __data;
 {
   int i, s, shf;
@@ -902,7 +932,7 @@ encrypt(__block, __edflag)
 
 void
 __setkey_r(__key, __data)
-     __const char *__key;
+     const char *__key;
      struct crypt_data * __restrict __data;
 {
   int i,j;
@@ -922,7 +952,7 @@ weak_alias (__setkey_r, setkey_r)
 
 void
 setkey(__key)
-     __const char *__key;
+     const char *__key;
 {
   __setkey_r(__key, &_ufc_foobar);
 }

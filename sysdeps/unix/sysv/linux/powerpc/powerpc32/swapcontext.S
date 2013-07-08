@@ -1,5 +1,5 @@
 /* Save current context and jump to a new context.
-   Copyright (C) 2002, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <rtld-global-offsets.h>
@@ -33,7 +32,6 @@
 /* Size of ucontext in GLIBC_2.3.4 and later.  */
 #define _UC_SIZE_2_3_4	1184
 
-#ifdef __ASSUME_SWAPCONTEXT_SYSCALL
 	.section ".text";
 ENTRY (__swapcontext)
 	li	r5,_UC_SIZE_2_3_4;
@@ -45,17 +43,14 @@ ENTRY (__swapcontext)
 1:
 	b	__syscall_error@local
 END(__swapcontext)
-#else
-# include "swapcontext-common.S"
-#endif
 
 versioned_symbol (libc, __swapcontext, swapcontext, GLIBC_2_3_4)
 
 #if SHLIB_COMPAT (libc, GLIBC_2_3_3, GLIBC_2_3_4)
 
 	compat_text_section
-	
-# undef __CONTEXT_FUNC_NAME	
+
+# undef __CONTEXT_FUNC_NAME
 # define __CONTEXT_FUNC_NAME __novec_swapcontext
 # undef __CONTEXT_ENABLE_VRS
 

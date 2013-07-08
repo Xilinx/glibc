@@ -1,5 +1,5 @@
 /* High precision, low overhead timing functions.  powerpc64 version.
-   Copyright (C) 2005, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,16 +14,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _HP_TIMING_H
 #define _HP_TIMING_H	1
 
 #include <string.h>
 #include <sys/param.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 #include <atomic.h>
 
 /* The macros defined here use the powerpc 64-bit time base register.
@@ -83,7 +82,7 @@ typedef unsigned long long int hp_timing_t;
 /* That's quite simple.  Use the `mftb' instruction.  Note that the value
    might not be 100% accurate since there might be some more instructions
    running in this moment.  This could be changed by using a barrier like
-   'lwsync' right before the `mftb' instruciton.  But we are not interested
+   'lwsync' right before the `mftb' instruction.  But we are not interested
    in accurate clock cycles here so we don't do this.  */
 #ifdef _ARCH_PWR4
 #define HP_TIMING_NOW(Var)	__asm__ __volatile__ ("mfspr %0,268" : "=r" (Var))

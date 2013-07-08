@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Free Software Foundation, Inc.
+# Copyright (C) 2009-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for gshadow.
@@ -30,8 +29,8 @@ tests = tst-gshadow
 CFLAGS-getsgent_r.c = -fexceptions
 CFLAGS-getsgent.c = -fexceptions
 CFLAGS-fgetsgent.c = -fexceptions
-CFLAGS-fgetsgent_r.c = -fexceptions -D_IO_MTSAFE_IO
-CFLAGS-putsgent.c = -fexceptions -D_IO_MTSAFE_IO
+CFLAGS-fgetsgent_r.c = -fexceptions $(libio-mtsafe)
+CFLAGS-putsgent.c = -fexceptions $(libio-mtsafe)
 CFLAGS-getsgnam.c = -fexceptions
 CFLAGS-getsgnam_r.c = -fexceptions
 

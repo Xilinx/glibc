@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2007, 2009, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -23,6 +22,7 @@
 #include <lowlevelcond.h>
 #include <tcb-offsets.h>
 #include <pthread-pi-defines.h>
+#include <pthread-errnos.h>
 #include <stap-probe.h>
 
 #include <kernel-features.h>
@@ -55,27 +55,27 @@ __pthread_cond_wait:
 	   rsp + 32
 		    +--------------------------+
 	   rsp + 24 | old wake_seq value       |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp + 16 | mutex pointer            |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  8 | condvar pointer          |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  4 | old broadcast_seq value  |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  0 | old cancellation mode    |
-	            +--------------------------+
+		    +--------------------------+
 	*/
 
 	LIBC_PROBE (cond_wait, 2, %rdi, %rsi)
 
-	cmpq	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 
-		/* Prepare structure passed to cancellation handler.  */
+	/* Prepare structure passed to cancellation handler.  */
 	movq	%rdi, 8(%rsp)
 	movq	%rsi, 16(%rsp)
 
 	je	15f
-	movq	%rsi, dep_mutex(%rdi)
+	mov	%RSI_LP, dep_mutex(%rdi)
 
 	/* Get internal lock.  */
 15:	movl	$1, %esi
@@ -123,12 +123,12 @@ __pthread_cond_wait:
 	movl	%eax, (%rsp)
 
 	xorq	%r10, %r10
-	cmpq	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 	leaq	cond_futex(%rdi), %rdi
 	movl	$FUTEX_WAIT, %esi
 	je	60f
 
-	movq	dep_mutex-cond_futex(%rdi), %r8
+	mov	dep_mutex-cond_futex(%rdi), %R8_LP
 	/* Requeue to a non-robust PI mutex if the PI bit is set and
 	the robust bit is not set.  */
 	movl	MUTEX_KIND(%r8), %eax
@@ -140,12 +140,32 @@ __pthread_cond_wait:
 	movl	$SYS_futex, %eax
 	syscall
 
-	movl	$1, %r8d
+	cmpl	$0, %eax
+	sete	%r8b
+
 #ifdef __ASSUME_REQUEUE_PI
 	jmp	62f
 #else
-	cmpq	$-4095, %rax
-	jnae	62f
+	je	62f
+
+	/* When a futex syscall with FUTEX_WAIT_REQUEUE_PI returns
+	   successfully, it has already locked the mutex for us and the
+	   pi_flag (%r8b) is set to denote that fact.  However, if another
+	   thread changed the futex value before we entered the wait, the
+	   syscall may return an EAGAIN and the mutex is not locked.  We go
+	   ahead with a success anyway since later we look at the pi_flag to
+	   decide if we got the mutex or not.  The sequence numbers then make
+	   sure that only one of the threads actually wake up.  We retry using
+	   normal FUTEX_WAIT only if the kernel returned ENOSYS, since normal
+	   and PI futexes don't mix.
+
+	   Note that we don't check for EAGAIN specifically; we assume that the
+	   only other error the futex function could return is EAGAIN since
+	   anything else would mean an error in our function.  It is too
+	   expensive to do that check for every call (which is 	quite common in
+	   case of a large number of threads), so it has been skipped.  */
+	cmpl	$-ENOSYS, %eax
+	jne	62f
 
 # ifndef __ASSUME_PRIVATE_FUTEX
 	movl	$FUTEX_WAIT, %esi
@@ -158,7 +178,7 @@ __pthread_cond_wait:
 #else
 	orl	%fs:PRIVATE_FUTEX, %esi
 #endif
-60:	xorl	%r8d, %r8d
+60:	xorb	%r8b, %r8b
 	movl	$SYS_futex, %eax
 	syscall
 
@@ -188,10 +208,10 @@ __pthread_cond_wait:
 	jne	16f
 
 	cmpq	24(%rsp), %r9
-	jbe	8b
+	jbe	19f
 
 	cmpq	%rax, %r9
-	jna	8b
+	jna	19f
 
 	incq	woken_seq(%rdi)
 
@@ -206,7 +226,7 @@ __pthread_cond_wait:
 	jne	17f
 
 	addq	$cond_nwaiters, %rdi
-	cmpq	$-1, dep_mutex-cond_nwaiters(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_nwaiters(%rdi)
 	movl	$1, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
 	movl	$FUTEX_WAKE, %eax
@@ -233,7 +253,7 @@ __pthread_cond_wait:
 	/* If requeue_pi is used the kernel performs the locking of the
 	   mutex. */
 11:	movq	16(%rsp), %rdi
-	testl	%r8d, %r8d
+	testb	%r8b, %r8b
 	jnz	18f
 
 	callq	__pthread_mutex_cond_lock
@@ -250,12 +270,29 @@ __pthread_cond_wait:
 	xorl	%eax, %eax
 	jmp	14b
 
+	/* We need to go back to futex_wait.  If we're using requeue_pi, then
+	   release the mutex we had acquired and go back.  */
+19:	testb	%r8b, %r8b
+	jz	8b
+
+	/* Adjust the mutex values first and then unlock it.  The unlock
+	   should always succeed or else the kernel did not lock the mutex
+	   correctly.  */
+	movq	16(%rsp), %rdi
+	callq	__pthread_mutex_cond_lock_adjust
+	movq	%rdi, %r8
+	xorl	%esi, %esi
+	callq	__pthread_mutex_unlock_usercnt
+	/* Reload cond_var.  */
+	movq	8(%rsp), %rdi
+	jmp	8b
+
 	/* Initial locking failed.  */
 1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -267,7 +304,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -283,7 +320,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -298,7 +335,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -319,7 +356,7 @@ __pthread_cond_wait:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -327,6 +364,7 @@ __pthread_cond_wait:
 
 13:	movq	%r10, %rax
 	jmp	14b
+
 	.size	__pthread_cond_wait, .-__pthread_cond_wait
 versioned_symbol (libpthread, __pthread_cond_wait, pthread_cond_wait,
 		  GLIBC_2_3_2)
@@ -342,15 +380,15 @@ __condvar_cleanup1:
 	   rsp + 32
 		    +--------------------------+
 	   rsp + 24 | unused                   |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp + 16 | mutex pointer            |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  8 | condvar pointer          |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  4 | old broadcast_seq value  |
-	            +--------------------------+
+		    +--------------------------+
 	   rsp +  0 | old cancellation mode    |
-	            +--------------------------+
+		    +--------------------------+
 	*/
 
 	movq	%rax, 24(%rsp)
@@ -370,7 +408,7 @@ __condvar_cleanup1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -403,7 +441,7 @@ __condvar_cleanup1:
 	andl	$~((1 << nwaiters_shift) - 1), %eax
 	jne	4f
 
-	cmpq	$-1, dep_mutex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex(%rdi)
 	leaq	cond_nwaiters(%rdi), %rdi
 	movl	$1, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
@@ -431,7 +469,7 @@ __condvar_cleanup1:
 #if cond_lock != 0
 	addq	$cond_lock, %rdi
 #endif
-	cmpq	$-1, dep_mutex-cond_lock(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_lock(%rdi)
 	movl	$LLL_PRIVATE, %eax
 	movl	$LLL_SHARED, %esi
 	cmovne	%eax, %esi
@@ -442,7 +480,7 @@ __condvar_cleanup1:
 2:	testl	%ecx, %ecx
 	jnz	5f
 	addq	$cond_futex, %rdi
-	cmpq	$-1, dep_mutex-cond_futex(%rdi)
+	LP_OP(cmp) $-1, dep_mutex-cond_futex(%rdi)
 	movl	$0x7fffffff, %edx
 #ifdef __ASSUME_PRIVATE_FUTEX
 	movl	$FUTEX_WAKE, %eax
@@ -457,10 +495,28 @@ __condvar_cleanup1:
 	movl	$SYS_futex, %eax
 	syscall
 
+	/* Lock the mutex only if we don't own it already.  This only happens
+	   in case of PI mutexes, if we got cancelled after a successful
+	   return of the futex syscall and before disabling async
+	   cancellation.  */
 5:	movq	16(%rsp), %rdi
-	callq	__pthread_mutex_cond_lock
+	movl	MUTEX_KIND(%rdi), %eax
+	andl	$(ROBUST_BIT|PI_BIT), %eax
+	cmpl	$PI_BIT, %eax
+	jne	7f
 
-	movq	24(%rsp), %rdi
+	movl	(%rdi), %eax
+	andl	$TID_MASK, %eax
+	cmpl	%eax, %fs:TID
+	jne	7f
+	/* We managed to get the lock.  Fix it up before returning.  */
+	callq	__pthread_mutex_cond_lock_adjust
+	jmp	8f
+
+
+7:	callq	__pthread_mutex_cond_lock
+
+8:	movq	24(%rsp), %rdi
 .LcallUR:
 	call	_Unwind_Resume@PLT
 	hlt
@@ -479,11 +535,11 @@ __condvar_cleanup1:
 	.uleb128 .LcleanupSTART-.LSTARTCODE
 	.uleb128 .LcleanupEND-.LcleanupSTART
 	.uleb128 __condvar_cleanup1-.LSTARTCODE
-	.uleb128  0
+	.uleb128 0
 	.uleb128 .LcallUR-.LSTARTCODE
 	.uleb128 .LENDCODE-.LcallUR
 	.uleb128 0
-	.uleb128  0
+	.uleb128 0
 .Lcstend:
 
 
@@ -491,9 +547,9 @@ __condvar_cleanup1:
 	.hidden	DW.ref.__gcc_personality_v0
 	.weak	DW.ref.__gcc_personality_v0
 	.section .gnu.linkonce.d.DW.ref.__gcc_personality_v0,"aw",@progbits
-	.align	8
+	.align	LP_SIZE
 	.type	DW.ref.__gcc_personality_v0, @object
-	.size	DW.ref.__gcc_personality_v0, 8
+	.size	DW.ref.__gcc_personality_v0, LP_SIZE
 DW.ref.__gcc_personality_v0:
-	.quad	__gcc_personality_v0
+	ASM_ADDR __gcc_personality_v0
 #endif

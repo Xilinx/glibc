@@ -1,5 +1,5 @@
 /* strcmp with SSSE3
-   Copyright (C) 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef NOT_IN_libc
 
@@ -117,8 +116,7 @@
 ENTRY (__strcasecmp_ssse3)
 # ifdef PIC
 	PUSH	(%ebx)
-	call	__i686.get_pc_thunk.bx
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+	LOAD_PIC_REG(bx)
 	movl	__libc_tsd_LOCALE@GOTNTPOFF(%ebx), %eax
 #  ifdef NO_TLS_DIRECT_SEG_REFS
 	addl	%gs:0, %eax
@@ -149,8 +147,7 @@ END (__strcasecmp_ssse3)
 ENTRY (__strncasecmp_ssse3)
 # ifdef PIC
 	PUSH	(%ebx)
-	call	__i686.get_pc_thunk.bx
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+	LOAD_PIC_REG(bx)
 	movl	__libc_tsd_LOCALE@GOTNTPOFF(%ebx), %eax
 #  ifdef NO_TLS_DIRECT_SEG_REFS
 	addl	%gs:0, %eax
@@ -190,8 +187,7 @@ ENTRY (STRCMP)
 
 # ifdef PIC
 	PUSH	(%ebx)
-	call	__i686.get_pc_thunk.bx
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
+	LOAD_PIC_REG(bx)
 # endif
 L(ascii):
 	.section .rodata.cst16,"aM",@progbits,16
@@ -2449,7 +2445,7 @@ L(less16bytes_sncmp):
 # endif
 	jne	L(neq_sncmp)
 	test	%cl, %cl
-	je	L(eq)
+	je	L(eq_sncmp)
 
 	cmp	$1, REM
 	je	L(eq_sncmp)

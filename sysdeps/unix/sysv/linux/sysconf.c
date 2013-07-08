@@ -1,5 +1,5 @@
 /* Get file-specific information about a file.  Linux version.
-   Copyright (C) 2003,2004,2006 2008,2009,2011 Free Software Foundation, Inc.
+   Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -89,11 +88,11 @@ __sysconf (int name)
       return HAS_CPUCLOCK (name);
 
     case _SC_ARG_MAX:
-#if __LINUX_KERNEL_VERSION < 0x020617
-      /* Determine whether this is a kernel 2.6.23 or later.  Only
-	 then do we have an argument limit determined by the stack
-	 size.  */
-      if (GLRO(dl_discover_osversion) () >= 0x020617)
+#if !__ASSUME_ARG_MAX_STACK_BASED
+      /* Determine whether this is a kernel with an argument limit
+	 determined by the stack size.  */
+      if (GLRO(dl_discover_osversion) ()
+	  >= __LINUX_ARG_MAX_STACK_BASED_MIN_KERNEL)
 #endif
 	/* Use getrlimit to get the stack limit.  */
 	if (__getrlimit (RLIMIT_STACK, &rlimit) == 0)

@@ -1,5 +1,5 @@
 /* Print floating point number in hexadecimal notation according to ISO C99.
-   Copyright (C) 1997-2002,2004,2006,2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <ctype.h>
 #include <ieee754.h>
@@ -26,9 +25,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
-#include "_itoa.h"
-#include "_itowa.h"
+#include <_itoa.h>
+#include <_itowa.h>
 #include <locale/localeinfo.h>
+#include <stdbool.h>
+#include <rounding-mode.h>
 
 /* #define NDEBUG 1*/		/* Undefine this for debugging assertions.  */
 #include <assert.h>
@@ -37,7 +38,7 @@
    the GNU I/O library.	 */
 #include <libioP.h>
 #define PUT(f, s, n) _IO_sputn (f, s, n)
-#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : INTUSE(_IO_padn) (f, c, n))
+#define PAD(f, c, n) (wide ? _IO_wpadn (f, c, n) : _IO_padn (f, c, n))
 /* We use this file GNU C library and GNU I/O library.	So make
    names equal.	 */
 #undef putc
@@ -51,7 +52,7 @@
 #define outchar(ch)							      \
   do									      \
     {									      \
-      register const int outc = (ch);					      \
+      const int outc = (ch);						      \
       if (putc (outc, fp) == EOF)					      \
 	return -1;							      \
       ++done;								      \
@@ -60,7 +61,7 @@
 #define PRINT(ptr, wptr, len)						      \
   do									      \
     {									      \
-      register size_t outlen = (len);					      \
+      size_t outlen = (len);						      \
       if (wide)								      \
 	while (outlen-- > 0)						      \
 	  outchar (*wptr++);						      \
@@ -344,21 +345,33 @@ __printf_fphex (FILE *fp,
 	  --numend;
 	}
 
+      bool do_round_away = false;
+
+      if (precision != -1 && precision < numend - numstr)
+	{
+	  char last_digit = precision > 0 ? numstr[precision - 1] : leading;
+	  char next_digit = numstr[precision];
+	  int last_digit_value = (last_digit >= 'A' && last_digit <= 'F'
+				  ? last_digit - 'A' + 10
+				  : (last_digit >= 'a' && last_digit <= 'f'
+				     ? last_digit - 'a' + 10
+				     : last_digit - '0'));
+	  int next_digit_value = (next_digit >= 'A' && next_digit <= 'F'
+				  ? next_digit - 'A' + 10
+				  : (next_digit >= 'a' && next_digit <= 'f'
+				     ? next_digit - 'a' + 10
+				     : next_digit - '0'));
+	  bool more_bits = ((next_digit_value & 7) != 0
+			    || precision + 1 < numend - numstr);
+	  int rounding_mode = get_rounding_mode ();
+	  do_round_away = round_away (negative, last_digit_value & 1,
+				      next_digit_value >= 8, more_bits,
+				      rounding_mode);
+	}
+
       if (precision == -1)
 	precision = numend - numstr;
-      else if (precision < numend - numstr
-	       && (numstr[precision] > '8'
-		   || (('A' < '0' || 'a' < '0')
-		       && numstr[precision] < '0')
-		   || (numstr[precision] == '8'
-		       && (precision + 1 < numend - numstr
-			   /* Round to even.  */
-			   || (precision > 0
-			       && ((numstr[precision - 1] & 1)
-				   ^ (isdigit (numstr[precision - 1]) == 0)))
-			   || (precision == 0
-			       && ((leading & 1)
-				   ^ (isdigit (leading) == 0)))))))
+      else if (do_round_away)
 	{
 	  /* Round up.  */
 	  int cnt = precision;
@@ -371,7 +384,7 @@ __printf_fphex (FILE *fp,
 		{
 		  wnumstr[cnt] = (wchar_t) info->spec;
 		  numstr[cnt] = info->spec;	/* This is tricky,
-		  				   think about it!  */
+						   think about it!  */
 		  break;
 		}
 	      else if (tolower (ch) < 'f')

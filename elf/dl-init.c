@@ -1,5 +1,5 @@
-/* Return the next shared object initializer function not yet run.
-   Copyright (C) 1995, 1996, 1998-2002, 2004 Free Software Foundation, Inc.
+/* Run initializers for newly loaded objects.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stddef.h>
 #include <ldsodefs.h>
@@ -53,7 +52,7 @@ call_init (struct link_map *l, int argc, char **argv, char **env)
   /* Print a debug message if wanted.  */
   if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
     _dl_debug_printf ("\ncalling init: %s\n\n",
-		      l->l_name[0] ? l->l_name : rtld_progname);
+		      DSO_FILENAME (l->l_name));
 
   /* Now run the local constructors.  There are two forms of them:
      - the one named by DT_INIT
@@ -109,8 +108,7 @@ _dl_init (struct link_map *main_map, int argc, char **argv, char **env)
 
       if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_IMPCALLS, 0))
 	_dl_debug_printf ("\ncalling preinit: %s\n\n",
-			  main_map->l_name[0]
-			  ? main_map->l_name : rtld_progname);
+			  DSO_FILENAME (main_map->l_name));
 
       addrs = (ElfW(Addr) *) (preinit_array->d_un.d_ptr + main_map->l_addr);
       for (cnt = 0; cnt < i; ++cnt)

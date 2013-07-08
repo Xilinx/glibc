@@ -1,4 +1,4 @@
-/* Copyright (C) 2007, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <tls.h>
@@ -60,13 +59,16 @@ ENTRY (sched_getcpu)
 # endif
 #endif
 
+	/* Local variable is result if the call is successful.  */
+	movl	(%rsp), %edx
+	/* Restore stack pointer before we might jump to
+	SYSCALL_ERROR_LABEL which returns to the caller.  */
+	add	$0x8, %rsp
+	cfi_adjust_cfa_offset(-8)
+
 	cmpq	$-4095, %rax
 	jae	SYSCALL_ERROR_LABEL
 
-	movl	(%rsp), %eax
-
-L(pseudo_end):
-	add	$0x8, %rsp
-	cfi_adjust_cfa_offset(-8)
+	movl	%edx, %eax
 	ret
 PSEUDO_END(sched_getcpu)

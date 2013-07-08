@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <math.h>
@@ -26,8 +25,8 @@
 float
 jnf (int n, float x)
 {
-  if (__builtin_expect (fabsf (x) > (float) X_TLOSS, 0)
-      && _LIB_VERSION != _IEEE_)
+  if (__builtin_expect (isgreater (fabsf (x), (float) X_TLOSS), 0)
+      && _LIB_VERSION != _IEEE_ && _LIB_VERSION != _POSIX_)
     /* jn(n,|x|>X_TLOSS) */
     return __kernel_standard_f (n, x, 138);
 
@@ -39,7 +38,8 @@ jnf (int n, float x)
 float
 ynf (int n, float x)
 {
-  if (__builtin_expect (x <= 0.0f || x > (float) X_TLOSS, 0)
+  if (__builtin_expect (islessequal (x, 0.0f)
+			|| isgreater (x, (float) X_TLOSS), 0)
       && _LIB_VERSION != _IEEE_)
     {
       if (x < 0.0f)
@@ -51,7 +51,7 @@ ynf (int n, float x)
       else if (x == 0.0)
 	/* d = -one/(x-x) */
 	return __kernel_standard_f (n, x, 112);
-      else
+      else if (_LIB_VERSION != _POSIX_)
 	/* yn(n,x>X_TLOSS) */
 	return __kernel_standard_f (n, x, 139);
     }

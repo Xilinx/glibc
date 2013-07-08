@@ -1,4 +1,4 @@
-/* Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Kazumoto Kojima <kkojima@rr.iij4u.or.jp>
 
@@ -13,12 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <endian.h>
 
 /* size_t strlen (const char *s)  */
 
@@ -38,17 +36,17 @@ ENTRY(strlen)
 	mov.b	@r4+, r1
 	tst	r1, r1
 	bt	8f
-	add	#1, r2	
+	add	#1, r2
 
 	mov.b	@r4+, r1
 	tst	r1, r1
 	bt	8f
-	add	#1, r2	
+	add	#1, r2
 
 	mov.b	@r4+, r1
 	tst	r1, r1
 	bt	8f
-	add	#1, r2	
+	add	#1, r2
 
 1:
 	mov	#0, r3
@@ -59,7 +57,7 @@ ENTRY(strlen)
 	add	#4, r2
 
 	add	#-4, r2
-#if __BYTE_ORDER == __BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 	swap.b	r1, r1
 	swap.w	r1, r1
 	swap.b	r1, r1

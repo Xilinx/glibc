@@ -1,15 +1,16 @@
 #ifndef _SYS_STAT_H
 #include <io/sys/stat.h>
 
+#ifndef _ISOMAC
 /* Now define the internal interfaces. */
-extern int __stat (__const char *__file, struct stat *__buf);
+extern int __stat (const char *__file, struct stat *__buf);
 extern int __fstat (int __fd, struct stat *__buf);
-extern int __lstat (__const char *__file, struct stat *__buf);
-extern int __chmod (__const char *__file, __mode_t __mode);
+extern int __lstat (const char *__file, struct stat *__buf);
+extern int __chmod (const char *__file, __mode_t __mode);
 extern int __fchmod (int __fd, __mode_t __mode);
 extern __mode_t __umask (__mode_t __mask);
-extern int __mkdir (__const char *__path, __mode_t __mode);
-extern int __mknod (__const char *__path,
+extern int __mkdir (const char *__path, __mode_t __mode);
+extern int __mknod (const char *__path,
 		    __mode_t __mode, __dev_t __dev);
 #if !defined NOT_IN_libc || defined IS_IN_rtld
 hidden_proto (__fxstat)
@@ -19,12 +20,12 @@ hidden_proto (__lxstat64)
 hidden_proto (__xstat)
 hidden_proto (__xstat64)
 #endif
-extern __inline__ int __stat (__const char *__path, struct stat *__statbuf)
+extern __inline__ int __stat (const char *__path, struct stat *__statbuf)
 {
   return __xstat (_STAT_VER, __path, __statbuf);
 }
 libc_hidden_proto (__xmknod)
-extern __inline__ int __mknod (__const char *__path, __mode_t __mode,
+extern __inline__ int __mknod (const char *__path, __mode_t __mode,
 			       __dev_t __dev)
 {
   return __xmknod (_MKNOD_VER, __path, __mode, &__dev);
@@ -54,4 +55,5 @@ libc_hidden_proto (__fxstatat64)
   __fxstatat (_STAT_VER, dfd, fname, buf, flag)
 #define __fstatat64(dfd, fname, buf, flag) \
   __fxstatat64 (_STAT_VER, dfd, fname, buf, flag)
+#endif
 #endif

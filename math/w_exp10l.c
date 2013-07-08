@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 /*
@@ -32,7 +31,7 @@ __exp10l (long double x)
   if (__builtin_expect (!__finitel (z), 0)
       && __finitel (x) && _LIB_VERSION != _IEEE_)
     /* exp10l overflow (246) if x > 0, underflow (247) if x < 0.  */
-    return __kernel_standard (x, x, 246 + !!__signbitl (x));
+    return __kernel_standard_l (x, x, 246 + !!__signbitl (x));
 
   return z;
 }

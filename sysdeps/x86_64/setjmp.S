@@ -1,5 +1,5 @@
 /* setjmp for x86-64.
-   Copyright (C) 2001,2003,2005,2006,2011 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <jmpbuf-offsets.h>
@@ -26,9 +25,16 @@ ENTRY (__sigsetjmp)
 	/* Save registers.  */
 	movq %rbx, (JB_RBX*8)(%rdi)
 #ifdef PTR_MANGLE
-	movq %rbp, %rax
-	PTR_MANGLE (%rax)
-	movq %rax, (JB_RBP*8)(%rdi)
+# ifdef __ILP32__
+	/* Save the high bits of %rbp first, since PTR_MANGLE will
+	   only handle the low bits but we cannot presume %rbp is
+	   being used as a pointer and truncate it.  Here we write all
+	   of %rbp, but the low bits will be overwritten below.  */
+	movq %rbp, (JB_RBP*8)(%rdi)
+# endif
+	mov %RBP_LP, %RAX_LP
+	PTR_MANGLE (%RAX_LP)
+	mov %RAX_LP, (JB_RBP*8)(%rdi)
 #else
 	movq %rbp, (JB_RBP*8)(%rdi)
 #endif
@@ -36,15 +42,15 @@ ENTRY (__sigsetjmp)
 	movq %r13, (JB_R13*8)(%rdi)
 	movq %r14, (JB_R14*8)(%rdi)
 	movq %r15, (JB_R15*8)(%rdi)
-	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return.  */
+	lea 8(%rsp), %RDX_LP	/* Save SP as it will be after we return.  */
 #ifdef PTR_MANGLE
-	PTR_MANGLE (%rdx)
+	PTR_MANGLE (%RDX_LP)
 #endif
 	movq %rdx, (JB_RSP*8)(%rdi)
-	movq (%rsp), %rax	/* Save PC we are returning to now.  */
-	LIBC_PROBE (setjmp, 3, 8@%rdi, -4@%esi, 8@%rax)
+	mov (%rsp), %RAX_LP	/* Save PC we are returning to now.  */
+	LIBC_PROBE (setjmp, 3, LP_SIZE@%RDI_LP, -4@%esi, LP_SIZE@%RAX_LP)
 #ifdef PTR_MANGLE
-	PTR_MANGLE (%rax)
+	PTR_MANGLE (%RAX_LP)
 #endif
 	movq %rax, (JB_PC*8)(%rdi)
 
@@ -55,10 +61,10 @@ ENTRY (__sigsetjmp)
 #else
 	/* Make a tail call to __sigjmp_save; it takes the same args.  */
 # ifdef	PIC
-	jmp C_SYMBOL_NAME (BP_SYM (__sigjmp_save))@PLT
+	jmp C_SYMBOL_NAME (__sigjmp_save)@PLT
 # else
-	jmp BP_SYM (__sigjmp_save)
+	jmp __sigjmp_save
 # endif
 #endif
-END (BP_SYM (__sigsetjmp))
+END (__sigsetjmp)
 hidden_def (__sigsetjmp)

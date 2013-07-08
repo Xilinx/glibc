@@ -1,6 +1,7 @@
 /* Raise given exceptions.
-   Copyright (C) 1997, 1998, 2000, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
+   Contributed by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, 2012.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,23 +14,59 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
+#include <float.h>
 #include <fpu_control.h>
 #include <math.h>
 
 int
 feraiseexcept (int excepts)
 {
+  if (excepts == 0)
+    return 0;
+
   /* Raise exceptions represented by EXPECTS.  */
-  fexcept_t temp;
-  _FPU_GETCW (temp);
-  temp |= (excepts & FE_ALL_EXCEPT);
-  temp |= (excepts & FE_ALL_EXCEPT) << 5;
-  _FPU_SETCW (temp);
+
+  if (excepts & FE_INEXACT)
+  {
+    double d = 1.0, x = 3.0;
+    __asm__ __volatile__ ("fdiv %1, %0" : "+d" (d) : "d" (x));
+  }
+
+  if (excepts & FE_UNDERFLOW)
+  {
+    long double d = LDBL_MIN, x = 10;
+    __asm__ __volatile__ ("fdiv %1, %0" : "+d" (d) : "d" (x));
+  }
+
+  if (excepts & FE_OVERFLOW)
+  {
+    long double d = LDBL_MAX;
+    __asm__ __volatile__ ("fmul %0, %0" : "+d" (d) : "d" (d));
+  }
+
+  if (excepts & FE_DIVBYZERO)
+  {
+    double d = 1.0, x = 0.0;
+    __asm__ __volatile__ ("fdiv %1, %0" : "+d" (d) : "d" (x));
+  }
+
+  if (excepts & FE_INVALID)
+  {
+    double d = HUGE_VAL, x = 0.0;
+    __asm__ __volatile__ ("fmul %1, %0" : "+d" (d) : "d" (x));
+  }
+
+  {
+    /* Restore flag fields.  */
+    fpu_control_t cw;
+    _FPU_GETCW (cw);
+    cw |= (excepts & FE_ALL_EXCEPT);
+    _FPU_SETCW (cw);
+  }
 
   return 0;
 }

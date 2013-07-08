@@ -1,5 +1,4 @@
-/* Copyright (C) 1995, 1996, 1997, 2000, 2002, 2004, 2009
-   Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_SHM_H
 # error "Never include <bits/shm.h> directly; use <sys/shm.h> instead."
@@ -41,8 +39,8 @@
 __BEGIN_DECLS
 
 /* Segment low boundary address multiple.  */
-#define SHMLBA		(__getpagesize ())
-extern int __getpagesize (void) __THROW __attribute__ ((__const__));
+#define SHMLBA		(__getshmlba ())
+extern int __getshmlba (void) __attribute__ ((__const__));
 
 
 /* Type to count number of attaches.  */

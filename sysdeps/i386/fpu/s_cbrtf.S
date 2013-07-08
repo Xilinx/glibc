@@ -1,5 +1,5 @@
 /* Compute cubic root of float value.
-   Copyright (C) 1997, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Dirk Alboth <dirka@uni-paderborn.de> and
    Ulrich Drepper <drepper@cygnus.com>, 1997.
@@ -15,26 +15,21 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <machine/asm.h>
 
-#ifdef __ELF__
         .section .rodata
-#else
-        .text
-#endif
 
         .align ALIGNARG(4)
-        ASM_TYPE_DIRECTIVE(f3,@object)
+        .type f3,@object
 f3:	.double 0.191502161678719066
         ASM_SIZE_DIRECTIVE(f3)
-        ASM_TYPE_DIRECTIVE(f2,@object)
+        .type f2,@object
 f2:	.double 0.697570460207922770
         ASM_SIZE_DIRECTIVE(f2)
-        ASM_TYPE_DIRECTIVE(f1,@object)
+        .type f1,@object
 f1:	.double 0.492659620528969547
         ASM_SIZE_DIRECTIVE(f1)
 
@@ -43,7 +38,7 @@ f1:	.double 0.492659620528969547
 #define SQR_CBRT2	1.5874010519681994748
 #define ONE_SQR_CBRT2	0.629960524947436582364439673883
 
-	ASM_TYPE_DIRECTIVE(factor,@object)
+	.type factor,@object
         .align ALIGNARG(4)
 factor:	.double ONE_SQR_CBRT2
 	.double ONE_CBRT2
@@ -52,7 +47,7 @@ factor:	.double ONE_SQR_CBRT2
 	.double SQR_CBRT2
 	ASM_SIZE_DIRECTIVE(factor)
 
-        ASM_TYPE_DIRECTIVE(two25,@object)
+        .type two25,@object
 two25:	.byte 0, 0, 0, 0x4c
         ASM_SIZE_DIRECTIVE(two25)
 

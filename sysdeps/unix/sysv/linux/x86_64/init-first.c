@@ -1,4 +1,5 @@
-/* Copyright (C) 2007, 2011 Free Software Foundation, Inc.
+/* Initialization code run first thing by the ELF startup code.  Linux/x86-64.
+   Copyright (C) 2007-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef SHARED
 # include <time.h>
@@ -37,13 +37,13 @@ _libc_vdso_platform_setup (void)
 {
   PREPARE_VERSION (linux26, "LINUX_2.6", 61765110);
 
-  void *p = _dl_vdso_vsym ("clock_gettime", &linux26);
+  void *p = _dl_vdso_vsym ("__vdso_clock_gettime", &linux26);
   if (p == NULL)
     p = __syscall_clock_gettime;
   PTR_MANGLE (p);
   __GI___vdso_clock_gettime = p;
 
-  p = _dl_vdso_vsym ("getcpu", &linux26);
+  p = _dl_vdso_vsym ("__vdso_getcpu", &linux26);
   /* If the vDSO is not available we fall back on the old vsyscall.  */
 #define VSYSCALL_ADDR_vgetcpu	0xffffffffff600800
   if (p == NULL)
@@ -55,4 +55,4 @@ _libc_vdso_platform_setup (void)
 # define VDSO_SETUP _libc_vdso_platform_setup
 #endif
 
-#include "../init-first.c"
+#include <csu/init-first.c>

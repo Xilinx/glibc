@@ -1,5 +1,5 @@
 /* POSIX.1 `sigaction' call for Linux/x86-64.
-   Copyright (C) 2001, 2002, 2003, 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <errno.h>
@@ -63,8 +62,8 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
   /* XXX The size argument hopefully will have to be changed to the
      real size of the user-level sigset_t.  */
   result = INLINE_SYSCALL (rt_sigaction, 4,
-			   sig, act ? __ptrvalue (&kact) : NULL,
-			   oact ? __ptrvalue (&koact) : NULL, _NSIG / 8);
+			   sig, act ? &kact : NULL,
+			   oact ? &koact : NULL, _NSIG / 8);
   if (oact && result >= 0)
     {
       oact->sa_handler = koact.k_sa_handler;
@@ -147,7 +146,7 @@ asm									\
    ".LSTARTAUGMNT_" #name ":\n"						\
    "	.byte 0x1b\n"	/* DW_EH_PE_pcrel|DW_EH_PE_sdata4. */		\
    ".LENDAUGMNT_" #name ":\n"						\
-   "	.align 8\n"							\
+   "	.align " LP_SIZE "\n"						\
    ".LENDCIE_" #name ":\n"						\
    "	.long .LENDFDE_" #name "-.LSTARTFDE_" #name "\n" /* FDE len */	\
    ".LSTARTFDE_" #name ":\n"						\
@@ -178,7 +177,7 @@ asm									\
    /* do_expr (49 |* rflags *|, oEFL) */				\
    /* `cs'/`ds'/`fs' are unaligned and a different size.  */		\
    /* gas: Error: register save offset not a multiple of 8  */		\
-   "	.align 8\n"							\
+   "	.align " LP_SIZE "\n"						\
    ".LENDFDE_" #name ":\n"						\
    "	.previous\n"							\
    );

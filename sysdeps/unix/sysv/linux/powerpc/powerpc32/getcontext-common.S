@@ -1,5 +1,5 @@
 /* Save current context, powerpc32 common.
-   Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,18 +13,17 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
-   02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This is the common implementation of getcontext for powerpc32.
-   It not complete in itself should be included in to a framework that 
+   It not complete in itself should be included in to a framework that
    defines:
      __CONTEXT_FUNC_NAME
    and if appropriate:
      __CONTEXT_ENABLE_FPRS
      __CONTEXT_ENABLE_VRS
-   Any archecture that implements the Vector unit is assumed to also 
+   Any archecture that implements the Vector unit is assumed to also
    implement the floating unit.  */
 
 /* Stack frame offsets.  */
@@ -145,10 +144,10 @@ ENTRY(__CONTEXT_FUNC_NAME)
 # ifdef __CONTEXT_ENABLE_VRS
 #  ifdef PIC
 	mflr    r8
-	bcl	20,31,1f
-1:	mflr	r7
-	addis	r7,r7,_GLOBAL_OFFSET_TABLE_-1b@ha
-	addi	r7,r7,_GLOBAL_OFFSET_TABLE_-1b@l
+#  define got_label GENERATE_GOT_LABEL (__CONTEXT_FUNC_NAME)
+	SETUP_GOT_ACCESS(r7,got_label)
+	addis	r7,r7,_GLOBAL_OFFSET_TABLE_-got_label@ha
+	addi	r7,r7,_GLOBAL_OFFSET_TABLE_-got_label@l
 #   ifdef SHARED
 	lwz     r7,_rtld_global_ro@got(r7)
 	mtlr    r8
@@ -166,9 +165,9 @@ ENTRY(__CONTEXT_FUNC_NAME)
 
 	la	r10,(_UC_VREGS)(r3)
 	la	r9,(_UC_VREGS+16)(r3)
-	
+
 	beq	2f	/* L(no_vec) */
-/* address of the combined VSCR/VSAVE quadword.  */	
+/* address of the combined VSCR/VSAVE quadword.  */
 	la	r8,(_UC_VREGS+512)(r3)
 
 /* Save the vector registers */
@@ -187,7 +186,7 @@ ENTRY(__CONTEXT_FUNC_NAME)
 	addi  r9,r9,32
 
 	stvx	v0,0,r8
-	
+
 	stvx  v4,0,r10
 	stvx  v5,0,r9
 	addi  r10,r10,32
@@ -278,4 +277,3 @@ ENTRY(__CONTEXT_FUNC_NAME)
 	mtlr	r0
 	blr
 END(__CONTEXT_FUNC_NAME)
-

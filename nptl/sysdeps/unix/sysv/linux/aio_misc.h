@@ -1,4 +1,4 @@
-/* Copyright (C) 2004, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 2004.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef _AIO_MISC_H
 # include_next <aio_misc.h>
@@ -47,7 +46,7 @@ __aio_create_helper_thread (pthread_t *threadp, void *(*tf) (void *),
   pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
 
   /* The helper thread needs only very little resources.  */
-  (void) pthread_attr_setstacksize (&attr, PTHREAD_STACK_MIN);
+  (void) pthread_attr_setstacksize (&attr, __pthread_get_minstack (&attr));
 
   /* Block all signals in the helper thread.  To do this thoroughly we
      temporarily have to block all signals here.  */

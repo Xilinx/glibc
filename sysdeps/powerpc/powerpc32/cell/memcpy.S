@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for CELL BE PowerPC.
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright (C) 2010-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +13,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #define PREFETCH_AHEAD 6	/* no cache lines SRC prefetching ahead  */
 #define ZERO_AHEAD 4		/* no cache lines DST zeroing ahead  */
@@ -35,14 +32,14 @@
  * latency to memory is >400 clocks
  * To improve copy performance we need to prefetch source data
  * far ahead to hide this latency
- * For best performance instructionforms ending in "." like "andi."
+ * For best performance instruction forms ending in "." like "andi."
  * should be avoided as the are implemented in microcode on CELL.
  * The below code is loop unrolled for the CELL cache line of 128 bytes
  */
 
 .align  7
 
-EALIGN (BP_SYM (memcpy), 5, 0)
+EALIGN (memcpy, 5, 0)
 	CALL_MCOUNT
 
 	dcbt	0,r4		/* Prefetch ONE SRC cacheline  */
@@ -147,7 +144,7 @@ EALIGN (BP_SYM (memcpy), 5, 0)
 	lfd	fp9, 0x08(r4)
 	dcbz	r11,r6
 	lfd	fp10, 0x10(r4)	/* 4 register stride copy is optimal  */
-	lfd	fp11, 0x18(r4)	/* to hide 1st level cache lantency.  */
+	lfd	fp11, 0x18(r4)	/* to hide 1st level cache latency.  */
 	lfd	fp12, 0x20(r4)
 	stfd	fp9, 0x08(r6)
 	stfd	fp10, 0x10(r6)
@@ -241,5 +238,5 @@ EALIGN (BP_SYM (memcpy), 5, 0)
 	stb	r0,0(r6)
 1:	blr
 
-END (BP_SYM (memcpy))
+END (memcpy)
 libc_hidden_builtin_def (memcpy)

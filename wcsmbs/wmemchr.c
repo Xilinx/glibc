@@ -1,4 +1,4 @@
-/* Copyright (C) 1996,97,2002 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 1996.
 
@@ -13,17 +13,16 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <wchar.h>
 
 wchar_t *
 wmemchr (s, c, n)
-     register const wchar_t *s;
-     register wchar_t c;
-     register size_t n;
+     const wchar_t *s;
+     wchar_t c;
+     size_t n;
 {
   /* For performance reasons unfold the loop four times.  */
   while (n >= 4)

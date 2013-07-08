@@ -1,8 +1,8 @@
-/* Compare no more than N characters of S1 and S2, returning less than, 
-   equal to or greater than zero if S1 is lexicographically less than, 
+/* Compare no more than N characters of S1 and S2, returning less than,
+   equal to or greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.
    For SPARC v9.
-   Copyright (C) 1997, 1999, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jan Vondrak <jvon4518@ss1000.ms.mff.cuni.cz> and
                   Jakub Jelinek <jj@ultra.linux.cz>.
@@ -18,9 +18,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <asm/asi.h>
@@ -141,7 +140,7 @@ ENTRY(strncmp)
 	cmp		%o2, -8				/* IEU1				*/
 	be,pn		%XCC, 4b			/* CTI				*/
 	 srlx		%o3, 56, %o5			/* IEU0		Group		*/
-	
+
 	andcc		%o4, 0xff, %g0			/* IEU1				*/
 	be,pn		%xcc, 8f			/* CTI				*/
 	 subcc		%o4, %o5, %o4			/* IEU1		Group		*/

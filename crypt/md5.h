@@ -1,7 +1,6 @@
 /* Declaration of functions and data types used for MD5 sum computing
    library functions.
-   Copyright (C) 1995-1997,1999,2000,2001,2004,2005,2011
-      Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _MD5_H
 #define _MD5_H 1
@@ -43,11 +41,7 @@
 typedef uint32_t md5_uint32;
 typedef uintptr_t md5_uintptr;
 #else
-# if defined __STDC__ && __STDC__
-#  define UINT_MAX_32_BITS 4294967295U
-# else
-#  define UINT_MAX_32_BITS 0xFFFFFFFF
-# endif
+# define UINT_MAX_32_BITS 4294967295U
 
 /* If UINT_MAX isn't defined, assume it's a 32-bit type.
    This should be valid for all systems GNU cares about because

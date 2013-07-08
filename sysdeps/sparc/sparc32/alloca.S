@@ -1,4 +1,4 @@
-/* Copyright (C) 1994, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,19 +12,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 
 /* Code produced by Sun's C compiler calls this function with two extra
    arguments which it makes relocatable symbols but seem always to be
    the constant 96; I have no idea what they are for.  */
-
-#ifndef NO_UNDERSCORES
-#define __builtin_alloca ___builtin_alloca
-#endif
 
 ENTRY (__builtin_alloca)
 	sub %sp, %o0, %sp	/* Push some stack space.  */

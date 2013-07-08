@@ -1,5 +1,5 @@
 /* strcmp with SSE4.2
-   Copyright (C) 2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 /* We use 0x1a:
@@ -49,10 +48,12 @@
 	.section .text.SECTION,"ax",@progbits
 	.align	16
 	.type	STRCMP_SSE42, @function
+	.globl	STRCMP_SSE42
+	.hidden	STRCMP_SSE42
 #ifdef USE_AS_STRCASECMP_L
 ENTRY (GLABEL(__strcasecmp))
 	movq	__libc_tsd_LOCALE@gottpoff(%rip),%rax
-	movq	%fs:(%rax),%rdx
+	mov	%fs:(%rax),%RDX_LP
 
 	// XXX 5 byte should be before the function
 	/* 5-byte NOP.  */
@@ -63,7 +64,7 @@ END (GLABEL(__strcasecmp))
 #ifdef USE_AS_STRNCASECMP_L
 ENTRY (GLABEL(__strncasecmp))
 	movq	__libc_tsd_LOCALE@gottpoff(%rip),%rax
-	movq	%fs:(%rax),%rcx
+	mov	%fs:(%rax),%RCX_LP
 
 	// XXX 5 byte should be before the function
 	/* 5-byte NOP.  */
@@ -100,9 +101,9 @@ STRCMP_SSE42:
 	/* We have to fall back on the C implementation for locales
 	   with encodings not matching ASCII for single bytes.  */
 # if LOCALE_T___LOCALES != 0 || LC_CTYPE != 0
-	movq	LOCALE_T___LOCALES+LC_CTYPE*8(%rdx), %rax
+	mov	LOCALE_T___LOCALES+LC_CTYPE*LP_SIZE(%rdx), %RAX_LP
 # else
-	movq	(%rdx), %rax
+	mov	(%rdx), %RAX_LP
 # endif
 	testl	$1, LOCALE_DATA_VALUES+_NL_CTYPE_NONASCII_CASE*SIZEOF_VALUES(%rax)
 	jne	__strcasecmp_l_nonascii
@@ -111,9 +112,9 @@ STRCMP_SSE42:
 	/* We have to fall back on the C implementation for locales
 	   with encodings not matching ASCII for single bytes.  */
 # if LOCALE_T___LOCALES != 0 || LC_CTYPE != 0
-	movq	LOCALE_T___LOCALES+LC_CTYPE*8(%rcx), %rax
+	mov	LOCALE_T___LOCALES+LC_CTYPE*LP_SIZE(%rcx), %RAX_LP
 # else
-	movq	(%rcx), %rax
+	mov	(%rcx), %RAX_LP
 # endif
 	testl	$1, LOCALE_DATA_VALUES+_NL_CTYPE_NONASCII_CASE*SIZEOF_VALUES(%rax)
 	jne	__strncasecmp_l_nonascii

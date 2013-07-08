@@ -1,5 +1,5 @@
 /* Return backtrace of current program state.  Generic version.
-   Copyright (C) 1998, 2000, 2002, 2004, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,15 +14,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <execinfo.h>
 #include <signal.h>
 #include <frame.h>
 #include <sigcontextinfo.h>
-#include <bp-checks.h>
 #include <ldsodefs.h>
 
 /* This implementation assumes a stack layout that matches the defaults
@@ -51,7 +49,7 @@
 /* By default assume the `next' pointer in struct layout points to the
    next struct layout.  */
 #ifndef ADVANCE_STACK_FRAME
-# define ADVANCE_STACK_FRAME(next) BOUNDED_1 ((struct layout *) (next))
+# define ADVANCE_STACK_FRAME(next) ((struct layout *) (next))
 #endif
 
 /* By default, the frame pointer is just what we get from gcc.  */
@@ -65,15 +63,15 @@ __backtrace (array, size)
      int size;
 {
   struct layout *current;
-  void *__unbounded top_frame;
-  void *__unbounded top_stack;
+  void *top_frame;
+  void *top_stack;
   int cnt = 0;
 
   top_frame = FIRST_FRAME_POINTER;
   top_stack = CURRENT_STACK_FRAME;
 
   /* We skip the call to this function, it makes no sense to record it.  */
-  current = BOUNDED_1 ((struct layout *) top_frame);
+  current = ((struct layout *) top_frame);
   while (cnt < size)
     {
       if ((void *) current INNER_THAN top_stack

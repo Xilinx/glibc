@@ -1,5 +1,4 @@
-/* Copyright (C) 1995,96,97,98,99,2000,2002,2005,2006
-	Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,13 +12,10 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 #include <kernel-features.h>
 
@@ -27,9 +23,9 @@
 #define ENOSYS	38
 
 #define SVRSP	16		/* saved register space */
-#define PARMS	LINKAGE+SVRSP	/* space for 4 saved regs */
+#define PARMS	4+SVRSP	/* space for 4 saved regs */
 #define ADDR	PARMS
-#define LEN	ADDR+PTR_SIZE
+#define LEN	ADDR+4
 #define PROT	LEN+4
 #define FLAGS	PROT+4
 #define FD	FLAGS+4
@@ -37,9 +33,7 @@
 #define OFFHI	OFFLO+4
 
 	.text
-ENTRY (BP_SYM (__mmap64))
-
-#ifdef __NR_mmap2
+ENTRY (__mmap64)
 
 	/* Save registers.  */
 	pushl %ebp
@@ -90,18 +84,11 @@ L(do_syscall):
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (ebp)
 
-#ifndef __ASSUME_MMAP2_SYSCALL
-2:
-	cmp $-ENOSYS, %eax
-	je 3f
-#endif
-
 	/* If 0 > %eax > -4096 there was an error.  */
 	cmpl $-4096, %eax
 	ja SYSCALL_ERROR_LABEL
 
 	/* Successful; return the syscall's value.  */
-L(pseudo_end):
 	ret
 
 	cfi_adjust_cfa_offset (16)
@@ -125,46 +112,7 @@ L(einval):
 	cfi_restore (ebp)
 	movl $-EINVAL, %eax
 	jmp SYSCALL_ERROR_LABEL
-#endif
 
-#if !defined __ASSUME_MMAP2_SYSCALL || !defined __NR_mmap2
-3:
-	/* Save registers.  */
-	movl %ebx, %edx
-	cfi_register (ebx, edx)
+PSEUDO_END (__mmap64)
 
-	cmpl $0, OFFHI-SVRSP(%esp)
-	jne L(einval2)
-
-	movl $SYS_ify(mmap), %eax	/* System call number in %eax.  */
-
-	lea ADDR-SVRSP(%esp), %ebx	/* Address of args is 1st arg.  */
-
-	/* Do the system call trap.  */
-	ENTER_KERNEL
-
-	/* Restore registers.  */
-	movl %edx, %ebx
-	cfi_restore (ebx)
-
-	/* If 0 > %eax > -4096 there was an error.  */
-	cmpl $-4096, %eax
-	ja SYSCALL_ERROR_LABEL
-
-	/* Successful; return the syscall's value.  */
-#ifndef __NR_mmap2
-L(pseudo_end):
-#endif
-	ret
-
-	cfi_register (ebx, edx)
-L(einval2):
-	movl %edx, %ebx
-	cfi_restore (ebx)
-	movl $-EINVAL, %eax
-	jmp SYSCALL_ERROR_LABEL
-#endif
-
-PSEUDO_END (BP_SYM (__mmap64))
-
-weak_alias (BP_SYM (__mmap64), BP_SYM (mmap64))
+weak_alias (__mmap64, mmap64)

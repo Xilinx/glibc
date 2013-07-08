@@ -1,5 +1,5 @@
 # Makefile for csu code for GNU C library.
-# Copyright (C) 1995-2004, 2005, 2006, 2010 Free Software Foundation, Inc.
+# Copyright (C) 1995-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,16 +13,14 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 # This directory contains the C startup code (that which calls main).  This
 # consists of the startfile, built from start.c and installed as crt0.o
 # (traditionally) or crt1.o (for ELF).	In ELF we also install crti.o and
 # crtn.o, special "initializer" and "finalizer" files used in the link
-# to make the .init and .fini sections work right; both these files are
-# built (in an arcane manner) from initfini.c.
+# to make the .init and .fini sections work right.
 
 subdir := csu
 
@@ -39,8 +37,6 @@ omit-deps = $(patsubst %.o,%,$(start-installed-name) g$(start-installed-name) \
 			     b$(start-installed-name) $(csu-dummies) \
 			     S$(start-installed-name))
 install-lib = $(start-installed-name) g$(start-installed-name) $(csu-dummies)
-distribute = initfini.c gmon-start.c start.c defs.awk \
-	     abi-note.S init.c c not-cancel.h
 generated = version-info.h
 before-compile = $(objpfx)version-info.h
 
@@ -57,12 +53,6 @@ install-lib += S$(start-installed-name)
 generated += start.os
 endif
 
-ifeq (yes,$(build-bounded))
-extra-objs += b$(start-installed-name)
-install-lib += b$(start-installed-name)
-generated += start.ob
-endif
-
 ifneq ($(start-installed-name),$(static-start-installed-name))
 extra-objs += $(static-start-installed-name) g$(static-start-installed-name)
 omit-deps += $(patsubst %.o,%,$(static-start-installed-name) \
@@ -70,14 +60,8 @@ omit-deps += $(patsubst %.o,%,$(static-start-installed-name) \
 install-lib += $(static-start-installed-name) g$(static-start-installed-name)
 endif
 
-ifeq (yes,$(elf))
 before-compile += $(objpfx)abi-tag.h
 generated += abi-tag.h
-endif
-
-ifeq ($(have-initfini),yes)
-
-CPPFLAGS += -DHAVE_INITFINI
 
 # These are the special initializer/finalizer files.  They are always the
 # first and last file in the link.  crti.o ... crtn.o define the global
@@ -86,49 +70,9 @@ crtstuff = crti crtn
 
 install-lib += $(crtstuff:=.o)
 extra-objs += $(crtstuff:=.o)
-generated += $(crtstuff:=.S) initfini.s defs.h
-omit-deps += $(crtstuff)
 
-# Special rules for the building of crti.o and crtn.o
-$(crtstuff:%=$(objpfx)%.o): %.o: %.S $(objpfx)defs.h
-	$(compile.S) -g0 $(ASFLAGS-.os) -o $@
-
-CFLAGS-initfini.s = -g0 -fPIC -fno-inline-functions $(fno-unit-at-a-time) \
-		    -fno-asynchronous-unwind-tables
-
-vpath initfini.c $(sysdirs)
-
-$(objpfx)initfini.s: initfini.c $(before-compile)
-	$(compile.c) -S $(CFLAGS-initfini.s) -finhibit-size-directive \
-		$(patsubst -f%,-fno-%,$(exceptions)) -o $@
-
-# We only have one kind of startup code files.	Static binaries and
-# shared libraries are build using the PIC version.
-$(objpfx)crti.S: $(objpfx)initfini.s
-	sed -n -e '1,/@HEADER_ENDS/p' \
-	       -e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
-	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
-
-$(objpfx)crtn.S: $(objpfx)initfini.s
-	sed -n -e '1,/@HEADER_ENDS/p' \
-	       -e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
-	       -e '/@TRAILER_BEGINS/,$$p' $< > $@
-
-# These explicit rules are necessary when the $(objpfx) subdirectory
-# did not exist at the time make considered the implicit rules using it.
-# This comes up with a fresh build using no_deps=t.
-$(patsubst %,$(objpfx)crt%.o,i n): %.o: %.S
-
-$(objpfx)defs.h: $(objpfx)initfini.s
-	sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
-		$(AWK) -f defs.awk > $@
-
-endif
-
-ifeq (yes,$(elf))
 extra-objs += abi-note.o init.o
 asm-CPPFLAGS += -I$(objpfx).
-endif
 
 include ../Rules
 
@@ -140,7 +84,6 @@ $(CC) -nostdlib -nostartfiles -r -o $@ $^
 endef
 
 ifndef start-installed-name-rule
-ifeq (yes,$(elf))
 # We link the ELF startfile along with a SHT_NOTE section indicating
 # the kernel ABI the binaries linked with this library will require.
 $(objpfx)$(start-installed-name): $(objpfx)start.o $(objpfx)abi-note.o \
@@ -149,22 +92,6 @@ $(objpfx)$(start-installed-name): $(objpfx)start.o $(objpfx)abi-note.o \
 $(objpfx)S$(start-installed-name): $(objpfx)start.os $(objpfx)abi-note.o \
 				  $(objpfx)init.o
 	$(link-relocatable)
-$(objpfx)b$(start-installed-name): $(objpfx)start.ob $(objpfx)abi-note.ob \
-				  $(objpfx)init.ob
-	$(link-relocatable)
-else
-# The startfile is installed under different names, so we just call our
-# source file `start.c' and copy to the installed name after compiling.
-$(objpfx)$(start-installed-name): $(objpfx)start.o
-	rm -f $@
-	ln $< $@
-$(objpfx)S$(start-installed-name): $(objpfx)start.os
-	rm -f $@
-	ln $< $@
-$(objpfx)b$(start-installed-name): $(objpfx)start.ob
-	rm -f $@
-	ln $< $@
-endif
 endif
 
 # The profiling startfile is made by linking together the normal

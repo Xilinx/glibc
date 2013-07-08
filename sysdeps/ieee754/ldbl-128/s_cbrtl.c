@@ -50,12 +50,12 @@ Adapted for glibc October, 2001.
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA */
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.  */
 
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double CBRT2 = 1.259921049894873164767210607278228350570251L;
 static const long double CBRT4 = 1.587401051968199474751705639272308260391493L;

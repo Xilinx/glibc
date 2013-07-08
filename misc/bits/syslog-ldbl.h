@@ -1,5 +1,5 @@
 /* -mlong-double-64 compatibility mode for syslog functions.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_SYSLOG_H
 # error "Never include <bits/syslog-ldbl.h> directly; use <sys/syslog.h> instead."
@@ -27,7 +26,7 @@ __LDBL_REDIR_DECL (syslog)
 __LDBL_REDIR_DECL (vsyslog)
 #endif
 
-#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
 __LDBL_REDIR_DECL (__syslog_chk)
 
 # ifdef __USE_BSD

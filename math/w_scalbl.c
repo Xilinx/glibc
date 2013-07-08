@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <math.h>
@@ -31,12 +30,12 @@ sysv_scalbl (long double x, long double fn)
   if (__builtin_expect (__isinfl (z), 0))
     {
       if (__finitel (x))
-	return __kernel_standard (x, fn, 232); /* scalb overflow */
+	return __kernel_standard_l (x, fn, 232); /* scalb overflow */
       else
 	__set_errno (ERANGE);
     }
   else if (__builtin_expect (z == 0.0L, 0) && z != x)
-    return __kernel_standard (x, fn, 233); /* scalb underflow */
+    return __kernel_standard_l (x, fn, 233); /* scalb underflow */
 
   return z;
 }

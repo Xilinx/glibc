@@ -1,5 +1,4 @@
-# Copyright (C) 1991,1992,1995-2003,2005,2009,2011
-# Free Software Foundation, Inc.
+# Copyright (C) 1991-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Makefile for locales.
@@ -23,19 +21,6 @@
 subdir	:= locale
 
 headers		= locale.h bits/locale.h langinfo.h xlocale.h
-distribute	= localeinfo.h categories.def iso-639.def iso-3166.def \
-		  iso-4217.def weight.h weightwc.h strlen-hash.h elem-hash.h \
-		  indigits.h indigitswc.h outdigits.h outdigitswc.h \
-		  coll-lookup.h C-translit.h.in C-translit.h gen-translit.pl \
-		  locarchive.h hashval.h \
-		  $(addprefix programs/, \
-			      locale.c localedef.c \
-			      $(localedef-modules:=.c) $(locale-modules:=.c) \
-			      $(lib-modules:=.c) config.h simple-hash.h \
-			      charmap-kw.gperf charmap-kw.h locfile-token.h \
-			      locfile-kw.gperf locfile-kw.h linereader.h \
-			      locfile.h charmap.h repertoire.h localedef.h \
-			      3level.h charmap-dir.h locarchive.c)
 routines	= setlocale findlocale loadlocale loadarchive \
 		  localeconv nl_langinfo nl_langinfo_l mb_cur_max \
 		  newlocale duplocale freelocale uselocale
@@ -72,6 +57,8 @@ GPERF = gperf
 GPERFFLAGS = -acCgopt -k1,2,5,9,$$ -L ANSI-C
 
 include ../Rules
+
+CFLAGS-md5.c = -I../crypt
 
 programs/%-kw.h: programs/%-kw.gperf
 	cd programs \
@@ -111,9 +98,3 @@ cpp-srcs-left := $(addsuffix .c,$(localedef-modules) $(localedef-aux) \
 				$(locale-modules) $(lib-modules))
 lib := locale-programs
 include $(patsubst %,$(..)cppflags-iterator.mk,$(cpp-srcs-left))
-
-# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
-# This ensures they will load libc.so for needed symbols if loaded by
-# a statically-linked program that hasn't already loaded it.
-$(objpfx)libBrokenLocale.so: $(common-objpfx)libc.so \
-			     $(common-objpfx)libc_nonshared.a

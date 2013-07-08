@@ -13,8 +13,9 @@
  * ====================================================
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <errno.h>
+#include <math.h>
+#include <math_private.h>
 
 static const float
 two   =  2.0000000000e+00, /* 0x40000000 */
@@ -199,6 +200,9 @@ __ieee754_ynf(int n, float x)
 	    GET_FLOAT_WORD(ib,b);
 	    a = temp;
 	}
+	/* If B is +-Inf, set up errno accordingly.  */
+	if (! __finitef (b))
+	  __set_errno (ERANGE);
 	if(sign>0) return b; else return -b;
 }
 strong_alias (__ieee754_ynf, __ynf_finite)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2004, 2005, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contribute by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -30,6 +29,7 @@
 #include <sys/socket.h>
 #include <not-cancel.h>
 #include <kernel-features.h>
+#include <nptl/pthreadP.h>
 
 
 #ifdef __NR_mq_notify
@@ -201,7 +201,7 @@ init_mq_netlink (void)
       (void) pthread_attr_init (&attr);
       (void) pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
       /* We do not need much stack space, the bare minimum will be enough.  */
-      (void) pthread_attr_setstacksize (&attr, PTHREAD_STACK_MIN);
+      (void) pthread_attr_setstacksize (&attr, __pthread_get_minstack (&attr));
 
       /* Temporarily block all signals so that the newly created
 	 thread inherits the mask.  */

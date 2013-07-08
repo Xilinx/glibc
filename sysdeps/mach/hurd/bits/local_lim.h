@@ -1,5 +1,5 @@
 /* Minimum guaranteed maximum values for system limits.  Hurd version.
-   Copyright (C) 1993,94,96,98,2002 Free Software Foundation, Inc.
+   Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* GNU has no arbitrary fixed limits on most of these things, so we
    don't define the macros.  Some things are unlimited.  Some are in
@@ -33,14 +32,3 @@
    suitable, and `sysconf' will return a number at least as large.  */
 
 #define NGROUPS_MAX	256
-
-/* The maximum number of symbolic links that are allowed in a single file
-   name resolution.  When a further link is encountered, the call returns
-   ELOOP.  This name is a GNU extension; POSIX.1 has no such limit, and BSD
-   calls it MAXSYMLINKS in <sys/param.h>.  (We define the name under
-   _BSD_SOURCE even without _GNU_SOURCE because our <sys/param.h> uses it
-   to define MAXSYMLINKS.)  */
-
-#if defined __USE_GNU || defined __USE_BSD /* 1003.1a defines this */
-#define	SYMLOOP_MAX	8
-#endif

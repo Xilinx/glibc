@@ -1,5 +1,5 @@
 /* Profiling of shared libraries.
-   Copyright (C) 1997-2004, 2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
    Based on the BSD mcount implementation.
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -28,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <ldsodefs.h>
 #include <sys/gmon.h>
 #include <sys/gmon_out.h>
@@ -131,7 +131,18 @@ struct here_cg_arc_record
   {
     uintptr_t from_pc;
     uintptr_t self_pc;
-    uint32_t count;
+    /* The count field is atomically incremented in _dl_mcount, which
+       requires it to be properly aligned for its type, and for this
+       alignment to be visible to the compiler.  The amount of data
+       before an array of this structure is calculated as
+       expected_size in _dl_start_profile.  Everything in that
+       calculation is a multiple of 4 bytes (in the case of
+       kcountsize, because it is derived from a subtraction of
+       page-aligned values, and the corresponding calculation in
+       __monstartup also ensures it is at least a multiple of the size
+       of u_long), so all copies of this field do in fact have the
+       appropriate alignment.  */
+    uint32_t count __attribute__ ((aligned (__alignof__ (uint32_t))));
   } __attribute__ ((packed));
 
 static struct here_cg_arc_record *data;

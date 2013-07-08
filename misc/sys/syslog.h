@@ -60,12 +60,12 @@
 #define	LOG_PRIMASK	0x07	/* mask to extract priority part (internal) */
 				/* extract priority */
 #define	LOG_PRI(p)	((p) & LOG_PRIMASK)
-#define	LOG_MAKEPRI(fac, pri)	(((fac) << 3) | (pri))
+#define	LOG_MAKEPRI(fac, pri)	((fac) | (pri))
 
 #ifdef SYSLOG_NAMES
 #define	INTERNAL_NOPRI	0x10	/* the "no priority" priority */
 				/* mark "facility" */
-#define	INTERNAL_MARK	LOG_MAKEPRI(LOG_NFACILITIES, 0)
+#define	INTERNAL_MARK	LOG_MAKEPRI(LOG_NFACILITIES << 3, 0)
 typedef struct _code {
 	char	*c_name;
 	int	c_val;
@@ -178,7 +178,7 @@ extern void closelog (void);
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern void openlog (__const char *__ident, int __option, int __facility);
+extern void openlog (const char *__ident, int __option, int __facility);
 
 /* Set the log mask level.  */
 extern int setlogmask (int __mask) __THROW;
@@ -187,7 +187,7 @@ extern int setlogmask (int __mask) __THROW;
 
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern void syslog (int __pri, __const char *__fmt, ...)
+extern void syslog (int __pri, const char *__fmt, ...)
      __attribute__ ((__format__ (__printf__, 2, 3)));
 
 #ifdef __USE_BSD
@@ -197,13 +197,13 @@ extern void syslog (int __pri, __const char *__fmt, ...)
    cancellation point.  But due to similarity with an POSIX interface
    or due to the implementation it is a cancellation point and
    therefore not marked with __THROW.  */
-extern void vsyslog (int __pri, __const char *__fmt, __gnuc_va_list __ap)
+extern void vsyslog (int __pri, const char *__fmt, __gnuc_va_list __ap)
      __attribute__ ((__format__ (__printf__, 2, 0)));
 #endif
 
 
 /* Define some macros helping to catch buffer overflows.  */
-#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
+#if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
 # include <bits/syslog.h>
 #endif
 #ifdef __LDBL_COMPAT

@@ -1,6 +1,6 @@
 /* Data structure for communication from the run-time dynamic linker for
    loaded ELF shared objects.
-   Copyright (C) 1995-2006, 2007, 2009, 2010 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_PRIVATE_LINK_H
 #define	_PRIVATE_LINK_H	1
@@ -38,7 +37,7 @@ struct link_map;
 extern unsigned int la_objopen (struct link_map *__map, Lmid_t __lmid,
 				uintptr_t *__cookie);
 
-
+#include <stdint.h>
 #include <stddef.h>
 #include <bits/linkmap.h>
 #include <dl-lookupcfg.h>
@@ -88,7 +87,8 @@ struct link_map
     /* These first few members are part of the protocol with the debugger.
        This is the same format used in SVR4.  */
 
-    ElfW(Addr) l_addr;		/* Base address shared object is loaded at.  */
+    ElfW(Addr) l_addr;		/* Difference between the address in the ELF
+				   file and the addresses in memory.  */
     char *l_name;		/* Absolute file name object was found in.  */
     ElfW(Dyn) *l_ld;		/* Dynamic section of the shared object.  */
     struct link_map *l_next, *l_prev; /* Chain of loaded objects.  */
@@ -302,6 +302,9 @@ struct link_map
     /* Index of the module in the dtv array.  */
     size_t l_tls_modid;
 
+    /* Number of thread_local objects constructed by this DSO.  */
+    size_t l_tls_dtor_count;
+
     /* Information used to change permission after the relocations are
        done.  */
     ElfW(Addr) l_relro_addr;
@@ -330,5 +333,10 @@ struct link_map
 extern int __dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
 					       size_t size, void *data),
 			      void *data);
+
+/* We use this macro to refer to ELF macros independent of the native
+   wordsize.  `ELFW(R_TYPE)' is used in place of `ELF32_R_TYPE' or
+   `ELF64_R_TYPE'.  */
+#define ELFW(type)	_ElfW (ELF, __ELF_NATIVE_CLASS, type)
 
 #endif /* include/link.h */

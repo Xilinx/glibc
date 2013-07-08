@@ -1,5 +1,5 @@
 /* _memcopy.c -- subroutines for memory copy functions.
-   Copyright (C) 1991, 1996, 2006 Free Software Foundation, Inc.
+   Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund (tege@sics.se).
    Updated for POWER6 by Steven Munroe (sjmunroe@us.ibm.com).
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* BE VERY CAREFUL IF YOU CHANGE THIS CODE...!  */
 
@@ -39,7 +38,7 @@ _wordcopy_fwd_aligned (dstp, srcp, len)
   if (len & 1)
   {
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     srcp += OPSIZ;
@@ -65,6 +64,20 @@ _wordcopy_fwd_aligned (dstp, srcp, len)
    block beginning at DSTP with LEN `op_t' words (not LEN bytes!).
    DSTP should be aligned for memory operations on `op_t's, but SRCP must
    *not* be aligned.  */
+
+#define fwd_align_merge(align)                                         \
+  do                                                                   \
+    {                                                                  \
+      a1 = ((op_t *) srcp)[1];                                         \
+      a2 = ((op_t *) srcp)[2];                                         \
+      ((op_t *) dstp)[0] = MERGE (a0, align*8, a1, (32-align*8));      \
+      ((op_t *) dstp)[1] = MERGE (a1, align*8, a2, (32-align*8));      \
+      a0 = a2;                                                         \
+      srcp += 2 * OPSIZ;                                               \
+      dstp += 2 * OPSIZ;                                               \
+      len -= 2;                                                                \
+    }                                                                  \
+  while (len != 0)
 
 void
 _wordcopy_fwd_dest_aligned (dstp, srcp, len)
@@ -92,64 +105,17 @@ _wordcopy_fwd_dest_aligned (dstp, srcp, len)
   {
     a1 = ((op_t *) srcp)[1];
     ((op_t *) dstp)[0] = MERGE (a0, sh_1, a1, sh_2);
-    
+
     if (len == 1)
       return;
-    
+
     a0 = a1;
     srcp += OPSIZ;
     dstp += OPSIZ;
     len -= 1;
   }
 
-  switch (align)
-    {
-    case 1:
-      do
-        {
-          a1 = ((op_t *) srcp)[1];
-          a2 = ((op_t *) srcp)[2];
-          ((op_t *) dstp)[0] = MERGE (a0, 8, a1, (32-8));
-          ((op_t *) dstp)[1] = MERGE (a1, 8, a2, (32-8));
-          a0 = a2;
-    
-          srcp += 2 * OPSIZ;
-          dstp += 2 * OPSIZ;
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    case 2:
-      do
-        {
-          a1 = ((op_t *) srcp)[1];
-          a2 = ((op_t *) srcp)[2];
-          ((op_t *) dstp)[0] = MERGE (a0, 16, a1, (32-16));
-          ((op_t *) dstp)[1] = MERGE (a1, 16, a2, (32-16));
-          a0 = a2;
-    
-          srcp += 2 * OPSIZ;
-          dstp += 2 * OPSIZ;
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    case 3:
-      do
-        {
-          a1 = ((op_t *) srcp)[1];
-          a2 = ((op_t *) srcp)[2];
-          ((op_t *) dstp)[0] = MERGE (a0, 24, a1, (32-24));
-          ((op_t *) dstp)[1] = MERGE (a1, 24, a2, (32-24));
-          a0 = a2;
-    
-          srcp += 2 * OPSIZ;
-          dstp += 2 * OPSIZ;
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    }
+  fwd_align_merge (align);
 
 }
 
@@ -171,7 +137,7 @@ _wordcopy_bwd_aligned (dstp, srcp, len)
     srcp -= OPSIZ;
     dstp -= OPSIZ;
     ((op_t *) dstp)[0] = ((op_t *) srcp)[0];
-    
+
     if (len == 1)
       return;
     len -= 1;
@@ -191,6 +157,20 @@ _wordcopy_bwd_aligned (dstp, srcp, len)
     }
   while (len != 0);
 }
+
+#define bwd_align_merge(align)                                         \
+  do                                                                   \
+    {                                                                  \
+      srcp -= 2 * OPSIZ;                                               \
+      dstp -= 2 * OPSIZ;                                               \
+      a1 = ((op_t *) srcp)[1];                                         \
+      a0 = ((op_t *) srcp)[0];                                         \
+      ((op_t *) dstp)[1] = MERGE (a1, align*8, a2, (32-align*8));      \
+      ((op_t *) dstp)[0] = MERGE (a0, align*8, a1, (32-align*8));      \
+      a2 = a0;                                                         \
+      len -= 2;                                                                \
+    }                                                                  \
+  while (len != 0)
 
 /* _wordcopy_bwd_dest_aligned -- Copy block finishing right
    before SRCP to block finishing right before DSTP with LEN `op_t'
@@ -233,55 +213,5 @@ _wordcopy_bwd_dest_aligned (dstp, srcp, len)
     len -= 1;
   }
 
-  switch (align)
-    {
-    case 1:
-      do
-        {
-          srcp -= 2 * OPSIZ;
-          dstp -= 2 * OPSIZ;
-    
-          a1 = ((op_t *) srcp)[1];
-          a0 = ((op_t *) srcp)[0];
-          ((op_t *) dstp)[1] = MERGE (a1, 8, a2, (32-8));
-          ((op_t *) dstp)[0] = MERGE (a0, 8, a1, (32-8));
-          a2 = a0;
-    
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    case 2:
-      do
-        {
-          srcp -= 2 * OPSIZ;
-          dstp -= 2 * OPSIZ;
-    
-          a1 = ((op_t *) srcp)[1];
-          a0 = ((op_t *) srcp)[0];
-          ((op_t *) dstp)[1] = MERGE (a1, 16, a2, (32-16));
-          ((op_t *) dstp)[0] = MERGE (a0, 16, a1, (32-16));
-          a2 = a0;
-    
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    case 3:
-      do
-        {
-          srcp -= 2 * OPSIZ;
-          dstp -= 2 * OPSIZ;
-    
-          a1 = ((op_t *) srcp)[1];
-          a0 = ((op_t *) srcp)[0];
-          ((op_t *) dstp)[1] = MERGE (a1, 24, a2, (32-24));
-          ((op_t *) dstp)[0] = MERGE (a0, 24, a1, (32-24));
-          a2 = a0;
-    
-          len -= 2;
-        }
-      while (len != 0);
-      break;
-    }
+  bwd_align_merge (align);
 }

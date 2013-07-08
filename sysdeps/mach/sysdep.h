@@ -1,4 +1,4 @@
-/* Copyright (C) 1994, 1995, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef __ASSEMBLER__
 
@@ -28,16 +27,14 @@
 #define EXT(x) C_SYMBOL_NAME(x)
 #define LEXT(x) C_SYMBOL_NAME(x##:)
 
-#ifdef HAVE_ELF
 /* For ELF we need to add the `.type' directive to make shared libraries
    work right.  */
 #undef ENTRY
 #define ENTRY(name) \
-  ASM_GLOBAL_DIRECTIVE name; \
+  .globl name; \
   .align ALIGN; \
   .type name,@function; \
   name:
-#endif
 
 #endif
 
@@ -86,8 +83,4 @@
 #endif
 
 /* Used by some assembly code.  */
-#ifdef NO_UNDERSCORES
 #define C_SYMBOL_NAME(name)	name
-#else
-#define C_SYMBOL_NAME(name)	_##name
-#endif

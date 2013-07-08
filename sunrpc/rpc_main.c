@@ -39,6 +39,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <locale.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/param.h>
@@ -75,12 +76,9 @@ struct commandline
 
 static const char *cmdname;
 
-#define SVR4_CPP "/usr/ccs/lib/cpp"
-#define SUNOS_CPP "/lib/cpp"
-
 static const char *svcclosetime = "120";
 static int cppDefined;	/* explicit path for C preprocessor */
-static const char *CPP = SUNOS_CPP;
+static const char *CPP = "/lib/cpp";
 static const char CPPFLAGS[] = "-C";
 static char *pathbuf;
 static int cpp_pid;
@@ -164,18 +162,10 @@ int indefinitewait;		/* If started by port monitors, hang till it wants */
 int exitnow;			/* If started by port monitors, exit after the call */
 int timerflag;			/* TRUE if !indefinite && !exitnow */
 int newstyle;			/* newstyle of passing arguments (by value) */
-#ifdef __GNU_LIBRARY__
 int Cflag = 1;			/* ANSI C syntax */
-#else
-int Cflag;			/* ANSI C/C++ syntax */
-#endif
 int CCflag;			/* C++ files */
 static int allfiles;		/* generate all files */
-#ifdef __GNU_LIBRARY__
 int tirpcflag;			/* generating code for tirpc, by default */
-#else
-int tirpcflag = 1;		/* generating code for tirpc, by default */
-#endif
 xdrfunc *xdrfunc_head;		/* xdr function list */
 xdrfunc *xdrfunc_tail;		/* xdr function list */
 
@@ -183,6 +173,9 @@ int
 main (int argc, const char *argv[])
 {
   struct commandline cmd;
+
+  setlocale (LC_ALL, "");
+  textdomain (_libc_intl_domainname);
 
   (void) memset ((char *) &cmd, 0, sizeof (struct commandline));
   clear_args ();
@@ -333,25 +326,19 @@ clear_args (void)
 static void
 find_cpp (void)
 {
-  struct stat buf;
+  struct stat64 buf;
 
-  if (stat (CPP, &buf) < 0)
-    {				/* /lib/cpp or explicit cpp does not exist */
-      if (cppDefined)
-	{
-	  fprintf (stderr, _ ("cannot find C preprocessor: %s \n"), CPP);
-	  crash ();
-	}
-      else
-	{			/* try the other one */
-	  CPP = SVR4_CPP;
-	  if (stat (CPP, &buf) < 0)
-	    {			/* can't find any cpp */
-	      fputs (_ ("cannot find any C preprocessor (cpp)\n"), stdout);
-	      crash ();
-	    }
-	}
+  if (stat64 (CPP, &buf) == 0)
+    return;
+
+  if (cppDefined) /* user specified cpp but it does not exist */
+    {
+      fprintf (stderr, _ ("cannot find C preprocessor: %s\n"), CPP);
+      crash ();
     }
+
+  /* fall back to system CPP */
+  CPP = "cpp";
 }
 
 /*
@@ -382,8 +369,13 @@ open_input (const char *infile, const char *define)
       close (1);
       dup2 (pd[1], 1);
       close (pd[0]);
-      execv (arglist[0], (char **) arglist);
-      perror ("execv");
+      execvp (arglist[0], (char **) arglist);
+      if (errno == ENOENT)
+        {
+          fprintf (stderr, _ ("cannot find C preprocessor: %s\n"), CPP);
+          exit (1);
+        }
+      perror ("execvp");
       exit (1);
     case -1:
       perror ("fork");
@@ -651,7 +643,7 @@ h_output (const char *infile, const char *define, int extend,
     }
   else if (tblflag)
     {
-      fprintf (fout, rpcgen_table_dcl);
+      fprintf (fout, "%s", rpcgen_table_dcl);
     }
 
   if (Cflag)
@@ -707,37 +699,18 @@ s_output (int argc, const char *argv[], const char *infile, const char *define,
     }
 
   if (!tirpcflag && inetdflag)
-#ifdef __GNU_LIBRARY__
     fprintf (fout, "#include <sys/ioctl.h> /* ioctl, TIOCNOTTY */\n");
-#else
-    fprintf (fout, "#include <sys/ttycom.h>/* TIOCNOTTY */\n");
-#endif
   if (Cflag && (inetdflag || pmflag))
     {
-#ifdef __GNU_LIBRARY__
       fprintf (fout, "#include <sys/types.h> /* open */\n");
       fprintf (fout, "#include <sys/stat.h> /* open */\n");
       fprintf (fout, "#include <fcntl.h> /* open */\n");
       fprintf (fout, "#include <unistd.h> /* getdtablesize */\n");
-#else
-      fprintf (fout, "#ifdef __cplusplus\n");
-      fprintf (fout, "#include <sysent.h> /* getdtablesize, open */\n");
-      fprintf (fout, "#endif /* __cplusplus */\n");
-      if (tirpcflag)
-	fprintf (fout, "#include <unistd.h> /* setsid */\n");
-#endif
     }
-#ifdef __GNU_LIBRARY__
   if (tirpcflag && !(Cflag && (inetdflag || pmflag)))
-#else
-  if (tirpcflag)
-#endif
     fprintf (fout, "#include <sys/types.h>\n");
 
   fprintf (fout, "#include <memory.h>\n");
-#ifndef __GNU_LIBRARY__
-  fprintf (fout, "#include <stropts.h>\n");
-#endif
   if (inetdflag || !tirpcflag)
     {
       fprintf (fout, "#include <sys/socket.h>\n");
@@ -752,25 +725,13 @@ s_output (int argc, const char *argv[], const char *infile, const char *define,
     fprintf (fout, "#include <sys/resource.h> /* rlimit */\n");
   if (logflag || inetdflag || pmflag)
     {
-#ifdef __GNU_LIBRARY__
       fprintf (fout, "#include <syslog.h>\n");
-#else
-      fprintf (fout, "#ifdef SYSLOG\n");
-      fprintf (fout, "#include <syslog.h>\n");
-      fprintf (fout, "#else\n");
-      fprintf (fout, "#define LOG_ERR 1\n");
-      fprintf (fout, "#define openlog(a, b, c)\n");
-      fprintf (fout, "#endif\n");
-#endif
     }
 
   /* for ANSI-C */
   if (Cflag)
     fprintf (fout, "\n#ifndef SIG_PF\n#define SIG_PF void(*)(int)\n#endif\n");
 
-#ifndef __GNU_LIBRARY__
-  fprintf (fout, "\n#ifdef DEBUG\n#define RPC_SVC_FG\n#endif\n");
-#endif
   if (timerflag)
     fprintf (fout, "\n#define _RPCSVC_CLOSEDOWN %s\n", svcclosetime);
   while ((def = get_definition ()) != NULL)
@@ -1153,17 +1114,17 @@ putarg (int whereto, const char *cp)
 static void
 checkfiles (const char *infile, const char *outfile)
 {
-  struct stat buf;
+  struct stat64 buf;
 
   if (infile)			/* infile ! = NULL */
-    if (stat (infile, &buf) < 0)
+    if (stat64 (infile, &buf) < 0)
       {
 	perror (infile);
 	crash ();
       }
   if (outfile)
     {
-      if (stat (outfile, &buf) < 0)
+      if (stat64 (outfile, &buf) < 0)
 	return;			/* file does not exist */
       else
 	{
@@ -1266,25 +1227,21 @@ parseargs (int argc, const char *argv[], struct commandline *cmd)
 		  Cflag = 1;
 		  break;
 
-#ifdef __GNU_LIBRARY__
 		case 'k':  /* K&R C syntax */
 		  Cflag = 0;
 		  break;
 
-#endif
 		case 'b':  /* turn TIRPC flag off for
 			      generating backward compatible
 			   */
 		  tirpcflag = 0;
 		  break;
 
-#ifdef __GNU_LIBRARY__
 		case '5':  /* turn TIRPC flag on for
 			      generating SysVr4 compatible
 			   */
 		  tirpcflag = 1;
 		  break;
-#endif
 		case 'I':
 		  inetdflag = 1;
 		  break;
@@ -1405,9 +1362,6 @@ parseargs (int argc, const char *argv[], struct commandline *cmd)
   else
     {				/* 4.1 mode */
       pmflag = 0;		/* set pmflag only in tirpcmode */
-#ifndef __GNU_LIBRARY__
-      inetdflag = 1;            /* inetdflag is TRUE by default */
-#endif
       if (cmd->nflag)
 	{			/* netid needs TIRPC */
 	  f_print (stderr, _("Cannot use netid flag without TIRPC!\n"));
@@ -1489,15 +1443,15 @@ options_usage (FILE *stream, int status)
   f_print (stream, _("-T\t\tgenerate code to support RPC dispatch tables\n"));
   f_print (stream, _("-Y path\t\tdirectory name to find C preprocessor (cpp)\n"));
 
-  f_print (stream, "\n%s", _("\
+  f_print (stream, _("\n\
 For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"));
+%s.\n"), REPORT_BUGS_TO);
   exit (status);
 }
 
 static void
 print_version (void)
 {
-  printf ("rpcgen (GNU %s) %s\n", PACKAGE, VERSION);
+  printf ("rpcgen %s%s\n", PKGVERSION, VERSION);
   exit (0);
 }

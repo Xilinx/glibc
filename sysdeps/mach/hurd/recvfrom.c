@@ -1,4 +1,4 @@
-/* Copyright (C) 1994, 1997, 1999, 2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <string.h>
@@ -55,7 +54,7 @@ __recvfrom (fd, buf, n, flags, addrarg, addr_len)
     return __hurd_sockfail (fd, flags, err);
 
   /* Get address data for the returned address port if requested.  */
-  if (addr != NULL)
+  if (addr != NULL && addrport != MACH_PORT_NULL)
     {
       char *buf = (char *) addr;
       mach_msg_type_number_t buflen = *addr_len;
@@ -76,7 +75,7 @@ __recvfrom (fd, buf, n, flags, addrarg, addr_len)
 	  __mach_port_deallocate (__mach_task_self (), addrport);
 	  return __hurd_sockfail (fd, flags, err);
 	}
-      
+
       if (*addr_len > buflen)
 	*addr_len = buflen;
 
@@ -89,6 +88,8 @@ __recvfrom (fd, buf, n, flags, addrarg, addr_len)
       if (buflen > 0)
 	addr->sa_family = type;
     }
+  else if (addr_len != NULL)
+    *addr_len = 0;
 
   __mach_port_deallocate (__mach_task_self (), addrport);
 

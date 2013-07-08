@@ -1,5 +1,5 @@
 /* Tests for waitid.
-   Copyright (C) 2004 Free Software Foundation, Inc.
+   Copyright (C) 2004-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <stdio.h>
@@ -146,7 +145,7 @@ do_test (int argc, char *argv[])
   /* Give the child a chance to stop.  */
   sleep (3);
 
-  CHECK_SIGCHLD ("stopped", CLD_STOPPED, SIGSTOP);
+  CHECK_SIGCHLD ("stopped (before waitid)", CLD_STOPPED, SIGSTOP);
 
   /* Now try a wait that should not succeed.  */
   siginfo_t info;
@@ -228,7 +227,7 @@ do_test (int argc, char *argv[])
       expecting_sigchld = 0;
     }
   else
-    CHECK_SIGCHLD ("continued", CLD_CONTINUED, SIGCONT);
+    CHECK_SIGCHLD ("continued (before waitid)", CLD_CONTINUED, SIGCONT);
 
   info.si_signo = 0;		/* A successful call sets it to SIGCHLD.  */
   info.si_pid = -1;
@@ -337,6 +336,13 @@ do_test (int argc, char *argv[])
       printf ("kill (%d, SIGSTOP): %m\n", pid);
       RETURN (EXIT_FAILURE);
     }
+
+  /* Give the child a chance to stop.  The waitpid call below will block
+     until it has stopped, but if we are real quick and enter the waitpid
+     system call before the SIGCHLD has been generated, then it will be
+     discarded and never delivered.  */
+  sleep (3);
+
   pid_t wpid = waitpid (pid, &fail, WUNTRACED);
   if (wpid < 0)
     {
@@ -355,7 +361,7 @@ do_test (int argc, char *argv[])
       printf ("waitpid WUNTRACED on stopped: status %x\n", fail);
       RETURN (EXIT_FAILURE);
     }
-  CHECK_SIGCHLD ("stopped", CLD_STOPPED, SIGSTOP);
+  CHECK_SIGCHLD ("stopped (after waitpid)", CLD_STOPPED, SIGSTOP);
 
   expecting_sigchld = 1;
   if (kill (pid, SIGCONT) != 0)
@@ -373,7 +379,7 @@ do_test (int argc, char *argv[])
       expecting_sigchld = 0;
     }
   else
-    CHECK_SIGCHLD ("continued", CLD_CONTINUED, SIGCONT);
+    CHECK_SIGCHLD ("continued (before waitpid)", CLD_CONTINUED, SIGCONT);
 
   wpid = waitpid (pid, &fail, WCONTINUED);
   if (wpid < 0)

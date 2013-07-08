@@ -53,7 +53,7 @@ TRANS No process matches the specified process ID. */
 TRANS Interrupted function call; an asynchronous signal occurred and prevented
 TRANS completion of the call.  When this happens, you should try the call
 TRANS again.
-TRANS 
+TRANS
 TRANS You can choose to have functions resume after a signal that is handled,
 TRANS rather than failing with @code{EINTR}; see @ref{Interrupted
 TRANS Primitives}. */
@@ -89,8 +89,8 @@ TRANS computer. */
 /*
 TRANS Argument list too long; used when the arguments passed to a new program
 TRANS being executed with one of the @code{exec} functions (@pxref{Executing a
-TRANS File}) occupy too much memory space.  This condition never arises in the
-TRANS GNU system. */
+TRANS File}) occupy too much memory space.  This condition never arises on
+TRANS @gnuhurdsystems{}. */
     [ERR_REMAP (E2BIG)] = N_("Argument list too long"),
 # if E2BIG > ERR_MAX
 # undef ERR_MAX
@@ -163,7 +163,7 @@ TRANS Permission denied; the file permissions do not allow the attempted operati
 #ifdef EFAULT
 /*
 TRANS Bad address; an invalid pointer was detected.
-TRANS In the GNU system, this error never happens; you get a signal instead. */
+TRANS On @gnuhurdsystems{}, this error never happens; you get a signal instead. */
     [ERR_REMAP (EFAULT)] = N_("Bad address"),
 # if EFAULT > ERR_MAX
 # undef ERR_MAX
@@ -256,7 +256,7 @@ TRANS with passing the wrong argument to a library function. */
 /*
 TRANS The current process has too many files open and can't open any more.
 TRANS Duplicate descriptors do count toward this limit.
-TRANS 
+TRANS
 TRANS In BSD and GNU, the number of open files is controlled by a resource
 TRANS limit that can usually be increased.  If you get this error, you might
 TRANS want to increase the @code{RLIMIT_NOFILE} limit or make it unlimited;
@@ -271,7 +271,7 @@ TRANS @pxref{Limits on Resources}. */
 /*
 TRANS There are too many distinct file openings in the entire system.  Note
 TRANS that any number of linked channels count as just one file opening; see
-TRANS @ref{Linked Channels}.  This error never occurs in the GNU system. */
+TRANS @ref{Linked Channels}.  This error never occurs on @gnuhurdsystems{}. */
     [ERR_REMAP (ENFILE)] = N_("Too many open files in system"),
 # if ENFILE > ERR_MAX
 # undef ERR_MAX
@@ -294,7 +294,7 @@ TRANS An attempt to execute a file that is currently open for writing, or
 TRANS write to a file that is currently being executed.  Often using a
 TRANS debugger to run a program is considered having it open for writing and
 TRANS will cause this error.  (The name stands for ``text file busy''.)  This
-TRANS is not an error in the GNU system; the text is copied as necessary. */
+TRANS is not an error on @gnuhurdsystems{}; the text is copied as necessary. */
     [ERR_REMAP (ETXTBSY)] = N_("Text file busy"),
 # if ETXTBSY > ERR_MAX
 # undef ERR_MAX
@@ -386,10 +386,10 @@ TRANS not representable because of overflow or underflow. */
 /*
 TRANS Resource temporarily unavailable; the call might work if you try again
 TRANS later.  The macro @code{EWOULDBLOCK} is another name for @code{EAGAIN};
-TRANS they are always the same in the GNU C library.
-TRANS 
+TRANS they are always the same in @theglibc{}.
+TRANS
 TRANS This error can happen in a few different situations:
-TRANS 
+TRANS
 TRANS @itemize @bullet
 TRANS @item
 TRANS An operation that would block was attempted on an object that has
@@ -397,12 +397,12 @@ TRANS non-blocking mode selected.  Trying the same operation again will block
 TRANS until some external condition makes it possible to read, write, or
 TRANS connect (whatever the operation).  You can use @code{select} to find out
 TRANS when the operation will be possible; @pxref{Waiting for I/O}.
-TRANS 
+TRANS
 TRANS @strong{Portability Note:} In many older Unix systems, this condition
 TRANS was indicated by @code{EWOULDBLOCK}, which was a distinct error code
 TRANS different from @code{EAGAIN}.  To make your program portable, you should
 TRANS check for both codes and treat them the same.
-TRANS 
+TRANS
 TRANS @item
 TRANS A temporary resource shortage made an operation impossible.  @code{fork}
 TRANS can return this error.  It indicates that the shortage is expected to
@@ -421,9 +421,9 @@ TRANS @end itemize */
 #endif
 #if defined (EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
 /*
-TRANS In the GNU C library, this is another name for @code{EAGAIN} (above).
+TRANS In @theglibc{}, this is another name for @code{EAGAIN} (above).
 TRANS The values are always the same, on every operating system.
-TRANS 
+TRANS
 TRANS C libraries in many older Unix systems have @code{EWOULDBLOCK} as a
 TRANS separate error code. */
     [ERR_REMAP (EWOULDBLOCK)] = N_("Operation would block"),
@@ -520,7 +520,7 @@ TRANS The socket type is not supported. */
 /*
 TRANS The operation you requested is not supported.  Some socket functions
 TRANS don't make sense for all types of sockets, and others may not be
-TRANS implemented for all communications protocols.  In the GNU system, this
+TRANS implemented for all communications protocols.  On @gnuhurdsystems{}, this
 TRANS error can happen for many calls when the object does not support the
 TRANS particular operation; it is a generic indication that the server knows
 TRANS nothing to do for that call. */
@@ -780,11 +780,12 @@ TRANS The user's disk quota was exceeded. */
 #endif
 #ifdef ESTALE
 /*
-TRANS Stale NFS file handle.  This indicates an internal confusion in the NFS
-TRANS system which is due to file system rearrangements on the server host.
-TRANS Repairing this condition usually requires unmounting and remounting
-TRANS the NFS file system on the local host. */
-    [ERR_REMAP (ESTALE)] = N_("Stale NFS file handle"),
+TRANS Stale file handle.  This indicates an internal confusion in the
+TRANS file system which is due to file system rearrangements on the server host
+TRANS for NFS file systems or corruption in other file systems.
+TRANS Repairing this condition usually requires unmounting, possibly repairing
+TRANS and remounting the file system. */
+    [ERR_REMAP (ESTALE)] = N_("Stale file handle"),
 # if ESTALE > ERR_MAX
 # undef ERR_MAX
 # define ERR_MAX ESTALE
@@ -795,7 +796,7 @@ TRANS the NFS file system on the local host. */
 TRANS An attempt was made to NFS-mount a remote file system with a file name that
 TRANS already specifies an NFS-mounted file.
 TRANS (This is an error on some operating systems, but we expect it to work
-TRANS properly on the GNU system, making this error code impossible.) */
+TRANS properly on @gnuhurdsystems{}, making this error code impossible.) */
     [ERR_REMAP (EREMOTE)] = N_("Object is remote"),
 # if EREMOTE > ERR_MAX
 # undef ERR_MAX
@@ -850,7 +851,7 @@ TRANS ??? */
 #ifdef ENOLCK
 /*
 TRANS No locks available.  This is used by the file locking facilities; see
-TRANS @ref{File Locks}.  This error is never generated by the GNU system, but
+TRANS @ref{File Locks}.  This error is never generated by @gnuhurdsystems{}, but
 TRANS it can result from an operation to an NFS server running another
 TRANS operating system. */
     [ERR_REMAP (ENOLCK)] = N_("No locks available"),
@@ -863,7 +864,7 @@ TRANS operating system. */
 /*
 TRANS Inappropriate file type or format.  The file was the wrong type for the
 TRANS operation, or a data file had the wrong format.
-TRANS 
+TRANS
 TRANS On some systems @code{chmod} returns this error if you try to set the
 TRANS sticky bit on a non-directory file; @pxref{Setting Permissions}. */
     [ERR_REMAP (EFTYPE)] = N_("Inappropriate file type or format"),
@@ -914,7 +915,7 @@ TRANS might instead mean that only @emph{that specific object} (file
 TRANS descriptor, port, etc.) is unable to support the other parameters given;
 TRANS different file descriptors might support different ranges of parameter
 TRANS values.
-TRANS 
+TRANS
 TRANS If the entire function is not available at all in the implementation,
 TRANS it returns @code{ENOSYS} instead. */
     [ERR_REMAP (ENOTSUP)] = N_("Not supported"),
@@ -935,7 +936,7 @@ TRANS or an incomplete sequence of bytes or the given wide character is invalid.
 #endif
 #ifdef EBACKGROUND
 /*
-TRANS In the GNU system, servers supporting the @code{term} protocol return
+TRANS On @gnuhurdsystems{}, servers supporting the @code{term} protocol return
 TRANS this error for certain operations when the caller is not in the
 TRANS foreground process group of the terminal.  Users do not usually see this
 TRANS error because functions such as @code{read} and @code{write} translate
@@ -949,7 +950,7 @@ TRANS for information on process groups and these signals. */
 #endif
 #ifdef EDIED
 /*
-TRANS In the GNU system, opening a file returns this error when the file is
+TRANS On @gnuhurdsystems{}, opening a file returns this error when the file is
 TRANS translated by a program and the translator program dies while starting
 TRANS up, before it has connected to the file. */
     [ERR_REMAP (EDIED)] = N_("Translator died"),
@@ -1462,6 +1463,14 @@ TRANS error; @pxref{Cancel AIO Operations}. */
 # if ERFKILL > ERR_MAX
 # undef ERR_MAX
 # define ERR_MAX ERFKILL
+# endif
+#endif
+#ifdef EHWPOISON
+/* */
+    [ERR_REMAP (EHWPOISON)] = N_("Memory page has hardware error"),
+# if EHWPOISON > ERR_MAX
+# undef ERR_MAX
+# define ERR_MAX EHWPOISON
 # endif
 #endif
   };

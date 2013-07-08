@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define E(name) E_(name, CLASS)
 #define E_(name, cl) E__(name, cl)
@@ -24,7 +23,7 @@
 #define EW_(e, w, t) EW__(e, w, _##t)
 #define EW__(e, w, t) e##w##t
 
-#define static_assert(name, exp) \
+#define pldd_assert(name, exp) \
   typedef int __assert_##name[((exp) != 0) - 1]
 
 
@@ -40,11 +39,11 @@ struct E(link_map)
   EW(Addr) l_libname;
 };
 #if CLASS == __ELF_NATIVE_CLASS
-static_assert (l_addr, (offsetof (struct link_map, l_addr)
+pldd_assert (l_addr, (offsetof (struct link_map, l_addr)
 			== offsetof (struct E(link_map), l_addr)));
-static_assert (l_name, (offsetof (struct link_map, l_name)
+pldd_assert (l_name, (offsetof (struct link_map, l_name)
 			== offsetof (struct E(link_map), l_name)));
-static_assert (l_next, (offsetof (struct link_map, l_next)
+pldd_assert (l_next, (offsetof (struct link_map, l_next)
 			== offsetof (struct E(link_map), l_next)));
 #endif
 
@@ -55,9 +54,9 @@ struct E(libname_list)
   EW(Addr) next;
 };
 #if CLASS == __ELF_NATIVE_CLASS
-static_assert (name, (offsetof (struct libname_list, name)
+pldd_assert (name, (offsetof (struct libname_list, name)
 		      == offsetof (struct E(libname_list), name)));
-static_assert (next, (offsetof (struct libname_list, next)
+pldd_assert (next, (offsetof (struct libname_list, next)
 		      == offsetof (struct E(libname_list), next)));
 #endif
 
@@ -70,9 +69,9 @@ struct E(r_debug)
   EW(Addr) r_map;
 };
 #if CLASS == __ELF_NATIVE_CLASS
-static_assert (r_version, (offsetof (struct r_debug, r_version)
+pldd_assert (r_version, (offsetof (struct r_debug, r_version)
 			   == offsetof (struct E(r_debug), r_version)));
-static_assert (r_map, (offsetof (struct r_debug, r_map)
+pldd_assert (r_map, (offsetof (struct r_debug, r_map)
 		       == offsetof (struct E(r_debug), r_map)));
 #endif
 

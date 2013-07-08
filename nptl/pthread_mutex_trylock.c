@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2003, 2005-2007, 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -23,6 +22,16 @@
 #include "pthreadP.h"
 #include <lowlevellock.h>
 
+#ifndef lll_trylock_elision
+#define lll_trylock_elision(a,t) lll_trylock(a)
+#endif
+
+#ifndef DO_ELISION
+#define DO_ELISION(m) 0
+#endif
+
+/* We don't force elision in trylock, because this can lead to inconsistent
+   lock state if the lock was actually busy. */
 
 int
 __pthread_mutex_trylock (mutex)
@@ -31,10 +40,11 @@ __pthread_mutex_trylock (mutex)
   int oldval;
   pid_t id = THREAD_GETMEM (THREAD_SELF, tid);
 
-  switch (__builtin_expect (PTHREAD_MUTEX_TYPE (mutex),
+  switch (__builtin_expect (PTHREAD_MUTEX_TYPE_ELISION (mutex),
 			    PTHREAD_MUTEX_TIMED_NP))
     {
       /* Recursive mutex.  */
+    case PTHREAD_MUTEX_RECURSIVE_NP|PTHREAD_MUTEX_ELISION_NP:
     case PTHREAD_MUTEX_RECURSIVE_NP:
       /* Check whether we already hold the mutex.  */
       if (mutex->__data.__owner == id)
@@ -58,10 +68,20 @@ __pthread_mutex_trylock (mutex)
 	}
       break;
 
-    case PTHREAD_MUTEX_ERRORCHECK_NP:
+    case PTHREAD_MUTEX_TIMED_ELISION_NP:
+    elision:
+      if (lll_trylock_elision (mutex->__data.__lock,
+			       mutex->__data.__elision) != 0)
+        break;
+      /* Don't record the ownership. */
+      return 0;
+
     case PTHREAD_MUTEX_TIMED_NP:
+      if (DO_ELISION (mutex))
+	goto elision;
+      /*FALL THROUGH*/
     case PTHREAD_MUTEX_ADAPTIVE_NP:
-      /* Normal mutex.  */
+    case PTHREAD_MUTEX_ERRORCHECK_NP:
       if (lll_trylock (mutex->__data.__lock) != 0)
 	break;
 
@@ -379,4 +399,9 @@ __pthread_mutex_trylock (mutex)
 
   return EBUSY;
 }
+
+#ifndef __pthread_mutex_trylock
+#ifndef pthread_mutex_trylock
 strong_alias (__pthread_mutex_trylock, pthread_mutex_trylock)
+#endif
+#endif

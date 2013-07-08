@@ -1,5 +1,5 @@
 /* Profile heap and stack memory usage of running program.
-   Copyright (C) 1998-2002, 2004-2006, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <atomic.h>
@@ -31,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/mman.h>
 #include <sys/time.h>
 
@@ -565,7 +565,7 @@ free (void *ptr)
 }
 
 
-/* `mmap' replacement.  We do not have to keep track of the sizesince
+/* `mmap' replacement.  We do not have to keep track of the size since
    `munmap' will get it as a parameter.  */
 void *
 mmap (void *start, size_t len, int prot, int flags, int fd, off_t offset)
@@ -617,7 +617,7 @@ mmap (void *start, size_t len, int prot, int flags, int fd, off_t offset)
 }
 
 
-/* `mmap' replacement.  We do not have to keep track of the sizesince
+/* `mmap64' replacement.  We do not have to keep track of the size since
    `munmap' will get it as a parameter.  */
 void *
 mmap64 (void *start, size_t len, int prot, int flags, int fd, off64_t offset)
@@ -669,7 +669,7 @@ mmap64 (void *start, size_t len, int prot, int flags, int fd, off64_t offset)
 }
 
 
-/* `mmap' replacement.  We do not have to keep track of the sizesince
+/* `mremap' replacement.  We do not have to keep track of the size since
    `munmap' will get it as a parameter.  */
 void *
 mremap (void *start, size_t old_len, size_t len, int flags,  ...)

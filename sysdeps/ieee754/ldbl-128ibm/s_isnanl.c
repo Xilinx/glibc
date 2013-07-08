@@ -22,14 +22,15 @@ static char rcsid[] = "$NetBSD: $";
  * no branching!
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 #include <math_ldbl_opt.h>
 
 int
 ___isnanl (long double x)
 {
-	int64_t hx,lx;
+	int64_t hx;
+	int64_t lx __attribute__ ((unused));
 	GET_LDOUBLE_WORDS64(hx,lx,x);
 	hx &= 0x7fffffffffffffffLL;
 	hx = 0x7ff0000000000000LL - hx;

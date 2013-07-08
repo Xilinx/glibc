@@ -14,8 +14,9 @@
 static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $";
 #endif
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
+#include <float.h>
 #include <errno.h>
 
 #include <assert.h>
@@ -32,7 +33,7 @@ static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $
 /* XXX gcc versions until now don't delay the 0.0/0.0 division until
    runtime but produce NaN at copile time.  This is wrong since the
    exceptions are not set correctly.  */
-#if 0 && defined __STDC__
+#if 0
 static const double zero = 0.0;	/* used as const */
 #else
 static double zero = 0.0;	/* used as const */
@@ -507,6 +508,9 @@ __kernel_standard(double x, double y, int type)
 		exc.type = UNDERFLOW;
 		exc.name = type < 100 ? "pow" : (type < 200 ? "powf" : "powl");
 		exc.retval =  zero;
+		y *= 0.5;
+		if (x < zero && __rint (y) != y)
+		  exc.retval = -zero;
 		if (_LIB_VERSION == _POSIX_)
 		  __set_errno (ERANGE);
 		else if (!matherr(&exc)) {
@@ -833,7 +837,7 @@ __kernel_standard(double x, double y, int type)
 		exc.type = OVERFLOW;
 		exc.name = type < 100 ? "tgamma" : (type < 200
 						   ? "tgammaf" : "tgammal");
-		exc.retval = HUGE_VAL;
+		exc.retval = __copysign (HUGE_VAL, x);
 		if (_LIB_VERSION == _POSIX_)
 		  __set_errno (ERANGE);
 		else if (!matherr(&exc)) {
@@ -998,3 +1002,85 @@ __kernel_standard_f(float x, float y, int type)
 {
 	return __kernel_standard(x, y, type);
 }
+
+#ifndef __NO_LONG_DOUBLE_MATH
+long double
+__kernel_standard_l (long double x, long double y, int type)
+{
+  double dx, dy;
+  struct exception exc;
+
+  if (isfinite (x))
+    {
+      long double ax = fabsl (x);
+      if (ax > DBL_MAX)
+	dx = __copysignl (DBL_MAX, x);
+      else if (ax > 0 && ax < DBL_MIN)
+	dx = __copysignl (DBL_MIN, x);
+      else
+	dx = x;
+    }
+  else
+    dx = x;
+  if (isfinite (y))
+    {
+      long double ay = fabsl (y);
+      if (ay > DBL_MAX)
+	dy = __copysignl (DBL_MAX, y);
+      else if (ay > 0 && ay < DBL_MIN)
+	dy = __copysignl (DBL_MIN, y);
+      else
+	dy = y;
+    }
+  else
+    dy = y;
+
+  switch (type)
+    {
+    case 221:
+      /* powl (x, y) overflow.  */
+      exc.arg1 = dx;
+      exc.arg2 = dy;
+      exc.type = OVERFLOW;
+      exc.name = "powl";
+      if (_LIB_VERSION == _SVID_)
+	{
+	  exc.retval = HUGE;
+	  y *= 0.5;
+	  if (x < zero && __rintl (y) != y)
+	    exc.retval = -HUGE;
+	}
+      else
+	{
+	  exc.retval = HUGE_VAL;
+	  y *= 0.5;
+	  if (x < zero && __rintl (y) != y)
+	    exc.retval = -HUGE_VAL;
+	}
+      if (_LIB_VERSION == _POSIX_)
+	__set_errno (ERANGE);
+      else if (!matherr (&exc))
+	__set_errno (ERANGE);
+      return exc.retval;
+
+    case 222:
+      /* powl (x, y) underflow.  */
+      exc.arg1 = dx;
+      exc.arg2 = dy;
+      exc.type = UNDERFLOW;
+      exc.name = "powl";
+      exc.retval = zero;
+      y *= 0.5;
+      if (x < zero && __rintl (y) != y)
+	exc.retval = -zero;
+      if (_LIB_VERSION == _POSIX_)
+	__set_errno (ERANGE);
+      else if (!matherr (&exc))
+	__set_errno (ERANGE);
+      return exc.retval;
+
+    default:
+      return __kernel_standard (dx, dy, type);
+    }
+}
+#endif

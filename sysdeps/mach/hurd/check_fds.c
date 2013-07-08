@@ -1,4 +1,4 @@
-/* Copyright (C) 2000 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <fcntl.h>
 #include <paths.h>
@@ -62,7 +61,7 @@ check_one_fd (int fd, int mode)
 	      return;
 	    }
 	}
-      
+
       /* We cannot even give an error message here since it would run
 	 into the same problems.  */
       while (1)
@@ -101,7 +100,7 @@ __libc_check_standard_fds (void)
   /* We don't check the standard file descriptors here.  They will be
      checked when we initialize the file descriptor table, as part of
      the _hurd_fd_subinit hook.
-     
+
      This function is only present to make sure that this module gets
      linked in when part of the static libc.  */
 }

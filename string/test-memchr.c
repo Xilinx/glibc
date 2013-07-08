@@ -1,5 +1,5 @@
 /* Test and measure memchr functions.
-   Copyright (C) 1999, 2002, 2003, 2005, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -14,11 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#define TEST_NAME "memchr"
 #include "test-string.h"
 
 typedef char *(*proto_t) (const char *, int, size_t);
@@ -46,24 +46,6 @@ do_one_test (impl_t *impl, const char *s, int c, size_t n, char *exp_res)
 	     res, exp_res);
       ret = 1;
       return;
-    }
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, s, c, n);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
     }
 }
 
@@ -97,14 +79,8 @@ do_test (size_t align, size_t pos, size_t len, int seek_char)
       buf1[align + len] = seek_char;
     }
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, alignment %2zd:", pos, align);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, (char *) (buf1 + align), seek_char, len, result);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void

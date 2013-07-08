@@ -1,5 +1,5 @@
 /* Code to enable profiling at program startup.
-   Copyright (C) 1995,1996,1997,2000,2001,2002 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -7,15 +7,31 @@
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
 
+   In addition to the permissions in the GNU Lesser General Public
+   License, the Free Software Foundation gives you unlimited
+   permission to link the compiled version of this file with other
+   programs, and to distribute those programs without any restriction
+   coming from the use of this file.  (The GNU Lesser General Public
+   License restrictions do apply in other respects; for example, they
+   cover modification of the file, and distribution when not linked
+   into another program.)
+
+   Note that people who make modified versions of this file are not
+   obligated to grant this special exception for their modified
+   versions; it is their choice whether to do so.  The GNU Lesser
+   General Public License gives permission to release a modified
+   version without this exception; this exception also makes it
+   possible to release a modified version which carries forward this
+   exception.
+
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sys/types.h>
 #include <sys/gmon.h>
@@ -43,23 +59,21 @@ extern char etext[];
 # endif
 #endif
 
-#ifndef HAVE_INITFINI
-/* This function gets called at startup by the normal constructor
-   mechanism.  We link this file together with start.o to produce gcrt1.o,
-   so this constructor will be first in the list.  */
-
-extern void __gmon_start__ (void) __attribute__ ((constructor));
+#ifdef GMON_START_ARRAY_SECTION
+static void __gmon_start__ (void);
+static void (*const gmon_start_initializer) (void)
+  __attribute__ ((used, section (GMON_START_ARRAY_SECTION))) = &__gmon_start__;
+static
 #else
-/* In ELF and COFF, we cannot use the normal constructor mechanism to call
+/* We cannot use the normal constructor mechanism to call
    __gmon_start__ because gcrt1.o appears before crtbegin.o in the link.
-   Instead crti.o calls it specially (see initfini.c).  */
+   Instead crti.o calls it specially.  */
 extern void __gmon_start__ (void);
 #endif
 
 void
 __gmon_start__ (void)
 {
-#ifdef HAVE_INITFINI
   /* Protect from being called more than once.  Since crti.o is linked
      into every shared library, each of their init functions will call us.  */
   static int called;
@@ -68,7 +82,6 @@ __gmon_start__ (void)
     return;
 
   called = 1;
-#endif
 
   /* Start keeping profiling records.  */
   __monstartup ((u_long) TEXT_START, (u_long) &etext);

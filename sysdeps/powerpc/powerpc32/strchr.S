@@ -1,5 +1,5 @@
 /* Optimized strchr implementation for PowerPC.
-   Copyright (C) 1997, 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,31 +13,22 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <bp-sym.h>
-#include <bp-asm.h>
 
 /* See strlen.s for comments on how this works.  */
 
 /* char * [r3] strchr (const char *s [r3] , int c [r4] )  */
 
-ENTRY (BP_SYM (strchr))
+ENTRY (strchr)
 
 #define rTMP1	r0
 #define rRTN	r3	/* outgoing result */
-#if __BOUNDED_POINTERS__
-# define rSTR	r4
-# define rCHR	r5	/* byte we're looking for, spread over the whole word */
-# define rWORD	r8	/* the current word */
-#else
-# define rSTR	r8	/* current word pointer */
-# define rCHR	r4	/* byte we're looking for, spread over the whole word */
-# define rWORD	r5	/* the current word */
-#endif
+#define rSTR	r8	/* current word pointer */
+#define rCHR	r4	/* byte we're looking for, spread over the whole word */
+#define rWORD	r5	/* the current word */
 #define rCLZB	rCHR	/* leading zero byte count */
 #define rFEFE	r6	/* constant 0xfefefeff (-0x01010101) */
 #define r7F7F	r7	/* constant 0x7f7f7f7f */
@@ -46,8 +37,6 @@ ENTRY (BP_SYM (strchr))
 #define rMASK	r11	/* mask with the bits to ignore set to 0 */
 #define rTMP3	r12
 
-	CHECK_BOUNDS_LOW (rSTR, rTMP1, rTMP2)
-	STORE_RETURN_BOUNDS (rTMP1, rTMP2)
 
 	rlwimi	rCHR, rCHR, 8, 16, 23
 	li	rMASK, -1
@@ -91,7 +80,6 @@ L(loopentry):
 L(missed):
 	and.	rTMP1, rTMP1, rTMP2
 	li	rRTN, 0
-	STORE_RETURN_VALUE (rSTR)
 	beqlr
 /* It did happen. Decide which one was first...
    I'm not sure if this is actually faster than a sequence of
@@ -109,8 +97,6 @@ L(missed):
 	cntlzw	rCLZB, rTMP2
 	srwi	rCLZB, rCLZB, 3
 	add	rRTN, rSTR, rCLZB
-	CHECK_BOUNDS_HIGH_RTN (rSTR, rTMP2, twlge)
-	STORE_RETURN_VALUE (rSTR)
 	blr
 
 L(foundit):
@@ -122,10 +108,8 @@ L(foundit):
 	subi	rSTR, rSTR, 4
 	srwi	rCLZB, rCLZB, 3
 	add	rRTN, rSTR, rCLZB
-	CHECK_BOUNDS_HIGH_RTN (rSTR, rTMP2, twlge)
-	STORE_RETURN_VALUE (rSTR)
 	blr
-END (BP_SYM (strchr))
+END (strchr)
 
-weak_alias (BP_SYM (strchr), BP_SYM (index))
+weak_alias (strchr, index)
 libc_hidden_builtin_def (strchr)

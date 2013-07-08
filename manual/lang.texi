@@ -229,7 +229,6 @@ additional variable arguments.  @xref{Calling Variadics}.
 			  variable arguments functions.
 * Argument Macros::      Detailed specification of the macros
         		  for accessing variable arguments.
-* Old Varargs::		 The pre-ISO way of defining variadic functions.
 @end menu
 
 @node Variadic Prototypes
@@ -427,9 +426,6 @@ The type @code{va_list} is used for argument pointer variables.
 This macro initializes the argument pointer variable @var{ap} to point
 to the first of the optional arguments of the current function;
 @var{last-required} must be the last required argument to the function.
-
-@xref{Old Varargs}, for an alternate definition of @code{va_start}
-found in the header file @file{varargs.h}.
 @end deftypefn
 
 @comment stdarg.h
@@ -454,7 +450,7 @@ This ends the use of @var{ap}.  After a @code{va_end} call, further
 @code{va_end} before returning from the function in which @code{va_start}
 was invoked with the same @var{ap} argument.
 
-In the GNU C library, @code{va_end} does nothing, and you need not ever
+In @theglibc{}, @code{va_end} does nothing, and you need not ever
 use it except for reasons of portability.
 @refill
 @end deftypefn
@@ -467,28 +463,33 @@ assign the value of one variable of type @code{va_list} to another variable
 of the same type.
 
 @comment stdarg.h
-@comment GNU
-@deftypefn {Macro} void __va_copy (va_list @var{dest}, va_list @var{src})
-The @code{__va_copy} macro allows copying of objects of type
+@comment ISO
+@deftypefn {Macro} void va_copy (va_list @var{dest}, va_list @var{src})
+@deftypefnx {Macro} void __va_copy (va_list @var{dest}, va_list @var{src})
+The @code{va_copy} macro allows copying of objects of type
 @code{va_list} even if this is not an integral type.  The argument pointer
 in @var{dest} is initialized to point to the same argument as the
 pointer in @var{src}.
 
-This macro is a GNU extension but it will hopefully also be available in
-the next update of the ISO C standard.
+This macro was added in ISO C99.  When building for strict conformance
+to ISO C90 (@samp{gcc -ansi}), it is not available.  The macro
+@code{__va_copy} is available as a GNU extension in any standards
+mode; before GCC 3.0, it was the only macro for this functionality.
 @end deftypefn
 
-If you want to use @code{__va_copy} you should always be prepared for the
+If you want to use @code{va_copy} and be portable to pre-C99 systems,
+you should always be prepared for the
 possibility that this macro will not be available.  On architectures where a
-simple assignment is invalid, hopefully @code{__va_copy} @emph{will} be available,
-so one should always write something like this:
+simple assignment is invalid, hopefully @code{va_copy} @emph{will} be available,
+so one should always write something like this if concerned about
+pre-C99 portability:
 
 @smallexample
 @{
   va_list ap, save;
   @dots{}
-#ifdef __va_copy
-  __va_copy (save, ap);
+#ifdef va_copy
+  va_copy (save, ap);
 #else
   save = ap;
 #endif
@@ -510,68 +511,6 @@ arguments facility.
 @smallexample
 @include add.c.texi
 @end smallexample
-
-@node Old Varargs
-@subsubsection Old-Style Variadic Functions
-
-@pindex varargs.h
-Before @w{ISO C}, programmers used a slightly different facility for
-writing variadic functions.  The GNU C compiler still supports it;
-currently, it is more portable than the @w{ISO C} facility, since support
-for @w{ISO C} is still not universal.  The header file which defines the
-old-fashioned variadic facility is called @file{varargs.h}.
-
-Using @file{varargs.h} is almost the same as using @file{stdarg.h}.
-There is no difference in how you call a variadic function;
-see @ref{Calling Variadics}.  The only difference is in how you define
-them.  First of all, you must use old-style non-prototype syntax, like
-this:
-
-@smallexample
-tree
-build (va_alist)
-     va_dcl
-@{
-@end smallexample
-
-Secondly, you must give @code{va_start} only one argument, like this:
-
-@smallexample
-  va_list p;
-  va_start (p);
-@end smallexample
-
-These are the special macros used for defining old-style variadic
-functions:
-
-@comment varargs.h
-@comment Unix
-@deffn Macro va_alist
-This macro stands for the argument name list required in a variadic
-function.
-@end deffn
-
-@comment varargs.h
-@comment Unix
-@deffn Macro va_dcl
-This macro declares the implicit argument or arguments for a variadic
-function.
-@end deffn
-
-@comment varargs.h
-@comment Unix
-@deftypefn {Macro} void va_start (va_list @var{ap})
-This macro, as defined in @file{varargs.h}, initializes the argument
-pointer variable @var{ap} to point to the first argument of the current
-function.
-@end deftypefn
-
-The other argument macros, @code{va_arg} and @code{va_end}, are the same
-in @file{varargs.h} as in @file{stdarg.h}; see @ref{Argument Macros}, for
-details.
-
-It does not work to include both @file{varargs.h} and @file{stdarg.h} in
-the same compilation; they define @code{va_start} in conflicting ways.
 
 @node Null Pointer Constant
 @section Null Pointer Constant
@@ -629,26 +568,12 @@ This is an unsigned integer type used to represent the sizes of objects.
 The result of the @code{sizeof} operator is of this type, and functions
 such as @code{malloc} (@pxref{Unconstrained Allocation}) and
 @code{memcpy} (@pxref{Copying and Concatenation}) accept arguments of
-this type to specify object sizes.
+this type to specify object sizes.  On systems using @theglibc{}, this
+will be @w{@code{unsigned int}} or @w{@code{unsigned long int}}.
 
 @strong{Usage Note:} @code{size_t} is the preferred way to declare any
 arguments or variables that hold the size of an object.
 @end deftp
-
-In the GNU system @code{size_t} is equivalent to either
-@w{@code{unsigned int}} or @w{@code{unsigned long int}}.  These types
-have identical properties on the GNU system and, for most purposes, you
-can use them interchangeably.  However, they are distinct as data types,
-which makes a difference in certain contexts.
-
-For example, when you specify the type of a function argument in a
-function prototype, it makes a difference which one you use.  If the
-system header files declare @code{malloc} with an argument of type
-@code{size_t} and you declare @code{malloc} with an argument of type
-@code{unsigned int}, you will get a compilation error if @code{size_t}
-happens to be @code{unsigned long int} on your system.  To avoid any
-possibility of error, when a function argument or value is supposed to
-have type @code{size_t}, never declare its type in any other way.
 
 @strong{Compatibility Note:} Implementations of C before the advent of
 @w{ISO C} generally used @code{unsigned int} for representing object sizes
@@ -776,7 +701,7 @@ It's equal to @code{SCHAR_MAX} if @code{char} is signed, or
 @item SHRT_MIN
 
 This is the minimum value that can be represented by a @w{@code{signed
-short int}}.  On most machines that the GNU C library runs on,
+short int}}.  On most machines that @theglibc{} runs on,
 @code{short} integers are 16-bit quantities.
 
 @comment limits.h
@@ -795,7 +720,7 @@ respectively.
 @item INT_MIN
 
 This is the minimum value that can be represented by a @w{@code{signed
-int}}.  On most machines that the GNU C system runs on, an @code{int} is
+int}}.  On most machines that @theglibc{} runs on, an @code{int} is
 a 32-bit quantity.
 
 @comment limits.h
@@ -813,7 +738,7 @@ the type @w{@code{signed int}} and the type @w{@code{unsigned int}}.
 @item LONG_MIN
 
 This is the minimum value that can be represented by a @w{@code{signed
-long int}}.  On most machines that the GNU C system runs on, @code{long}
+long int}}.  On most machines that @theglibc{} runs on, @code{long}
 integers are 32-bit quantities, the same size as @code{int}.
 
 @comment limits.h
@@ -827,22 +752,36 @@ These are the maximum values that can be represented by a
 @w{@code{signed long int}} and @code{unsigned long int}, respectively.
 
 @comment limits.h
-@comment GNU
-@item LONG_LONG_MIN
+@comment ISO
+@item LLONG_MIN
 
 This is the minimum value that can be represented by a @w{@code{signed
-long long int}}.  On most machines that the GNU C system runs on,
+long long int}}.  On most machines that @theglibc{} runs on,
 @w{@code{long long}} integers are 64-bit quantities.
 
 @comment limits.h
-@comment GNU
-@item LONG_LONG_MAX
+@comment ISO
+@item LLONG_MAX
 @comment limits.h
 @comment ISO
-@itemx ULONG_LONG_MAX
+@itemx ULLONG_MAX
 
 These are the maximum values that can be represented by a @code{signed
 long long int} and @code{unsigned long long int}, respectively.
+
+@comment limits.h
+@comment GNU
+@item LONG_LONG_MIN
+@comment limits.h
+@comment GNU
+@itemx LONG_LONG_MAX
+@comment limits.h
+@comment GNU
+@itemx ULONG_LONG_MAX
+These are obsolete names for @code{LLONG_MIN}, @code{LLONG_MAX}, and
+@code{ULLONG_MAX}.  They are only available if @code{_GNU_SOURCE} is
+defined (@pxref{Feature Test Macros}).  In GCC versions prior to 3.0,
+these were the only names available.
 
 @comment limits.h
 @comment GNU
@@ -925,8 +864,8 @@ Sometimes, in the actual bits representing the floating point number,
 the exponent is @dfn{biased} by adding a constant to it, to make it
 always be represented as an unsigned quantity.  This is only important
 if you have some reason to pick apart the bit fields making up the
-floating point number by hand, which is something for which the GNU
-library provides no support.  So this is ignored in the discussion that
+floating point number by hand, which is something for which @theglibc{}
+provides no support.  So this is ignored in the discussion that
 follows.
 
 @item
@@ -947,7 +886,7 @@ the mantissa.  This is a bit which is present virtually in the mantissa,
 but not stored in memory because its value is always 1 in a normalized
 number.  The precision figure (see above) includes any hidden bits.
 
-Again, the GNU library provides no facilities for dealing with such
+Again, @theglibc{} provides no facilities for dealing with such
 low-level aspects of the representation.
 @end itemize
 
@@ -1202,8 +1141,8 @@ macro's value is the same as the type it describes.
 @comment ISO
 @item FLT_EPSILON
 
-This is the minimum positive floating point number of type @code{float}
-such that @code{1.0 + FLT_EPSILON != 1.0} is true.  It's supposed to
+This is the difference between 1 and the smallest floating point
+number of type @code{float} that is greater than 1.  It's supposed to
 be no greater than @code{1E-5}.
 
 @comment float.h

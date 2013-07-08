@@ -1,5 +1,4 @@
-# Copyright (C) 1994-2001,2003,2004,2007,2008,2011
-#	Free Software Foundation, Inc.
+# Copyright (C) 1994-2013 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
 # Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public
-# License along with the GNU C Library; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-# 02111-1307 USA.
+# License along with the GNU C Library; if not, see
+# <http://www.gnu.org/licenses/>.
 
 #
 #	Sub-makefile for resolv portion of the library.
@@ -26,8 +24,6 @@ headers	:= resolv.h \
 	   netdb.h bits/netdb.h \
 	   arpa/nameser.h arpa/nameser_compat.h \
 	   sys/bitypes.h
-distribute := ../conf/portability.h mapv4v6addr.h mapv4v6hostent.h \
-	      Banner res_hconf.h res_debug.h README gai_misc.h ga_test.c
 
 routines := herror inet_addr inet_ntop inet_pton nsap_addr res_init \
 	    res_hconf res_libc res-state
@@ -58,8 +54,10 @@ subdir-dirs = nss_dns
 vpath %.c nss_dns
 
 libnss_dns-routines	:= dns-host dns-network dns-canon
-ifneq ($(build-static-nss),yes)
 libnss_dns-inhibit-o	= $(filter-out .os,$(object-suffixes))
+ifeq ($(build-static-nss),yes)
+routines                += $(libnss_dns-routines) $(libresolv-routines)
+static-only-routines    += $(libnss_dns-routines) $(libresolv-routines)
 endif
 
 ifeq (yesyes,$(build-shared)$(have-thread-library))
@@ -86,23 +84,11 @@ CFLAGS-res_send.c += -fno-strict-aliasing
 # The BIND code elicits some harmless warnings.
 +cflags += -Wno-strict-prototypes -Wno-write-strings
 
-# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
-# This ensures they will load libc.so for needed symbols if loaded by
-# a statically-linked program that hasn't already loaded it.
-$(objpfx)libresolv.so: $(common-objpfx)libc.so $(common-objpfx)libc_nonshared.a
-# Some hosts need '__stack_chk_guard', so pull in the definition from
-# ld.so if required.
-ifeq (yesyes,$(have-ssp)$(elf))
-LDLIBS-resolv.so += $(as-needed) $(elfobjdir)/ld.so $(no-as-needed)
-endif
-
 # The DNS NSS modules needs the resolver.
-$(objpfx)libnss_dns.so: $(objpfx)libresolv.so $(common-objpfx)libc.so \
-			$(common-objpfx)libc_nonshared.a
+$(objpfx)libnss_dns.so: $(objpfx)libresolv.so
 
 # The asynchronous name lookup code needs the thread library.
-$(objpfx)libanl.so: $(common-objpfx)libc.so $(common-objpfx)libc_nonshared.a \
-		    $(shared-thread-library)
+$(objpfx)libanl.so: $(shared-thread-library)
 
 $(objpfx)ga_test: $(objpfx)libanl.so $(shared-thread-library)
 
@@ -110,7 +96,7 @@ $(objpfx)tst-leaks: $(objpfx)libresolv.so
 tst-leaks-ENV = MALLOC_TRACE=$(objpfx)tst-leaks.mtrace
 $(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
 	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
-ifeq (no,$(cross-compiling))
+ifeq ($(run-built-tests),yes)
 ifneq (no,$(PERL))
 tests: $(objpfx)mtrace-tst-leaks
 endif
@@ -119,7 +105,7 @@ endif
 tst-leaks2-ENV = MALLOC_TRACE=$(objpfx)tst-leaks2.mtrace
 $(objpfx)mtrace-tst-leaks2: $(objpfx)tst-leaks2.out
 	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks2.mtrace > $@
-ifeq (no,$(cross-compiling))
+ifeq ($(run-built-tests),yes)
 ifneq (no,$(PERL))
 xtests: $(objpfx)mtrace-tst-leaks2
 endif

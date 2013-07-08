@@ -1,5 +1,5 @@
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
-   Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /*
  * Never include this file directly; use <sys/types.h> instead.
@@ -43,7 +42,7 @@ typedef unsigned int __uint32_t;
 #if __WORDSIZE == 64
 typedef signed long int __int64_t;
 typedef unsigned long int __uint64_t;
-#elif defined __GLIBC_HAVE_LONG_LONG
+#else
 __extension__ typedef signed long long int __int64_t;
 __extension__ typedef unsigned long long int __uint64_t;
 #endif
@@ -52,18 +51,9 @@ __extension__ typedef unsigned long long int __uint64_t;
 #if __WORDSIZE == 64
 typedef long int __quad_t;
 typedef unsigned long int __u_quad_t;
-#elif defined __GLIBC_HAVE_LONG_LONG
+#else
 __extension__ typedef long long int __quad_t;
 __extension__ typedef unsigned long long int __u_quad_t;
-#else
-typedef struct
-{
-  long __val[2];
-} __quad_t;
-typedef struct
-{
-  __u_long __val[2];
-} __u_quad_t;
 #endif
 
 
@@ -151,7 +141,6 @@ __STD_TYPE __USECONDS_T_TYPE __useconds_t; /* Count of microseconds.  */
 __STD_TYPE __SUSECONDS_T_TYPE __suseconds_t; /* Signed count of microseconds.  */
 
 __STD_TYPE __DADDR_T_TYPE __daddr_t;	/* The type of a disk address.  */
-__STD_TYPE __SWBLK_T_TYPE __swblk_t;	/* Type of a swap block maybe?  */
 __STD_TYPE __KEY_T_TYPE __key_t;	/* Type of an IPC key.  */
 
 /* Clock ID used in clock and timer functions.  */
@@ -177,7 +166,15 @@ __STD_TYPE __FSBLKCNT64_T_TYPE __fsblkcnt64_t;
 __STD_TYPE __FSFILCNT_T_TYPE __fsfilcnt_t;
 __STD_TYPE __FSFILCNT64_T_TYPE __fsfilcnt64_t;
 
+/* Type of miscellaneous file system fields.  */
+__STD_TYPE __FSWORD_T_TYPE __fsword_t;
+
 __STD_TYPE __SSIZE_T_TYPE __ssize_t; /* Type of a byte count, or error.  */
+
+/* Signed long type used in system calls.  */
+__STD_TYPE __SYSCALL_SLONG_TYPE __syscall_slong_t;
+/* Unsigned long type used in system calls.  */
+__STD_TYPE __SYSCALL_ULONG_TYPE __syscall_ulong_t;
 
 /* These few don't really vary by system, they always correspond
    to one of the other defined types.  */

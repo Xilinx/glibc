@@ -1,5 +1,4 @@
-/* Copyright (C) 1993,1994,1997,1998,1999,2000,2002,2003,2010
-	Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -26,9 +24,7 @@
    This exception applies to code released by its copyright holders
    in files containing the exception.  */
 
-#ifdef __STDC__
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include "libioP.h"
 #include <fcntl.h>
 
@@ -159,14 +155,14 @@ _IO_new_fdopen (fd, mode)
     (use_mmap && (read_write & _IO_NO_WRITES)) ? &_IO_file_jumps_maybe_mmap :
 #endif
       &_IO_file_jumps;
-  INTUSE(_IO_file_init) (&new_f->fp);
+  _IO_file_init (&new_f->fp);
 #if  !_IO_UNIFIED_JUMPTABLES
   new_f->fp.vtable = NULL;
 #endif
-  if (INTUSE(_IO_file_attach) ((_IO_FILE *) &new_f->fp, fd) == NULL)
+  if (_IO_file_attach ((_IO_FILE *) &new_f->fp, fd) == NULL)
     {
-      INTUSE(_IO_setb) (&new_f->fp.file, NULL, NULL, 0);
-      INTUSE(_IO_un_link) (&new_f->fp);
+      _IO_setb (&new_f->fp.file, NULL, NULL, 0);
+      _IO_un_link (&new_f->fp);
       free (new_f);
       return NULL;
     }
@@ -177,7 +173,7 @@ _IO_new_fdopen (fd, mode)
 
   return &new_f->fp.file;
 }
-INTDEF2(_IO_new_fdopen, _IO_fdopen)
+libc_hidden_ver (_IO_new_fdopen, _IO_fdopen)
 
 strong_alias (_IO_new_fdopen, __new_fdopen)
 versioned_symbol (libc, _IO_new_fdopen, _IO_fdopen, GLIBC_2_1);

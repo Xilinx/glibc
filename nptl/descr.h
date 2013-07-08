@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _DESCR_H
 #define _DESCR_H	1
@@ -132,6 +131,21 @@ struct pthread
 #else
     struct
     {
+      /* multiple_threads is enabled either when the process has spawned at
+	 least one thread or when a single-threaded process cancels itself.
+	 This enables additional code to introduce locking before doing some
+	 compare_and_exchange operations and also enable cancellation points.
+	 The concepts of multiple threads and cancellation points ideally
+	 should be separate, since it is not necessary for multiple threads to
+	 have been created for cancellation points to be enabled, as is the
+	 case is when single-threaded process cancels itself.
+
+	 Since enabling multiple_threads enables additional code in
+	 cancellation points and compare_and_exchange operations, there is a
+	 potential for an unneeded performance hit when it is enabled in a
+	 single-threaded, self-canceling process.  This is OK though, since a
+	 single-threaded process will enable async cancellation only when it
+	 looks to cancel itself and is hence going to end anyway.  */
       int multiple_threads;
       int gscope_flag;
 # ifndef __ASSUME_PRIVATE_FUTEX

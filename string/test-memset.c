@@ -1,5 +1,5 @@
 /* Test and measure memset functions.
-   Copyright (C) 1999, 2002, 2003, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -14,16 +14,42 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#ifdef TEST_BZERO
+# define TEST_NAME "bzero"
+#else
+# define TEST_NAME "memset"
+#endif
 #define MIN_PAGE_SIZE 131072
 #include "test-string.h"
 
-typedef char *(*proto_t) (char *, int, size_t);
 char *simple_memset (char *, int, size_t);
+
+#ifdef TEST_BZERO
+typedef void (*proto_t) (char *, size_t);
+void simple_bzero (char *, size_t);
+void builtin_bzero (char *, size_t);
+
+IMPL (simple_bzero, 0)
+IMPL (builtin_bzero, 0)
+IMPL (bzero, 1)
+
+void
+simple_bzero (char *s, size_t n)
+{
+  simple_memset (s, 0, n);
+}
+
+void
+builtin_bzero (char *s, size_t n)
+{
+  __builtin_bzero (s, n);
+}
+#else
+typedef char *(*proto_t) (char *, int, size_t);
 char *builtin_memset (char *, int, size_t);
 
 IMPL (simple_memset, 0)
@@ -31,6 +57,14 @@ IMPL (builtin_memset, 0)
 IMPL (memset, 1)
 
 char *
+builtin_memset (char *s, int c, size_t n)
+{
+  return __builtin_memset (s, c, n);
+}
+#endif
+
+char *
+inhibit_loop_to_libcall
 simple_memset (char *s, int c, size_t n)
 {
   char *r = s, *end = s + n;
@@ -39,42 +73,24 @@ simple_memset (char *s, int c, size_t n)
   return s;
 }
 
-char *
-builtin_memset (char *s, int c, size_t n)
-{
-  return __builtin_memset (s, c, n);
-}
-
 static void
-do_one_test (impl_t *impl, char *s, int c, size_t n)
+do_one_test (impl_t *impl, char *s, int c __attribute ((unused)), size_t n)
 {
-  char *res = CALL (impl, s, c, n);
   char tstbuf[n];
+#ifdef TEST_BZERO
+  simple_bzero (tstbuf, n);
+  CALL (impl, s, n);
+  if (memcmp (s, tstbuf, n) != 0)
+#else
+  char *res = CALL (impl, s, c, n);
   if (res != s
       || simple_memset (tstbuf, c, n) != tstbuf
       || memcmp (s, tstbuf, n) != 0)
+#endif
     {
       error (0, 0, "Wrong result in function %s", impl->name);
       ret = 1;
       return;
-    }
-
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  HP_TIMING_NOW (start);
-	  CALL (impl, s, c, n);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
     }
 }
 
@@ -85,16 +101,11 @@ do_test (size_t align, int c, size_t len)
   if (align + len > page_size)
     return;
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd, alignment %2zd, c %2d:", len, align, c);
-
   FOR_EACH_IMPL (impl, 0)
     do_one_test (impl, (char *) buf1 + align, c, len);
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
+#ifndef TEST_BZERO
 static void
 do_random_tests (void)
 {
@@ -179,12 +190,13 @@ do_random_tests (void)
 	}
     }
 }
+#endif
 
 int
 test_main (void)
 {
   size_t i;
-  int c;
+  int c = 0;
 
   test_init ();
 
@@ -193,7 +205,9 @@ test_main (void)
     printf ("\t%s", impl->name);
   putchar ('\n');
 
+#ifndef TEST_BZERO
   for (c = -65; c <= 130; c += 65)
+#endif
     {
       for (i = 0; i < 18; ++i)
 	do_test (0, c, 1 << i);
@@ -209,7 +223,10 @@ test_main (void)
       do_test (2, c, 25);
     }
 
+#ifndef TEST_BZERO
   do_random_tests ();
+#endif
+
   return ret;
 }
 

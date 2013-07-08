@@ -1,5 +1,5 @@
 /* POSIX.2 wordexp implementation.
-   Copyright (C) 1997-2003,2005,2006,2008,2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Tim Waugh <tim@cyberelk.demon.co.uk>.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <alloca.h>
 #include <ctype.h>
@@ -28,6 +27,7 @@
 #include <paths.h>
 #include <pwd.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +43,7 @@
 #include <kernel-features.h>
 
 #include <bits/libc-lock.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* Undefine the following line for the production version.  */
 /* #define NDEBUG 1 */
@@ -953,7 +953,12 @@ exec_comm (char *comm, char **word, size_t *word_length, size_t *max_length,
 	  if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 						    bufsize))) < 1)
 	    {
-	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status, WNOHANG)) == 0)
+	      /* If read returned 0 then the process has closed its
+		 stdout.  Don't use WNOHANG in that case to avoid busy
+		 looping until the process eventually exits.  */
+	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status,
+						 buflen == 0 ? 0 : WNOHANG))
+		  == 0)
 		continue;
 	      if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 							bufsize))) < 1)
@@ -983,7 +988,12 @@ exec_comm (char *comm, char **word, size_t *word_length, size_t *max_length,
 	  if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 						    bufsize))) < 1)
 	    {
-	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status, WNOHANG)) == 0)
+	      /* If read returned 0 then the process has closed its
+		 stdout.  Don't use WNOHANG in that case to avoid busy
+		 looping until the process eventually exits.  */
+	      if (TEMP_FAILURE_RETRY (__waitpid (pid, &status,
+						 buflen == 0 ? 0 : WNOHANG))
+		  == 0)
 		continue;
 	      if ((buflen = TEMP_FAILURE_RETRY (__read (fildes[0], buffer,
 							bufsize))) < 1)

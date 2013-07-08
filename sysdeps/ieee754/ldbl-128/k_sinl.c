@@ -1,5 +1,5 @@
 /* Quad-precision floating point sine on <-pi/4,pi/4>.
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>
 
@@ -14,12 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
 static const long double c[] = {
 #define ONE c[0]
@@ -117,7 +116,7 @@ __kernel_sinl(long double x, long double y, int iy)
 
       SET_LDOUBLE_WORDS64(h, ((u_int64_t)hix) << 32, 0);
       if (iy)
-	l = y - (h - x);
+	l = (ix < 0 ? -y : y) - (h - x);
       else
 	l = x - h;
       z = l * l;

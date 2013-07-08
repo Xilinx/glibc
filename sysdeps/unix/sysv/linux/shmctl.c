@@ -1,5 +1,4 @@
-/* Copyright (C) 1995,1997,1998,2000,2003,2004,2006
-	Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sys/shm.h>
@@ -27,7 +25,6 @@
 #include <sys/syscall.h>
 #include <bits/wordsize.h>
 #include <shlib-compat.h>
-#include <bp-checks.h>
 
 #include <kernel-features.h>
 
@@ -42,8 +39,8 @@ struct __old_shmid_ds
   __ipc_pid_t shm_lpid;			/* pid of last shmop */
   unsigned short int shm_nattch;	/* number of current attaches */
   unsigned short int __shm_npages;	/* size of segment (pages) */
-  unsigned long int *__unbounded __shm_pages; /* array of ptrs to frames -> SHMMAX */
-  struct vm_area_struct *__unbounded __attaches; /* descriptors for attaches */
+  unsigned long int *__shm_pages;	/* array of ptrs to frames -> SHMMAX */
+  struct vm_area_struct *__attaches;	/* descriptors for attaches */
 };
 
 struct __old_shminfo
@@ -66,8 +63,7 @@ int
 attribute_compat_text_section
 __old_shmctl (int shmid, int cmd, struct __old_shmid_ds *buf)
 {
-  return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid,
-			 cmd, 0, CHECK_1_NULL_OK (buf));
+  return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0, buf);
 }
 compat_symbol (libc, __old_shmctl, shmctl, GLIBC_2_0);
 #endif
@@ -77,7 +73,7 @@ __new_shmctl (int shmid, int cmd, struct shmid_ds *buf)
 {
 #if __ASSUME_IPC64 > 0
   return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd | __IPC_64, 0,
-			 CHECK_1 (buf));
+			 buf);
 #else
   switch (cmd) {
     case SHM_STAT:
@@ -88,8 +84,7 @@ __new_shmctl (int shmid, int cmd, struct shmid_ds *buf)
 #endif
       break;
     default:
-      return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0,
-			     CHECK_1 (buf));
+      return INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0, buf);
   }
 
   {
@@ -103,7 +98,7 @@ __new_shmctl (int shmid, int cmd, struct shmid_ds *buf)
     /* Unfortunately there is no way how to find out for sure whether
        we should use old or new shmctl.  */
     result = INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd | __IPC_64, 0,
-			     CHECK_1 (buf));
+			     buf);
     if (result != -1 || errno != EINVAL)
       return result;
 
@@ -120,8 +115,7 @@ __new_shmctl (int shmid, int cmd, struct shmid_ds *buf)
 	    return -1;
 	  }
       }
-    result = INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0,
-			     __ptrvalue (&old.ds));
+    result = INLINE_SYSCALL (ipc, 5, IPCOP_shmctl, shmid, cmd, 0, &old.ds);
     if (result != -1 && (cmd == SHM_STAT || cmd == IPC_STAT))
       {
 	memset(buf, 0, sizeof(*buf));

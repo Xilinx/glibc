@@ -1,5 +1,5 @@
 /* Calls to enable and disable swapping on specified locations.  Unix version.
-   Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef __SYS_SWAP_H
 
@@ -25,9 +24,9 @@
 
 /* Make the block special device PATH available to the system for swapping.
    This call is restricted to the super-user.  */
-extern int swapon (__const char *__path) __THROW;
+extern int swapon (const char *__path) __THROW;
 
 /* Stop using block special device PATH for swapping.  */
-extern int swapoff (__const char *__path) __THROW;
+extern int swapoff (const char *__path) __THROW;
 
 #endif /* sys/swap.h */

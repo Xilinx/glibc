@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,16 +12,14 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <jmpbuf-offsets.h>
 
 #define ENV(base,reg) [%base + (reg * 4)]
 #define ST_FLUSH_WINDOWS 3
-#define RW_FP [%fp + 0x48]
 
 .section .rodata.str1.1,"aMS",@progbits,1
 	.type	longjmp_msg,@object
@@ -64,16 +62,14 @@ ENTRY (____longjmp_chk)
 	 nop
 
 .Lfail:
-#ifdef PIC
-1:	call	2f
-	sethi	%hi(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7
-2:	or	%l7, %lo(_GLOBAL_OFFSET_TABLE_-(1b-.)), %l7
-	add	%l7, %o7, %l7
-#endif
+#ifndef PIC
 	sethi	%hi(longjmp_msg), %o0
 	or	%o0, %lo(longjmp_msg), %o0
-#ifdef PIC
-	ld	[%l7 + %o0], %o0
+#else
+	SETUP_PIC_REG(l7)
+	sethi	%gdop_hix22(longjmp_msg), %o0
+	xor	%o0, %gdop_lox10(longjmp_msg), %o0
+	ld	[%l7 + %o0], %o0, %gdop(longjmp_msg)
 #endif
 	call	HIDDEN_JUMPTARGET(__fortify_fail)
 	 nop
@@ -94,6 +90,7 @@ ENTRY (____longjmp_chk)
 	 mov 1, %g2		/* Delay slot only hit if zero: VAL = 1.  */
 0:
 
+	save	%sp, -96, %sp
 	/*
 	 * Do a "flush register windows trap".  The trap handler in the
 	 * kernel writes all the register windows to their stack slots, and
@@ -105,14 +102,12 @@ ENTRY (____longjmp_chk)
 	ta	ST_FLUSH_WINDOWS
 #ifdef PTR_DEMANGLE
 	ld	ENV(g1,JB_PC), %g1 /* Set return PC. */
-	PTR_DEMANGLE2 (%o7, %g1, %g4)
+	PTR_DEMANGLE2 (%i7, %g1, %g4)
 #else
-	ld	ENV(g1,JB_PC), %o7 /* Set return PC. */
+	ld	ENV(g1,JB_PC), %i7 /* Set return PC. */
 #endif
 	mov	%g5, %fp
-	sub	%fp, 64, %sp	/* Allocate a register frame. */
-	st	%g3, RW_FP	/* Set saved FP on restore below. */
-	retl
+	jmp	%i7 + 8
 	 restore %g2, 0, %o0	/* Restore values from above register frame. */
 
 END(____longjmp_chk)

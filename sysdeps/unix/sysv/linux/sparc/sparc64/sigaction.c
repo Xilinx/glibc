@@ -1,8 +1,8 @@
 /* POSIX.1 sigaction call for Linux/SPARC64.
-   Copyright (C) 1997-2000,2002,2003,2005 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Miguel de Icaza (miguel@nuclecu.unam.mx) and
-		  Jakub Jelinek (jj@ultra.linux.cz).
+   Contributed by Miguel de Icaza <miguel@nuclecu.unam.mx> and
+		  Jakub Jelinek <jj@ultra.linux.cz>.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -15,9 +15,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <string.h>
 #include <syscall.h>
@@ -32,8 +31,7 @@
 static void __rt_sigreturn_stub (void);
 
 int
-__libc_sigaction (int sig, __const struct sigaction *act,
-		  struct sigaction *oact)
+__libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
   int ret;
   struct kernel_sigaction kact, koact;
@@ -50,8 +48,8 @@ __libc_sigaction (int sig, __const struct sigaction *act,
   /* XXX The size argument hopefully will have to be changed to the
      real size of the user-level sigset_t.  */
   ret = INLINE_SYSCALL (rt_sigaction, 5, sig,
-			act ? __ptrvalue (&kact) : 0,
-			oact ? __ptrvalue (&koact) : 0, stub, _NSIG / 8);
+			act ? &kact : 0,
+			oact ? &koact : 0, stub, _NSIG / 8);
 
   if (oact && ret >= 0)
     {

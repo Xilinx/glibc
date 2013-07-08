@@ -1,5 +1,5 @@
 /* Test and measure strncat functions.
-   Copyright (C) 2011 Free Software Foundation, Inc.
+   Copyright (C) 2011-2013 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,11 +13,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define TEST_MAIN
+#define TEST_NAME "strncat"
 #include "test-string.h"
 
 typedef char *(*proto_t) (char *, const char *, size_t);
@@ -67,24 +67,6 @@ do_one_test (impl_t *impl, char *dst, const char *src, size_t n)
       ret = 1;
       return;
     }
-  if (HP_TIMING_AVAIL)
-    {
-      hp_timing_t start __attribute ((unused));
-      hp_timing_t stop __attribute ((unused));
-      hp_timing_t best_time = ~ (hp_timing_t) 0;
-      size_t i;
-
-      for (i = 0; i < 32; ++i)
-	{
-	  dst[k] = '\0';
-	  HP_TIMING_NOW (start);
-	  CALL (impl, dst, src, n);
-	  HP_TIMING_NOW (stop);
-	  HP_TIMING_BEST (best_time, start, stop);
-	}
-
-      printf ("\t%zd", (size_t) best_time);
-    }
 }
 
 static void
@@ -114,18 +96,11 @@ do_test (size_t align1, size_t align2, size_t len1, size_t len2,
   for (i = 0; i < len2; i++)
     s2[i] = 32 + 23 * i % (max_char - 32);
 
-  if (HP_TIMING_AVAIL)
-    printf ("Length %4zd/%4zd, alignment %2zd/%2zd, N %4zd:",
-	    len1, len2, align1, align2, n);
-
   FOR_EACH_IMPL (impl, 0)
     {
       s2[len2] = '\0';
       do_one_test (impl, s2, s1, n);
     }
-
-  if (HP_TIMING_AVAIL)
-    putchar ('\n');
 }
 
 static void

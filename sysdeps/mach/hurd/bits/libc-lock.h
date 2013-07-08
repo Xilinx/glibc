@@ -1,5 +1,5 @@
 /* libc-internal interface for mutex locks.  Hurd version using Mach cthreads.
-   Copyright (C) 1996,97,98,2000,01, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _BITS_LIBC_LOCK_H
 #define _BITS_LIBC_LOCK_H 1
@@ -120,8 +119,6 @@ typedef struct __libc_lock_recursive_opaque__ __libc_lock_recursive_t;
   })
 
 
-#define __rtld_lock_init_recursive(NAME) \
-  __libc_lock_init_recursive (NAME)
 #define __rtld_lock_initialize(NAME) \
   (void) ((NAME) = (__rtld_lock_recursive_t) _RTLD_LOCK_RECURSIVE_INITIALIZER)
 #define __rtld_lock_trylock_recursive(NAME) \
@@ -187,6 +184,9 @@ struct __libc_once
     ONCE_CONTROL.done = 1;						      \
     __libc_lock_unlock (ONCE_CONTROL.lock);				      \
   } while (0)
+
+/* Get once control variable.  */
+#define __libc_once_get(ONCE_CONTROL)	((ONCE_CONTROL).done != 0)
 
 #ifdef _LIBC
 /* We need portable names for some functions.  E.g., when they are

@@ -1,5 +1,5 @@
 /* On-demand PLT fixup for shared objects.
-   Copyright (C) 1995-2009, 2010, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #define IN_DL_RUNTIME 1		/* This can be tested in dl-machine.h.  */
 
@@ -35,10 +34,6 @@
 # define PLTREL  ElfW(Rela)
 #else
 # define PLTREL  ElfW(Rel)
-#endif
-
-#ifndef VERSYMIDX
-# define VERSYMIDX(sym)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (sym))
 #endif
 
 /* The fixup functions might have need special attributes.  If none
@@ -61,16 +56,13 @@
    to that address.  Future calls will bounce directly from the PLT to the
    function.  */
 
-#ifndef ELF_MACHINE_NO_PLT
 DL_FIXUP_VALUE_TYPE
 __attribute ((noinline)) ARCH_FIXUP_ATTRIBUTE
 _dl_fixup (
 # ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS
 	   ELF_MACHINE_RUNTIME_FIXUP_ARGS,
 # endif
-	   /* GKM FIXME: Fix trampoline to pass bounds so we can do
-	      without the `__unbounded' qualifier.  */
-	   struct link_map *__unbounded l, ElfW(Word) reloc_arg)
+	   struct link_map *l, ElfW(Word) reloc_arg)
 {
   const ElfW(Sym) *const symtab
     = (const void *) D_PTR (l, l_info[DT_SYMTAB]);
@@ -155,9 +147,8 @@ _dl_fixup (
 
   return elf_machine_fixup_plt (l, result, reloc, rel_addr, value);
 }
-#endif
 
-#if !defined PROF && !defined ELF_MACHINE_NO_PLT && !__BOUNDED_POINTERS__
+#ifndef PROF
 DL_FIXUP_VALUE_TYPE
 __attribute ((noinline)) ARCH_FIXUP_ATTRIBUTE
 _dl_profile_fixup (
@@ -168,6 +159,26 @@ _dl_profile_fixup (
 		   ElfW(Addr) retaddr, void *regs, long int *framesizep)
 {
   void (*mcount_fct) (ElfW(Addr), ElfW(Addr)) = INTUSE(_dl_mcount);
+
+  if (l->l_reloc_result == NULL)
+    {
+      /* BZ #14843: ELF_DYNAMIC_RELOCATE is called before l_reloc_result
+	 is allocated.  We will get here if ELF_DYNAMIC_RELOCATE calls a
+	 resolver function to resolve an IRELATIVE relocation and that
+	 resolver calls a function that is not yet resolved (lazy).  For
+	 example, the resolver in x86-64 libm.so calls __get_cpu_features
+	 defined in libc.so.  Skip audit and resolve the external function
+	 in this case.  */
+      *framesizep = -1;
+      return _dl_fixup (
+# ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS
+#  ifndef ELF_MACHINE_RUNTIME_FIXUP_PARAMS
+#   error Please define ELF_MACHINE_RUNTIME_FIXUP_PARAMS.
+#  endif
+			ELF_MACHINE_RUNTIME_FIXUP_PARAMS,
+# endif
+			l, reloc_arg);
+    }
 
   /* This is the address in the array where we store the result of previous
      relocations.  */
@@ -422,7 +433,7 @@ _dl_profile_fixup (
   return value;
 }
 
-#endif /* PROF && ELF_MACHINE_NO_PLT */
+#endif /* PROF */
 
 
 #include <stdio.h>

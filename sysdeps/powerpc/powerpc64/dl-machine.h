@@ -1,6 +1,6 @@
 /* Machine-dependent ELF dynamic relocation inline functions.
    PowerPC64 version.
-   Copyright 1995-2005, 2006, 2008, 2010, 2011 Free Software Foundation, Inc.
+   Copyright 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,9 +14,8 @@
    Library General Public License for more details.
 
    You should have received a copy of the GNU Library General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   License along with the GNU C Library; see the file COPYING.LIB.  If
+   not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef dl_machine_h
 #define dl_machine_h
@@ -162,8 +161,8 @@ BODY_PREFIX "_start:\n"							\
 "	.popsection\n"							\
 "	.pushsection	\".toc\",\"aw\"\n"				\
 DL_STARTING_UP_DEF							\
-".LC__rtld_global:\n"							\
-"	.tc _rtld_global[TC],_rtld_global\n"				\
+".LC__rtld_local:\n"							\
+"	.tc _rtld_local[TC],_rtld_local\n"				\
 ".LC__dl_argc:\n"							\
 "	.tc _dl_argc[TC],_dl_argc\n"					\
 ".LC__dl_argv:\n"							\
@@ -182,7 +181,7 @@ BODY_PREFIX "_dl_start_user:\n"						\
 /* the address of _start in r30.  */					\
 "	mr	30,3\n"							\
 /* &_dl_argc in 29, &_dl_argv in 27, and _dl_loaded in 28.  */		\
-"	ld	28,.LC__rtld_global@toc(2)\n"				\
+"	ld	28,.LC__rtld_local@toc(2)\n"				\
 "	ld	29,.LC__dl_argc@toc(2)\n"				\
 "	ld	27,.LC__dl_argv@toc(2)\n"				\
 /* _dl_init (_dl_loaded, _dl_argc, _dl_argv, _dl_argv+_dl_argc+1).  */	\
@@ -203,7 +202,7 @@ BODY_PREFIX "_dl_start_user:\n"						\
 "	sldi	5,3,3\n"						\
 "	add	6,4,5\n"						\
 "	addi	5,6,8\n"						\
-/* Pass the auxilary vector in r6. This is passed to us just after	\
+/* Pass the auxiliary vector in r6. This is passed to us just after	\
    _envp.  */								\
 "2:	ldu	0,8(6)\n"						\
 "	cmpdi	0,0\n"							\
@@ -323,13 +322,13 @@ elf_machine_runtime_setup (struct link_map *map, int lazy, int profile)
       /* Relocate the DT_PPC64_GLINK entry in the _DYNAMIC section.
 	 elf_get_dynamic_info takes care of the standard entries but
 	 doesn't know exactly what to do with processor specific
-	 entires.  */
+	 entries.  */
       if (info[DT_PPC64(GLINK)] != NULL)
 	info[DT_PPC64(GLINK)]->d_un.d_ptr += l_addr;
 
       if (lazy)
 	{
-	  /* The function descriptor of the appropriate trampline
+	  /* The function descriptor of the appropriate trampoline
 	     routine is used to set the 1st and 2nd doubleword of the
 	     plt_reserve.  */
 	  Elf64_FuncDesc *resolve_fd;
@@ -546,7 +545,7 @@ resolve_ifunc (Elf64_Addr value,
       value = (Elf64_Addr) &opd;
     }
 #endif
-  return ((Elf64_Addr (*) (void)) value) ();
+  return ((Elf64_Addr (*) (unsigned long int)) value) (GLRO(dl_hwcap));
 }
 
 /* Perform the relocation specified by RELOC and SYM (which is fully
@@ -735,8 +734,7 @@ elf_machine_rela (struct link_map *map,
 	  _dl_error_printf ("%s: Symbol `%s' has different size" \
 			    " in shared object," \
 			    " consider re-linking\n",
-			    _dl_argv[0] ?: "<program name unknown>",
-			    strtab + refsym->st_name);
+			    RTLD_PROGNAME, strtab + refsym->st_name);
 	}
       memcpy (reloc_addr_arg, (char *) value,
 	      MIN (sym->st_size, refsym->st_size));

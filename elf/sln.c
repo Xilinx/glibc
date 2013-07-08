@@ -1,5 +1,5 @@
 /* `sln' program to create symbolic links between files.
-   Copyright (C) 1998, 1999, 2001, 2009 Free Software Foundation, Inc.
+   Copyright (C) 1998-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -59,7 +58,7 @@ main (int argc, char **argv)
     {
     case 2:
       if (strcmp (argv[1], "--version") == 0) {
-	printf ("sln (GNU libc) %s\n", VERSION);
+	printf ("sln %s%s\n", PKGVERSION, VERSION);
 	return 0;
       } else if (strcmp (argv[1], "--help") == 0) {
 	usage ();
@@ -83,8 +82,8 @@ static void
 usage (void)
 {
   printf (_("Usage: sln src dest|file\n\n"));
-  fputs (_("For bug reporting instructions, please see:\n\
-<http://www.gnu.org/software/libc/bugs.html>.\n"), stdout);
+  printf (_("For bug reporting instructions, please see:\n\
+%s.\n"), REPORT_BUGS_TO);
 }
 
 static int
@@ -177,13 +176,13 @@ makesymlink (src, dest)
       if (S_ISDIR (stats.st_mode))
 	{
 	  fprintf (stderr, _("%s: destination must not be a directory\n"),
-	  	   dest);
+		   dest);
 	  return 1;
 	}
       else if (unlink (dest) && errno != ENOENT)
 	{
 	  fprintf (stderr, _("%s: failed to remove the old destination\n"),
-	  	   dest);
+		   dest);
 	  return 1;
 	}
     }
@@ -206,7 +205,7 @@ makesymlink (src, dest)
 	  error = strerror (errno);
 	  unlink (dest);
 	  fprintf (stderr, _("Invalid link from \"%s\" to \"%s\": %s\n"),
-	  	   src, dest, error);
+		   src, dest, error);
 	  return 1;
 	}
       return 0;
@@ -215,7 +214,7 @@ makesymlink (src, dest)
     {
       error = strerror (errno);
       fprintf (stderr, _("Invalid link from \"%s\" to \"%s\": %s\n"),
-      	       src, dest, error);
+	       src, dest, error);
       return 1;
     }
 }

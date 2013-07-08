@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2004, 2006, 2007, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
@@ -85,6 +84,18 @@ pthread_getattr_np (thread_id, attr)
 	    ret = errno;
 	  else
 	    {
+	      /* We consider the main process stack to have ended with
+	         the page containing __libc_stack_end.  There is stuff below
+		 it in the stack too, like the program arguments, environment
+		 variables and auxv info, but we ignore those pages when
+		 returning size so that the output is consistent when the
+		 stack is marked executable due to a loaded DSO requiring
+		 it.  */
+	      void *stack_end = (void *) ((uintptr_t) __libc_stack_end
+					  & -(uintptr_t) GLRO(dl_pagesize));
+#if _STACK_GROWS_DOWN
+	      stack_end += GLRO(dl_pagesize);
+#endif
 	      /* We need no locking.  */
 	      __fsetlocking (fp, FSETLOCKING_BYCALLER);
 
@@ -109,8 +120,15 @@ pthread_getattr_np (thread_id, attr)
 		      && (uintptr_t) __libc_stack_end < to)
 		    {
 		      /* Found the entry.  Now we have the info we need.  */
-		      iattr->stacksize = rl.rlim_cur;
-		      iattr->stackaddr = (void *) to;
+		      iattr->stackaddr = stack_end;
+		      iattr->stacksize =
+		        rl.rlim_cur - (size_t) (to - (uintptr_t) stack_end);
+
+		      /* Cut it down to align it to page size since otherwise we
+		         risk going beyond rlimit when the kernel rounds up the
+		         stack extension request.  */
+		      iattr->stacksize = (iattr->stacksize
+					  & -(intptr_t) GLRO(dl_pagesize));
 
 		      /* The limit might be too high.  */
 		      if ((size_t) iattr->stacksize

@@ -1,5 +1,5 @@
 /* Miscellaneous support functions for dynamic linker
-   Copyright (C) 1997-2004, 2006, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1997-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <fcntl.h>
@@ -26,13 +25,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <sysdep.h>
-#include <stdio-common/_itoa.h>
-#include <bits/libc-lock.h>
+#include <_itoa.h>
+#include <dl-writev.h>
+
 
 /* Read the whole contents of FILE into new mmap'd space with given
    protections.  *SIZEP gets the size of the file.  On error MAP_FAILED
@@ -240,25 +241,7 @@ _dl_debug_vdprintf (int fd, int tag_p, const char *fmt, va_list arg)
     }
 
   /* Finally write the result.  */
-#ifdef HAVE_INLINED_SYSCALLS
-  INTERNAL_SYSCALL_DECL (err);
-  INTERNAL_SYSCALL (writev, err, 3, fd, &iov, niov);
-#elif RTLD_PRIVATE_ERRNO
-  /* We have to take this lock just to be sure we don't clobber the private
-     errno when it's being used by another thread that cares about it.
-     Yet we must be sure not to try calling the lock functions before
-     the thread library is fully initialized.  */
-  if (__builtin_expect (INTUSE (_dl_starting_up), 0))
-    __writev (fd, iov, niov);
-  else
-    {
-      __rtld_lock_lock_recursive (GL(dl_load_lock));
-      __writev (fd, iov, niov);
-      __rtld_lock_unlock_recursive (GL(dl_load_lock));
-    }
-#else
-  __writev (fd, iov, niov);
-#endif
+  _dl_writev (fd, iov, niov);
 }
 
 

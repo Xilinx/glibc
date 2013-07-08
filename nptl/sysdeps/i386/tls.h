@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/i386 version.
-   Copyright (C) 2002-2007, 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _TLS_H
 #define _TLS_H	1
@@ -27,6 +26,7 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <sysdep.h>
+# include <libc-internal.h>
 # include <kernel-features.h>
 
 
@@ -59,7 +59,9 @@ typedef struct
   int __unused1;
 #endif
   /* Reservation of some values for the TM ABI.  */
-  void *__private_tm[5];
+  void *__private_tm[4];
+  /* GCC split stack support.  */
+  void *__private_ss;
 } tcbhead_t;
 
 # define TLS_MULTIPLE_THREADS_IN_TCB 1
@@ -344,7 +346,7 @@ union user_desc_init
 									      \
 	 asm volatile ("movl %%eax,%%gs:%P1\n\t"			      \
 		       "movl %%edx,%%gs:%P2" :				      \
-		       : "A" (value),					      \
+		       : "A" ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member)),	      \
 			 "i" (offsetof (struct pthread, member) + 4));	      \
        }})
@@ -371,7 +373,7 @@ union user_desc_init
 									      \
 	 asm volatile ("movl %%eax,%%gs:%P1(,%2,8)\n\t"			      \
 		       "movl %%edx,%%gs:4+%P1(,%2,8)" :			      \
-		       : "A" (value),					      \
+		       : "A" ((uint64_t) cast_to_integer (value)),	      \
 			 "i" (offsetof (struct pthread, member)),	      \
 			 "r" (idx));					      \
        }})

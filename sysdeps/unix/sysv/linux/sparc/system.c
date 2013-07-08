@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,9 +12,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <kernel-features.h>
 
@@ -26,9 +25,7 @@
    return.  It might still be in the kernel when the cancellation
    request comes.  Therefore we have to use the clone() calls ability
    to have the kernel write the PID into the user-level variable.  */
-#ifdef __ASSUME_CLONE_THREAD_FLAGS
-# define FORK() \
+#define FORK() \
   INLINE_CLONE_SYSCALL (CLONE_PARENT_SETTID | SIGCHLD, 0, &pid, NULL, NULL)
-#endif
 
 #include "../system.c"

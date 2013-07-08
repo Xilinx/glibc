@@ -1,5 +1,5 @@
 /* Conversion to and from TCVN5712-1.
-   Copyright (C) 2001, 2002, 2004 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2001.
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <dlfcn.h>
 #include <stdint.h>
@@ -158,7 +157,7 @@ static const struct
     { 0x01AF, 0x1EEA },
     { 0x01B0, 0x1EEB },
 #define COMP_TABLE_IDX_0301 (COMP_TABLE_IDX_0300 + COMP_TABLE_LEN_0300)
-#define COMP_TABLE_LEN_0301 51
+#define COMP_TABLE_LEN_0301 50
     { 0x0041, 0x00C1 },
     { 0x0043, 0x0106 },
     { 0x0045, 0x00C9 },
@@ -193,8 +192,7 @@ static const struct
     { 0x0077, 0x1E83 },
     { 0x0079, 0x00FD },
     { 0x007A, 0x017A },
-    { 0x00A5, 0x0385 },
-  /*{ 0x00A8, 0x1FEE },*/
+  /*{ 0x00A8, 0x0385 },*//* prefer U+0385 over U+1FEE */
     { 0x00C2, 0x1EA4 },
   /*{ 0x00C5, 0x01FA },*/
   /*{ 0x00C6, 0x01FC },*/
@@ -381,7 +379,7 @@ static const struct
     last_ch = *statep >> 3;						      \
 									      \
     /* We have to buffer ch if it is a possible match in comp_table_data.  */ \
-    must_buffer_ch = (ch >= 0x0041 && ch <= 0x01b0);			      \
+    must_buffer_ch = (ch >= 0x0041 && ch <= 0x01b0);                          \
 									      \
     if (last_ch)							      \
       {									      \
@@ -492,7 +490,7 @@ static const struct
 #include <iconv/loop.c>
 
 
-/* Next, define the conversion function from UCS4 to CP1258.  */
+/* Next, define the conversion function from UCS4 to TCVN5712-1.  */
 
 static const unsigned char from_ucs4[] =
   {

@@ -1,5 +1,5 @@
 /* Hash table for TLS descriptors.
-   Copyright (C) 2005, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Alexandre Oliva  <aoliva@redhat.com>
 
@@ -14,9 +14,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef TLSDESCHTAB_H
 # define TLSDESCHTAB_H 1
@@ -130,7 +129,7 @@ _dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset)
    or a futex wake to wake up any waiting threads, but let's try to
    avoid introducing such dependencies.  */
 
-inline static int
+static int
 _dl_tlsdesc_resolve_early_return_p (struct tlsdesc volatile *td, void *caller)
 {
   if (caller != td->entry)
@@ -148,7 +147,7 @@ _dl_tlsdesc_resolve_early_return_p (struct tlsdesc volatile *td, void *caller)
   return 0;
 }
 
-inline static void
+static void
 _dl_tlsdesc_wake_up_held_fixups (void)
 {
   __rtld_lock_unlock_recursive (GL(dl_load_lock));

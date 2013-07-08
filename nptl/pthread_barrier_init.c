@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include "pthreadP.h"
@@ -23,7 +22,7 @@
 #include <kernel-features.h>
 
 
-static const struct pthread_barrierattr default_attr =
+static const struct pthread_barrierattr default_barrierattr =
   {
     .pshared = PTHREAD_PROCESS_PRIVATE
   };
@@ -43,7 +42,7 @@ pthread_barrier_init (barrier, attr, count)
   const struct pthread_barrierattr *iattr
     = (attr != NULL
        ? iattr = (struct pthread_barrierattr *) attr
-       : &default_attr);
+       : &default_barrierattr);
 
   if (iattr->pshared != PTHREAD_PROCESS_PRIVATE
       && __builtin_expect (iattr->pshared != PTHREAD_PROCESS_SHARED, 0))

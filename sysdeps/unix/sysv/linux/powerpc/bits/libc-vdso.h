@@ -1,5 +1,5 @@
 /* Resolve function pointers to VDSO functions.
-   Copyright (C) 2005 Free Software Foundation, Inc.
+   Copyright (C) 2005-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 
 #ifndef _LIBC_VDSO_H
@@ -30,6 +29,20 @@ extern void *__vdso_clock_gettime;
 extern void *__vdso_clock_getres;
 
 extern void *__vdso_get_tbfreq;
+
+extern void *__vdso_getcpu;
+
+extern void *__vdso_time;
+
+/* This macro is needed for PPC64 to return a skeleton OPD entry of a vDSO
+   symbol.  This works because _dl_vdso_vsym always return the function
+   address, and no vDSO symbols use the TOC or chain pointers from the OPD
+   so we can allow them to be garbage.  */
+#if defined(__PPC64__) || defined(__powerpc64__)
+#define VDSO_IFUNC_RET(value)  ((void *) &(value))
+#else
+#define VDSO_IFUNC_RET(value)  ((void *) (value))
+#endif
 
 #endif
 

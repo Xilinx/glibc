@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2005, 2007, 2009, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include <shlib-compat.h>
@@ -65,7 +64,7 @@ sem_timedwait:
 	/* Check for invalid nanosecond field.  */
 	cmpl	$1000000000, 4(%edi)
 	movl	$EINVAL, %esi
-	jae	6f
+	jae	.Lerrno_exit
 
 	LOCK
 	incl	NWAITERS(%ecx)
@@ -147,8 +146,12 @@ sem_timedwait:
 .Lafter_ret:
 3:	negl	%esi
 6:
+	movl	28(%esp), %ebx	/* Load semaphore address.  */
+	LOCK
+	decl	NWAITERS(%ebx)
+.Lerrno_exit:
 #ifdef PIC
-	call	__i686.get_pc_thunk.bx
+	SETUP_PIC_REG(bx)
 #else
 	movl	$4f, %ebx
 4:
@@ -163,7 +166,6 @@ sem_timedwait:
 	movl	%esi, %gs:(%edx)
 #endif
 
-	movl	28(%esp), %ebx	/* Load semaphore address.  */
 	orl	$-1, %eax
 	jmp	10b
 	.size	sem_timedwait,.-sem_timedwait

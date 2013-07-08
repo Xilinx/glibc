@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2006, 2007, 2010, 2011 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,15 +12,15 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -78,9 +78,9 @@
 #ifdef COMPILE_WSCANF
 # define ungetc(c, s)	((void) (c == WEOF				      \
 				 || (--read_in,				      \
-				     INTUSE(_IO_sputbackwc) (s, c))))
+				     _IO_sputbackwc (s, c))))
 # define ungetc_not_eof(c, s)	((void) (--read_in,			      \
-					 INTUSE(_IO_sputbackwc) (s, c)))
+					 _IO_sputbackwc (s, c)))
 # define inchar()	(c == WEOF ? ((errno = inchar_errno), WEOF)	      \
 			 : ((c = _IO_getwc_unlocked (s)),		      \
 			    (void) (c != WEOF				      \
@@ -110,9 +110,9 @@
 #else
 # define ungetc(c, s)	((void) ((int) c == EOF				      \
 				 || (--read_in,				      \
-				     INTUSE(_IO_sputbackc) (s, (unsigned char) c))))
+				     _IO_sputbackc (s, (unsigned char) c))))
 # define ungetc_not_eof(c, s)	((void) (--read_in,			      \
-					 INTUSE(_IO_sputbackc) (s, (unsigned char) c)))
+					 _IO_sputbackc (s, (unsigned char) c)))
 # define inchar()	(c == EOF ? ((errno = inchar_errno), EOF)	      \
 			 : ((c = _IO_getc_unlocked (s)),		      \
 			    (void) (c != EOF				      \
@@ -206,13 +206,13 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 #endif
 {
   va_list arg;
-  register const CHAR_T *f = format;
-  register UCHAR_T fc;	/* Current character of the format.  */
-  register WINT_T done = 0;	/* Assignments done.  */
-  register size_t read_in = 0;	/* Chars read in.  */
-  register WINT_T c = 0;	/* Last char read.  */
-  register int width;		/* Maximum field width.  */
-  register int flags;		/* Modifiers for current format element.  */
+  const CHAR_T *f = format;
+  UCHAR_T fc;	/* Current character of the format.  */
+  WINT_T done = 0;	/* Assignments done.  */
+  size_t read_in = 0;	/* Chars read in.  */
+  WINT_T c = 0;	/* Last char read.  */
+  int width;		/* Maximum field width.  */
+  int flags;		/* Modifiers for current format element.  */
   int errval = 0;
 #ifndef COMPILE_WSCANF
   __locale_t loc = _NL_CURRENT_LOCALE;
@@ -222,7 +222,7 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
   /* Errno of last failed inchar call.  */
   int inchar_errno = 0;
   /* Status for reading F-P nums.  */
-  char got_dot, got_e, negative;
+  char got_digit, got_dot, got_e, negative;
   /* If a [...] is a [^...].  */
   CHAR_T not_in;
 #define exp_char not_in
@@ -274,7 +274,7 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 	  CHAR_T *old = wp;						    \
 	  size_t newsize = (UCHAR_MAX + 1 > 2 * wpmax			    \
 			    ? UCHAR_MAX + 1 : 2 * wpmax);		    \
-	  if (use_malloc || __libc_use_alloca (newsize))		    \
+	  if (use_malloc || !__libc_use_alloca (newsize))		    \
 	    {								    \
 	      wp = realloc (use_malloc ? wp : NULL, newsize);		    \
 	      if (wp == NULL)						    \
@@ -1845,7 +1845,7 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 	  if (__builtin_expect (c == EOF, 0))
 	    input_error ();
 
-	  got_dot = got_e = 0;
+	  got_digit = got_dot = got_e = 0;
 
 	  /* Check for a sign.  */
 	  if (c == L_('-') || c == L_('+'))
@@ -1971,13 +1971,19 @@ _IO_vfscanf_internal (_IO_FILE *s, const char *format, _IO_va_list argptr,
 	  while (1)
 	    {
 	      if (ISDIGIT (c))
-		ADDW (c);
+		{
+		  ADDW (c);
+		  got_digit = 1;
+		}
 	      else if (!got_e && (flags & HEXA_FLOAT) && ISXDIGIT (c))
-		ADDW (c);
+		{
+		  ADDW (c);
+		  got_digit = 1;
+		}
 	      else if (got_e && wp[wpsize - 1] == exp_char
 		       && (c == L_('-') || c == L_('+')))
 		ADDW (c);
-	      else if (wpsize > 0 && !got_e
+	      else if (got_digit && !got_e
 		       && (CHAR_T) TOLOWER (c) == exp_char)
 		{
 		  ADDW (exp_char);
@@ -2942,6 +2948,7 @@ ___vfscanf (FILE *s, const char *format, va_list argptr)
   return _IO_vfscanf_internal (s, format, argptr, NULL);
 }
 ldbl_strong_alias (_IO_vfscanf_internal, _IO_vfscanf)
+ldbl_hidden_def (_IO_vfscanf_internal, _IO_vfscanf)
 ldbl_strong_alias (___vfscanf, __vfscanf)
 ldbl_hidden_def (___vfscanf, __vfscanf)
 ldbl_weak_alias (___vfscanf, vfscanf)

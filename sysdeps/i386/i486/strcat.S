@@ -1,6 +1,6 @@
 /* strcat(dest, src) -- Append SRC on the end of DEST.
    For Intel 80x86, x>=4.
-   Copyright (C) 1994-1997,2000,2003,2005 Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@ipd.info.uni-karlsruhe.de>.
    Optimised a little by Alan Modra <Alan@SPRI.Levels.UniSA.Edu.Au>
@@ -16,31 +16,25 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
-#include "bp-sym.h"
-#include "bp-asm.h"
 
-#define PARMS	LINKAGE+4	/* space for 1 saved reg */
+#define PARMS	4+4	/* space for 1 saved reg */
 #define RTN	PARMS
-#define DEST	RTN+RTN_SIZE
-#define SRC	DEST+PTR_SIZE
+#define DEST	RTN
+#define SRC	DEST+4
 
 	.text
-ENTRY (BP_SYM (strcat))
-	ENTER
+ENTRY (strcat)
 
 	pushl %edi		/* Save callee-safe register.  */
 	cfi_adjust_cfa_offset (4)
 
 	movl DEST(%esp), %edx
 	movl SRC(%esp), %ecx
-	CHECK_BOUNDS_LOW (%edx, DEST(%esp))
-	CHECK_BOUNDS_LOW (%ecx, SRC(%esp))
 
 	testb $0xff, (%ecx)	/* Is source string empty? */
 	jz L(8)			/* yes => return */
@@ -261,14 +255,11 @@ L(9):	movb %al, (%ecx,%edx)	/* store first byte of last word */
 
 	movb %ah, 3(%ecx,%edx)	/* store fourth byte of last word */
 
-L(8):	/* GKM FIXME: check high bounds */
-	movl DEST(%esp), %eax	/* start address of destination is result */
-	RETURN_BOUNDED_POINTER (DEST(%esp))
+L(8):	movl DEST(%esp), %eax	/* start address of destination is result */
 	popl %edi		/* restore saved register */
 	cfi_adjust_cfa_offset (-4)
 	cfi_restore (edi)
 
-	LEAVE
-	RET_PTR
-END (BP_SYM (strcat))
+	ret
+END (strcat)
 libc_hidden_builtin_def (strcat)

@@ -1,5 +1,5 @@
 /* Quad-precision floating point e^x.
-   Copyright (C) 1999,2004,2006, 2008, 2011 Free Software Foundation, Inc.
+   Copyright (C) 1999-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>
    Partly based on double-precision code
@@ -16,9 +16,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* The basic design here is from
    Abraham Ziv, "Fast Evaluation of Elementary Mathematical Functions with
@@ -71,11 +70,11 @@
 static const long double C[] = {
 /* Smallest integer x for which e^x overflows.  */
 #define himark C[0]
- 709.08956571282405153382846025171462914L,
+ 709.78271289338399678773454114191496482L,
 
 /* Largest integer x for which e^x underflows.  */
 #define lomark C[1]
--709.08956571282405153382846025171462914L,
+-744.44007192138126231410729844608163411L,
 
 /* 3x2^96 */
 #define THREEp96 C[2]
@@ -224,7 +223,7 @@ __ieee754_expl (long double x)
 	  ex3_u.d = (result - ex2_u.d) - x22 * ex2_u.d;
 	  ex2_u.d = result;
 	  ex3_u.ieee.exponent += LDBL_MANT_DIG + 15 + IEEE854_LONG_DOUBLE_BIAS
-	  			 - ex2_u.ieee.exponent;
+				 - ex2_u.ieee.exponent;
 	  n_i = abs (ex3_u.d);
 	  n_i = (n_i + 1) / 2;
 	  fesetenv (&oldenv);

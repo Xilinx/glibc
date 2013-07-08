@@ -1,5 +1,5 @@
 /* Operating system specific code for generic dynamic loader functions.
-   Copyright (C) 2009, 2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <endian.h>
 #include <stdint.h>
@@ -31,16 +30,16 @@ _dl_setup_stack_chk_guard (void *dl_random)
 
   if (dl_random == NULL)
     {
-      ret.bytes[sizeof (ret) - 2] = 255;
-      ret.bytes[sizeof (ret) - 3] = '\n';
+      ret.bytes[sizeof (ret) - 1] = 255;
+      ret.bytes[sizeof (ret) - 2] = '\n';
     }
   else
     {
       memcpy (ret.bytes, dl_random, sizeof (ret));
 #if BYTE_ORDER == LITTLE_ENDIAN
-      ret.num &= ~0xff;
+      ret.num &= ~(uintptr_t) 0xff;
 #elif BYTE_ORDER == BIG_ENDIAN
-      ret.num &= ~(0xff << (8 * (sizeof (ret) - 1)));
+      ret.num &= ~((uintptr_t) 0xff << (8 * (sizeof (ret) - 1)));
 #else
 # error "BYTE_ORDER unknown"
 #endif

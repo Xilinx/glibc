@@ -1,5 +1,5 @@
 /* Open a stdio stream on an anonymous temporary file.  Hurd version.
-   Copyright (C) 2001,2002,2003 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <hurd.h>
@@ -38,7 +37,7 @@ __tmpfile (void)
   FILE *f;
 
   /* Get a port to the directory that will contain the file.  */
-  const char *dirname = __secure_getenv ("TMPDIR") ?: P_tmpdir;
+  const char *dirname = __libc_secure_getenv ("TMPDIR") ?: P_tmpdir;
   file_t dir = __file_name_lookup (dirname, 0, 0);
   if (dir == MACH_PORT_NULL)
     return NULL;
@@ -57,7 +56,7 @@ __tmpfile (void)
 
   /* Open a stream on the unnamed file.
      It will cease to exist when this stream is closed.  */
-  if ((f = INTUSE(_IO_fdopen) (fd, "w+b")) == NULL)
+  if ((f = _IO_fdopen (fd, "w+b")) == NULL)
     __close (fd);
 
   return f;

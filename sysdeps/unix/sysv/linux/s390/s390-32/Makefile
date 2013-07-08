@@ -1,3 +1,6 @@
+# See Makeconfig regarding the use of default-abi.
+default-abi := 32
+
 ifeq ($(subdir),login)
 sysdep_routines += utmp32 utmpx32
 libutil-routines += login32
@@ -17,4 +20,8 @@ ifeq (yes,$(build-shared))
 sysdep_routines += framestate
 shared-only-routines += framestate
 endif
+endif
+
+ifeq ($(subdir),stdlib)
+sysdep_routines += __makecontext_ret
 endif

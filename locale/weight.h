@@ -1,4 +1,4 @@
-/* Copyright (C) 1996,1997,1998,1999,2000,2003,2004 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper, <drepper@cygnus.com>.
 
@@ -13,14 +13,13 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* Find index of weight.  */
 auto inline int32_t
 __attribute ((always_inline))
-findidx (const unsigned char **cpp)
+findidx (const unsigned char **cpp, size_t len)
 {
   int_fast32_t i = table[*(*cpp)++];
   const unsigned char *cp;
@@ -34,6 +33,7 @@ findidx (const unsigned char **cpp)
      Search for the correct one.  */
   cp = &extra[-i];
   usrc = *cpp;
+  --len;
   while (1)
     {
       size_t nhere;
@@ -56,7 +56,7 @@ findidx (const unsigned char **cpp)
 	     already.  */
 	  size_t cnt;
 
-	  for (cnt = 0; cnt < nhere; ++cnt)
+	  for (cnt = 0; cnt < nhere && cnt < len; ++cnt)
 	    if (cp[cnt] != usrc[cnt])
 	      break;
 
@@ -79,13 +79,13 @@ findidx (const unsigned char **cpp)
 	  size_t cnt;
 	  size_t offset = 0;
 
-	  for (cnt = 0; cnt < nhere; ++cnt)
+	  for (cnt = 0; cnt < nhere && cnt < len; ++cnt)
 	    if (cp[cnt] != usrc[cnt])
 	      break;
 
 	  if (cnt != nhere)
 	    {
-	      if (cp[cnt] > usrc[cnt])
+	      if (cnt == len || cp[cnt] > usrc[cnt])
 		{
 		  /* Cannot be in this range.  */
 		  cp += 2 * nhere;

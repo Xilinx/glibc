@@ -1,4 +1,4 @@
-/* Copyright (C) 1995, 1997, 1998, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <stdarg.h>
@@ -34,9 +33,6 @@ union semun
   struct seminfo *__buf;	/* buffer for IPC_INFO */
 };
 
-#include <bp-checks.h>
-#include <bp-semctl.h>		/* definition of CHECK_SEMCTL needs union semum */
-
 /* Return identifier for array of NSEMS semaphores associated with
    KEY.  */
 
@@ -54,5 +50,5 @@ semctl (int semid, int semnum, int cmd, ...)
   va_end (ap);
 
   return INLINE_SYSCALL (ipc, 5, IPCOP_semctl, semid, semnum, cmd,
-			 CHECK_SEMCTL (&arg, semid, cmd)->array);
+			 arg.array);
 }

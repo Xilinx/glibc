@@ -18,15 +18,10 @@ static char rcsid[] = "$NetBSD: s_fabs.c,v 1.7 1995/05/10 20:47:13 jtc Exp $";
  * fabs(x) returns the absolute value of x.
  */
 
-#include "math.h"
-#include "math_private.h"
+#include <math.h>
+#include <math_private.h>
 
-#ifdef __STDC__
-	double __fabs(double x)
-#else
-	double __fabs(x)
-	double x;
-#endif
+double __fabs(double x)
 {
 	u_int32_t high;
 	GET_HIGH_WORD(high,x);

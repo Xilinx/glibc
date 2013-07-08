@@ -1,5 +1,4 @@
-/* Copyright (C) 1993, 1995, 1997-2005, 2006, 2007, 2008, 2009, 2011
-   Free Software Foundation, Inc.
+/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
 
@@ -14,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.
 
    As a special exception, if you link the code in this file with
    files compiled with a GNU compiler to produce an executable,
@@ -40,15 +38,14 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#ifdef __STDC__
 #include <stdlib.h>
-#endif
 #if _LIBC
 # include "../wcsmbs/wcsmbsload.h"
 # include "../iconv/gconv_charset.h"
 # include "../iconv/gconv_int.h"
 # include <shlib-compat.h>
 # include <not-cancel.h>
+# include <kernel-features.h>
 #endif
 #ifndef errno
 extern int errno;
@@ -63,8 +60,6 @@ extern int errno;
 # define lseek(FD, Offset, Whence) __lseek (FD, Offset, Whence)
 # define read(FD, Buf, NBytes) __read (FD, Buf, NBytes)
 # define write(FD, Buf, NBytes) __write (FD, Buf, NBytes)
-# define _IO_do_write _IO_new_do_write /* For macro uses.  */
-# define _IO_file_close_it _IO_new_file_close_it
 #else
 # define _IO_new_do_write _IO_do_write
 # define _IO_new_file_attach _IO_file_attach
@@ -106,7 +101,7 @@ extern struct __gconv_trans_data __libio_translit attribute_hidden;
    to _IO_buf_base, though not necessarily if we have switched from
    get mode to put mode.  (The reason is to maintain the invariant
    that _IO_read_end corresponds to the external file position.)
-   _IO_write_base is non-NULL and usually equal to _IO_base_base.
+   _IO_write_base is non-NULL and usually equal to _IO_buf_base.
    We also have _IO_write_end == _IO_buf_end, but only in fully buffered mode.
    The un-flushed character are those between _IO_write_base and _IO_write_ptr.
 
@@ -151,34 +146,26 @@ _IO_new_file_init (fp)
   fp->file._offset = _IO_pos_BAD;
   fp->file._IO_file_flags |= CLOSED_FILEBUF_FLAGS;
 
-  INTUSE(_IO_link_in) (fp);
+  _IO_link_in (fp);
   fp->file._fileno = -1;
 }
-INTDEF2(_IO_new_file_init, _IO_file_init)
+libc_hidden_ver (_IO_new_file_init, _IO_file_init)
 
 int
 _IO_new_file_close_it (fp)
      _IO_FILE *fp;
 {
+  int write_status;
   if (!_IO_file_is_open (fp))
     return EOF;
 
-  int write_status;
-  if (_IO_in_put_mode (fp))
+  if ((fp->_flags & _IO_NO_WRITES) == 0
+      && (fp->_flags & _IO_CURRENTLY_PUTTING) != 0)
     write_status = _IO_do_flush (fp);
-  else if (fp->_offset != _IO_pos_BAD && fp->_IO_read_base != NULL
-	   && !_IO_in_backup (fp))
-    {
-      off64_t o = _IO_SEEKOFF (fp, 0, _IO_seek_cur, 0);
-      if (o == WEOF)
-	write_status = EOF;
-      else
-	write_status = _IO_SYSSEEK (fp, o, SEEK_SET) < 0 ? EOF : 0;
-    }
   else
     write_status = 0;
 
-  INTUSE(_IO_unsave_markers) (fp);
+  _IO_unsave_markers (fp);
 
   int close_status = ((fp->_flags2 & _IO_FLAGS2_NOCLOSE) == 0
 		      ? _IO_SYSCLOSE (fp) : 0);
@@ -188,24 +175,24 @@ _IO_new_file_close_it (fp)
   if (fp->_mode > 0)
     {
       if (_IO_have_wbackup (fp))
-	INTUSE(_IO_free_wbackup_area) (fp);
-      INTUSE(_IO_wsetb) (fp, NULL, NULL, 0);
+	_IO_free_wbackup_area (fp);
+      _IO_wsetb (fp, NULL, NULL, 0);
       _IO_wsetg (fp, NULL, NULL, NULL);
       _IO_wsetp (fp, NULL, NULL);
     }
 #endif
-  INTUSE(_IO_setb) (fp, NULL, NULL, 0);
+  _IO_setb (fp, NULL, NULL, 0);
   _IO_setg (fp, NULL, NULL, NULL);
   _IO_setp (fp, NULL, NULL);
 
-  INTUSE(_IO_un_link) ((struct _IO_FILE_plus *) fp);
+  _IO_un_link ((struct _IO_FILE_plus *) fp);
   fp->_flags = _IO_MAGIC|CLOSED_FILEBUF_FLAGS;
   fp->_fileno = -1;
   fp->_offset = _IO_pos_BAD;
 
   return close_status ? close_status : write_status;
 }
-INTDEF2(_IO_new_file_close_it, _IO_file_close_it)
+libc_hidden_ver (_IO_new_file_close_it, _IO_file_close_it)
 
 void
 _IO_new_file_finish (fp, dummy)
@@ -218,9 +205,9 @@ _IO_new_file_finish (fp, dummy)
       if (!(fp->_flags & _IO_DELETE_DONT_CLOSE))
 	_IO_SYSCLOSE (fp);
     }
-  INTUSE(_IO_default_finish) (fp, 0);
+  _IO_default_finish (fp, 0);
 }
-INTDEF2(_IO_new_file_finish, _IO_file_finish)
+libc_hidden_ver (_IO_new_file_finish, _IO_file_finish)
 
 _IO_FILE *
 _IO_file_open (fp, filename, posix_mode, prot, read_write, is32not64)
@@ -252,7 +239,7 @@ _IO_file_open (fp, filename, posix_mode, prot, read_write, is32not64)
 	close_not_cancel (fdesc);
 	return NULL;
       }
-  INTUSE(_IO_link_in) ((struct _IO_FILE_plus *) fp);
+  _IO_link_in ((struct _IO_FILE_plus *) fp);
   return fp;
 }
 libc_hidden_def (_IO_file_open)
@@ -381,7 +368,7 @@ _IO_new_file_fopen (fp, filename, mode, is32not64)
 	      /* Something went wrong, we cannot load the conversion modules.
 		 This means we cannot proceed since the user explicitly asked
 		 for these.  */
-	      (void) INTUSE(_IO_file_close_it) (fp);
+	      (void) _IO_file_close_it (fp);
 	      __set_errno (EINVAL);
 	      return NULL;
 	    }
@@ -434,7 +421,7 @@ _IO_new_file_fopen (fp, filename, mode, is32not64)
 
   return result;
 }
-INTDEF2(_IO_new_file_fopen, _IO_file_fopen)
+libc_hidden_ver (_IO_new_file_fopen, _IO_file_fopen)
 
 _IO_FILE *
 _IO_new_file_attach (fp, fd)
@@ -456,7 +443,7 @@ _IO_new_file_attach (fp, fd)
   __set_errno (save_errno);
   return fp;
 }
-INTDEF2(_IO_new_file_attach, _IO_file_attach)
+libc_hidden_ver (_IO_new_file_attach, _IO_file_attach)
 
 _IO_FILE *
 _IO_new_file_setbuf (fp, p, len)
@@ -473,7 +460,7 @@ _IO_new_file_setbuf (fp, p, len)
 
   return fp;
 }
-INTDEF2(_IO_new_file_setbuf, _IO_file_setbuf)
+libc_hidden_ver (_IO_new_file_setbuf, _IO_file_setbuf)
 
 
 _IO_FILE *
@@ -515,7 +502,7 @@ _IO_new_do_write (fp, data, to_do)
   return (to_do == 0
 	  || (_IO_size_t) new_do_write (fp, data, to_do) == to_do) ? 0 : EOF;
 }
-INTDEF2(_IO_new_do_write, _IO_do_write)
+libc_hidden_ver (_IO_new_do_write, _IO_do_write)
 
 static
 _IO_size_t
@@ -542,8 +529,7 @@ new_do_write (fp, data, to_do)
     }
   count = _IO_SYSWRITE (fp, data, to_do);
   if (fp->_cur_column && count)
-    fp->_cur_column = INTUSE(_IO_adjust_column) (fp->_cur_column - 1, data,
-						 count) + 1;
+    fp->_cur_column = _IO_adjust_column (fp->_cur_column - 1, data, count) + 1;
   _IO_setg (fp, fp->_IO_buf_base, fp->_IO_buf_base, fp->_IO_buf_base);
   fp->_IO_write_base = fp->_IO_write_ptr = fp->_IO_buf_base;
   fp->_IO_write_end = (fp->_mode <= 0
@@ -580,7 +566,7 @@ _IO_new_file_underflow (fp)
 	  free (fp->_IO_save_base);
 	  fp->_flags &= ~_IO_IN_BACKUP;
 	}
-      INTUSE(_IO_doallocbuf) (fp);
+      _IO_doallocbuf (fp);
     }
 
   /* Flush all line buffered files before reading. */
@@ -588,7 +574,7 @@ _IO_new_file_underflow (fp)
   if (fp->_flags & (_IO_LINE_BUF|_IO_UNBUFFERED))
     {
 #if 0
-      INTUSE(_IO_flush_all_linebuffered) ();
+      _IO_flush_all_linebuffered ();
 #else
       /* We used to flush all line-buffered stream.  This really isn't
 	 required by any standard.  My recollection is that
@@ -605,7 +591,7 @@ _IO_new_file_underflow (fp)
 #endif
     }
 
-  INTUSE(_IO_switch_to_get_mode) (fp);
+  _IO_switch_to_get_mode (fp);
 
   /* This is very tricky. We have to adjust those
      pointers before we call _IO_SYSREAD () since
@@ -632,7 +618,7 @@ _IO_new_file_underflow (fp)
     _IO_pos_adjust (fp->_offset, count);
   return *(unsigned char *) fp->_IO_read_ptr;
 }
-INTDEF2(_IO_new_file_underflow, _IO_file_underflow)
+libc_hidden_ver (_IO_new_file_underflow, _IO_file_underflow)
 
 /* Guts of underflow callback if we mmap the file.  This stats the file and
    updates the stream state to match.  In the normal case we return zero.
@@ -641,7 +627,7 @@ INTDEF2(_IO_new_file_underflow, _IO_file_underflow)
 static int
 mmap_remap_check (_IO_FILE *fp)
 {
-  struct _G_stat64 st;
+  struct stat64 st;
 
   if (_IO_SYSSTAT (fp, &st) == 0
       && S_ISREG (st.st_mode) && st.st_size != 0
@@ -677,13 +663,8 @@ mmap_remap_check (_IO_FILE *fp)
 #else
 	  (void) __munmap (fp->_IO_buf_base,
 			   fp->_IO_buf_end - fp->_IO_buf_base);
-# ifdef _G_MMAP64
-	  p = _G_MMAP64 (NULL, st.st_size, PROT_READ, MAP_SHARED,
-			 fp->_fileno, 0);
-# else
-	  p = __mmap (NULL, st.st_size, PROT_READ, MAP_SHARED,
-		      fp->_fileno, 0);
-# endif
+	  p = __mmap64 (NULL, st.st_size, PROT_READ, MAP_SHARED,
+			fp->_fileno, 0);
 	  if (p == MAP_FAILED)
 	    goto punt;
 #endif
@@ -710,13 +691,8 @@ mmap_remap_check (_IO_FILE *fp)
 
       if (fp->_offset < fp->_IO_buf_end - fp->_IO_buf_base)
 	{
-	  if (
-# ifdef _G_LSEEK64
-	      _G_LSEEK64
-# else
-	      __lseek
-# endif
-	      (fp->_fileno, fp->_IO_buf_end - fp->_IO_buf_base, SEEK_SET)
+	  if (__lseek64 (fp->_fileno, fp->_IO_buf_end - fp->_IO_buf_base,
+			 SEEK_SET)
 	      != fp->_IO_buf_end - fp->_IO_buf_base)
 	    fp->_flags |= _IO_ERR_SEEN;
 	  else
@@ -769,7 +745,7 @@ decide_maybe_mmap (_IO_FILE *fp)
      file descriptors are for mmap-able objects and on 32-bit
      machines we don't want to map files which are too large since
      this would require too much virtual memory.  */
-  struct _G_stat64 st;
+  struct stat64 st;
 
   if (_IO_SYSSTAT (fp, &st) == 0
       && S_ISREG (st.st_mode) && st.st_size != 0
@@ -781,31 +757,21 @@ decide_maybe_mmap (_IO_FILE *fp)
       /* Try to map the file.  */
       void *p;
 
-# ifdef _G_MMAP64
-      p = _G_MMAP64 (NULL, st.st_size, PROT_READ, MAP_SHARED, fp->_fileno, 0);
-# else
-      p = __mmap (NULL, st.st_size, PROT_READ, MAP_SHARED, fp->_fileno, 0);
-# endif
+      p = __mmap64 (NULL, st.st_size, PROT_READ, MAP_SHARED, fp->_fileno, 0);
       if (p != MAP_FAILED)
 	{
 	  /* OK, we managed to map the file.  Set the buffer up and use a
 	     special jump table with simplified underflow functions which
 	     never tries to read anything from the file.  */
 
-	  if (
-# ifdef _G_LSEEK64
-	      _G_LSEEK64
-# else
-	      __lseek
-# endif
-	      (fp->_fileno, st.st_size, SEEK_SET) != st.st_size)
+	  if (__lseek64 (fp->_fileno, st.st_size, SEEK_SET) != st.st_size)
 	    {
 	      (void) __munmap (p, st.st_size);
 	      fp->_offset = _IO_pos_BAD;
 	    }
 	  else
 	    {
-	      INTUSE(_IO_setb) (fp, p, (char *) p + st.st_size, 0);
+	      _IO_setb (fp, p, (char *) p + st.st_size, 0);
 
 	      if (fp->_offset == _IO_pos_BAD)
 		fp->_offset = 0;
@@ -860,7 +826,7 @@ _IO_new_file_overflow (f, ch)
       /* Allocate a buffer if needed. */
       if (f->_IO_write_base == NULL)
 	{
-	  INTUSE(_IO_doallocbuf) (f);
+	  _IO_doallocbuf (f);
 	  _IO_setg (f, f->_IO_buf_base, f->_IO_buf_base, f->_IO_buf_base);
 	}
       /* Otherwise must be currently reading.
@@ -873,7 +839,7 @@ _IO_new_file_overflow (f, ch)
       if (__builtin_expect (_IO_in_backup (f), 0))
 	{
 	  size_t nbackup = f->_IO_read_end - f->_IO_read_ptr;
-	  INTUSE(_IO_free_backup_area) (f);
+	  _IO_free_backup_area (f);
 	  f->_IO_read_base -= MIN (nbackup,
 				   f->_IO_read_base - f->_IO_buf_base);
 	  f->_IO_read_ptr = f->_IO_read_base;
@@ -891,20 +857,20 @@ _IO_new_file_overflow (f, ch)
 	f->_IO_write_end = f->_IO_write_ptr;
     }
   if (ch == EOF)
-    return INTUSE(_IO_do_write) (f, f->_IO_write_base,
-				 f->_IO_write_ptr - f->_IO_write_base);
+    return _IO_do_write (f, f->_IO_write_base,
+			 f->_IO_write_ptr - f->_IO_write_base);
   if (f->_IO_write_ptr == f->_IO_buf_end ) /* Buffer is really full */
     if (_IO_do_flush (f) == EOF)
       return EOF;
   *f->_IO_write_ptr++ = ch;
   if ((f->_flags & _IO_UNBUFFERED)
       || ((f->_flags & _IO_LINE_BUF) && ch == '\n'))
-    if (INTUSE(_IO_do_write) (f, f->_IO_write_base,
-			      f->_IO_write_ptr - f->_IO_write_base) == EOF)
+    if (_IO_do_write (f, f->_IO_write_base,
+		      f->_IO_write_ptr - f->_IO_write_base) == EOF)
       return EOF;
   return (unsigned char) ch;
 }
-INTDEF2(_IO_new_file_overflow, _IO_file_overflow)
+libc_hidden_ver (_IO_new_file_overflow, _IO_file_overflow)
 
 int
 _IO_new_file_sync (fp)
@@ -939,7 +905,7 @@ _IO_new_file_sync (fp)
   /*    setg(base(), ptr, ptr); */
   return retval;
 }
-INTDEF2(_IO_new_file_sync, _IO_file_sync)
+libc_hidden_ver (_IO_new_file_sync, _IO_file_sync)
 
 static int
 _IO_file_sync_mmap (_IO_FILE *fp)
@@ -950,13 +916,8 @@ _IO_file_sync_mmap (_IO_FILE *fp)
       if (_IO_in_backup (fp))
 	delta -= eGptr () - Gbase ();
 #endif
-      if (
-# ifdef _G_LSEEK64
-	  _G_LSEEK64
-# else
-	  __lseek
-# endif
-	  (fp->_fileno, fp->_IO_read_ptr - fp->_IO_buf_base, SEEK_SET)
+      if (__lseek64 (fp->_fileno, fp->_IO_read_ptr - fp->_IO_buf_base,
+		     SEEK_SET)
 	  != fp->_IO_read_ptr - fp->_IO_buf_base)
 	{
 	  fp->_flags |= _IO_ERR_SEEN;
@@ -984,20 +945,21 @@ _IO_new_file_seekoff (fp, offset, dir, mode)
   int must_be_exact = (fp->_IO_read_base == fp->_IO_read_end
 		       && fp->_IO_write_base == fp->_IO_write_ptr);
 
+  bool was_writing = (fp->_IO_write_ptr > fp->_IO_write_base
+		      || _IO_in_put_mode (fp));
+
   if (mode == 0)
     dir = _IO_seek_cur, offset = 0; /* Don't move any pointers. */
 
   /* Flush unwritten characters.
      (This may do an unneeded write if we seek within the buffer.
      But to be able to switch to reading, we would need to set
-     egptr to ptr.  That can't be done in the current design,
+     egptr to pptr.  That can't be done in the current design,
      which assumes file_ptr() is eGptr.  Anyway, since we probably
      end up flushing when we close(), it doesn't make much difference.)
-     FIXME: simulate mem-papped files. */
-
-  if (fp->_IO_write_ptr > fp->_IO_write_base || _IO_in_put_mode (fp))
-    if (INTUSE(_IO_switch_to_get_mode) (fp))
-      return EOF;
+     FIXME: simulate mem-mapped files. */
+  else if (was_writing && _IO_switch_to_get_mode (fp))
+    return EOF;
 
   if (fp->_IO_buf_base == NULL)
     {
@@ -1007,7 +969,7 @@ _IO_new_file_seekoff (fp, offset, dir, mode)
 	  free (fp->_IO_read_base);
 	  fp->_flags &= ~_IO_IN_BACKUP;
 	}
-      INTUSE(_IO_doallocbuf) (fp);
+      _IO_doallocbuf (fp);
       _IO_setp (fp, fp->_IO_buf_base, fp->_IO_buf_base);
       _IO_setg (fp, fp->_IO_buf_base, fp->_IO_buf_base, fp->_IO_buf_base);
     }
@@ -1016,7 +978,17 @@ _IO_new_file_seekoff (fp, offset, dir, mode)
     {
     case _IO_seek_cur:
       /* Adjust for read-ahead (bytes is buffer). */
-      offset -= fp->_IO_read_end - fp->_IO_read_ptr;
+      if (mode != 0 || !was_writing)
+	offset -= fp->_IO_read_end - fp->_IO_read_ptr;
+      else
+	{
+	  /* _IO_read_end coincides with fp._offset, so the actual file position
+	     is fp._offset - (_IO_read_end - new_write_ptr).  This is fine
+	     even if fp._offset is not set, since fp->_IO_read_end is then at
+	     _IO_buf_base and this adjustment is for unbuffered output.  */
+	  offset -= fp->_IO_read_end - fp->_IO_write_ptr;
+	}
+
       if (fp->_offset == _IO_pos_BAD)
 	{
 	  if (mode != 0)
@@ -1044,7 +1016,7 @@ _IO_new_file_seekoff (fp, offset, dir, mode)
       break;
     case _IO_seek_end:
       {
-	struct _G_stat64 st;
+	struct stat64 st;
 	if (_IO_SYSSTAT (fp, &st) == 0 && S_ISREG (st.st_mode))
 	  {
 	    offset += st.st_size;
@@ -1115,7 +1087,7 @@ _IO_new_file_seekoff (fp, offset, dir, mode)
   return offset;
  dumb:
 
-  INTUSE(_IO_unsave_markers) (fp);
+  _IO_unsave_markers (fp);
   result = _IO_SYSSEEK (fp, offset, dir);
   if (result != EOF)
     {
@@ -1136,7 +1108,7 @@ resync:
 
   return offset;
 }
-INTDEF2(_IO_new_file_seekoff, _IO_file_seekoff)
+libc_hidden_ver (_IO_new_file_seekoff, _IO_file_seekoff)
 
 _IO_off64_t
 _IO_file_seekoff_mmap (fp, offset, dir, mode)
@@ -1223,7 +1195,7 @@ _IO_file_read (fp, buf, size)
 	  ? read_not_cancel (fp->_fileno, buf, size)
 	  : read (fp->_fileno, buf, size));
 }
-INTDEF(_IO_file_read)
+libc_hidden_def (_IO_file_read)
 
 _IO_off64_t
 _IO_file_seek (fp, offset, dir)
@@ -1231,26 +1203,18 @@ _IO_file_seek (fp, offset, dir)
      _IO_off64_t offset;
      int dir;
 {
-#ifdef _G_LSEEK64
-  return _G_LSEEK64 (fp->_fileno, offset, dir);
-#else
-  return lseek (fp->_fileno, offset, dir);
-#endif
+  return __lseek64 (fp->_fileno, offset, dir);
 }
-INTDEF(_IO_file_seek)
+libc_hidden_def (_IO_file_seek)
 
 int
 _IO_file_stat (fp, st)
      _IO_FILE *fp;
      void *st;
 {
-#ifdef _G_FSTAT64
-  return _G_FSTAT64 (fp->_fileno, (struct _G_stat64 *) st);
-#else
-  return fstat (fp->_fileno, (struct stat *) st);
-#endif
+  return __fxstat64 (_STAT_VER, fp->_fileno, (struct stat64 *) st);
 }
-INTDEF(_IO_file_stat)
+libc_hidden_def (_IO_file_stat)
 
 int
 _IO_file_close_mmap (fp)
@@ -1272,7 +1236,7 @@ _IO_file_close (fp)
      unrecoverable state behind.  */
   return close_not_cancel (fp->_fileno);
 }
-INTDEF(_IO_file_close)
+libc_hidden_def (_IO_file_close)
 
 _IO_ssize_t
 _IO_new_file_write (f, data, n)
@@ -1281,12 +1245,13 @@ _IO_new_file_write (f, data, n)
      _IO_ssize_t n;
 {
   _IO_ssize_t to_do = n;
+  _IO_ssize_t count = 0;
   while (to_do > 0)
     {
-      _IO_ssize_t count = (__builtin_expect (f->_flags2
-					     & _IO_FLAGS2_NOTCANCEL, 0)
-			   ? write_not_cancel (f->_fileno, data, to_do)
-			   : write (f->_fileno, data, to_do));
+      count = (__builtin_expect (f->_flags2
+				 & _IO_FLAGS2_NOTCANCEL, 0)
+	       ? write_not_cancel (f->_fileno, data, to_do)
+	       : write (f->_fileno, data, to_do));
       if (count < 0)
 	{
 	  f->_flags |= _IO_ERR_SEEN;
@@ -1298,7 +1263,7 @@ _IO_new_file_write (f, data, n)
   n -= to_do;
   if (f->_offset >= 0)
     f->_offset += n;
-  return n;
+  return count < 0 ? count : n;
 }
 
 _IO_size_t
@@ -1307,7 +1272,7 @@ _IO_new_file_xsputn (f, data, n)
      const void *data;
      _IO_size_t n;
 {
-  register const char *s = (const char *) data;
+  const char *s = (const char *) data;
   _IO_size_t to_do = n;
   int must_flush = 0;
   _IO_size_t count = 0;
@@ -1324,7 +1289,7 @@ _IO_new_file_xsputn (f, data, n)
       count = f->_IO_buf_end - f->_IO_write_ptr;
       if (count >= n)
 	{
-	  register const char *p;
+	  const char *p;
 	  for (p = s + n; p > s; )
 	    {
 	      if (*--p == '\n')
@@ -1344,24 +1309,13 @@ _IO_new_file_xsputn (f, data, n)
     {
       if (count > to_do)
 	count = to_do;
-      if (count > 20)
-	{
 #ifdef _LIBC
-	  f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);
+      f->_IO_write_ptr = __mempcpy (f->_IO_write_ptr, s, count);
 #else
-	  memcpy (f->_IO_write_ptr, s, count);
-	  f->_IO_write_ptr += count;
+      memcpy (f->_IO_write_ptr, s, count);
+      f->_IO_write_ptr += count;
 #endif
-	  s += count;
-	}
-      else
-	{
-	  register char *p = f->_IO_write_ptr;
-	  register int i = (int) count;
-	  while (--i >= 0)
-	    *p++ = *s++;
-	  f->_IO_write_ptr = p;
-	}
+      s += count;
       to_do -= count;
     }
   if (to_do + must_flush > 0)
@@ -1369,9 +1323,10 @@ _IO_new_file_xsputn (f, data, n)
       _IO_size_t block_size, do_write;
       /* Next flush the (full) buffer. */
       if (_IO_OVERFLOW (f, EOF) == EOF)
-	/* If nothing else has to be written we must not signal the
-	   caller that everything has been written.  */
-	return to_do == 0 ? EOF : n - to_do;
+	/* If nothing else has to be written or nothing has been written, we
+	   must not signal the caller that the call was even partially
+	   successful.  */
+	return (to_do == 0 || to_do == n) ? EOF : n - to_do;
 
       /* Try to maintain alignment: write a whole number of blocks.
 	 dont_write is what gets left over. */
@@ -1390,11 +1345,11 @@ _IO_new_file_xsputn (f, data, n)
 	 buffer, but it's somewhat messier for line-buffered files,
 	 so we let _IO_default_xsputn handle the general case. */
       if (to_do)
-	to_do -= INTUSE(_IO_default_xsputn) (f, s+do_write, to_do);
+	to_do -= _IO_default_xsputn (f, s+do_write, to_do);
     }
   return n - to_do;
 }
-INTDEF2(_IO_new_file_xsputn, _IO_file_xsputn)
+libc_hidden_ver (_IO_new_file_xsputn, _IO_file_xsputn)
 
 _IO_size_t
 _IO_file_xsgetn (fp, data, n)
@@ -1402,9 +1357,9 @@ _IO_file_xsgetn (fp, data, n)
      void *data;
      _IO_size_t n;
 {
-  register _IO_size_t want, have;
-  register _IO_ssize_t count;
-  register char *s = data;
+  _IO_size_t want, have;
+  _IO_ssize_t count;
+  char *s = data;
 
   want = n;
 
@@ -1416,7 +1371,7 @@ _IO_file_xsgetn (fp, data, n)
 	  free (fp->_IO_save_base);
 	  fp->_flags &= ~_IO_IN_BACKUP;
 	}
-      INTUSE(_IO_doallocbuf) (fp);
+      _IO_doallocbuf (fp);
     }
 
   while (want > 0)
@@ -1495,7 +1450,7 @@ _IO_file_xsgetn (fp, data, n)
 
   return n - want;
 }
-INTDEF(_IO_file_xsgetn)
+libc_hidden_def (_IO_file_xsgetn)
 
 static _IO_size_t _IO_file_xsgetn_mmap (_IO_FILE *, void *, _IO_size_t);
 static _IO_size_t
@@ -1504,9 +1459,9 @@ _IO_file_xsgetn_mmap (fp, data, n)
      void *data;
      _IO_size_t n;
 {
-  register _IO_size_t have;
+  _IO_size_t have;
   char *read_ptr = fp->_IO_read_ptr;
-  register char *s = (char *) data;
+  char *s = (char *) data;
 
   have = fp->_IO_read_end - fp->_IO_read_ptr;
 
@@ -1571,8 +1526,6 @@ _IO_file_xsgetn_maybe_mmap (fp, data, n)
 }
 
 #ifdef _LIBC
-# undef _IO_do_write
-# undef _IO_file_close_it
 versioned_symbol (libc, _IO_new_do_write, _IO_do_write, GLIBC_2_1);
 versioned_symbol (libc, _IO_new_file_attach, _IO_file_attach, GLIBC_2_1);
 versioned_symbol (libc, _IO_new_file_close_it, _IO_file_close_it, GLIBC_2_1);
@@ -1591,23 +1544,23 @@ versioned_symbol (libc, _IO_new_file_xsputn, _IO_file_xsputn, GLIBC_2_1);
 const struct _IO_jump_t _IO_file_jumps =
 {
   JUMP_INIT_DUMMY,
-  JUMP_INIT(finish, INTUSE(_IO_file_finish)),
-  JUMP_INIT(overflow, INTUSE(_IO_file_overflow)),
-  JUMP_INIT(underflow, INTUSE(_IO_file_underflow)),
-  JUMP_INIT(uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT(pbackfail, INTUSE(_IO_default_pbackfail)),
-  JUMP_INIT(xsputn, INTUSE(_IO_file_xsputn)),
-  JUMP_INIT(xsgetn, INTUSE(_IO_file_xsgetn)),
+  JUMP_INIT(finish, _IO_file_finish),
+  JUMP_INIT(overflow, _IO_file_overflow),
+  JUMP_INIT(underflow, _IO_file_underflow),
+  JUMP_INIT(uflow, _IO_default_uflow),
+  JUMP_INIT(pbackfail, _IO_default_pbackfail),
+  JUMP_INIT(xsputn, _IO_file_xsputn),
+  JUMP_INIT(xsgetn, _IO_file_xsgetn),
   JUMP_INIT(seekoff, _IO_new_file_seekoff),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, _IO_new_file_setbuf),
   JUMP_INIT(sync, _IO_new_file_sync),
-  JUMP_INIT(doallocate, INTUSE(_IO_file_doallocate)),
-  JUMP_INIT(read, INTUSE(_IO_file_read)),
+  JUMP_INIT(doallocate, _IO_file_doallocate),
+  JUMP_INIT(read, _IO_file_read),
   JUMP_INIT(write, _IO_new_file_write),
-  JUMP_INIT(seek, INTUSE(_IO_file_seek)),
-  JUMP_INIT(close, INTUSE(_IO_file_close)),
-  JUMP_INIT(stat, INTUSE(_IO_file_stat)),
+  JUMP_INIT(seek, _IO_file_seek),
+  JUMP_INIT(close, _IO_file_close),
+  JUMP_INIT(stat, _IO_file_stat),
   JUMP_INIT(showmanyc, _IO_default_showmanyc),
   JUMP_INIT(imbue, _IO_default_imbue)
 };
@@ -1616,23 +1569,23 @@ libc_hidden_data_def (_IO_file_jumps)
 const struct _IO_jump_t _IO_file_jumps_mmap =
 {
   JUMP_INIT_DUMMY,
-  JUMP_INIT(finish, INTUSE(_IO_file_finish)),
-  JUMP_INIT(overflow, INTUSE(_IO_file_overflow)),
+  JUMP_INIT(finish, _IO_file_finish),
+  JUMP_INIT(overflow, _IO_file_overflow),
   JUMP_INIT(underflow, _IO_file_underflow_mmap),
-  JUMP_INIT(uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT(pbackfail, INTUSE(_IO_default_pbackfail)),
+  JUMP_INIT(uflow, _IO_default_uflow),
+  JUMP_INIT(pbackfail, _IO_default_pbackfail),
   JUMP_INIT(xsputn, _IO_new_file_xsputn),
   JUMP_INIT(xsgetn, _IO_file_xsgetn_mmap),
   JUMP_INIT(seekoff, _IO_file_seekoff_mmap),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, (_IO_setbuf_t) _IO_file_setbuf_mmap),
   JUMP_INIT(sync, _IO_file_sync_mmap),
-  JUMP_INIT(doallocate, INTUSE(_IO_file_doallocate)),
-  JUMP_INIT(read, INTUSE(_IO_file_read)),
+  JUMP_INIT(doallocate, _IO_file_doallocate),
+  JUMP_INIT(read, _IO_file_read),
   JUMP_INIT(write, _IO_new_file_write),
-  JUMP_INIT(seek, INTUSE(_IO_file_seek)),
+  JUMP_INIT(seek, _IO_file_seek),
   JUMP_INIT(close, _IO_file_close_mmap),
-  JUMP_INIT(stat, INTUSE(_IO_file_stat)),
+  JUMP_INIT(stat, _IO_file_stat),
   JUMP_INIT(showmanyc, _IO_default_showmanyc),
   JUMP_INIT(imbue, _IO_default_imbue)
 };
@@ -1640,23 +1593,23 @@ const struct _IO_jump_t _IO_file_jumps_mmap =
 const struct _IO_jump_t _IO_file_jumps_maybe_mmap =
 {
   JUMP_INIT_DUMMY,
-  JUMP_INIT(finish, INTUSE(_IO_file_finish)),
-  JUMP_INIT(overflow, INTUSE(_IO_file_overflow)),
+  JUMP_INIT(finish, _IO_file_finish),
+  JUMP_INIT(overflow, _IO_file_overflow),
   JUMP_INIT(underflow, _IO_file_underflow_maybe_mmap),
-  JUMP_INIT(uflow, INTUSE(_IO_default_uflow)),
-  JUMP_INIT(pbackfail, INTUSE(_IO_default_pbackfail)),
+  JUMP_INIT(uflow, _IO_default_uflow),
+  JUMP_INIT(pbackfail, _IO_default_pbackfail),
   JUMP_INIT(xsputn, _IO_new_file_xsputn),
   JUMP_INIT(xsgetn, _IO_file_xsgetn_maybe_mmap),
   JUMP_INIT(seekoff, _IO_file_seekoff_maybe_mmap),
   JUMP_INIT(seekpos, _IO_default_seekpos),
   JUMP_INIT(setbuf, (_IO_setbuf_t) _IO_file_setbuf_mmap),
   JUMP_INIT(sync, _IO_new_file_sync),
-  JUMP_INIT(doallocate, INTUSE(_IO_file_doallocate)),
-  JUMP_INIT(read, INTUSE(_IO_file_read)),
+  JUMP_INIT(doallocate, _IO_file_doallocate),
+  JUMP_INIT(read, _IO_file_read),
   JUMP_INIT(write, _IO_new_file_write),
-  JUMP_INIT(seek, INTUSE(_IO_file_seek)),
+  JUMP_INIT(seek, _IO_file_seek),
   JUMP_INIT(close, _IO_file_close),
-  JUMP_INIT(stat, INTUSE(_IO_file_stat)),
+  JUMP_INIT(stat, _IO_file_stat),
   JUMP_INIT(showmanyc, _IO_default_showmanyc),
   JUMP_INIT(imbue, _IO_default_imbue)
 };

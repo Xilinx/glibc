@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2005, 2009, 2010 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
 
@@ -13,9 +13,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
 #include <sysdep.h>
@@ -43,10 +42,14 @@ __longjmp (__jmp_buf env, int val)
   register void *r1 __asm ("%r1") = (void *) env;
 #endif
   /* Restore registers and jump back.  */
-  asm volatile ("ld   %%f7,104(%1)\n\t"
-		"ld   %%f5,96(%1)\n\t"
-		"ld   %%f3,88(%1)\n\t"
-		"ld   %%f1,80(%1)\n\t"
+  asm volatile ("ld    %%f8,80(%1)\n\t"
+		"ld    %%f9,88(%1)\n\t"
+		"ld    %%f10,96(%1)\n\t"
+		"ld    %%f11,104(%1)\n\t"
+		"ld    %%f12,112(%1)\n\t"
+		"ld    %%f13,120(%1)\n\t"
+		"ld    %%f14,128(%1)\n\t"
+		"ld    %%f15,136(%1)\n\t"
 #ifdef PTR_DEMANGLE
 		"lmg  %%r6,%%r13,0(%1)\n\t"
 		"lmg  %%r4,%%r5,64(%1)\n\t"

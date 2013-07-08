@@ -1,5 +1,5 @@
 /* Dump registers.  64 bit S/390 version.
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001-2013 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU C Library.
 
@@ -14,12 +14,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sys/uio.h>
-#include <stdio-common/_itoa.h>
+#include <_itoa.h>
 
 /* We will print the register dump in this format:
 
@@ -83,7 +82,7 @@ register_dump (int fd, struct sigcontext *ctx)
   hexvalue (ctx->sregs->regs.gprs[15], regs[15], 16);
   hexvalue (ctx->sregs->regs.psw.mask, regs[16], 16);
   hexvalue (ctx->sregs->regs.psw.addr, regs[17], 16);
-   
+
   /* Generate the output.  */
   ADD_STRING ("Register dump:\n\n GPR0: ");
   ADD_MEM (regs[0], 16);

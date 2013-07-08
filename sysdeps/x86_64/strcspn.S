@@ -1,8 +1,7 @@
 /* strcspn (str, ss) -- Return the length of the initial segment of STR
 			which contains no characters from SS.
    For AMD x86-64.
-   Copyright (C) 1994-1997, 2000, 2002, 2003, 2004, 2005
-   Free Software Foundation, Inc.
+   Copyright (C) 1994-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>.
    Bug fixes by Alan Modra <Alan@SPRI.Levels.UniSA.Edu.Au>.
@@ -19,9 +18,8 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
 #include "asm-syntax.h"
@@ -117,7 +115,7 @@ L(4):	addq $256, %rsp		/* remove skipset */
 	xorl %edx,%edx
 	orb %cl, %cl		/* was last character NUL? */
 	cmovzq %rdx, %rax	/* Yes:	return NULL */
-#else	
+#else
 	subq %rdx, %rax		/* we have to return the number of valid
 				   characters, so compute distance to first
 				   non-valid character */
