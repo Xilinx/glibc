@@ -60,6 +60,7 @@ is_ia64 (void)
 int
 main (void)
 {
+  struct stat statbuf;
   char initpath[256];
 
   char buffer[4096];
@@ -170,10 +171,22 @@ main (void)
       || ((!!access ("/dev/initctl", F_OK))
 	  ^ !access ("/sbin/initctl", X_OK)))
     _exit (0);
+
   /* Check if we are not inside of some chroot, because we'd just
-     timeout and leave /etc/initrunlvl.  */
+     timeout and leave /etc/initrunlvl.
+
+     On more modern systems this test is not sufficient to detect
+     if we're in a chroot.  */
   if (readlink ("/proc/1/exe", initpath, 256) <= 0 ||
       readlink ("/proc/1/root", initpath, 256) <= 0)
+    _exit (0);
+
+  /* Here's another well known way to detect chroot, at least on an
+     ext and xfs filesystems and assuming nothing mounted on the chroot's
+     root. */
+  if (stat ("/", &statbuf) != 0
+      || (statbuf.st_ino != 2
+	  && statbuf.st_ino != 128))
     _exit (0);
 
   if (check_elf ("/proc/1/exe"))

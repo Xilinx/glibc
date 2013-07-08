@@ -108,7 +108,7 @@ force-tag: glibc.spec
 endif
 
 # Omit these files from the patch and put them in a tar file.
-outside-patch = fedora/ c_stubs/ rtkaio/ \
+outside-patch = releng/ c_stubs/ rtkaio/ \
 		localedata/charmaps/GB18030 iconvdata/gb18030.c
 
 glibc-$(branch-name).patch: glibc.spec Makefile $(dep-upstream-branch)
