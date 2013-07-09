@@ -241,4 +241,3 @@ config_vars="$config_vars
 config-cflags-novzeroupper = $libc_cv_cc_novzeroupper"
 
 $as_echo "#define PI_STATIC_AND_HIDDEN 1" >>confdefs.h
-

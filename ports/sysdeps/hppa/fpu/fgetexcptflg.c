@@ -27,7 +27,7 @@ fegetexceptflag (fexcept_t *flagp, int excepts)
   /* Get the current status word. */
   __asm__ ("fstd %%fr0,0(%1)	\n\t"
            "fldd 0(%1),%%fr0	\n\t"
-      	   : "=m" (s.l) : "r" (&s.l) : "%r0");
+	   : "=m" (s.l) : "r" (&s.l) : "%r0");
 
   *flagp = (s.sw[0] >> 27) & excepts & FE_ALL_EXCEPT;
 

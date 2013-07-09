@@ -149,7 +149,7 @@
 
 #undef	END
 #define END(name)							\
-  	.EXIT						ASM_LINE_SEP	\
+	.EXIT						ASM_LINE_SEP	\
 	.PROCEND					ASM_LINE_SEP	\
 	cfi_endproc					ASM_LINE_SEP	\
 .size	C_SYMBOL_NAME(name), .-C_SYMBOL_NAME(name)	ASM_LINE_SEP
@@ -224,7 +224,7 @@
 
 /* int * __errno_location(void) so you have to store your value
    into the return address! */
-#define DEFAULT_SYSCALL_ERROR_HANDLER 			\
+#define DEFAULT_SYSCALL_ERROR_HANDLER			\
 	.import __errno_location,code	ASM_LINE_SEP	\
 	/* branch to errno handler */	ASM_LINE_SEP	\
 	bl __errno_location,%rp		ASM_LINE_SEP
@@ -354,7 +354,7 @@ L(pre_end):					ASM_LINE_SEP	\
    across the syscall. */
 
 #define CALL_CLOB_REGS	"%r1", "%r2", CLOB_TREG \
-		 	"%r20", "%r29", "%r31"
+			"%r20", "%r29", "%r31"
 
 #undef INLINE_SYSCALL
 #define INLINE_SYSCALL(name, nr, args...)				\
@@ -403,7 +403,7 @@ L(pre_end):					ASM_LINE_SEP	\
 
 /* Similar to INLINE_SYSCALL but we don't set errno */
 #undef INTERNAL_SYSCALL
-#define INTERNAL_SYSCALL(name, err, nr, args...) 			\
+#define INTERNAL_SYSCALL(name, err, nr, args...)			\
 ({									\
 	long __sys_res;							\
 	{								\
@@ -428,7 +428,7 @@ L(pre_end):					ASM_LINE_SEP	\
 
 /* The _NCS variant allows non-constant syscall numbers.  */
 #undef INTERNAL_SYSCALL_NCS
-#define INTERNAL_SYSCALL_NCS(name, err, nr, args...) 			\
+#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
 ({									\
 	long __sys_res;							\
 	{								\
@@ -495,4 +495,3 @@ L(pre_end):					ASM_LINE_SEP	\
 /* Pointer mangling is not yet supported for HPPA.  */
 #define PTR_MANGLE(var) (void) (var)
 #define PTR_DEMANGLE(var) (void) (var)
-

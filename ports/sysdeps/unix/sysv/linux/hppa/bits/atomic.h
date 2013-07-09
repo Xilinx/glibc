@@ -61,7 +61,7 @@ typedef uintmax_t uatomic_max_t;
 
 #if __ASSUME_LWS_CAS
 /* The only basic operation needed is compare and exchange.  */
-# define atomic_compare_and_exchange_val_acq(mem, newval, oldval) 	\
+# define atomic_compare_and_exchange_val_acq(mem, newval, oldval)	\
   ({									\
      volatile int lws_errno;						\
      volatile int lws_ret;						\
@@ -80,18 +80,18 @@ typedef uintmax_t uatomic_max_t;
 	"nop					\n\t"			\
 	"stw	%%r28, %0			\n\t"			\
 	"stw	%%r21, %1			\n\t"			\
-	: "=m" (lws_ret), "=m" (lws_errno) 				\
+	: "=m" (lws_ret), "=m" (lws_errno)				\
         : "r" (mem), "r" (oldval), "r" (newval)				\
 	: _LWS_CLOBBER							\
      );									\
-    									\
+									\
      if(lws_errno == -EFAULT || lws_errno == -ENOSYS)			\
-     	ABORT_INSTRUCTION;						\
-    									\
+	ABORT_INSTRUCTION;						\
+									\
      lws_ret;								\
    })
 
-# define atomic_compare_and_exchange_bool_acq(mem, newval, oldval) 	\
+# define atomic_compare_and_exchange_bool_acq(mem, newval, oldval)	\
   ({									\
      int ret;								\
      ret = atomic_compare_and_exchange_val_acq(mem, newval, oldval);	\

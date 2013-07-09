@@ -30,10 +30,10 @@ __swapcontext (ucontext_t *oucp, const ucontext_t *ucp)
 
   /* mark sc_sar flag to skip the setcontext call on reactivation.  */
   if (oucp->uc_mcontext.sc_sar == 0) {
-  	oucp->uc_mcontext.sc_sar++;
+	oucp->uc_mcontext.sc_sar++;
 
 	/* Restore the machine context in ucp.  */
-  	__setcontext (ucp);
+	__setcontext (ucp);
   }
 
   return 0;

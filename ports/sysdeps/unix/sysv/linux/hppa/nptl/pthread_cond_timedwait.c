@@ -41,4 +41,3 @@ versioned_symbol (libpthread, __pthread_cond_timedwait, pthread_cond_timedwait,
 # define __pthread_cond_timedwait __pthread_cond_timedwait_internal
 # include_next <pthread_cond_timedwait.c>
 #endif
-

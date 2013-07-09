@@ -467,7 +467,7 @@ asm (									\
    of the main executable's symbols, as for a COPY reloc.  */
 #if defined USE_TLS && (!defined RTLD_BOOTSTRAP || USE___THREAD)
 # define elf_machine_type_class(type)				\
-  ((((type) == R_PARISC_IPLT	 				\
+  ((((type) == R_PARISC_IPLT					\
   || (type) == R_PARISC_EPLT					\
   || (type) == R_PARISC_TLS_DTPMOD32				\
   || (type) == R_PARISC_TLS_DTPOFF32				\
@@ -475,7 +475,7 @@ asm (									\
   * ELF_RTYPE_CLASS_PLT)					\
   | (((type) == R_PARISC_COPY) * ELF_RTYPE_CLASS_COPY))
 #else
-#define elf_machine_type_class(type) 				\
+#define elf_machine_type_class(type)				\
  ((((type) == R_PARISC_IPLT					\
    || (type) == R_PARISC_EPLT)					\
    * ELF_RTYPE_CLASS_PLT)					\
@@ -523,7 +523,7 @@ dl_platform_init (void)
 
 auto void __attribute__((always_inline))
 elf_machine_rela (struct link_map *map,
-    		  const Elf32_Rela *reloc,
+		  const Elf32_Rela *reloc,
 		  const Elf32_Sym *sym,
 		  const struct r_found_version *version,
 		  void *const reloc_addr_arg,
@@ -649,13 +649,13 @@ elf_machine_rela (struct link_map *map,
       if (__builtin_expect (sym_map != NULL, 1))
 	{
 	  elf_machine_fixup_plt (NULL, sym_map, reloc, reloc_addr,
-	      			 DL_FIXUP_MAKE_VALUE(sym_map, value));
+				 DL_FIXUP_MAKE_VALUE(sym_map, value));
 	}
       else
 	{
 	  /* If we get here, it's a (weak) undefined sym.  */
 	  elf_machine_fixup_plt (NULL, map, reloc, reloc_addr,
-	      			 DL_FIXUP_MAKE_VALUE(map, value));
+				 DL_FIXUP_MAKE_VALUE(map, value));
 	}
       return;
 

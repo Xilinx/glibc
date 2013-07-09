@@ -31,7 +31,7 @@
 /* The syscall cancellation mechanism requires userspace
    assistance, the following code does roughly this:
 
-   	do arguments (read arg5 and arg6 to registers)
+	do arguments (read arg5 and arg6 to registers)
 	setup frame
 
 	check if there are threads, yes jump to pseudo_cancel
@@ -260,7 +260,7 @@ L(pre_end):						ASM_LINE_SEP	\
 				   header.multiple_threads) == 0, 1)
 # else
 /* Read the value of header.multiple_threads from the thread pointer */
-#  define SINGLE_THREAD_P 							\
+#  define SINGLE_THREAD_P							\
 	mfctl %cr27, %ret0					ASM_LINE_SEP	\
 	ldw MULTIPLE_THREADS_THREAD_OFFSET(%sr0,%ret0),%ret0	ASM_LINE_SEP
 # endif
@@ -278,4 +278,3 @@ L(pre_end):						ASM_LINE_SEP	\
   __builtin_expect (THREAD_GETMEM (THREAD_SELF, \
 				   header.multiple_threads) == 0, 1)
 #endif
-

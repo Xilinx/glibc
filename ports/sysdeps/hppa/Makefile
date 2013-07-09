@@ -41,4 +41,4 @@ endif
 
 # We implement a 64-bit `long double'. The standard says we can do this.
 # This means our `long double' and `double' are identical.
-long-double-fcts = no 
+long-double-fcts = no

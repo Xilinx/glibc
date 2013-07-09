@@ -27,7 +27,7 @@ Get one and do: "git config glibc.ports-repo GLIBC_PORTS.git" \
 endif
 
 dep-my-branch := $(firstword $(wildcard ../.git/refs/heads/$(my-branch) \
-	      		    	       	../.git/packed-refs))
+					../.git/packed-refs))
 dep-upstream-branch := $(firstword $(wildcard \
 	../.git/refs/remotes/$(upstream-remote)/$(upstream-branch) \
 	../.git/packed-refs))
@@ -53,7 +53,7 @@ merge:
 describe-merge = describe --match 'glibc-*'
 
 merge-base-id := $(call git,merge-base,\
-	      	       	HEAD $(upstream-remote)/$(upstream-branch))
+			HEAD $(upstream-remote)/$(upstream-branch))
 merge-base-name := $(call git,$(describe-merge) $(merge-base-id))
 
 merge-base:

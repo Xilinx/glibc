@@ -14,4 +14,3 @@ extern int __pthread_cond_timedwait_internal (pthread_cond_t *cond,
 extern int __pthread_cond_wait_internal (pthread_cond_t *cond,
                                         pthread_mutex_t *mutex);
 #endif
-

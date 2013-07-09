@@ -97,4 +97,3 @@ __makecontext (ucontext_t *ucp, void (*func) (void), int argc, ...)
   va_end (ap);
 }
 weak_alias(__makecontext, makecontext)
-

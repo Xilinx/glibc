@@ -20,8 +20,8 @@
 #include <asm/errno.h>
 
 
-/* int  __clone2(int (*fn) (void *arg), void *child_stack_base, 	*/
-/* 	         size_t child_stack_size, int flags, void *arg,		*/
+/* int  __clone2(int (*fn) (void *arg), void *child_stack_base,	*/
+/*	         size_t child_stack_size, int flags, void *arg,		*/
 /*	         pid_t *parent_tid, void *tls, pid_t *child_tid)	*/
 
 #define CHILD	p8
@@ -41,7 +41,7 @@ ENTRY(__clone2)
 	mov out2=in2		/* Stack size.				*/
 	mov out3=in5		/* Parent TID Pointer			*/
 	mov out4=in7		/* Child TID Pointer			*/
- 	mov out5=in6		/* TLS pointer				*/
+	mov out5=in6		/* TLS pointer				*/
 	/*
 	 * clone2() is special: the child cannot execute br.ret right
 	 * after the system call returns, because it starts out
@@ -88,7 +88,7 @@ ENTRY(__clone2)
 	;;
 	ld8 gp=[in0]		/* Load function gp.		*/
 	mov b6=out1
-	br.call.dptk.many rp=b6	/* Call fn(arg) in the child 	*/
+	br.call.dptk.many rp=b6	/* Call fn(arg) in the child	*/
 	;;
 	mov out0=r8		/* Argument to _exit		*/
 	mov gp=loc0

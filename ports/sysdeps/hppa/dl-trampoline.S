@@ -51,7 +51,7 @@ _dl_runtime_resolve:
 
 	/* Save static link register */
 	stw	%r29,-16(%sp)
- 	/* Save argument registers */
+	/* Save argument registers */
 	stw	%r26,-36(%sp)
 	stw	%r25,-40(%sp)
 	stw	%r24,-44(%sp)
@@ -74,11 +74,11 @@ _dl_runtime_resolve:
 	fstd,ma	%fr6,-8(%r1)
 	fstd,ma	%fr7,-8(%r1)
 
- 	/* Set up args to fixup func, needs only two arguments  */
+	/* Set up args to fixup func, needs only two arguments  */
 	ldw	8+4(%r20),%r26		/* (1) got[1] == struct link_map */
 	copy	%r19,%r25		/* (2) reloc offset  */
 
- 	/* Call the real address resolver. */
+	/* Call the real address resolver. */
 	bl	_dl_fixup,%rp
 	copy	%r21,%r19		/* set fixup func ltp */
 
@@ -164,7 +164,7 @@ _dl_runtime_profile:
 	stw	%r2,-52(%sp)
 
 
- 	/* Set up args to fixup func, needs five arguments  */
+	/* Set up args to fixup func, needs five arguments  */
 	ldw	8+4(%r20),%r26		/* (1) got[1] == struct link_map */
 	stw	%r26,-116(%sp)		/* Save struct link_map */
 	copy	%r19,%r25		/* (2) reloc offset  */
@@ -174,7 +174,7 @@ _dl_runtime_profile:
 	ldo	-112(%sp), %r1
 	stw	%r1, -52(%sp)		/* (5) long int *framesizep */
 
- 	/* Call the real address resolver. */
+	/* Call the real address resolver. */
 	bl	_dl_profile_fixup,%rp
 	copy	%r21,%r19		/* set fixup func ltp */
 
@@ -255,7 +255,7 @@ L(cont):
 
 	/* Arguments to _dl_call_pltexit */
 	ldw	-116(%sp), %r26		/* (1) got[1] == struct link_map */
-	ldw 	-120(%sp), %r25		/* (2) reloc offsets */
+	ldw	-120(%sp), %r25		/* (2) reloc offsets */
 	ldo	-56(%sp), %r24		/* (3) *La_hppa_regs */
 	ldo	-124(%sp), %r23		/* (4) *La_hppa_retval */
 
