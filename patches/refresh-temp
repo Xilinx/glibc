@@ -1,0 +1,22 @@
+Bottom: 20ad1a1c785d0021895441938df15744552246e1
+Top:    71b79e23c89f896c1de8dca6eb0567d1c55e7cff
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-07-30 04:33:59 -0300
+
+Refresh of malloc-probe-arena-changes.patch
+
+---
+
+diff --git a/manual/probes.texi b/manual/probes.texi
+index 1a65872..cf8c1b0 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -37,7 +37,7 @@ at least @var{$arg2} bytes.
+ This probe is hit when @code{malloc} has just selected an existing arena
+ to reuse, and (temporarily) reserved it for exclusive use.  Argument
+ @var{$arg1} is a pointer to the newly-selected arena, and @var{$arg2} is
+-a pointer to the arena previously used by that thread.  
++a pointer to the arena previously used by that thread.
+ 
+ When per-thread arenas are enabled, this occurs within
+ @code{reused_arena}, right after the mutex mentioned in probe
