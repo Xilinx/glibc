@@ -1,15 +1,15 @@
 Version: 1
-Previous: b6698ebaf34ee4eee6fdf262dda1f0e6326ec8f5
-Head: 134de3fab35b91543080d25a276ab00593d15be7
+Previous: 1105dbbfefb70928dddf6224c380ee647b74e574
+Head: 3877ab63574b2d23eac947fed521b7c3999c8d9f
 Applied:
   manual-document-mt-safety.patch: efc461350d9249c7b45dd1711d026868b38f051c
   powerpc-nofpu-sim-note-nothread.patch: 134de3fab35b91543080d25a276ab00593d15be7
+  unused-scalb-is-scalbn.patch: abc6d481de5aabe5a3a019a29cc747e55230600e
+  manual-document-mt-safety-arith.patch: e9e5cf9f32d9b8147c0c8097478f8d623709d917
+  manual-document-mt-safety-stdio.patch: d0a89c9db96cfa69b1e445b45d29ebb5d783b899
+  manual-document-mt-safety-locale.patch: b6d0a7e40695997390c967a9c1255fc1813c84b0
+  manual-document-mt-safety-math.patch: c9ff7cfa5b3b4eb6799616ecce3a99944b7642d3
+  manual-document-mt-safety-ctype-wip.patch: 59ba7a5b73180e9b6b3a8a780c794019f3b4fb8e
+  manual-document-mt-safety-wip.patch: 3877ab63574b2d23eac947fed521b7c3999c8d9f
 Unapplied:
-  unused-scalb-is-scalbn.patch: c7b61a96cbd8cb57ef7aedbddf47a3368451583d
-  manual-document-mt-safety-arith.patch: ff79da305c9dfa8cdc253ef91e3af827e98ecd2b
-  manual-document-mt-safety-stdio.patch: 29204588dcc2ae4b2c07025a50f8018c87cdc409
-  manual-document-mt-safety-locale.patch: 2138bb13b72835109d53a470595be6f31f485113
-  manual-document-mt-safety-math.patch: 00af0ed393c8103a619299dc34fcda36561f3cd7
-  manual-document-mt-safety-ctype-wip.patch: b86a9adf8ea6fc915d528f3fa61ded06f3c91c61
-  manual-document-mt-safety-wip.patch: 08d66cf64dcb2bce1a99e163cd4941e2c77b4a37
 Hidden:
