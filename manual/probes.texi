@@ -37,7 +37,7 @@ at least @var{$arg2} bytes.
 This probe is hit when @code{malloc} has just selected an existing arena
 to reuse, and (temporarily) reserved it for exclusive use.  Argument
 @var{$arg1} is a pointer to the newly-selected arena, and @var{$arg2} is
-a pointer to the arena previously used by that thread.  
+a pointer to the arena previously used by that thread.
 
 When per-thread arenas are enabled, this occurs within
 @code{reused_arena}, right after the mutex mentioned in probe
