@@ -1,5 +1,5 @@
 Bottom: d4ac695d79ac61ccd9bd4ae034dc7d04b2e6c00e
-Top:    20ad1a1c785d0021895441938df15744552246e1
+Top:    71b79e23c89f896c1de8dca6eb0567d1c55e7cff
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2012-10-10 08:46:20 -0300
 
@@ -72,7 +72,7 @@ index 5e23de2..46a1454 100644
    tsd_setspecific(arena_key, (void *)ar_ptr);
  #endif
 diff --git a/manual/probes.texi b/manual/probes.texi
-index a6fad34..1a65872 100644
+index a6fad34..cf8c1b0 100644
 --- a/manual/probes.texi
 +++ b/manual/probes.texi
 @@ -33,6 +33,66 @@ located at @var{$arg1}, within a newly-allocated heap big enough to hold
@@ -83,7 +83,7 @@ index a6fad34..1a65872 100644
 +This probe is hit when @code{malloc} has just selected an existing arena
 +to reuse, and (temporarily) reserved it for exclusive use.  Argument
 +@var{$arg1} is a pointer to the newly-selected arena, and @var{$arg2} is
-+a pointer to the arena previously used by that thread.  
++a pointer to the arena previously used by that thread.
 +
 +When per-thread arenas are enabled, this occurs within
 +@code{reused_arena}, right after the mutex mentioned in probe
