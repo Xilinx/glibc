@@ -135,13 +135,14 @@ __netlink_request (struct netlink_handle *h, int type)
 #ifdef PAGE_SIZE
   /* Help the compiler optimize out the malloc call if PAGE_SIZE
      is constant and smaller or equal to PTHREAD_STACK_MIN/4.  */
-  const size_t buf_size = PAGE_SIZE;
+  size_t buf_size = PAGE_SIZE;
 #else
-  const size_t buf_size = __getpagesize ();
+  size_t buf_size = __getpagesize ();
 #endif
   bool use_malloc = false;
   char *buf;
 
+ retry:
   if (__libc_use_alloca (buf_size))
     buf = alloca (buf_size);
   else
@@ -176,7 +177,23 @@ __netlink_request (struct netlink_handle *h, int type)
 	continue;
 
       if (__builtin_expect (msg.msg_flags & MSG_TRUNC, 0))
-	goto out_fail;
+	{
+	  /* Consume the rest of the truncated response, then retry
+	     with a larger buffer.  */
+	  do
+	    {
+	      read_len = TEMP_FAILURE_RETRY (__recvmsg (h->fd, &msg, 0));
+	      if (read_len < 0)
+		break;
+	      buf_size += read_len;
+	    }
+	  while ((msg.msg_flags & MSG_TRUNC) != 0);
+
+	  if (use_malloc)
+	    free (buf);
+	  goto retry;
+	}
+
 
       size_t count = 0;
       size_t remaining_len = read_len;
