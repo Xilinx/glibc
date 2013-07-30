@@ -1,5 +1,5 @@
-Bottom: 9d4d6eaa4eb7480ef2542795e29ccad9cb9c63e5
-Top:    4f46302d23a22100ef99c3cd62f39c3d6880e526
+Bottom: 1e3f5f07deb86b114d89d42181bd7cb0240cd463
+Top:    1a85a998f0168167763d4e1f62b9bc1f73a1634c
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2012-10-10 08:46:21 -0300
 
@@ -80,7 +80,7 @@ index 54cdef8..b2684c6 100644
  	released = (long)(current_brk - new_brk);
  
 diff --git a/manual/probes.texi b/manual/probes.texi
-index c5c2870..40a241a 100644
+index 6cf1b91..650bea7 100644
 --- a/manual/probes.texi
 +++ b/manual/probes.texi
 @@ -24,6 +24,46 @@ arguments.

@@ -1,5 +1,5 @@
-Bottom: 98e970f78f5aaaa7568c1385ff494bfd3abe36a2
-Top:    9d4d6eaa4eb7480ef2542795e29ccad9cb9c63e5
+Bottom: 813ff2cf41ede6564fca640260dfa9ea798d3665
+Top:    1e3f5f07deb86b114d89d42181bd7cb0240cd463
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2012-10-10 08:46:21 -0300
 
@@ -26,7 +26,7 @@ index 89e8b92..9ace186 100644
      (void)mutex_unlock(&ar_ptr->mutex);
      ar_ptr = &main_arena;
 diff --git a/manual/probes.texi b/manual/probes.texi
-index ba30c0d..c5c2870 100644
+index 89cbabc..6cf1b91 100644
 --- a/manual/probes.texi
 +++ b/manual/probes.texi
 @@ -44,6 +44,18 @@ two-argument functions, so that in all of these probes the
