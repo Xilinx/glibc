@@ -1,0 +1,67 @@
+Bottom: 4efc67610afbdb4ae5fe31b2b904569f7a82116e
+Top:    83a97471a9f798dbf70f921529bea532c0632478
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-06-26 10:46:36 -0300
+
+Note that powerpc fpu emulation status is not thread- or signal-safe.
+
+for  ports/ChangeLog.powerpc
+
+	PR 15483
+	* sysdeps/powerpc/nofpu/sim-full.c: Add FIXME note about
+	the need for thread-specific variables preserved across signal
+	handlers.
+	* sysdeps/powerpc/nofpu/soft-supp.h: Likewise.
+	* sysdeps/powerpc/soft-fp/sfp-machine.h: Likewise.
+
+
+---
+
+diff --git a/ports/sysdeps/powerpc/nofpu/sim-full.c b/ports/sysdeps/powerpc/nofpu/sim-full.c
+index fc061d0..e167033 100644
+--- a/ports/sysdeps/powerpc/nofpu/sim-full.c
++++ b/ports/sysdeps/powerpc/nofpu/sim-full.c
+@@ -21,6 +21,11 @@
+ #include "soft-fp.h"
+ #include "soft-supp.h"
+ 
++/* FIXME: these variables should be thread specific (see bugzilla bug
++   15483) and ideally preserved across signal handlers, like hardware
++   FP status words, but the latter is quite difficult to accomplish in
++   userland.  */
++
+ /* Global to store sticky exceptions.  */
+ int __sim_exceptions __attribute__ ((nocommon));
+ libc_hidden_data_def (__sim_exceptions);
+diff --git a/ports/sysdeps/powerpc/nofpu/soft-supp.h b/ports/sysdeps/powerpc/nofpu/soft-supp.h
+index b9638bb..64a3d2a 100644
+--- a/ports/sysdeps/powerpc/nofpu/soft-supp.h
++++ b/ports/sysdeps/powerpc/nofpu/soft-supp.h
+@@ -26,6 +26,11 @@ typedef union
+ } fenv_union_t;
+ 
+ 
++/* FIXME: these variables should be thread specific (see bugzilla bug
++   15483) and ideally preserved across signal handlers, like hardware
++   FP status words, but the latter is quite difficult to accomplish in
++   userland.  */
++
+ extern int __sim_exceptions;
+ libc_hidden_proto (__sim_exceptions);
+ extern int __sim_disabled_exceptions;
+diff --git a/ports/sysdeps/powerpc/soft-fp/sfp-machine.h b/ports/sysdeps/powerpc/soft-fp/sfp-machine.h
+index c2a190e..508d869 100644
+--- a/ports/sysdeps/powerpc/soft-fp/sfp-machine.h
++++ b/ports/sysdeps/powerpc/soft-fp/sfp-machine.h
+@@ -54,6 +54,11 @@
+ #define FP_ROUNDMODE          __sim_round_mode
+ #define FP_TRAPPING_EXCEPTIONS (~__sim_disabled_exceptions & 0x3e000000)
+ 
++/* FIXME: these variables should be thread specific (see bugzilla bug
++   15483) and ideally preserved across signal handlers, like hardware
++   FP status words, but the latter is quite difficult to accomplish in
++   userland.  */
++
+ extern int __sim_exceptions;
+ libc_hidden_proto (__sim_exceptions);
+ extern int __sim_disabled_exceptions;

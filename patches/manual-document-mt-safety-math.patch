@@ -1,0 +1,26 @@
+Bottom: b6a7df74e1dd769dd2a68885320bde2bae038277
+Top:    7c3df0362db41863af2f7f886b7e7f14cd2cb7c5
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-06-26 10:46:41 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/math.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/math.texi b/manual/math.texi
+index 193d415..fd5d0c8 100644
+--- a/manual/math.texi
++++ b/manual/math.texi
+@@ -560,6 +560,7 @@ negative), @code{logb} returns @math{@infinity{}}.  If @var{x} is zero,
+ @comment math.h
+ @comment ISO
+ @deftypefunx int ilogbl (long double @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ These functions are equivalent to the corresponding @code{logb}
+ functions except that they return signed integer values.
+ @end deftypefun

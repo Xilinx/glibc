@@ -1,0 +1,3477 @@
+Bottom: cd865dbc67422bb0360d4e2692cc5f7ec6aea252
+Top:    7e6a83a1413d637cd4076c377f2dc632dc928b39
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-06-26 10:46:48 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/???.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/argp.texi b/manual/argp.texi
+index c9fbe97..5322f91 100644
+--- a/manual/argp.texi
++++ b/manual/argp.texi
+@@ -36,6 +36,35 @@ needed in @code{main}.
+ @comment argp.h
+ @comment GNU
+ @deftypefun {error_t} argp_parse (const struct argp *@var{argp}, int @var{argc}, char **@var{argv}, unsigned @var{flags}, int *@var{arg_index}, void *@var{input})
++@safety{@mtunsafe{xguargs, envromt}@asunsafe{asmalloc, asi18n, selfdeadlock, asynconsist}@acunsafe{memleak, lockleak, incansist}}
++@c Optionally alloca()tes standard help options, initializes the parser,
++@c then parses individual args in a loop, and then finalizes.
++@c  parser_init
++@c   calc_sizes ok
++@c    option_is_end ok
++@c   malloc
++@c   parser_convert glocale
++@c    convert_options glocale
++@c     option_is_end ok
++@c     option_is_short ok
++@c      isprint, but locale may change within the loop
++@c     find_long_option ok
++@c   group_parse
++@c    group->parser (from argp->parser)
++@c  parser_parse_next
++@c   getopt_long(_only)_r many issues, same as non_r minus staticbuf
++@c   parser_parse_arg
++@c    group_parse
++@c   parser_parse_opt
++@c    group_parse
++@c    argp_error
++@c    dgettext (bad key error)
++@c  parser_finalize
++@c   group_parse
++@c   fprintf
++@c   dgettext
++@c   arg_state_help
++@c   free
+ The @code{argp_parse} function parses the arguments in @var{argv}, of
+ length @var{argc}, using the argp parser @var{argp}.  @xref{Argp
+ Parsers}.  Passing a null pointer for @var{argp} is the same as using
+@@ -660,6 +689,8 @@ parser function.  @xref{Argp Parsing State}.
+ @comment argp.h
+ @comment GNU
+ @deftypefun void argp_usage (const struct argp_state *@var{state})
++@safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
++@c Just calls argp_state_help with stderr and ARGP_HELP_STD_USAGE.
+ Outputs the standard usage message for the argp parser referred to by
+ @var{state} to @code{@var{state}->err_stream} and terminate the program
+ with @code{exit (argp_err_exit_status)}.  @xref{Argp Global Variables}.
+@@ -669,6 +700,13 @@ with @code{exit (argp_err_exit_status)}.  @xref{Argp Global Variables}.
+ @comment argp.h
+ @comment GNU
+ @deftypefun void argp_error (const struct argp_state *@var{state}, const char *@var{fmt}, @dots{})
++@safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
++@c Lock stream, vasprintf the formatted message into a buffer, print the
++@c buffer prefixed by the short program name (in libc,
++@c argp_short_program_name is a macro that expands to
++@c program_invocation_short_name), releases the buffer, then call
++@c argp_state_help with stream and ARGP_HELP_STD_ERR, unlocking the
++@c stream at the end.
+ Prints the printf format string @var{fmt} and following args, preceded
+ by the program name and @samp{:}, and followed by a @w{@samp{Try @dots{}
+ --help}} message, and terminates the program with an exit status of
+@@ -679,6 +717,12 @@ by the program name and @samp{:}, and followed by a @w{@samp{Try @dots{}
+ @comment argp.h
+ @comment GNU
+ @deftypefun void argp_failure (const struct argp_state *@var{state}, int @var{status}, int @var{errnum}, const char *@var{fmt}, @dots{})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc}@acunsafe{lockleak, incansist, memleak}}
++@c Lock stream, write out the short program name, vasprintf the optional
++@c formatted message to a buffer, print the buffer prefixed by colon and
++@c blank, release the buffer, call strerror_r with an automatic buffer,
++@c print it out after colon and blank, put[w]c a line break, unlock the
++@c stream, then exit unless ARGP_NO_EXIT.
+ Similar to the standard gnu error-reporting function @code{error}, this
+ prints the program name and @samp{:}, the printf format string
+ @var{fmt}, and the appropriate following args.  If it is non-zero, the
+@@ -695,6 +739,141 @@ for options, bad phase of the moon, etc.
+ @comment argp.h
+ @comment GNU
+ @deftypefun void argp_state_help (const struct argp_state *@var{state}, FILE *@var{stream}, unsigned @var{flags})
++@safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
++@c Just calls _help with the short program name and optionally exit.
++@c The main problems in _help, besides the usual issues with stream I/O
++@c and translation, are the use of a static buffer (uparams) that makes
++@c the whole thing thread-unsafe, reading from the environment for
++@c ARGP_HELP_FMT, accessing the locale object multiple times.
++
++@c _help envromt, staticbuf (uparams), glocale, asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c  dgettext asi18n
++@c  flockfile lockleak
++@c  funlockfile lockleak
++@c  fill_in_uparams envromt, staticbuf (uparams), glocale, asynconsist, asmalloc, lockleak, incansist, memleak
++@c   argp_failure dup (status = errnum = 0)
++@c   atoi dup
++@c  argp_hol asmalloc, memleak
++@c   make_hol asmalloc, memleak
++@c   hol_add_cluster asmalloc, memleak
++@c   hol_append asmalloc, memleak
++@c  hol_set_group ok
++@c   hol_find_entry ok
++@c  hol_sort glocale, asmalloc, memleak
++@c   qsort asmalloc, memleak
++@c    hol_entry_qcmp glocale
++@c     hol_entry_cmp glocale
++@c      group_cmp ok
++@c      hol_cluster_cmp ok
++@c       group_cmp ok
++@c      hol_entry_first_short glocale
++@c       hol_entry_short_iterate [glocale]
++@c        until_short ok
++@c         oshort ok
++@c          isprint ok
++@c      odoc ok
++@c      hol_entry_first_long ok
++@c      canon_doc_option glocale
++@c      tolower dup
++@c  hol_usage glocale, asi18n, asmalloc, memleak
++@c   hol_entry_short_iterate ok
++@c    add_argless_short_opt ok
++@c   argp_fmtstream_printf dup
++@c   hol_entry_short_iterate glocale, asi18n, asmalloc, memleak
++@c    usage_argful_short_opt glocale, asi18n, asmalloc, memleak
++@c     dgettext dup
++@c     argp_fmtstream_printf dup
++@c   hol_entry_long_iterate glocale, asi18n, asmalloc, memleak
++@c    usage_long_opt glocale, asi18n, asmalloc, memleak
++@c     dgettext dup
++@c     argp_fmtstream_printf dup
++@c  hol_help glocale, staticbuf (uparams), asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c   hol_entry_help glocale, staticbuf (uparams), asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c    argp_fmtstream_set_lmargin dup
++@c    argp_fmtstream_wmargin dup
++@c    argp_fmtstream_set_wmargin dup
++@c    comma glocale, asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c     argp_fmtstream_putc dup
++@c     hol_cluster_is_child ok
++@c     argp_fmtstream_wmargin dup
++@c     print_header dup
++@c     argp_fmtstream_set_wmargin dup
++@c     argp_fmtstream_puts dup
++@c     indent_to dup
++@c    argp_fmtstream_putc dup
++@c    arg glocale, asmalloc, memleak
++@c     argp_fmtstream_printf dup
++@c    odoc dup
++@c    argp_fmtstream_puts dup
++@c    argp_fmtstream_printf dup
++@c    print_header glocale, staticbuf (uparams), asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c     dgettext dup
++@c     filter_doc dup
++@c     argp_fmtstream_putc dup
++@c     indent_to dup
++@c     argp_fmtstream_set_lmargin dup
++@c     argp_fmtstream_set_wmargin dup
++@c     argp_fmtstream_puts dup
++@c     free dup
++@c    filter_doc dup
++@c    argp_fmtstream_point dup
++@c    indent_to glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c     argp_fmtstream_point dup
++@c     argp_fmtstream_putc dup
++@c   dgettext dup
++@c   filter_doc dup
++@c   argp_fmtstream_putc dup
++@c   argp_fmtstream_puts dup
++@c   free dup
++@c  hol_free asmalloc, memleak
++@c   free dup
++@c  argp_args_levels ok
++@c  argp_args_usage glocale, asi18n, asmalloc, asynconsist, memleak, incansist, lockleak
++@c   dgettext dup
++@c   filter_doc ok
++@c    argp_input ok
++@c    argp->help_filter
++@c   space glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c    argp_fmtstream_point dup
++@c    argp_fmtstream_rmargin glocale, asynconsist, incansist, lockleak
++@c     argp_fmtstream_update dup
++@c    argp_fmtstream_putc dup
++@c   argp_fmtstream_write dup
++@c   free dup
++@c  argp_doc glocale, asmalloc, asi18n, asynconsist, memleak, incansist, lockleak
++@c   dgettext asi18n
++@c   strndup asmalloc, memleak
++@c   argp_input dup
++@c   argp->help_filter
++@c   argp_fmtstream_putc glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c    argp_fmtstream_ensure dup
++@c   argp_fmtstream_write dup
++@c   argp_fmtstream_puts dup
++@c   argp_fmtstream_point glocale, asynconsist, incansist, lockleak
++@c    argp_fmtstream_update dup
++@c   argp_fmtstream_lmargin dup
++@c   free dup
++@c  argp_make_fmtstream asmalloc, memleak
++@c  argp_fmtstream_free glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c   argp_fmtstream_update glocale, asynconsist, incansist, lockleak
++@c    put[w]c_unlocked dup
++@c    isblank in loop glocale
++@c    fxprintf lockleak
++@c   fxprintf lockleak
++@c   free dup
++@c  argp_fmtstream_set_wmargin glocale, asynconsist, incansist, lockleak
++@c   argp_fmtstream_update dup
++@c  argp_fmtstream_printf glocale, asmalloc, memleak
++@c   argp_fmtstream_ensure dup
++@c   vsnprintf dup
++@c  argp_fmtstream_set_lmargin glocale, asynconsist, incansist, lockleak
++@c   argp_fmtstream_update dup
++@c  argp_fmtstream_puts glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c   argp_fmtstream_write glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c    argp_fmtstream_ensure glocale, asmalloc, asynconsist, memleak, incansist, lockleak
++@c     argp_fmtstream_update dup
++@c     fxprintf lockleak
++@c     realloc asmalloc, memleak
+ Outputs a help message for the argp parser referred to by @var{state},
+ to @var{stream}.  The @var{flags} argument determines what sort of help
+ message is produced.  @xref{Argp Help Flags}.
+@@ -928,6 +1107,8 @@ program options, argp offers the @code{argp_help} interface.
+ @comment argp.h
+ @comment GNU
+ @deftypefun void argp_help (const struct argp *@var{argp}, FILE *@var{stream}, unsigned @var{flags}, char *@var{name})
++@safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
++@c Just calls _help.  
+ This outputs a help message for the argp parser @var{argp} to
+ @var{stream}.  The type of messages printed will be determined by
+ @var{flags}.
+diff --git a/manual/arith.texi b/manual/arith.texi
+index 833e0c9..5c3aa9d 100644
+--- a/manual/arith.texi
++++ b/manual/arith.texi
+@@ -323,6 +323,7 @@ floating-point number a variable holds.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int fpclassify (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is a generic macro which works on all floating-point types and
+ which returns a value of type @code{int}.  The possible values are:
+ 
+@@ -359,6 +360,7 @@ You should therefore use the specific macros whenever possible.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isfinite (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is finite: not plus or
+ minus infinity, and not NaN.  It is equivalent to
+ 
+@@ -373,6 +375,7 @@ floating-point type.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isnormal (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is finite and normalized.
+ It is equivalent to
+ 
+@@ -384,6 +387,7 @@ It is equivalent to
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isnan (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is NaN.  It is equivalent
+ to
+ 
+@@ -395,6 +399,7 @@ to
+ @comment math.h
+ @comment GNU
+ @deftypefn {Macro} int issignaling (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is a signaling NaN
+ (sNaN).  It is based on draft TS 18661 and currently enabled as a GNU
+ extension.
+@@ -2443,6 +2448,32 @@ as well.
+ @safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
+ @c Besides the unsafe-but-ruled-safe locale uses, this uses a lot of
+ @c mpn, but it's all safe.
++@c
++@c round_and_return
++@c   get_rounding_mode ok
++@c   mpn_add_1 ok
++@c   mpn_rshift ok
++@c   MPN_ZERO ok
++@c   MPN2FLOAT -> mpn_construct_(float|double|long_double) ok
++@c str_to_mpn
++@c   mpn_mul_1 -> umul_ppmm ok
++@c   mpn_add_1 ok
++@c mpn_lshift_1 -> mpn_lshift ok
++@c STRTOF_INTERNAL
++@c   MPN_VAR ok
++@c   SET_MANTISSA ok
++@c   STRNCASECMP ok, wide and narrow
++@c   round_and_return ok
++@c   mpn_mul ok
++@c     mpn_addmul_1 ok
++@c     ... mpn_sub
++@c   mpn_lshift ok
++@c   udiv_qrnnd ok
++@c   count_leading_zeros ok
++@c   add_ssaaaa ok
++@c   sub_ddmmss ok
++@c   umul_ppmm ok
++@c   mpn_submul_1 ok
+ The @code{strtod} (``string-to-double'') function converts the initial
+ part of @var{string} to a floating-point number, which is returned as a
+ value of type @code{double}.
+diff --git a/manual/charset.texi b/manual/charset.texi
+index e21502e..7e6c416 100644
+--- a/manual/charset.texi
++++ b/manual/charset.texi
+@@ -504,6 +504,8 @@ sequence points.  Communication protocols often require this.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun int mbsinit (const mbstate_t *@var{ps})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c ps is dereferenced once, unguarded.  Potential harmless data race.
+ The @code{mbsinit} function determines whether the state object pointed
+ to by @var{ps} is in the initial state.  If @var{ps} is a null pointer or
+ the object is in the initial state the return value is nonzero.  Otherwise
+@@ -559,6 +561,14 @@ that is beyond the range @math{0} to @math{127}.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun wint_t btowc (int @var{c})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
++@c Calls btowc_fct or __fct; reads from locale, and from the
++@c get_gconv_fcts result multiple times.  get_gconv_fcts calls
++@c __wcsmbs_load_conv to initialize the ctype if it's null.
++@c wcsmbs_load_conv takes a non-recursive wrlock before allocating
++@c memory for the fcts structure, initializing it, and then storing it
++@c in the locale object.  The initialization involves dlopening and a
++@c lot more.
+ The @code{btowc} function (``byte to wide character'') converts a valid
+ single byte character @var{c} in the initial shift state into the wide
+ character equivalent using the conversion rules from the currently
+@@ -615,6 +625,7 @@ There is also a function for the conversion in the other direction.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun int wctob (wint_t @var{c})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{wctob} function (``wide character to byte'') takes as the
+ parameter a valid wide character.  If the multibyte representation for
+ this character in the initial state is exactly one byte long, the return
+@@ -634,6 +645,7 @@ and they also do not require it to be in the initial state.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun size_t mbrtowc (wchar_t *restrict @var{pwc}, const char *restrict @var{s}, size_t @var{n}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ @cindex stateful
+ The @code{mbrtowc} function (``multibyte restartable to wide
+ character'') converts the next multibyte character in the string pointed
+@@ -728,6 +740,7 @@ function that does part of the work.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun size_t mbrlen (const char *restrict @var{s}, size_t @var{n}, mbstate_t *@var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{mbrlen} function (``multibyte restartable length'') computes
+ the number of at most @var{n} bytes starting at @var{s}, which form the
+ next valid and complete multibyte character.
+@@ -811,6 +824,50 @@ doing the work twice.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun size_t wcrtomb (char *restrict @var{s}, wchar_t @var{wc}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
++@c wcrtomb uses a static, non-thread-local unguarded state variable when
++@c PS is NULL.  When a state is passed in, and it's not used
++@c concurrently in other threads, this function behaves safely as long
++@c as gconv modules don't bring MT safety issues of their own.
++@c Attempting to load gconv modules or to build conversion chains in
++@c signal handlers may encounter gconv databases or caches in a
++@c partially-updated state, and asynchronous cancellation may leave them
++@c in such states, besides leaking the lock that guards them.
++@c get_gconv_fcts ok
++@c    wcsmbs_load_conv ok
++@c      norm_add_slashes ok
++@c      wcsmbs_getfct ok
++@c        gconv_find_transform ok
++@c          gconv_read_conf (libc_once)
++@c          gconv_lookup_cache ok
++@c            find_module_idx ok
++@c            find_module ok
++@c              gconv_find_shlib (ok)
++@c              ->init_fct (assumed ok)
++@c            gconv_get_builtin_trans ok
++@c            gconv_release_step ok
++@c          do_lookup_alias ok
++@c          find_derivation ok
++@c            derivation_lookup ok
++@c            increment_counter ok
++@c              gconv_find_shlib ok
++@c              step->init_fct (assumed ok)
++@c            gen_steps ok
++@c              gconv_find_shlib ok
++@c                dlopen (presumed ok)
++@c                dlsym (presumed ok)
++@c              step->init_fct (assumed ok)
++@c              step->end_fct (assumed ok)
++@c              gconv_get_builtin_trans ok
++@c              gconv_release_step ok
++@c            add_derivation ok
++@c      gconv_close_transform ok
++@c        gconv_release_step ok
++@c          step->end_fct (assumed ok)
++@c          gconv_release_shlib ok
++@c            dlclose (presumed ok)
++@c        gconv_release_cache ok
++@c  ->tomb->__fct (assumed ok)
+ The @code{wcrtomb} function (``wide character restartable to
+ multibyte'') converts a single wide character into a multibyte string
+ corresponding to that wide character.
+@@ -955,6 +1012,7 @@ extensions that can help in some important situations.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun size_t mbsrtowcs (wchar_t *restrict @var{dst}, const char **restrict @var{src}, size_t @var{len}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{mbsrtowcs} function (``multibyte string restartable to wide
+ character string'') converts an NUL-terminated multibyte character
+ string at @code{*@var{src}} into an equivalent wide character string,
+@@ -1039,6 +1097,7 @@ length and passing this length to the function.
+ @comment wchar.h
+ @comment ISO
+ @deftypefun size_t wcsrtombs (char *restrict @var{dst}, const wchar_t **restrict @var{src}, size_t @var{len}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{wcsrtombs} function (``wide character string restartable to
+ multibyte string'') converts the NUL-terminated wide character string at
+ @code{*@var{src}} into an equivalent multibyte character string and
+@@ -1084,6 +1143,7 @@ array size (the @var{len} parameter).
+ @comment wchar.h
+ @comment GNU
+ @deftypefun size_t mbsnrtowcs (wchar_t *restrict @var{dst}, const char **restrict @var{src}, size_t @var{nmc}, size_t @var{len}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{mbsnrtowcs} function is very similar to the @code{mbsrtowcs}
+ function.  All the parameters are the same except for @var{nmc}, which is
+ new.  The return value is the same as for @code{mbsrtowcs}.
+@@ -1136,6 +1196,7 @@ of the given buffer, there is no problem with altering the state.
+ @comment wchar.h
+ @comment GNU
+ @deftypefun size_t wcsnrtombs (char *restrict @var{dst}, const wchar_t **restrict @var{src}, size_t @var{nwc}, size_t @var{len}, mbstate_t *restrict @var{ps})
++@safety{@mtunsafe{staticbuf (if ps is null)}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{wcsnrtombs} function implements the conversion from wide
+ character strings to multibyte character strings.  It is similar to
+ @code{wcsrtombs} but, just like @code{mbsnrtowcs}, it takes an extra
+@@ -1280,6 +1341,7 @@ conversion functions.}
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun int mbtowc (wchar_t *restrict @var{result}, const char *restrict @var{string}, size_t @var{size})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{mbtowc} (``multibyte to wide character'') function when called
+ with non-null @var{string} converts the first multibyte character
+ beginning at @var{string} to its corresponding wide character code.  It
+@@ -1314,6 +1376,7 @@ shift state.  @xref{Shift State}.
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun int wctomb (char *@var{string}, wchar_t @var{wchar})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{wctomb} (``wide character to multibyte'') function converts
+ the wide character code @var{wchar} to its corresponding multibyte
+ character sequence, and stores the result in bytes starting at
+@@ -1353,6 +1416,7 @@ terms of @code{mbtowc}.
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun int mblen (const char *@var{string}, size_t @var{size})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{mblen} function with a non-null @var{string} argument returns
+ the number of bytes that make up the multibyte character beginning at
+ @var{string}, never examining more than @var{size} bytes.  (The idea is
+@@ -1391,6 +1455,9 @@ suffer from the same problems as their reentrant counterparts from
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun size_t mbstowcs (wchar_t *@var{wstring}, const char *@var{string}, size_t @var{size})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
++@c Odd...  Although this is in the non-reentrant section, the state
++@c object is automatic, not a static buffer.
+ The @code{mbstowcs} (``multibyte string to wide character string'')
+ function converts the null-terminated string of multibyte characters
+ @var{string} to an array of wide character codes, storing not more than
+@@ -1431,6 +1498,7 @@ mbstowcs_alloc (const char *string)
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun size_t wcstombs (char *@var{string}, const wchar_t *@var{wstring}, size_t @var{size})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+ The @code{wcstombs} (``wide character string to multibyte string'')
+ function converts the null-terminated wide character array @var{wstring}
+ into a string containing multibyte characters, storing not more than
+@@ -1618,6 +1686,16 @@ The first step is the function to create a handle.
+ @comment iconv.h
+ @comment XPG2
+ @deftypefun iconv_t iconv_open (const char *@var{tocode}, const char *@var{fromcode})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
++@c Calls malloc if tocode and/or fromcode are too big for alloca.  Calls
++@c strip and upstr on both, then gconv_open.  strip and upstr call
++@c isalnum_l and toupper_l with the C locale.  gconv_open may MT-safely
++@c tokenize toset, replace unspecified codesets with the current locale
++@c (posibly two different accesses), and finally it calls
++@c gconv_find_transform and initializes the gconv_t result with all the
++@c steps in the conversion sequence, running each one's initializer,
++@c destructing and releasing them all if anything fails.
++
+ The @code{iconv_open} function has to be used before starting a
+ conversion.  The two parameters this function takes determine the
+ source and destination character set for the conversion, and if the
+@@ -1682,6 +1760,12 @@ conversion is not needed anymore.
+ @comment iconv.h
+ @comment XPG2
+ @deftypefun int iconv_close (iconv_t @var{cd})
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, shlimb}}
++@c Calls gconv_close to destruct and release each of the conversion
++@c steps, release the gconv_t object, then call gconv_close_transform.
++@c Access to the gconv_t object is not guarded, but calling iconv_close
++@c concurrently with any other use is undefined.
++
+ The @code{iconv_close} function frees all resources associated with the
+ handle @var{cd}, which must have been returned by a successful call to
+ the @code{iconv_open} function.
+@@ -1708,6 +1792,10 @@ even file to file can be implemented on top of it.
+ @comment iconv.h
+ @comment XPG2
+ @deftypefun size_t iconv (iconv_t @var{cd}, char **@var{inbuf}, size_t *@var{inbytesleft}, char **@var{outbuf}, size_t *@var{outbytesleft})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist}@acunsafe{incansist}}
++@c Without guarding access to the gconv_t object pointed to by cd, call
++@c the conversion function to convert inbuf or flush the internal
++@c conversion state.
+ @cindex stateful
+ The @code{iconv} function converts the text in the input buffer
+ according to the rules associated with the descriptor @var{cd} and
+diff --git a/manual/conf.texi b/manual/conf.texi
+index 7eb8b36..edbb2fd 100644
+--- a/manual/conf.texi
++++ b/manual/conf.texi
+@@ -288,6 +288,17 @@ constants are declared in the header file @file{unistd.h}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun {long int} sysconf (int @var{parameter})
++@safety{@mtsafe{envromt}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak, fdleak}}
++@c Some parts of the implementation open /proc and /sys files and dirs
++@c to collect system details, using fd and stream I/O depending on the
++@c case.  _SC_TZNAME_MAX calls __tzname_max, that (while holding a lock)
++@c calls tzset_internal, that calls getenv if it's called the first
++@c time; there are free and strdup calls in there too.  The returned max
++@c value may change over time for TZNAME_MAX, depending on selected
++@c timezones; NPROCS, NPROCS_CONF, PHYS_PAGES, AVPHYS_PAGES,
++@c NGROUPS_MAX, SIGQUEUE_MAX, depending on variable values read from
++@c /proc at each call, and from rlimit-obtained values CHILD_MAX,
++@c OPEN_MAX, ARG_MAX, SIGQUEUE_MAX.
+ This function is used to inquire about runtime system parameters.  The
+ @var{parameter} argument should be one of the @samp{_SC_} symbols listed
+ below.
+@@ -1342,6 +1353,11 @@ argument are declared in the header file @file{unistd.h}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun {long int} pathconf (const char *@var{filename}, int @var{parameter})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, fdleak, memleak}}
++@c When __statfs_link_max finds an ext* filesystem, it may read
++@c /proc/mounts or similar as a mntent stream.
++@c __statfs_chown_restricted may read from
++@c /proc/sys/fs/xfs/restrict_chown as a file descriptor.
+ This function is used to inquire about the limits that apply to
+ the file named @var{filename}.
+ 
+@@ -1369,6 +1385,8 @@ support the @var{parameter} for the specific file.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun {long int} fpathconf (int @var{filedes}, int @var{parameter})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, fdleak, memleak}}
++@c Same caveats as pathconf.
+ This is just like @code{pathconf} except that an open file descriptor
+ is used to specify the file for which information is requested, instead
+ of a file name.
+@@ -1615,6 +1633,7 @@ system with the function @code{confstr}:
+ @comment unistd.h
+ @comment POSIX.2
+ @deftypefun size_t confstr (int @var{parameter}, char *@var{buf}, size_t @var{len})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function reads the value of a string-valued system parameter,
+ storing the string into @var{len} bytes of memory space starting at
+ @var{buf}.  The @var{parameter} argument should be one of the
+diff --git a/manual/crypt.texi b/manual/crypt.texi
+index ef90590..5c9f6f7 100644
+--- a/manual/crypt.texi
++++ b/manual/crypt.texi
+@@ -92,7 +92,13 @@ in a convenient way.
+ @comment unistd.h
+ @comment BSD
+ @deftypefun {char *} getpass (const char *@var{prompt})
+-
++@safety{@mtunsafe{tempterm}@asunsafe{asmalloc, selfdeadlock, asynconsist}@acunsafe{tempterm, lockleak, incansist}}
++@c This function will attempt to create a stream for terminal I/O, but
++@c will fallback to stdio/stderr.  It attempts to change the terminal
++@c mode in a thread-unsafe way, write out the prompt, read the password,
++@c then restore the terminal mode.  It has a cleanup to close the stream
++@c in case of (synchronous) cancellation, but not to restore the
++@c terminal mode.
+ @code{getpass} outputs @var{prompt}, then reads a string in from the
+ terminal without echoing it.  It tries to connect to the real terminal,
+ @file{/dev/tty}, if possible, to encourage users not to put plaintext
+@@ -127,6 +133,13 @@ The substitute takes the same parameters as @code{getline}
+ @comment crypt.h
+ @comment BSD, SVID
+ @deftypefun {char *} crypt (const char *@var{key}, const char *@var{salt})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock, asmalloc, shlimb}@acunsafe{lockleak, memleak, shlimb}}
++@c Besides the obvious problem of returning a pointer into static
++@c storage, the DES initializer takes an internal lock with the usual
++@c set of problems for AS- and AC-Safety.  The FIPS mode checker and the
++@c NSS implementations of may leak file descriptors if canceled.  The
++@c The MD5, SHA256 and SHA512 implementations will malloc on long keys,
++@c and NSS relies on dlopening, which brings about another can of worms.
+ 
+ The @code{crypt} function takes a password, @var{key}, as a string, and
+ a @var{salt} character array which is described below, and returns a
+@@ -188,6 +201,9 @@ for a password and prints ``Access granted.'' if the user types
+ @comment crypt.h
+ @comment GNU
+ @deftypefun {char *} crypt_r (const char *@var{key}, const char *@var{salt}, {struct crypt_data *} @var{data})
++@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock, asmalloc, shlimb}@acunsafe{lockleak, memleak, shlimb}}
++@c Compared with crypt, this function fixes the staticbuf problem, but
++@c nothing else.
+ 
+ The @code{crypt_r} function does the same thing as @code{crypt}, but
+ takes an extra parameter which includes space for its result (among
+@@ -233,6 +249,11 @@ specifies the unused bits.
+ @comment crypt.h
+ @comment BSD, SVID
+ @deftypefun void setkey (const char *@var{key})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
++@c The static buffer stores the key, making it fundamentally
++@c thread-unsafe.  The locking issues are only in the initialization
++@c path; cancelling the initialization will leave the lock held, it
++@c would otherwise repeat the initialization on the next call.
+ 
+ The @code{setkey} function sets an internal data structure to be an
+ expanded form of @var{key}.  @var{key} is specified as an array of 64
+@@ -244,6 +265,8 @@ parity.
+ @comment crypt.h
+ @comment BSD, SVID
+ @deftypefun void encrypt (char *@var{block}, int @var{edflag})
++@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
++@c Same issues as setkey.
+ 
+ The @code{encrypt} function encrypts @var{block} if
+ @var{edflag} is 0, otherwise it decrypts @var{block}, using a key
+@@ -257,9 +280,11 @@ stored in a @code{char}, but there are no parity bits in @var{block}.
+ @comment crypt.h
+ @comment GNU
+ @deftypefun void setkey_r (const char *@var{key}, {struct crypt_data *} @var{data})
++@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
+ @comment crypt.h
+ @comment GNU
+ @deftypefunx void encrypt_r (char *@var{block}, int @var{edflag}, {struct crypt_data *} @var{data})
++@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
+ 
+ These are reentrant versions of @code{setkey} and @code{encrypt}.  The
+ only difference is the extra parameter, which stores the expanded
+@@ -274,6 +299,7 @@ defined in @file{crypt.h}.
+ @comment rpc/des_crypt.h
+ @comment SUNRPC
+ @deftypefun int ecb_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ The function @code{ecb_crypt} encrypts or decrypts one or more blocks
+ using DES.  Each block is encrypted independently.
+@@ -355,6 +381,7 @@ This macro returns 1 if @var{err} is a `success' result code from
+ @comment rpc/des_crypt.h
+ @comment SUNRPC
+ @deftypefun int cbc_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode}, char *@var{ivec})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ The function @code{cbc_crypt} encrypts or decrypts one or more blocks
+ using DES in Cipher Block Chaining mode.
+@@ -381,6 +408,7 @@ Otherwise, all the parameters are similar to those for @code{ecb_crypt}.
+ @comment rpc/des_crypt.h
+ @comment SUNRPC
+ @deftypefun void des_setparity (char *@var{key})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ The function @code{des_setparity} changes the 64-bit @var{key}, stored
+ packed in 8-bit bytes, to have odd parity by altering the low bits of
+diff --git a/manual/ctype.texi b/manual/ctype.texi
+index f05d509..ddf38ce 100644
+--- a/manual/ctype.texi
++++ b/manual/ctype.texi
+@@ -66,6 +66,13 @@ These functions are declared in the header file @file{ctype.h}.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int islower (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c The is* macros call __ctype_b_loc to get the ctype array from the
++@c current locale, and then index it by c.  __ctype_b_loc reads from
++@c thread-local memory the (indirect) pointer to the ctype array, which
++@c may involve one word access to the global locale object, if that's
++@c the active locale for the thread, and the array, being part of the
++@c locale data, is undeletable, so there's no thread-safety issue.
+ Returns true if @var{c} is a lower-case letter.  The letter need not be
+ from the Latin alphabet, any alphabet representable is valid.
+ @end deftypefun
+@@ -74,6 +81,7 @@ from the Latin alphabet, any alphabet representable is valid.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isupper (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is an upper-case letter.  The letter need not be
+ from the Latin alphabet, any alphabet representable is valid.
+ @end deftypefun
+@@ -82,6 +90,7 @@ from the Latin alphabet, any alphabet representable is valid.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isalpha (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is an alphabetic character (a letter).  If
+ @code{islower} or @code{isupper} is true of a character, then
+ @code{isalpha} is also true.
+@@ -97,6 +106,7 @@ additional characters.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isdigit (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a decimal digit (@samp{0} through @samp{9}).
+ @end deftypefun
+ 
+@@ -104,6 +114,7 @@ Returns true if @var{c} is a decimal digit (@samp{0} through @samp{9}).
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isalnum (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is an alphanumeric character (a letter or
+ number); in other words, if either @code{isalpha} or @code{isdigit} is
+ true of a character, then @code{isalnum} is also true.
+@@ -113,6 +124,7 @@ true of a character, then @code{isalnum} is also true.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isxdigit (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a hexadecimal digit.
+ Hexadecimal digits include the normal decimal digits @samp{0} through
+ @samp{9} and the letters @samp{A} through @samp{F} and
+@@ -123,6 +135,7 @@ Hexadecimal digits include the normal decimal digits @samp{0} through
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int ispunct (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a punctuation character.
+ This means any printing character that is not alphanumeric or a space
+ character.
+@@ -132,6 +145,7 @@ character.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isspace (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a @dfn{whitespace} character.  In the standard
+ @code{"C"} locale, @code{isspace} returns true for only the standard
+ whitespace characters:
+@@ -161,6 +175,7 @@ vertical tab
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isblank (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a blank character; that is, a space or a tab.
+ This function was originally a GNU extension, but was added in @w{ISO C99}.
+ @end deftypefun
+@@ -169,6 +184,7 @@ This function was originally a GNU extension, but was added in @w{ISO C99}.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isgraph (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a graphic character; that is, a character
+ that has a glyph associated with it.  The whitespace characters are not
+ considered graphic.
+@@ -178,6 +194,7 @@ considered graphic.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int isprint (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a printing character.  Printing characters
+ include all the graphic characters, plus the space (@samp{ }) character.
+ @end deftypefun
+@@ -186,6 +203,7 @@ include all the graphic characters, plus the space (@samp{ }) character.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int iscntrl (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a control character (that is, a character that
+ is not a printing character).
+ @end deftypefun
+@@ -194,6 +212,7 @@ is not a printing character).
+ @comment ctype.h
+ @comment SVID, BSD
+ @deftypefun int isascii (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Returns true if @var{c} is a 7-bit @code{unsigned char} value that fits
+ into the US/UK ASCII character set.  This function is a BSD extension
+ and is also an SVID extension.
+@@ -227,6 +246,10 @@ These functions are declared in the header file @file{ctype.h}.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int tolower (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c The to* macros/functions call different functions that use different
++@c arrays than those of__ctype_b_loc, but the access patterns and
++@c thus safety guarantees are the same.
+ If @var{c} is an upper-case letter, @code{tolower} returns the corresponding
+ lower-case letter.  If @var{c} is not an upper-case letter,
+ @var{c} is returned unchanged.
+@@ -235,6 +258,7 @@ lower-case letter.  If @var{c} is not an upper-case letter,
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int toupper (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ If @var{c} is a lower-case letter, @code{toupper} returns the corresponding
+ upper-case letter.  Otherwise @var{c} is returned unchanged.
+ @end deftypefun
+@@ -242,6 +266,7 @@ upper-case letter.  Otherwise @var{c} is returned unchanged.
+ @comment ctype.h
+ @comment SVID, BSD
+ @deftypefun int toascii (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function converts @var{c} to a 7-bit @code{unsigned char} value
+ that fits into the US/UK ASCII character set, by clearing the high-order
+ bits.  This function is a BSD extension and is also an SVID extension.
+@@ -250,6 +275,7 @@ bits.  This function is a BSD extension and is also an SVID extension.
+ @comment ctype.h
+ @comment SVID
+ @deftypefun int _tolower (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is identical to @code{tolower}, and is provided for compatibility
+ with the SVID.  @xref{SVID}.@refill
+ @end deftypefun
+@@ -257,6 +283,7 @@ with the SVID.  @xref{SVID}.@refill
+ @comment ctype.h
+ @comment SVID
+ @deftypefun int _toupper (int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is identical to @code{toupper}, and is provided for compatibility
+ with the SVID.
+ @end deftypefun
+@@ -303,6 +330,15 @@ This type is defined in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wctype_t wctype (const char *@var{property})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
++@c Although the source code of wctype contains multiple references to
++@c the locale, that could each reference different locale_data objects
++@c should the global locale object change while active, the compiler can
++@c and does combine them all into a single dereference that resolves
++@c once to the LCTYPE locale object used throughout the function, so it
++@c is safe in practice, if not in theory.  Ideally we'd explicitly save
++@c the resolved locale_data object to make it visibly safe instead of
++@c safe only under compiler optimizations.
+ The @code{wctype} returns a value representing a class of wide
+ characters which is identified by the string @var{property}.  Beside
+ some standard properties each locale can define its own ones.  In case
+@@ -331,6 +367,8 @@ the @w{ISO C} standard defines a completely new function.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswctype (wint_t @var{wc}, wctype_t @var{desc})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c The compressed lookup table returned by wctype is read-only.
+ This function returns a nonzero value if @var{wc} is in the character
+ class specified by @var{desc}.  @var{desc} must previously be returned
+ by a successful call to @code{wctype}.
+@@ -350,6 +388,15 @@ standard classes.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswalnum (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
++@c The implicit wctype call in the isw* functions is actually an
++@c optimized version because the category has a known offset, but the
++@c wctype is equally safe when optimized, unsafe if not optimized.
++@c Since it's not a macro, and we always optimize, it's fine.  The test
++@c whether wc is ASCII to use the non-wide is* macro/funciton doesn't
++@c bring any other safety issues: the test does not depend on the
++@c locale, and each path after the decision resolves the locale object
++@c only once.
+ This function returns a nonzero value if @var{wc} is an alphanumeric
+ character (a letter or number); in other words, if either @code{iswalpha}
+ or @code{iswdigit} is true of a character, then @code{iswalnum} is also
+@@ -370,6 +417,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswalpha (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is an alphabetic character (a letter).  If
+ @code{iswlower} or @code{iswupper} is true of a character, then
+ @code{iswalpha} is also true.
+@@ -394,6 +442,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswcntrl (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a control character (that is, a character that
+ is not a printing character).
+ 
+@@ -412,6 +461,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswdigit (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a digit (e.g., @samp{0} through @samp{9}).
+ Please note that this function does not only return a nonzero value for
+ @emph{decimal} digits, but for all kinds of digits.  A consequence is
+@@ -442,6 +492,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswgraph (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a graphic character; that is, a character
+ that has a glyph associated with it.  The whitespace characters are not
+ considered graphic.
+@@ -461,6 +512,7 @@ It is declared in @file{wctype.h}.
+ @comment ctype.h
+ @comment ISO
+ @deftypefun int iswlower (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a lower-case letter.  The letter need not be
+ from the Latin alphabet, any alphabet representable is valid.
+ 
+@@ -479,6 +531,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswprint (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a printing character.  Printing characters
+ include all the graphic characters, plus the space (@samp{ }) character.
+ 
+@@ -497,6 +550,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswpunct (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a punctuation character.
+ This means any printing character that is not alphanumeric or a space
+ character.
+@@ -516,6 +570,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswspace (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a @dfn{whitespace} character.  In the standard
+ @code{"C"} locale, @code{iswspace} returns true for only the standard
+ whitespace characters:
+@@ -555,6 +610,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswupper (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is an upper-case letter.  The letter need not be
+ from the Latin alphabet, any alphabet representable is valid.
+ 
+@@ -573,6 +629,7 @@ It is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswxdigit (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a hexadecimal digit.
+ Hexadecimal digits include the normal decimal digits @samp{0} through
+ @samp{9} and the letters @samp{A} through @samp{F} and
+@@ -597,6 +654,7 @@ characters as well.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun int iswblank (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ Returns true if @var{wc} is a blank character; that is, a space or a tab.
+ This function was originally a GNU extension, but was added in @w{ISO C99}.
+ It is declared in @file{wchar.h}.
+@@ -691,7 +749,8 @@ This type is defined in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wctrans_t wctrans (const char *@var{property})
+-@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
++@c Similar implementation, same caveats as wctype.
+ The @code{wctrans} function has to be used to find out whether a named
+ mapping is defined in the current locale selected for the
+ @code{LC_CTYPE} category.  If the returned value is non-zero, you can use
+@@ -714,7 +773,8 @@ These functions are declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wint_t towctrans (wint_t @var{wc}, wctrans_t @var{desc})
+-@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Same caveats as iswctype.
+ @code{towctrans} maps the input character @var{wc}
+ according to the rules of the mapping for which @var{desc} is a
+ descriptor, and returns the value it finds.  @var{desc} must be
+@@ -732,6 +792,9 @@ for them.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wint_t towlower (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
++@c Same caveats as iswalnum, just using a wctrans rather than a wctype
++@c table.
+ If @var{wc} is an upper-case letter, @code{towlower} returns the corresponding
+ lower-case letter.  If @var{wc} is not an upper-case letter,
+ @var{wc} is returned unchanged.
+@@ -751,6 +814,7 @@ This function is declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wint_t towupper (wint_t @var{wc})
++@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+ If @var{wc} is a lower-case letter, @code{towupper} returns the corresponding
+ upper-case letter.  Otherwise @var{wc} is returned unchanged.
+ 
+diff --git a/manual/debug.texi b/manual/debug.texi
+index 1db9c18..ce0c263 100644
+--- a/manual/debug.texi
++++ b/manual/debug.texi
+@@ -36,6 +36,8 @@ and manipulate backtraces of the current thread.
+ @comment execinfo.h
+ @comment GNU
+ @deftypefun int backtrace (void **@var{buffer}, int @var{size})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Pointer chasing within the local stack.
+ The @code{backtrace} function obtains a backtrace for the current
+ thread, as a list of pointers, and places the information into
+ @var{buffer}.  The argument @var{size} should be the number of
+@@ -56,6 +58,17 @@ interpreting the stack contents correctly.
+ @comment execinfo.h
+ @comment GNU
+ @deftypefun {char **} backtrace_symbols (void *const *@var{buffer}, int @var{size})
++@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak, lockleak}}
++@c Collects info returned by _dl_addr in auto array, allocates memory
++@c for the whole return buffer with malloc then sprintfs into it storing
++@c pointers to the strings into the array entries in the buffer.
++@c _dl_addr takes the recursive dl_load_lock then calls
++@c _dl_find_dso_for_object and determine_info.
++@c _dl_find_dso_for_object calls _dl-addr_inside_object.
++@c All of them are safe as long as the lock is held.
++@c asynconsist?  It doesn't looke like the dynamic loader's data
++@c structures could be in an inconsistent state that would cause
++@c malfunction here.
+ The @code{backtrace_symbols} function translates the information
+ obtained from the @code{backtrace} function into an array of strings.
+ The argument @var{buffer} should be a pointer to an array of addresses
+@@ -88,6 +101,11 @@ cannot be obtained.
+ @comment execinfo.h
+ @comment GNU
+ @deftypefun void backtrace_symbols_fd (void *const *@var{buffer}, int @var{size}, int @var{fd})
++@safety{@mtsafe{}@assafe{}@acunsafe{lockleak}}
++@c Single loop of _dl_addr over addresses, collecting info into an iovec
++@c written out with a writev call per iteration.  Addresses and offsets
++@c are converted to hex in auto buffers, so the only potential issue
++@c here is leaking the dl lock in case of cancellation.
+ The @code{backtrace_symbols_fd} function performs the same translation
+ as the function @code{backtrace_symbols} function.  Instead of returning
+ the strings to the caller, it writes the strings to the file descriptor
+diff --git a/manual/errno.texi b/manual/errno.texi
+index 6c9fa86..eb3f412 100644
+--- a/manual/errno.texi
++++ b/manual/errno.texi
+@@ -1293,6 +1293,9 @@ name of the program that encountered the error.
+ @comment string.h
+ @comment ISO
+ @deftypefun {char *} strerror (int @var{errnum})
++@safety{@mtunsafe{staticbuf}@asunsafe{staticbuf, asmalloc, asi18n}@acsafe{memleak}}
++@c Calls strerror_r with a static buffer allocated with malloc on the
++@c first use.
+ The @code{strerror} function maps the error code (@pxref{Checking for
+ Errors}) specified by the @var{errnum} argument to a descriptive error
+ message string.  The return value is a pointer to this string.
+@@ -1310,6 +1313,7 @@ The function @code{strerror} is declared in @file{string.h}.
+ @comment string.h
+ @comment GNU
+ @deftypefun {char *} strerror_r (int @var{errnum}, char *@var{buf}, size_t @var{n})
++@safety{@mtsafe{}@asunsafe{asi18n}@acsafe{}}
+ The @code{strerror_r} function works like @code{strerror} but instead of
+ returning the error message in a statically allocated buffer shared by
+ all threads in the process, it returns a private copy for the
+@@ -1331,6 +1335,10 @@ This function @code{strerror_r} is a GNU extension and it is declared in
+ @comment stdio.h
+ @comment ISO
+ @deftypefun void perror (const char *@var{message})
++@safety{@mtsafe{xguargs}@asunsafe{asynconsist, asi18n, asmalloc, selfdeadlock}@acunsafe{incansist, lockleak, memleak, fdleak}}
++@c Besides strerror_r's and some of fprintf's issues, if stderr is not
++@c oriented yet, create a new stream with a dup of stderr's fd and write
++@c to that instead of stderr, to avoid orienting it.
+ This function prints an error message to the stream @code{stderr};
+ see @ref{Standard Streams}.  The orientation of @code{stderr} is not
+ changed.
+@@ -1442,6 +1450,13 @@ These functions are declared in @file{error.h}.
+ @comment error.h
+ @comment GNU
+ @deftypefun void error (int @var{status}, int @var{errnum}, const char *@var{format}, @dots{})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acsafe{}}
++@c Cancellation is disabled throught the execution.  It flushes stdout
++@c and then holds a lock on stderr while printing the program name and
++@c then running error_tail.  The non-wide case just runs vfprintf; the
++@c wide case converts the message to an alloca/malloc-allocated buffer
++@c with mbsrtowcs, then prints it with vfwprintf.  Afterwards,
++@c print_errno_message calls strerror_r and fxprintf.
+ The @code{error} function can be used to report general problems during
+ program execution.  The @var{format} argument is a format string just
+ like those given to the @code{printf} family of functions.  The
+@@ -1477,6 +1492,15 @@ incremented by one to keep track of the number of errors reported.
+ @comment error.h
+ @comment GNU
+ @deftypefun void error_at_line (int @var{status}, int @var{errnum}, const char *@var{fname}, unsigned int @var{lineno}, const char *@var{format}, @dots{})
++@safety{@mtunsafe{staticbuf, glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acunsafe{incansist}}
++@c The error_one_per_line variable is accessed (without any form of
++@c synchronization, but since it's an int used once, it should be safe
++@c enough) and, if this mode is enabled, static variables used to hold
++@c the last printed file name and line number are accessed and modified
++@c without synchronization; the update is not atomic and it occurs
++@c before disabling cancellation, so it can be interrupted after only
++@c one of the two variables is modified.  After that, it's very much
++@c like error.
+ 
+ The @code{error_at_line} function is very similar to the @code{error}
+ function.  The only difference are the additional parameters @var{fname}
+@@ -1582,6 +1606,8 @@ are included only for compatibility.
+ @comment err.h
+ @comment BSD
+ @deftypefun void warn (const char *@var{format}, @dots{})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acunsafe{incansist, lockleak, memleak}}
++@c Just calls vwarn with the va_list.
+ The @code{warn} function is roughly equivalent to a call like
+ @smallexample
+   error (0, errno, format, @r{the parameters})
+@@ -1594,6 +1620,11 @@ are not used.
+ @comment err.h
+ @comment BSD
+ @deftypefun void vwarn (const char *@var{format}, va_list @var{ap})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acunsafe{incansist, lockleak, memleak}}
++@c While holding stderr's recursive lock, it prints the programname, the
++@c given message, and the error string with fw?printf's %m.  When the
++@c stream is wide, convert_and_print converts the format string to an
++@c alloca/malloc-created buffer using mbsrtowcs and then calls fwprintf.
+ The @code{vwarn} function is just like @code{warn} except that the
+ parameters for the handling of the format string @var{format} are passed
+ in as an value of type @code{va_list}.
+@@ -1602,6 +1633,8 @@ in as an value of type @code{va_list}.
+ @comment err.h
+ @comment BSD
+ @deftypefun void warnx (const char *@var{format}, @dots{})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, lockleak, memleak}}
++@c Same as warn, but without the strerror translation issues.
+ The @code{warnx} function is roughly equivalent to a call like
+ @smallexample
+   error (0, 0, format, @r{the parameters})
+@@ -1615,6 +1648,8 @@ string is printed.
+ @comment err.h
+ @comment BSD
+ @deftypefun void vwarnx (const char *@var{format}, va_list @var{ap})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, lockleak, memleak}}
++@c Same as vwarn, but without the strerror translation issues.
+ The @code{vwarnx} function is just like @code{warnx} except that the
+ parameters for the handling of the format string @var{format} are passed
+ in as an value of type @code{va_list}.
+@@ -1623,6 +1658,8 @@ in as an value of type @code{va_list}.
+ @comment err.h
+ @comment BSD
+ @deftypefun void err (int @var{status}, const char *@var{format}, @dots{})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acunsafe{incansist, lockleak, memleak}}
++@c Same as warn followed by exit.
+ The @code{err} function is roughly equivalent to a call like
+ @smallexample
+   error (status, errno, format, @r{the parameters})
+@@ -1635,6 +1672,8 @@ are not used and that the program is exited even if @var{status} is zero.
+ @comment err.h
+ @comment BSD
+ @deftypefun void verr (int @var{status}, const char *@var{format}, va_list @var{ap})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, asi18n}@acunsafe{incansist, lockleak, memleak}}
++@c Same as vwarn followed by exit.
+ The @code{verr} function is just like @code{err} except that the
+ parameters for the handling of the format string @var{format} are passed
+ in as an value of type @code{va_list}.
+@@ -1643,6 +1682,8 @@ in as an value of type @code{va_list}.
+ @comment err.h
+ @comment BSD
+ @deftypefun void errx (int @var{status}, const char *@var{format}, @dots{})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, lockleak, memleak}}
++@c Same as warnx followed by exit.
+ The @code{errx} function is roughly equivalent to a call like
+ @smallexample
+   error (status, 0, format, @r{the parameters})
+@@ -1657,6 +1698,8 @@ string is printed.
+ @comment err.h
+ @comment BSD
+ @deftypefun void verrx (int @var{status}, const char *@var{format}, va_list @var{ap})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, lockleak, memleak}}
++@c Same as vwarnx followed by exit.
+ The @code{verrx} function is just like @code{errx} except that the
+ parameters for the handling of the format string @var{format} are passed
+ in as an value of type @code{va_list}.
+diff --git a/manual/filesys.texi b/manual/filesys.texi
+index 1df9cf2..2244025 100644
+--- a/manual/filesys.texi
++++ b/manual/filesys.texi
+@@ -58,6 +58,25 @@ Prototypes for these functions are declared in the header file
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun {char *} getcwd (char *@var{buffer}, size_t @var{size})
++@safety{@mtsafe{}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c If buffer is NULL, this function calls malloc and realloc, and, in
++@c case of error, free.  Linux offers a getcwd syscall that we use on
++@c GNU/Linux systems, but it may fail if the pathname is too long.  As a
++@c fallback, and on other systems, the generic implementation opens each
++@c parent directory with opendir, which allocates memory for the
++@c directory stream with malloc.  If a fstatat64 syscall is not
++@c available, very deep directory trees may also have to malloc to build
++@c longer sequences of ../../../... than those supported by a global
++@c const read-only string.
++
++@c linux/__getcwd
++@c  posix/__getcwd
++@c   malloc/realloc/free if buffer is NULL, or if dir is too deep
++@c   lstat64 -> see its own entry
++@c   fstatat64
++@c     direct syscall if possible, alloca+snprintf+*stat64 otherwise
++@c   openat64_not_cancel_3, close_not_cancel_no_status
++@c   __fdopendir, __opendir, __readdir, rewinddir
+ The @code{getcwd} function returns an absolute file name representing
+ the current working directory, storing it in the character array
+ @var{buffer} that you provide.  The @var{size} argument is how you tell
+@@ -116,6 +135,9 @@ software.
+ @comment unistd.h
+ @comment BSD
+ @deftypefn {Deprecated Function} {char *} getwd (char *@var{buffer})
++@safety{@mtsafe{}@asunsafe{asmalloc, asi18n}@acsafe{memleak, fdleak}}
++@c Besides the getcwd safety issues, it calls strerror_r on error, which
++@c brings in all of the i18n issues.
+ This is similar to @code{getcwd}, but has no way to specify the size of
+ the buffer.  @Theglibc{} provides @code{getwd} only
+ for backwards compatibility with BSD.
+@@ -130,6 +152,9 @@ this function is deprecated.
+ @comment unistd.h
+ @comment GNU
+ @deftypefun {char *} get_current_dir_name (void)
++@safety{@mtunsafe{envromt}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c Besides getcwd, which this function calls as a fallback, it calls
++@c getenv, with the usual thread-safety issues that brings about.
+ @vindex PWD
+ This @code{get_current_dir_name} function is basically equivalent to
+ @w{@code{getcwd (NULL, 0)}}.  The only difference is that the value of
+@@ -145,6 +170,7 @@ This function is a GNU extension.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int chdir (const char *@var{filename})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is used to set the process's working directory to
+ @var{filename}.
+ 
+@@ -158,6 +184,7 @@ file @var{filename} is not a directory.
+ @comment unistd.h
+ @comment XPG
+ @deftypefun int fchdir (int @var{filedes})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is used to set the process's working directory to
+ directory associated with the file descriptor @var{filedes}.
+ 
+@@ -294,12 +321,14 @@ values and @code{st_mode} values:
+ @comment dirent.h
+ @comment BSD
+ @deftypefun int IFTODT (mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This returns the @code{d_type} value corresponding to @var{mode}.
+ @end deftypefun
+ 
+ @comment dirent.h
+ @comment BSD
+ @deftypefun mode_t DTTOIF (int @var{dtype})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This returns the @code{st_mode} value corresponding to @var{dtype}.
+ @end deftypefun
+ @end table
+@@ -342,6 +371,9 @@ the following functions.
+ @comment dirent.h
+ @comment POSIX.1
+ @deftypefun {DIR *} opendir (const char *@var{dirname})
++@safety{@mtsafe{}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c Besides the safe syscall, we have to allocate the DIR object with
++@c __alloc_dir, that calls malloc.
+ The @code{opendir} function opens and returns a directory stream for
+ reading the directory whose file name is @var{dirname}.  The stream has
+ type @code{DIR *}.
+@@ -381,6 +413,8 @@ alternative interface can be used.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun {DIR *} fdopendir (int @var{fd})
++@safety{@mtsafe{}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c The DIR object is allocated with __alloc_dir, that calls malloc.
+ The @code{fdopendir} function works just like @code{opendir} but
+ instead of taking a file name and opening a file descriptor for the
+ directory the caller is required to provide a file descriptor.  This
+@@ -425,6 +459,7 @@ access.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int dirfd (DIR *@var{dirstream})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The function @code{dirfd} returns the file descriptor associated with
+ the directory stream @var{dirstream}.  This descriptor can be used until
+ the directory is closed with @code{closedir}.  If the directory stream
+@@ -443,6 +478,12 @@ symbols are declared in the header file @file{dirent.h}.
+ @comment dirent.h
+ @comment POSIX.1
+ @deftypefun {struct dirent *} readdir (DIR *@var{dirstream})
++@safety{@mtunsafe{staticbuf}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
++@c This function holds dirstream's non-recursive lock, which brings
++@c about the usual issues with locks and async signals and cancellation,
++@c but the lock taking is not enough to make the returned value safe to
++@c use, since it points to a stream's internal buffer that can be
++@c overwritten by subsequent calls or even released by closedir.
+ This function reads the next entry from the directory.  It normally
+ returns a pointer to a structure containing information about the file.
+ This structure is statically allocated and can be rewritten by a
+@@ -469,6 +510,7 @@ value.  Use @code{readdir_r} when this is critical.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int readdir_r (DIR *@var{dirstream}, struct dirent *@var{entry}, struct dirent **@var{result})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
+ This function is the reentrant version of @code{readdir}.  Like
+ @code{readdir} it returns the next entry from the directory.  But to
+ prevent conflicts between simultaneously running threads the result is
+@@ -516,6 +558,7 @@ of the last two functions.
+ @comment dirent.h
+ @comment LFS
+ @deftypefun {struct dirent64 *} readdir64 (DIR *@var{dirstream})
++@safety{@mtunsafe{staticbuf}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
+ The @code{readdir64} function is just like the @code{readdir} function
+ except that it returns a pointer to a record of type @code{struct
+ dirent64}.  Some of the members of this data type (notably @code{d_ino})
+@@ -527,6 +570,7 @@ In all other aspects this function is equivalent to @code{readdir}.
+ @comment dirent.h
+ @comment LFS
+ @deftypefun int readdir64_r (DIR *@var{dirstream}, struct dirent64 *@var{entry}, struct dirent64 **@var{result})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
+ The @code{readdir64_r} function is equivalent to the @code{readdir_r}
+ function except that it takes parameters of base type @code{struct
+ dirent64} instead of @code{struct dirent} in the second and third
+@@ -537,6 +581,10 @@ position.  The same precautions mentioned in the documentation of
+ @comment dirent.h
+ @comment POSIX.1
+ @deftypefun int closedir (DIR *@var{dirstream})
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock (hurd)}@acsafe{memleak, fdleak, lockleak (hurd)}}
++@c No synchronization in the posix implementation, only in the hurd
++@c one.  This is regarded as safe because it is undefined behavior if
++@c other threads could still be using the dir stream while it's closed.
+ This function closes the directory stream @var{dirstream}.  It returns
+ @code{0} on success and @code{-1} on failure.
+ 
+@@ -576,6 +624,7 @@ declared in the header file @file{dirent.h}.
+ @comment dirent.h
+ @comment POSIX.1
+ @deftypefun void rewinddir (DIR *@var{dirstream})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
+ The @code{rewinddir} function is used to reinitialize the directory
+ stream @var{dirstream}, so that if you call @code{readdir} it
+ returns information about the first entry in the directory again.  This
+@@ -589,6 +638,10 @@ added or removed since you last called @code{opendir} or
+ @comment dirent.h
+ @comment BSD
+ @deftypefun {long int} telldir (DIR *@var{dirstream})
++@safety{@mtsafe{}@asunsafe{asmalloc (bsd), selfdeadlock (bsd)}@acunsafe{memleak (bsd), lockleak (bsd)}}
++@c The implementation is safe on most platforms, but on BSD it uses
++@c cookies, buckets and records, and the global array of pointers to
++@c dynamically allocated records is guarded by a non-recursive lock.
+ The @code{telldir} function returns the file position of the directory
+ stream @var{dirstream}.  You can use this value with @code{seekdir} to
+ restore the directory stream to that position.
+@@ -597,6 +650,10 @@ restore the directory stream to that position.
+ @comment dirent.h
+ @comment BSD
+ @deftypefun void seekdir (DIR *@var{dirstream}, long int @var{pos})
++@safety{@mtsafe{}@asunsafe{asmalloc (bsd), selfdeadlock (bsd)}@acunsafe{memleak (bsd), lockleak (bsd)}}
++@c The implementation is safe on most platforms, but on BSD it uses
++@c cookies, buckets and records, and the global array of pointers to
++@c dynamically allocated records is guarded by a non-recursive lock.
+ The @code{seekdir} function sets the file position of the directory
+ stream @var{dirstream} to @var{pos}.  The value @var{pos} must be the
+ result of a previous call to @code{telldir} on this particular stream;
+@@ -616,6 +673,19 @@ the result.
+ @comment dirent.h
+ @comment BSD/SVID
+ @deftypefun int scandir (const char *@var{dir}, struct dirent ***@var{namelist}, int (*@var{selector}) (const struct dirent *), int (*@var{cmp}) (const struct dirent **, const struct dirent **))
++@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak, fdleak}}
++@c The scandir function calls __opendirat, __readdir, and __closedir to
++@c go over the named dir; malloc and realloc to allocate the namelist
++@c and copies of each selected dirent, besides the selector, if given,
++@c and qsort and the cmp functions if the latter is given.  In spite of
++@c the cleanup handler that releases memory and the file descriptor in
++@c case of synchronous cancellation, an asynchronous cancellation may
++@c still leak memory and a file descriptor.  Although readdir is unsafe
++@c in general, the use of an internal dir stream for sequential scanning
++@c of the directory with copying of dirents before subsequent calls
++@c makes the use safe, and the fact that the dir stream is private to
++@c each scandir call does away with the lock issues in readdir and
++@c closedir.
+ 
+ The @code{scandir} function scans the contents of the directory selected
+ by @var{dir}.  The result in *@var{namelist} is an array of pointers to
+@@ -646,6 +716,8 @@ are very helpful for this purpose.
+ @comment dirent.h
+ @comment BSD/SVID
+ @deftypefun int alphasort (const void *@var{a}, const void *@var{b})
++@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
++@c Calls strcoll.
+ The @code{alphasort} function behaves like the @code{strcoll} function
+ (@pxref{String/Array Comparison}).  The difference is that the arguments
+ are not string pointers but instead they are of type
+@@ -658,6 +730,8 @@ than zero depending on the order of the two entries @var{a} and @var{b}.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int versionsort (const void *@var{a}, const void *@var{b})
++@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
++@c Calls strverscmp.
+ The @code{versionsort} function is like @code{alphasort} except that it
+ uses the @code{strverscmp} function internally.
+ @end deftypefun
+@@ -670,6 +744,8 @@ dirent64}}.  To use this we need a new function.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int scandir64 (const char *@var{dir}, struct dirent64 ***@var{namelist}, int (*@var{selector}) (const struct dirent64 *), int (*@var{cmp}) (const struct dirent64 **, const struct dirent64 **))
++@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak, fdleak}}
++@c See scandir.
+ The @code{scandir64} function works like the @code{scandir} function
+ except that the directory entries it returns are described by elements
+ of type @w{@code{struct dirent64}}.  The function pointed to by
+@@ -688,6 +764,8 @@ argument.  Instead we provide the two replacement functions below.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int alphasort64 (const void *@var{a}, const void *@var{b})
++@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
++@c See alphasort.
+ The @code{alphasort64} function behaves like the @code{strcoll} function
+ (@pxref{String/Array Comparison}).  The difference is that the arguments
+ are not string pointers but instead they are of type
+@@ -700,6 +778,8 @@ than zero depending on the order of the two entries @var{a} and @var{b}.
+ @comment dirent.h
+ @comment GNU
+ @deftypefun int versionsort64 (const void *@var{a}, const void *@var{b})
++@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
++@c See versionsort.
+ The @code{versionsort64} function is like @code{alphasort64}, excepted that it
+ uses the @code{strverscmp} function internally.
+ @end deftypefun
+@@ -880,6 +960,8 @@ file was passed).
+ @comment ftw.h
+ @comment SVID
+ @deftypefun int ftw (const char *@var{filename}, __ftw_func_t @var{func}, int @var{descriptors})
++@safety{@mtsafe{xguargs}, @asunsafe{asmalloc}, @acsafe{memleak, fdleak}}
++@c see nftw for safety details
+ The @code{ftw} function calls the callback function given in the
+ parameter @var{func} for every item which is found in the directory
+ specified by @var{filename} and all directories below.  The function
+@@ -930,6 +1012,7 @@ interface transparently replaces the old interface.
+ @comment ftw.h
+ @comment Unix98
+ @deftypefun int ftw64 (const char *@var{filename}, __ftw64_func_t @var{func}, int @var{descriptors})
++@safety{@mtsafe{xguargs}, @asunsafe{asmalloc}, @acsafe{memleak, fdleak}}
+ This function is similar to @code{ftw} but it can work on filesystems
+ with large files.  File information is reported using a variable of type
+ @code{struct stat64} which is passed by reference to the callback
+@@ -943,6 +1026,17 @@ transparently replaces the old implementation.
+ @comment ftw.h
+ @comment XPG4.2
+ @deftypefun int nftw (const char *@var{filename}, __nftw_func_t @var{func}, int @var{descriptors}, int @var{flag})
++@safety{@mtsafe{xguargs, tempchwd}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c ftw_startup calls alloca, malloc, free, xstat/lxstat, tdestroy, and ftw_dir
++@c  if FTW_CHDIR, call open, and fchdir, or chdir and getcwd
++@c ftw_dir calls open_dir_stream, readdir64, process_entry, closedir
++@c  if FTW_CHDIR, also calls fchdir
++@c open_dir_stream calls malloc, realloc, readdir64, free, closedir,
++@c  then openat64_not_cancel_3 and fdopendir or opendir, then dirfd.
++@c process_entry may cal realloc, fxstatat/lxstat/xstat, ftw_dir, and
++@c  find_object (tsearch) and add_object (tfind).  
++@c Since each invocation of *ftw uses its own private search tree, none
++@c  of the search tree concurrency issues apply.
+ The @code{nftw} function works like the @code{ftw} functions.  They call
+ the callback function @var{func} for all items found in the directory
+ @var{filename} and below.  At most @var{descriptors} file descriptors
+@@ -1003,6 +1097,7 @@ interface transparently replaces the old interface.
+ @comment ftw.h
+ @comment Unix98
+ @deftypefun int nftw64 (const char *@var{filename}, __nftw64_func_t @var{func}, int @var{descriptors}, int @var{flag})
++@safety{@mtsafe{xguargs, tempchwd}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
+ This function is similar to @code{nftw} but it can work on filesystems
+ with large files.  File information is reported using a variable of type
+ @code{struct stat64} which is passed by reference to the callback
+@@ -1046,6 +1141,7 @@ file @file{unistd.h}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int link (const char *@var{oldname}, const char *@var{newname})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{link} function makes a new link to the existing file named by
+ @var{oldname}, under the new name @var{newname}.
+ 
+@@ -1153,6 +1249,7 @@ Prototypes for most of the functions listed in this section are in
+ @comment unistd.h
+ @comment BSD
+ @deftypefun int symlink (const char *@var{oldname}, const char *@var{newname})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{symlink} function makes a symbolic link to @var{oldname} named
+ @var{newname}.
+ 
+@@ -1190,6 +1287,7 @@ exceeded.
+ @comment unistd.h
+ @comment BSD
+ @deftypefun ssize_t readlink (const char *@var{filename}, char *@var{buffer}, size_t @var{size})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{readlink} function gets the value of the symbolic link
+ @var{filename}.  The file name that the link points to is copied into
+ @var{buffer}.  This file name string is @emph{not} null-terminated;
+@@ -1249,6 +1347,8 @@ names can refer to the same inode.
+ @comment stdlib.h
+ @comment GNU
+ @deftypefun {char *} canonicalize_file_name (const char *@var{name})
++@safety{@mtsafe{xguargs}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c Calls realpath.
+ 
+ The @code{canonicalize_file_name} function returns the absolute name of
+ the file named by @var{name} which contains no @code{.}, @code{..}
+@@ -1290,6 +1390,8 @@ where the result is placed in.
+ @comment stdlib.h
+ @comment XPG
+ @deftypefun {char *} realpath (const char *restrict @var{name}, char *restrict @var{resolved})
++@safety{@mtsafe{xguargs}@asunsafe{asmalloc}@acsafe{memleak, fdleak}}
++@c Calls malloc, realloc, getcwd, lxstat64, readlink, alloca.
+ 
+ A call to @code{realpath} where the @var{resolved} parameter is
+ @code{NULL} behaves exactly like @code{canonicalize_file_name}.  The
+@@ -1329,6 +1431,7 @@ then the file is deleted as well.  If the file has other remaining names
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int unlink (const char *@var{filename})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{unlink} function deletes the file name @var{filename}.  If
+ this is a file's sole name, the file itself is also deleted.  (Actually,
+ if any process has the file open when this happens, deletion is
+@@ -1371,6 +1474,7 @@ file system and can't be modified.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int rmdir (const char *@var{filename})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ @cindex directories, deleting
+ @cindex deleting a directory
+ The @code{rmdir} function deletes a directory.  The directory must be
+@@ -1398,6 +1502,8 @@ The prototype for this function is declared in the header file
+ @comment stdio.h
+ @comment ISO
+ @deftypefun int remove (const char *@var{filename})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Calls unlink and rmdir.
+ This is the @w{ISO C} function to remove a file.  It works like
+ @code{unlink} for files and like @code{rmdir} for directories.
+ @code{remove} is declared in @file{stdio.h}.
+@@ -1413,6 +1519,10 @@ The @code{rename} function is used to change a file's name.
+ @comment stdio.h
+ @comment ISO
+ @deftypefun int rename (const char *@var{oldname}, const char *@var{newname})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c In the absence of a rename syscall, there's an emulation with link
++@c and unlink, but it's racy, even more so if newname exists and is
++@c unlinked first.
+ The @code{rename} function renames the file @var{oldname} to
+ @var{newname}.  The file formerly accessible under the name
+ @var{oldname} is afterwards accessible as @var{newname} instead.  (If
+@@ -1508,6 +1618,7 @@ a shell command @code{mkdir} which does the same thing.)
+ @comment sys/stat.h
+ @comment POSIX.1
+ @deftypefun int mkdir (const char *@var{filename}, mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{mkdir} function creates a new, empty directory with name
+ @var{filename}.
+ 
+@@ -1849,6 +1960,7 @@ header file @file{sys/stat.h}.
+ @comment sys/stat.h
+ @comment POSIX.1
+ @deftypefun int stat (const char *@var{filename}, struct stat *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{stat} function returns information about the attributes of the
+ file named by @w{@var{filename}} in the structure pointed to by @var{buf}.
+ 
+@@ -1875,6 +1987,7 @@ replaces the normal implementation.
+ @comment sys/stat.h
+ @comment Unix98
+ @deftypefun int stat64 (const char *@var{filename}, struct stat64 *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is similar to @code{stat} but it is also able to work on
+ files larger then @math{2^31} bytes on 32-bit systems.  To be able to do
+ this the result is stored in a variable of type @code{struct stat64} to
+@@ -1888,6 +2001,7 @@ replaces the interface for small files on 32-bit machines.
+ @comment sys/stat.h
+ @comment POSIX.1
+ @deftypefun int fstat (int @var{filedes}, struct stat *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{fstat} function is like @code{stat}, except that it takes an
+ open file descriptor as an argument instead of a file name.
+ @xref{Low-Level I/O}.
+@@ -1909,6 +2023,7 @@ replaces the normal implementation.
+ @comment sys/stat.h
+ @comment Unix98
+ @deftypefun int fstat64 (int @var{filedes}, struct stat64 *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is similar to @code{fstat} but is able to work on large
+ files on 32-bit platforms.  For large files the file descriptor
+ @var{filedes} should be obtained by @code{open64} or @code{creat64}.
+@@ -1920,9 +2035,16 @@ function is available under the name @code{fstat} and so transparently
+ replaces the interface for small files on 32-bit machines.
+ @end deftypefun
+ 
++@c fstatat will call alloca and snprintf if the syscall is not
++@c available.
++@c @safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
++
+ @comment sys/stat.h
+ @comment BSD
+ @deftypefun int lstat (const char *@var{filename}, struct stat *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Direct system call through lxstat, sometimes with an xstat conv call
++@c afterwards.
+ The @code{lstat} function is like @code{stat}, except that it does not
+ follow symbolic links.  If @var{filename} is the name of a symbolic
+ link, @code{lstat} returns information about the link itself; otherwise
+@@ -1936,6 +2058,9 @@ replaces the normal implementation.
+ @comment sys/stat.h
+ @comment Unix98
+ @deftypefun int lstat64 (const char *@var{filename}, struct stat64 *@var{buf})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Direct system call through lxstat64, sometimes with an xstat conv
++@c call afterwards.
+ This function is similar to @code{lstat} but it is also able to work on
+ files larger then @math{2^31} bytes on 32-bit systems.  To be able to do
+ this the result is stored in a variable of type @code{struct stat64} to
+@@ -1974,12 +2099,14 @@ that file:
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_ISDIR (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a directory.
+ @end deftypefn
+ 
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_ISCHR (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a character special file (a
+ device like a terminal).
+ @end deftypefn
+@@ -1987,6 +2114,7 @@ device like a terminal).
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_ISBLK (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a block special file (a device
+ like a disk).
+ @end deftypefn
+@@ -1994,12 +2122,14 @@ like a disk).
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_ISREG (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a regular file.
+ @end deftypefn
+ 
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_ISFIFO (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a FIFO special file, or a
+ pipe.  @xref{Pipes and FIFOs}.
+ @end deftypefn
+@@ -2007,6 +2137,7 @@ pipe.  @xref{Pipes and FIFOs}.
+ @comment sys/stat.h
+ @comment GNU
+ @deftypefn Macro int S_ISLNK (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a symbolic link.
+ @xref{Symbolic Links}.
+ @end deftypefn
+@@ -2014,6 +2145,7 @@ This macro returns non-zero if the file is a symbolic link.
+ @comment sys/stat.h
+ @comment GNU
+ @deftypefn Macro int S_ISSOCK (mode_t @var{m})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns non-zero if the file is a socket.  @xref{Sockets}.
+ @end deftypefn
+ 
+@@ -2096,6 +2228,7 @@ the whole @code{struct stat} structure.
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_TYPEISMQ (struct stat *@var{s})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ If the system implement POSIX message queues as distinct objects and the
+ file is a message queue object, this macro returns a non-zero value.
+ In all other cases the result is zero.
+@@ -2104,6 +2237,7 @@ In all other cases the result is zero.
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_TYPEISSEM (struct stat *@var{s})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ If the system implement POSIX semaphores as distinct objects and the
+ file is a semaphore object, this macro returns a non-zero value.
+ In all other cases the result is zero.
+@@ -2112,6 +2246,7 @@ In all other cases the result is zero.
+ @comment sys/stat.h
+ @comment POSIX
+ @deftypefn Macro int S_TYPEISSHM (struct stat *@var{s})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ If the system implement POSIX shared memory objects as distinct objects
+ and the file is an shared memory object, this macro returns a non-zero
+ value.  In all other cases the result is zero.
+@@ -2156,6 +2291,7 @@ The prototype for this function is declared in @file{unistd.h}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int chown (const char *@var{filename}, uid_t @var{owner}, gid_t @var{group})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{chown} function changes the owner of the file @var{filename} to
+ @var{owner}, and its group owner to @var{group}.
+ 
+@@ -2190,6 +2326,7 @@ The file is on a read-only file system.
+ @comment unistd.h
+ @comment BSD
+ @deftypefun int fchown (int @var{filedes}, uid_t @var{owner}, gid_t @var{group})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is like @code{chown}, except that it changes the owner of the open
+ file with descriptor @var{filedes}.
+ 
+@@ -2469,6 +2606,7 @@ The functions in this section are declared in @file{sys/stat.h}.
+ @comment sys/stat.h
+ @comment POSIX.1
+ @deftypefun mode_t umask (mode_t @var{mask})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{umask} function sets the file creation mask of the current
+ process to @var{mask}, and returns the previous value of the file
+ creation mask.
+@@ -2494,6 +2632,7 @@ you just want to read the mask value, because it is reentrant.
+ @comment sys/stat.h
+ @comment GNU
+ @deftypefun mode_t getumask (void)
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ Return the current value of the file creation mask for the current
+ process.  This function is a GNU extension and is only available on
+ @gnuhurdsystems{}.
+@@ -2502,6 +2641,7 @@ process.  This function is a GNU extension and is only available on
+ @comment sys/stat.h
+ @comment POSIX.1
+ @deftypefun int chmod (const char *@var{filename}, mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{chmod} function sets the access permission bits for the file
+ named by @var{filename} to @var{mode}.
+ 
+@@ -2542,6 +2682,7 @@ for full details on the sticky bit.
+ @comment sys/stat.h
+ @comment BSD
+ @deftypefun int fchmod (int @var{filedes}, mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is like @code{chmod}, except that it changes the permissions of the
+ currently open file given by @var{filedes}.
+ 
+@@ -2612,6 +2753,7 @@ The symbols in this section are declared in @file{unistd.h}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int access (const char *@var{filename}, int @var{how})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{access} function checks to see whether the file named by
+ @var{filename} can be accessed in the way specified by the @var{how}
+ argument.  The @var{how} argument either can be the bitwise OR of the
+@@ -2732,6 +2874,9 @@ This is the modification time for the file.
+ @comment utime.h
+ @comment POSIX.1
+ @deftypefun int utime (const char *@var{filename}, const struct utimbuf *@var{times})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c In the absence of a utime syscall, it non-atomically converts times
++@c to a struct timeval and calls utimes.
+ This function is used to modify the file times associated with the file
+ named @var{filename}.
+ 
+@@ -2783,6 +2928,10 @@ in the header file @file{sys/time.h}.
+ @comment sys/time.h
+ @comment BSD
+ @deftypefun int utimes (const char *@var{filename}, const struct timeval @var{tvp}@t{[2]})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c In the absence of a utimes syscall, it non-atomically converts tvp
++@c to struct timespec array and issues a utimensat syscall, or to
++@c struct utimbuf and calls utime.
+ This function sets the file access and modification times of the file
+ @var{filename}.  The new file access time is specified by
+ @code{@var{tvp}[0]}, and the new modification time by
+@@ -2797,6 +2946,9 @@ function.
+ @comment sys/time.h
+ @comment BSD
+ @deftypefun int lutimes (const char *@var{filename}, const struct timeval @var{tvp}@t{[2]})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Since there's no lutimes syscall, it non-atomically converts tvp
++@c to struct timespec array and issues a utimensat syscall.
+ This function is like @code{utimes}, except that it does not follow
+ symbolic links.  If @var{filename} is the name of a symbolic link,
+ @code{lutimes} sets the file access and modification times of the
+@@ -2813,6 +2965,10 @@ function.
+ @comment sys/time.h
+ @comment BSD
+ @deftypefun int futimes (int @var{fd}, const struct timeval @var{tvp}@t{[2]})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Since there's no futimes syscall, it non-atomically converts tvp
++@c to struct timespec array and issues a utimensat syscall, falling back
++@c to utimes on a /proc/self/fd symlink.
+ This function is like @code{utimes}, except that it takes an open file
+ descriptor as an argument instead of a file name.  @xref{Low-Level
+ I/O}.  This function comes from FreeBSD, and is not available on all
+@@ -2867,6 +3023,8 @@ succeed, without actually accomplishing anything.
+ @comment unistd.h
+ @comment X/Open
+ @deftypefun int truncate (const char *@var{filename}, off_t @var{length})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c In the absence of a truncate syscall, we use open and ftruncate.
+ 
+ The @code{truncate} function changes the size of @var{filename} to
+ @var{length}.  If @var{length} is shorter than the previous length, data
+@@ -2911,6 +3069,8 @@ The operation was interrupted by a signal.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun int truncate64 (const char *@var{name}, off64_t @var{length})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c In the absence of a syscall, try truncate if length fits.
+ This function is similar to the @code{truncate} function.  The
+ difference is that the @var{length} argument is 64 bits wide even on 32
+ bits machines, which allows the handling of files with sizes up to
+@@ -2924,6 +3084,7 @@ When the source file is compiled with @code{_FILE_OFFSET_BITS == 64} on a
+ @comment unistd.h
+ @comment POSIX
+ @deftypefun int ftruncate (int @var{fd}, off_t @var{length})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ This is like @code{truncate}, but it works on a file descriptor @var{fd}
+ for an opened file instead of a file name to identify the object.  The
+@@ -2988,6 +3149,8 @@ The operation was interrupted by a signal.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun int ftruncate64 (int @var{id}, off64_t @var{length})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c In the absence of a syscall, try ftruncate if length fits.
+ This function is similar to the @code{ftruncate} function.  The
+ difference is that the @var{length} argument is 64 bits wide even on 32
+ bits machines which allows the handling of files with sizes up to
+@@ -3050,6 +3213,10 @@ The prototype for @code{mknod} is declared in @file{sys/stat.h}.
+ @comment sys/stat.h
+ @comment BSD
+ @deftypefun int mknod (const char *@var{filename}, mode_t @var{mode}, dev_t @var{dev})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Instead of issuing the syscall directly, we go through xmknod.
++@c Although the internal xmknod takes a dev_t*, that could lead to
++@c xguargs races, it's passed a pointer to mknod's dev.
+ The @code{mknod} function makes a special file with name @var{filename}.
+ The @var{mode} specifies the mode of the file, and may include the various
+ special file bits, such as @code{S_IFCHR} (for a character special file)
+@@ -3101,6 +3268,20 @@ These facilities are declared in the header file @file{stdio.h}.
+ @comment stdio.h
+ @comment ISO
+ @deftypefun {FILE *} tmpfile (void)
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, fdleak, lockleak}}
++@c The unsafety issues are those of fdopen, plus fdleak because of the
++@c open.
++@c __path_search (internal buf, !dir, const pfx, !try_tmpdir) ok
++@c  libc_secure_genenv only if try_tmpdir
++@c  xstat64, strlen, strcmp, sprintf
++@c __gen_tempname (internal tmpl, __GT_FILE) ok
++@c  strlen, memcmp, getpid, open/mkdir/lxstat64 ok
++@c  HP_TIMING_NOW if available ok
++@c  gettimeofday (!tz) first time, or every time if no HP_TIMING_NOW ok
++@c  static value is used and modified without synchronization ok
++@c   but the use is as a source of non-cryptographic randomness
++@c   with retries in case of collision, so it should be safe
++@c unlink, fdopen
+ This function creates a temporary binary file for update mode, as if by
+ calling @code{fopen} with mode @code{"wb+"}.  The file is deleted
+ automatically when it is closed or when the program terminates.  (On
+@@ -3117,6 +3298,7 @@ interface transparently replaces the old interface.
+ @comment stdio.h
+ @comment Unix98
+ @deftypefun {FILE *} tmpfile64 (void)
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, fdleak, lockleak}}
+ This function is similar to @code{tmpfile}, but the stream it returns a
+ pointer to was opened using @code{tmpfile64}.  Therefore this stream can
+ be used for files larger then @math{2^31} bytes on 32-bit machines.
+@@ -3132,6 +3314,11 @@ and so transparently replaces the old interface.
+ @comment stdio.h
+ @comment ISO
+ @deftypefun {char *} tmpnam (char *@var{result})
++@safety{@mtunsafe{xguargs, staticbuf}@asunsafe{staticbuf}@acsafe{}}
++@c The passed-in buffer should not be modified concurrently with the
++@c call.
++@c __path_search (static or passed-in buf, !dir, !pfx, !try_tmpdir) ok
++@c __gen_tempname (internal tmpl, __GT_NOCREATE) ok
+ This function constructs and returns a valid file name that does not
+ refer to any existing file.  If the @var{result} argument is a null
+ pointer, the return value is a pointer to an internal static string,
+@@ -3156,6 +3343,7 @@ opening the file you should use the @code{O_EXCL} flag.  Using
+ @comment stdio.h
+ @comment GNU
+ @deftypefun {char *} tmpnam_r (char *@var{result})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
+ This function is nearly identical to the @code{tmpnam} function, except
+ that if @var{result} is a null pointer it returns a null pointer.
+ 
+@@ -3192,6 +3380,13 @@ never less than @code{25}.
+ @comment stdio.h
+ @comment SVID
+ @deftypefun {char *} tempnam (const char *@var{dir}, const char *@var{prefix})
++@safety{@mtunsafe{xguargs, envromt}@assafe{asmalloc}@acsafe{memleak}}
++@c There's no way (short of being setuid) to avoid getenv("TMPDIR"),
++@c even with a non-NULL dir, which makes this thread-unsafe.
++@c
++@c __path_search (internal buf, dir, pfx, try_tmpdir) unsafe getenv
++@c __gen_tempname (internal tmpl, __GT_NOCREATE) ok
++@c strdup
+ This function generates a unique temporary file name.  If @var{prefix}
+ is not a null pointer, up to five characters of this string are used as
+ a prefix for the file name.  The return value is a string newly
+@@ -3255,6 +3450,8 @@ string.  These functions are declared in the header file @file{stdlib.h}.
+ @comment stdlib.h
+ @comment Unix
+ @deftypefun {char *} mktemp (char *@var{template})
++@safety{@mtunsafe{xguargs}@assafe{}@acsafe{}}
++@c __gen_tempname (caller tmpl, __GT_NOCREATE) ok
+ The @code{mktemp} function generates a unique file name by modifying
+ @var{template} as described above.  If successful, it returns
+ @var{template} as modified.  If @code{mktemp} cannot find a unique file
+@@ -3273,6 +3470,8 @@ opening the file you should use the @code{O_EXCL} flag.  Using
+ @comment stdlib.h
+ @comment BSD
+ @deftypefun int mkstemp (char *@var{template})
++@safety{@mtunsafe{xguargs}@assafe{}@acsafe{fdleak}}
++@c __gen_tempname (caller tmpl, __GT_FILE) ok
+ The @code{mkstemp} function generates a unique file name just as
+ @code{mktemp} does, but it also opens the file for you with @code{open}
+ (@pxref{Opening and Closing Files}).  If successful, it modifies
+@@ -3295,6 +3494,8 @@ new file and get an error if the file already exists.
+ @comment stdlib.h
+ @comment BSD
+ @deftypefun {char *} mkdtemp (char *@var{template})
++@safety{@mtunsafe{xguargs}@assafe{}@acsafe{}}
++@c __gen_tempname (caller tmpl, __GT_DIR) ok
+ The @code{mkdtemp} function creates a directory with a unique name.  If
+ it succeeds, it overwrites @var{template} with the name of the
+ directory, and returns @var{template}.  As with @code{mktemp} and
+@@ -3316,3 +3517,23 @@ creation always works like @code{open} with @code{O_EXCL}.
+ @xref{Creating Directories}.
+ 
+ The @code{mkdtemp} function comes from OpenBSD.
++
++@c FIXME these are undocumented:
++@c faccessat
++@c fchmodat
++@c fchownat
++@c futimesat
++@c fstatat
++@c linkat
++@c mkdirat
++@c mkfifoat
++@c name_to_handle_at
++@c openat
++@c open_by_handle_at
++@c readlinkat
++@c renameat
++@c scandirat
++@c symlinkat
++@c unlinkat
++@c utimensat
++@c mknodat
+diff --git a/manual/getopt.texi b/manual/getopt.texi
+index f0b7283..3c1f4de 100644
+--- a/manual/getopt.texi
++++ b/manual/getopt.texi
+@@ -60,6 +60,31 @@ option argument, for those options that accept arguments.
+ @comment unistd.h
+ @comment POSIX.2
+ @deftypefun int getopt (int @var{argc}, char *const *@var{argv}, const char *@var{options})
++@safety{@mtunsafe{xguargs, envromt, staticbuf}@asunsafe{asmalloc, asi18n, selfdeadlock, asynconsist}@acunsafe{memleak, lockleak, incansist}}
++@c It may swap argv elements but argv is not guarded, and the
++@c modifications may be partial in case of cancellation.  Calling getenv
++@c also brings about thread-safety issues out of access and returning
++@c pointers into the globally shared environment array, just like
++@c calling gettext brings about a whole lot of AS and AC safety issues.
++@c The getopt API involves returning values in the non-thread-specific
++@c optarg variable, which adds another thread-safety issue.  Given
++@c print_errors, it may output errors to stderr, which may
++@c self-deadlock, leak locks, or encounter (in a signal handler) or
++@c leave (in case of cancellation) stderr in an inconsistent state.
++@c Various implicit, indirect uses of malloc, in uses of memstream and
++@c asprintf for error-printing, bring about the usual malloc issues.
++@c (The explicit use of malloc in a conditional situation in
++@c _getopt_initialize is never exercised in glibc.)
++@c
++@c _getopt_internal
++@c  _getopt_internal_r
++@c   gettext
++@c   _getopt_initialize
++@c    getenv
++@c    malloc if USE_NONOPTION_FLAGS, never defined in libc
++@c   open_memstream
++@c   lockfile, unlockfile, __fxprintf -> stderr
++@c   asprintf
+ The @code{getopt} function gets the next option argument from the
+ argument list specified by the @var{argv} and @var{argc} arguments.
+ Normally these values come directly from the arguments received by
+@@ -225,6 +250,8 @@ was seen.
+ @comment getopt.h
+ @comment GNU
+ @deftypefun int getopt_long (int @var{argc}, char *const *@var{argv}, const char *@var{shortopts}, const struct option *@var{longopts}, int *@var{indexptr})
++@safety{@mtunsafe{xguargs, envromt, staticbuf}@asunsafe{asmalloc, asi18n, selfdeadlock, asynconsist}@acunsafe{memleak, lockleak, incansist}}
++@c Same issues as getopt.
+ Decode options from the vector @var{argv} (whose length is @var{argc}).
+ The argument @var{shortopts} describes the short options to accept, just as
+ it does in @code{getopt}.  The argument @var{longopts} describes the long
+@@ -278,6 +305,8 @@ getopt functionality there is one more function available.
+ @comment getopt.h
+ @comment GNU
+ @deftypefun int getopt_long_only (int @var{argc}, char *const *@var{argv}, const char *@var{shortopts}, const struct option *@var{longopts}, int *@var{indexptr})
++@safety{@mtunsafe{xguargs, envromt, staticbuf}@asunsafe{asmalloc, asi18n, selfdeadlock, asynconsist}@acunsafe{memleak, lockleak, incansist}}
++@c Same issues as getopt.
+ 
+ The @code{getopt_long_only} function is equivalent to the
+ @code{getopt_long} function but it allows to specify the user of the
+diff --git a/manual/intro.texi b/manual/intro.texi
+index 2630a77..e47832c 100644
+--- a/manual/intro.texi
++++ b/manual/intro.texi
+@@ -262,6 +262,28 @@ if the effective thread-local locale is not the global locale object
+ @code{setlocale} should not be called while these functions are active.
+ 
+ 
++@item @code{envromt}
++@cindex envromt
++
++Functions marked with @code{envromt} access the environment with
++@code{getenv} or similar, requiring the environment to be effectively
++read-only for MT-Safe operation.
++
++Environment-modifying functions do not protect in any way against
++concurrent modifications or access, so calling @code{envromt}-marked
++functions concurrently with @code{setenv}, @code{putenv},
++@code{unsetenv} or direct modifications of the global environment data
++structures is ill-advised; external concurrency control must be
++introduced by callers of these environment-modifying and
++@code{envromt}-marked functions.
++
++Functions that modify the environment are also marked with
++@code{envromt}, but they are not MT-Safe for the reasons above.  Since
++all environment-modifying functions are MT-Unsafe, functions that only
++access the environment are marked as MT-Safe when no other safety issue
++applies.
++
++
+ @item @code{uunguard}
+ @cindex uunguard
+ 
+@@ -291,6 +313,42 @@ AS-Safe behavior, callers must ensure that the objects passed in are not
+ modified concurrently by other threads or signal handlers.
+ 
+ 
++@item @code{tempchwd}
++@cindex tempchwd
++
++Functions marked with @code{tempchwd} may temporarily change the current
++working directory during their execution, which may cause relative
++pathnames to be resolved in unexpected ways in other threads or within
++asynchronous signal or cancellation handlers.
++
++This is not enough of a reason to mark so-marked functions as MT-Unsafe,
++but when this behavior is optional (e.g., @code{nftw} with
++@code{FTW_CHDIR}), avoiding the option in multi-threaded programs may be
++a good alternative to using full pathnames or file descriptor-relative
++(e.g. @code{openat}) system calls.
++
++
++@item @code{tempterm}
++@cindex tempterm
++
++Functions marked with @code{tempterm} may temporarily change the
++terminal settings.
++
++This would not be enough of a reason to mark so-marked functions as
++MT-Unsafe, but the recommended mode to modify terminal settings is to
++call @code{tcgetattr}, modify some flags, and then call
++@code{tcsetattr}.  Functions marked with @code{tempterm} do that, so
++they leave a window in which changes made by other threads are lost.
++
++It is thus advisable for applications using the terminal to avoid
++concurrent interactions with it, more so if they expect different
++terminal modes.
++
++If this mark appears as an AC-Safety note, it means the function may
++also fail to restore the original terminal mode in case of asynchronous
++cancellation.
++
++
+ @end itemize
+ 
+ 
+@@ -305,11 +363,37 @@ as follows:
+ 
+ Functions annotated with @code{staticbuf} use internal static buffers or
+ variables in ways that may cause concurrent calls to interfere
+-destructively.
++destructively.  
+ 
+ These functions are all MT-Unsafe and AC-Unsafe.  However, many of them
+ offer reentrant variants for MT-Safe and, in some cases, AC-Safe use.
+ 
++In many of these cases, the static buffer is only used to hold a return
++value; in a few of these, such as @code{tmpnam}, the use of the internal
++buffer can be avoided by passing the buffer as an argument, which makes
++the call MT-Safe and AS-Safe.
++
++
++@item @code{asi18n}
++@cindex asi18n
++
++Functions marked with @code{asi18n} use internationalization functions
++(@code{gettext}), which brings in a number of dependencies and issues
++yet to be documented.
++
++
++@item @code{shlimb}
++@cindex shlimb
++
++Functions marked with @code{shlimb} use the dynamic loader to bring in
++additional code modules.  This involves opening files, mapping them into
++memory, allocating additional memory, resolving symbols, applying
++relocations and more, all of this while holding the dynamic loader
++lock.  
++
++The non-recursive lock itself is enough for the function to be AS- and
++AC-Unsafe, but many other issues may arise.
++
+ 
+ @item @code{fdleak}
+ @cindex fdleak
+@@ -390,9 +474,8 @@ For the reasons above, functions that leak locks are all AC-Unsafe.
+ Functions marked with @code{selfdeadlock} take a non-recursive lock to
+ ensure MT-Safety while modifying data structures guarded by the lock.
+ 
+-If such a function is interrupted by a signal while holding the lock,
+-and the signal handler calls any function that takes the same
+-non-recursive lock, the result is a deadlock.
++If such a function is called by a signal handler that interrupted
++another such function that took the lock, the result is a deadlock.
+ 
+ Blocking asynchronous signal delivery while calling such functions is
+ the only safe way to avoid a deadlock if any signal handler might need
+@@ -406,10 +489,9 @@ Functions marked with @code{asynconsist} take a recursive lock to ensure
+ MT-Safety while accessing or modifying data structures guarded by the
+ lock.
+ 
+-If such a function is interrupted by a signal while holding the lock,
+-and the signal handler calls any function that takes the same
+-non-recursive lock, the latter function may observe a partially updated,
+-inconsistent data structure, and misbehave.
++If such a function is called by a signal handler that interrupted
++another such function that took the lock, both may misbehave for
++observing inconsistent (partially updated or cached) data structures.
+ 
+ Blocking asynchronous signal delivery while calling such functions is
+ the only safe way to avoid the misbehavior that may ensue if any signal
+@@ -444,6 +526,21 @@ Disabling asynchronous cancelation while calling such functions is the
+ only safe way to avoid the misbehavior that may ensure if the thread is
+ canceled while the function is running.
+ 
++@c A special case, probably not worth documenting separately, involves
++@c reallocing, or even freeing pointers.  Any case involving free could
++@c be easily turned into an ac-safe memleak by resetting the pointer
++@c before releasing it; I don't think we have any case that calls for
++@c this sort of fixing.  Fixing the realloc cases would require a new
++@c interface: instead of @code{ptr=realloc(ptr,size)} we'd have to
++@c introduce @code{acsafe_realloc(&ptr,size)} that would modify ptr
++@c before releasing the old memory.  The ac-unsafe realloc could be
++@c implemented in terms of an internal interface with this semantics
++@c (say __acsafe_realloc), but since realloc can be overridden, the
++@c function we call to implement realloc should not be this internal
++@c interface, but another internal interface that calls __acsafe_realloc
++@c if realloc was not overridden, and calls the overridden realloc with
++@c async cancel disabled.  --lxoliva
++
+ 
+ @item @code{simfpu}
+ @cindex simfpu
+diff --git a/manual/job.texi b/manual/job.texi
+index 4efeed3..779ea96 100644
+--- a/manual/job.texi
++++ b/manual/job.texi
+@@ -1039,6 +1039,10 @@ The function @code{ctermid} is declared in the header file
+ @comment stdio.h
+ @comment POSIX.1
+ @deftypefun {char *} ctermid (char *@var{string})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This function is a stub by default; the actual implementation, for
++@c posix systems, returns an internal buffer if passed a NULL string,
++@c but the internal buffer is always set to /dev/tty.
+ The @code{ctermid} function returns a string containing the file name of
+ the controlling terminal for the current process.  If @var{string} is
+ not a null pointer, it should be an array that can hold at least
+@@ -1075,6 +1079,11 @@ Your program should include the header files @file{sys/types.h} and
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun pid_t setsid (void)
++@safety{@mtsafe{}@assafe{selfdeadlock (hurd)}@acsafe{lockleak (hurd)}}
++@c This is usually a direct syscall, but if a syscall is not available,
++@c we use a stub, or Hurd- and BSD-specific implementations.  The former
++@c uses a mutex and a hurd critical section, and the latter issues a few
++@c syscalls, so both seem safe, except for the locking on Hurd.
+ The @code{setsid} function creates a new session.  The calling process
+ becomes the session leader, and is put in a new process group whose
+ process group ID is the same as the process ID of that process.  There
+@@ -1098,7 +1107,8 @@ already another process group around that has the same process group ID.
+ @comment unistd.h
+ @comment SVID
+ @deftypefun pid_t getsid (pid_t @var{pid})
+-
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Stub or direct syscall, except on hurd, where it is equally safe.
+ The @code{getsid} function returns the process group ID of the session
+ leader of the specified process.  If a @var{pid} is @code{0}, the
+ process group ID of the session leader of the current process is
+@@ -1134,6 +1144,8 @@ programs with the @code{-lbsd-compat} option to get the BSD definition.@refill
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefn {POSIX.1 Function} pid_t getpgrp (void)
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Wrapper for getpgid.
+ The POSIX.1 definition of @code{getpgrp} returns the process group ID of
+ the calling process.
+ @end deftypefn
+@@ -1141,6 +1153,8 @@ the calling process.
+ @comment unistd.h
+ @comment BSD
+ @deftypefn {BSD Function} pid_t getpgrp (pid_t @var{pid})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Wrapper for getpgid.
+ The BSD definition of @code{getpgrp} returns the process group ID of the
+ process @var{pid}.  You can supply a value of @code{0} for the @var{pid}
+ argument to get information about the calling process.
+@@ -1149,6 +1163,8 @@ argument to get information about the calling process.
+ @comment unistd.h
+ @comment SVID
+ @deftypefn {System V Function} int getpgid (pid_t @var{pid})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Stub or direct syscall, except on hurd, where it is equally safe.
+ 
+ @code{getpgid} is the same as the BSD function @code{getpgrp}.  It
+ returns the process group ID of the process @var{pid}.  You can supply a
+@@ -1171,6 +1187,8 @@ process.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int setpgid (pid_t @var{pid}, pid_t @var{pgid})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Stub or direct syscall, except on hurd, where it is equally safe.
+ The @code{setpgid} function puts the process @var{pid} into the process
+ group @var{pgid}.  As a special case, either @var{pid} or @var{pgid} can
+ be zero to indicate the process ID of the calling process.
+@@ -1208,6 +1226,8 @@ process or a child of the calling process.
+ @comment unistd.h
+ @comment BSD
+ @deftypefun int setpgrp (pid_t @var{pid}, pid_t @var{pgid})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Direct syscall or setpgid wrapper.
+ This is the BSD Unix name for @code{setpgid}.  Both functions do exactly
+ the same thing.
+ @end deftypefun
+@@ -1230,6 +1250,8 @@ file itself and not a particular open file descriptor.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun pid_t tcgetpgrp (int @var{filedes})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Stub, or ioctl on BSD and GNU/Linux.
+ This function returns the process group ID of the foreground process
+ group associated with the terminal open on descriptor @var{filedes}.
+ 
+@@ -1258,6 +1280,8 @@ controlling terminal of the calling process.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int tcsetpgrp (int @var{filedes}, pid_t @var{pgid})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Stub, or ioctl on BSD and GNU/Linux.
+ This function is used to set a terminal's foreground process group ID.
+ The argument @var{filedes} is a descriptor which specifies the terminal;
+ @var{pgid} specifies the process group.  The calling process must be a
+@@ -1297,6 +1321,8 @@ process.
+ @comment termios.h
+ @comment Unix98
+ @deftypefun pid_t tcgetsid (int @var{fildes})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Ioctl call, if avaialble, or tcgetpgrp followed by getsid.
+ This function is used to obtain the process group ID of the session
+ for which the terminal specified by @var{fildes} is the controlling terminal.
+ If the call is successful the group ID is returned.  Otherwise the
+diff --git a/manual/lang.texi b/manual/lang.texi
+index ee04e23..d6cd90c 100644
+--- a/manual/lang.texi
++++ b/manual/lang.texi
+@@ -51,6 +51,8 @@ without indicating anything might be wrong.
+ @comment assert.h
+ @comment ISO
+ @deftypefn Macro void assert (int @var{expression})
++@safety{@mtsafe{}@asunsafe{asmalloc, asynconsist}@acsafe{memleak, lockleak, incansist}}
++@c assert_fail_base calls asprintf, and fflushes stderr.
+ Verify the programmer's belief that @var{expression} is nonzero at
+ this point in the program.
+ 
+@@ -91,6 +93,8 @@ The @code{assert_perror} macro makes this easy.
+ @comment assert.h
+ @comment GNU
+ @deftypefn Macro void assert_perror (int @var{errnum})
++@safety{@mtsafe{}@asunsafe{asmalloc, asynconsist}@acsafe{memleak, lockleak, incansist}}
++@c assert_fail_base calls asprintf, and fflushes stderr.
+ Similar to @code{assert}, but verifies that @var{errnum} is zero.
+ 
+ If @code{NDEBUG} is not defined, @code{assert_perror} tests the value of
+@@ -423,6 +427,8 @@ The type @code{va_list} is used for argument pointer variables.
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} void va_start (va_list @var{ap}, @var{last-required})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This macro initializes the argument pointer variable @var{ap} to point
+ to the first of the optional arguments of the current function;
+ @var{last-required} must be the last required argument to the function.
+@@ -431,6 +437,8 @@ to the first of the optional arguments of the current function;
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} @var{type} va_arg (va_list @var{ap}, @var{type})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ The @code{va_arg} macro returns the value of the next optional argument,
+ and modifies the value of @var{ap} to point to the subsequent argument.
+ Thus, successive uses of @code{va_arg} return successive optional
+@@ -445,6 +453,8 @@ of the actual argument.
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} void va_end (va_list @var{ap})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This ends the use of @var{ap}.  After a @code{va_end} call, further
+ @code{va_arg} calls with the same @var{ap} may not work.  You should invoke
+ @code{va_end} before returning from the function in which @code{va_start}
+@@ -466,6 +476,8 @@ of the same type.
+ @comment ISO
+ @deftypefn {Macro} void va_copy (va_list @var{dest}, va_list @var{src})
+ @deftypefnx {Macro} void __va_copy (va_list @var{dest}, va_list @var{src})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ The @code{va_copy} macro allows copying of objects of type
+ @code{va_list} even if this is not an integral type.  The argument pointer
+ in @var{dest} is initialized to point to the same argument as the
+@@ -1212,6 +1224,8 @@ type of a particular structure member.
+ @comment stddef.h
+ @comment ISO
+ @deftypefn {Macro} size_t offsetof (@var{type}, @var{member})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This expands to a integer constant expression that is the offset of the
+ structure member named @var{member} in the structure type @var{type}.
+ For example, @code{offsetof (struct s, elem)} is the offset, in bytes,
+diff --git a/manual/libdl.texi b/manual/libdl.texi
+new file mode 100644
+index 0000000..e3fe045
+--- /dev/null
++++ b/manual/libdl.texi
+@@ -0,0 +1,10 @@
++@c FIXME these are undocumented:
++@c dladdr
++@c dladdr1
++@c dlclose
++@c dlerror
++@c dlinfo
++@c dlmopen
++@c dlopen
++@c dlsym
++@c dlvsym
+diff --git a/manual/llio.texi b/manual/llio.texi
+index b129cf4..66370c4 100644
+--- a/manual/llio.texi
++++ b/manual/llio.texi
+@@ -78,6 +78,7 @@ declared in @file{unistd.h}.
+ @comment fcntl.h
+ @comment POSIX.1
+ @deftypefun int open (const char *@var{filename}, int @var{flags}[, mode_t @var{mode}])
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+ The @code{open} function creates and returns a new file descriptor for
+ the file named by @var{filename}.  Initially, the file position
+ indicator for the file is at the beginning of the file.  The argument
+@@ -164,6 +165,7 @@ and @code{freopen} functions, that create streams.
+ @comment fcntl.h
+ @comment Unix98
+ @deftypefun int open64 (const char *@var{filename}, int @var{flags}[, mode_t @var{mode}])
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+ This function is similar to @code{open}.  It returns a file descriptor
+ which can be used to access the file named by @var{filename}.  The only
+ difference is that on 32 bit systems the file is opened in the
+@@ -178,6 +180,7 @@ replaces the old API.
+ @comment fcntl.h
+ @comment POSIX.1
+ @deftypefn {Obsolete function} int creat (const char *@var{filename}, mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+ This function is obsolete.  The call:
+ 
+ @smallexample
+@@ -202,6 +205,7 @@ since all of the lowlevel file handling functions are equally replaced.
+ @comment fcntl.h
+ @comment Unix98
+ @deftypefn {Obsolete function} int creat64 (const char *@var{filename}, mode_t @var{mode})
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+ This function is similar to @code{creat}.  It returns a file descriptor
+ which can be used to access the file named by @var{filename}.  The only
+ the difference is that on 32 bit systems the file is opened in the
+@@ -219,6 +223,7 @@ replaces the old API.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int close (int @var{filedes})
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+ The function @code{close} closes the file descriptor @var{filedes}.
+ Closing a file has the following consequences:
+ 
+@@ -300,6 +305,7 @@ but must be a signed type.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun ssize_t read (int @var{filedes}, void *@var{buffer}, size_t @var{size})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{read} function reads up to @var{size} bytes from the file
+ with descriptor @var{filedes}, storing the results in the @var{buffer}.
+ (This is not necessarily a character string, and no terminating null
+@@ -395,6 +401,10 @@ functions that read from streams, such as @code{fgetc}.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun ssize_t pread (int @var{filedes}, void *@var{buffer}, size_t @var{size}, off_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is usually a safe syscall.  The sysdeps/posix fallback emulation
++@c is not MT-Safe because it uses lseek, read and lseek back, but is it
++@c used anywhere?
+ The @code{pread} function is similar to the @code{read} function.  The
+ first three arguments are identical, and the return values and error
+ codes also correspond.
+@@ -430,6 +440,10 @@ version 2.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun ssize_t pread64 (int @var{filedes}, void *@var{buffer}, size_t @var{size}, off64_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is usually a safe syscall.  The sysdeps/posix fallback emulation
++@c is not MT-Safe because it uses lseek64, read and lseek64 back, but is
++@c it used anywhere?
+ This function is similar to the @code{pread} function.  The difference
+ is that the @var{offset} parameter is of type @code{off64_t} instead of
+ @code{off_t} which makes it possible on 32 bit machines to address
+@@ -447,6 +461,7 @@ When the source file is compiled with @code{_FILE_OFFSET_BITS == 64} on a
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun ssize_t write (int @var{filedes}, const void *@var{buffer}, size_t @var{size})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{write} function writes up to @var{size} bytes from
+ @var{buffer} to the file with descriptor @var{filedes}.  The data in
+ @var{buffer} is not necessarily a character string and a null character is
+@@ -557,6 +572,10 @@ functions that write to streams, such as @code{fputc}.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun ssize_t pwrite (int @var{filedes}, const void *@var{buffer}, size_t @var{size}, off_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is usually a safe syscall.  The sysdeps/posix fallback emulation
++@c is not MT-Safe because it uses lseek, write and lseek back, but is it
++@c used anywhere?
+ The @code{pwrite} function is similar to the @code{write} function.  The
+ first three arguments are identical, and the return values and error codes
+ also correspond.
+@@ -592,6 +611,10 @@ version 2.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun ssize_t pwrite64 (int @var{filedes}, const void *@var{buffer}, size_t @var{size}, off64_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is usually a safe syscall.  The sysdeps/posix fallback emulation
++@c is not MT-Safe because it uses lseek64, write and lseek64 back, but
++@c is it used anywhere?
+ This function is similar to the @code{pwrite} function.  The difference
+ is that the @var{offset} parameter is of type @code{off64_t} instead of
+ @code{off_t} which makes it possible on 32 bit machines to address
+@@ -624,6 +647,7 @@ To read the current file position value from a descriptor, use
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun off_t lseek (int @var{filedes}, off_t @var{offset}, int @var{whence})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{lseek} function is used to change the file position of the
+ file with descriptor @var{filedes}.
+ 
+@@ -713,6 +737,7 @@ descriptors.
+ @comment unistd.h
+ @comment Unix98
+ @deftypefun off64_t lseek64 (int @var{filedes}, off64_t @var{offset}, int @var{whence})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is similar to the @code{lseek} function.  The difference
+ is that the @var{offset} parameter is of type @code{off64_t} instead of
+ @code{off_t} which makes it possible on 32 bit machines to address
+@@ -825,6 +850,7 @@ declared in the header file @file{stdio.h}.
+ @comment stdio.h
+ @comment POSIX.1
+ @deftypefun {FILE *} fdopen (int @var{filedes}, const char *@var{opentype})
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, lockleak}}
+ The @code{fdopen} function returns a new stream for the file descriptor
+ @var{filedes}.
+ 
+@@ -853,6 +879,7 @@ see @ref{Creating a Pipe}.
+ @comment stdio.h
+ @comment POSIX.1
+ @deftypefun int fileno (FILE *@var{stream})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function returns the file descriptor associated with the stream
+ @var{stream}.  If an error is detected (for example, if the @var{stream}
+ is not valid) or if @var{stream} does not do I/O to a file,
+@@ -862,6 +889,7 @@ is not valid) or if @var{stream} does not do I/O to a file,
+ @comment stdio.h
+ @comment GNU
+ @deftypefun int fileno_unlocked (FILE *@var{stream})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{fileno_unlocked} function is equivalent to the @code{fileno}
+ function except that it does not implicitly lock the stream if the state
+ is @code{FSETLOCKING_INTERNAL}.
+@@ -1071,7 +1099,11 @@ Contains the length of the buffer.
+ @comment sys/uio.h
+ @comment BSD
+ @deftypefun ssize_t readv (int @var{filedes}, const struct iovec *@var{vector}, int @var{count})
+-
++@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
++@c The fallback sysdeps/posix implementation, used even on GNU/Linux
++@c with old kernels that lack a full readv/writev implementation, may
++@c malloc the buffer into which data is read, if the total read size is
++@c too large for alloca.
+ The @code{readv} function reads data from @var{filedes} and scatters it
+ into the buffers described in @var{vector}, which is taken to be
+ @var{count} structures long.  As each buffer is filled, data is sent to the
+@@ -1089,6 +1121,11 @@ errors are the same as in @code{read}.
+ @comment sys/uio.h
+ @comment BSD
+ @deftypefun ssize_t writev (int @var{filedes}, const struct iovec *@var{vector}, int @var{count})
++@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
++@c The fallback sysdeps/posix implementation, used even on GNU/Linux
++@c with old kernels that lack a full readv/writev implementation, may
++@c malloc the buffer from which data is written, if the total write size
++@c is too large for alloca.
+ 
+ The @code{writev} function gathers data from the buffers described in
+ @var{vector}, which is taken to be @var{count} structures long, and writes
+@@ -1149,6 +1186,7 @@ These functions are declared in @file{sys/mman.h}.
+ @comment sys/mman.h
+ @comment POSIX
+ @deftypefun {void *} mmap (void *@var{address}, size_t @var{length}, int @var{protect}, int @var{flags}, int @var{filedes}, off_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ The @code{mmap} function creates a new mapping, connected to bytes
+ (@var{offset}) to (@var{offset} + @var{length} - 1) in the file open on
+@@ -1268,6 +1306,9 @@ The file is on a filesystem that doesn't support mapping.
+ @comment sys/mman.h
+ @comment LFS
+ @deftypefun {void *} mmap64 (void *@var{address}, size_t @var{length}, int @var{protect}, int @var{flags}, int @var{filedes}, off64_t @var{offset})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c The page_shift auto detection when MMAP2_PAGE_SHIFT is -1 (it never
++@c is) would be thread-unsafe.
+ The @code{mmap64} function is equivalent to the @code{mmap} function but
+ the @var{offset} parameter is of type @code{off64_t}.  On 32-bit systems
+ this allows the file associated with the @var{filedes} descriptor to be
+@@ -1284,6 +1325,7 @@ replaces the old API.
+ @comment sys/mman.h
+ @comment POSIX
+ @deftypefun int munmap (void *@var{addr}, size_t @var{length})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ @code{munmap} removes any memory maps from (@var{addr}) to (@var{addr} +
+ @var{length}).  @var{length} should be the length of the mapping.
+@@ -1310,6 +1352,7 @@ aligned.
+ @comment sys/mman.h
+ @comment POSIX
+ @deftypefun int msync (void *@var{address}, size_t @var{length}, int @var{flags})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ When using shared mappings, the kernel can write the file at any time
+ before the mapping is removed.  To be certain data has actually been
+@@ -1357,6 +1400,7 @@ There is no existing mapping in at least part of the given region.
+ @comment sys/mman.h
+ @comment GNU
+ @deftypefun {void *} mremap (void *@var{address}, size_t @var{length}, size_t @var{new_length}, int @var{flag})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ This function can be used to change the size of an existing memory
+ area. @var{address} and @var{length} must cover a region entirely mapped
+@@ -1405,6 +1449,7 @@ Coding Standards}.
+ @comment sys/mman.h
+ @comment POSIX
+ @deftypefun int madvise (void *@var{addr}, size_t @var{length}, int @var{advice})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ This function can be used to provide the system with @var{advice} about
+ the intended usage patterns of the memory region starting at @var{addr}
+@@ -1531,6 +1576,7 @@ that descriptor into an @code{fd_set}.
+ @comment sys/types.h
+ @comment BSD
+ @deftypefn Macro void FD_ZERO (fd_set *@var{set})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro initializes the file descriptor set @var{set} to be the
+ empty set.
+ @end deftypefn
+@@ -1538,6 +1584,9 @@ empty set.
+ @comment sys/types.h
+ @comment BSD
+ @deftypefn Macro void FD_SET (int @var{filedes}, fd_set *@var{set})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Setting a bit isn't necessarily atomic, so there's a potential race
++@c here if set is not used exclusively.
+ This macro adds @var{filedes} to the file descriptor set @var{set}.
+ 
+ The @var{filedes} parameter must not have side effects since it is
+@@ -1547,6 +1596,9 @@ evaluated more than once.
+ @comment sys/types.h
+ @comment BSD
+ @deftypefn Macro void FD_CLR (int @var{filedes}, fd_set *@var{set})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Setting a bit isn't necessarily atomic, so there's a potential race
++@c here if set is not used exclusively.
+ This macro removes @var{filedes} from the file descriptor set @var{set}.
+ 
+ The @var{filedes} parameter must not have side effects since it is
+@@ -1556,6 +1608,7 @@ evaluated more than once.
+ @comment sys/types.h
+ @comment BSD
+ @deftypefn Macro int FD_ISSET (int @var{filedes}, const fd_set *@var{set})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value (true) if @var{filedes} is a member
+ of the file descriptor set @var{set}, and zero (false) otherwise.
+ 
+@@ -1568,6 +1621,10 @@ Next, here is the description of the @code{select} function itself.
+ @comment sys/types.h
+ @comment BSD
+ @deftypefun int select (int @var{nfds}, fd_set *@var{read-fds}, fd_set *@var{write-fds}, fd_set *@var{except-fds}, struct timeval *@var{timeout})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c The select syscall is preferred, but pselect6 may be used instead,
++@c which requires converting timeout to a timespec and back.  The
++@c conversions are not atomic.
+ The @code{select} function blocks the calling process until there is
+ activity on any of the specified sets of file descriptors, or until the
+ timeout period has expired.
+@@ -1670,6 +1727,7 @@ they return.
+ @comment unistd.h
+ @comment X/Open
+ @deftypefun void sync (void)
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ A call to this function will not return as long as there is data which
+ has not been written to the device.  All dirty buffers in the kernel will
+ be written and so an overall consistent system can be achieved (if no
+@@ -1685,6 +1743,7 @@ committed, rather than all data in the system.  For this, @code{sync} is overkil
+ @comment unistd.h
+ @comment POSIX
+ @deftypefun int fsync (int @var{fildes})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{fsync} function can be used to make sure all data associated with
+ the open file @var{fildes} is written to the device associated with the
+ descriptor.  The function call does not return unless all actions have
+@@ -1722,6 +1781,7 @@ recovering of the file in case of a problem.
+ @comment unistd.h
+ @comment POSIX
+ @deftypefun int fdatasync (int @var{fildes})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ When a call to the @code{fdatasync} function returns, it is ensured
+ that all of the file data is written to the device.  For all pending I/O
+ operations, the parts guaranteeing data integrity finished.
+@@ -1923,6 +1983,158 @@ aiocb64}, since the LFS transparently replaces the old interface.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_read (struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
++@c Calls aio_enqueue_request.
++@c aio_enqueue_request selfdeadlock, asmalloc, lockleak, memleak
++@c  pthread_self ok
++@c  pthread_getschedparam selfdeadlock, lockleak
++@c   lll_lock (pthread descriptor's lock) selfdeadlock, lockleak
++@c   sched_getparam ok
++@c   sched_getscheduler ok
++@c   lll_unlock lockleak
++@c  pthread_mutex_lock (aio_requests_mutex) selfdeadlock, lockleak
++@c  get_elem asmalloc, memleak, [asynconsist, incansist], [xguargs]
++@c   realloc asmalloc, memleak
++@c   calloc asmalloc, memleak
++@c  aio_create_helper_thread selfdeadlock, asmalloc, lockleak, memleak
++@c   pthread_attr_init ok
++@c   pthread_attr_setdetachstate ok
++@c   pthread_get_minstack ok
++@c   pthread_attr_setstacksize ok
++@c   sigfillset ok
++@c    memset ok
++@c    sigdelset ok [xguargs, but the caller's sigset is automatic]
++@c   SYSCALL rt_sigprocmask ok
++@c   pthread_create selfdeadlock, asmalloc, lockleak, memleak
++@c    lll_lock (default_pthread_attr_lock) selfdeadlock, lockleak
++@c    alloca/malloc asmalloc, memleak
++@c    lll_unlock lockleak
++@c    allocate_stack selfdeadlock, asmalloc, lockleak, memleak
++@c     getpagesize dup
++@c     lll_lock (default_pthread_attr_lock) selfdeadlock, lockleak
++@c     lll_unlock lockleak
++@c     _dl_allocate_tls asmalloc, memleak
++@c      _dl_allocate_tls_storage asmalloc, memleak
++@c       memalign asmalloc, memleak
++@c       memset ok
++@c       allocate_dtv dup
++@c       free asmalloc, memleak
++@c      allocate_dtv asmalloc, memleak
++@c       calloc asmalloc, memleak
++@c       INSTALL_DTV ok
++@c     list_add dup
++@c     get_cached_stack
++@c      lll_lock (stack_cache_lock) selfdeadlock, lockleak
++@c      list_for_each ok
++@c      list_entry dup
++@c      FREE_P dup
++@c      stack_list_del dup
++@c      stack_list_add dup
++@c      lll_unlock lockleak
++@c      _dl_allocate_tls_init ok
++@c       GET_DTV ok
++@c     mmap ok
++@c     atomic_increment_val ok
++@c     munmap ok
++@c     change_stack_perm ok
++@c      mprotect ok
++@c     mprotect ok
++@c     stack_list_del dup
++@c     _dl_deallocate_tls dup
++@c     munmap ok
++@c    THREAD_COPY_STACK_GUARD ok
++@c    THREAD_COPY_POINTER_GUARD ok
++@c    atomic_exchange_acq ok
++@c    lll_futex_wake ok
++@c    deallocate_stack selfdeadlock, asmalloc, lockleak, memleak
++@c     lll_lock (state_cache_lock) selfdeadlock, lockleak
++@c     stack_list_del ok
++@c      atomic_write_barrier ok
++@c      list_del ok [uunguard]
++@c      atomic_write_barrier ok
++@c     queue_stack asmalloc, memleak
++@c      stack_list_add ok
++@c       atomic_write_barrier ok
++@c       list_add ok [uunguard]
++@c       atomic_write_barrier ok
++@c      free_stacks asmalloc, memleak
++@c       list_for_each_prev_safe ok
++@c       list_entry ok
++@c       FREE_P ok
++@c       stack_list_del dup
++@c       _dl_deallocate_tls dup
++@c       munmap ok
++@c     _dl_deallocate_tls asmalloc, memleak
++@c      free asmalloc, memleak
++@c     lll_unlock lockleak
++@c    create_thread selfdeadlock, asmalloc, lockleak, memleak
++@c     td_eventword
++@c     td_eventmask
++@c     do_clone selfdeadlock, asmalloc, lockleak, memleak
++@c      PREPARE_CREATE ok
++@c      lll_lock (pd->lock) selfdeadlock, lockleak
++@c      atomic_increment ok
++@c      clone ok
++@c      atomic_decrement ok
++@c      atomic_exchange_acq ok
++@c      lll_futex_wake ok
++@c      deallocate_stack dup
++@c      sched_setaffinity ok
++@c      tgkill ok
++@c      sched_setscheduler ok
++@c     atomic_compare_and_exchange_bool_acq ok
++@c     nptl_create_event ok
++@c     lll_unlock (pd->lock) lockleak
++@c    free asmalloc, memleak
++@c   pthread_attr_destroy ok (cpuset won't be set, so free isn't called)
++@c  add_request_to_runlist ok [xguargs]
++@c  pthread_cond_signal ok
++@c  aio_free_request ok [xguargs]
++@c  pthread_mutex_unlock lockleak
++
++@c (in the new thread, initiated with clone)
++@c    start_thread ok
++@c     HP_TIMING_NOW ok
++@c     ctype_init [glocale] (in theory, but optimized into safety)
++@c     atomic_exchange_acq ok
++@c     lll_futex_wake ok
++@c     sigemptyset ok
++@c     sigaddset ok
++@c     setjmp ok
++@c     CANCEL_ASYNC -> pthread_enable_asynccancel ok
++@c      do_cancel ok
++@c       pthread_unwind ok
++@c        Unwind_ForcedUnwind or longjmp ok [asmalloc, memleak?]
++@c     lll_lock selfdeadlock, lockleak
++@c     lll_unlock selfdeadlock, lockleak
++@c     CANCEL_RESET -> pthread_disable_asynccancel ok
++@c      lll_futex_wait ok
++@c     ->start_routine ok -----
++@c     call_tls_dtors selfdeadlock, asmalloc, lockleak, memleak
++@c      user-supplied dtor
++@c      rtld_lock_lock_recursive (dl_load_lock) selfdeadlock, lockleak
++@c      rtld_lock_unlock_recursive lockleak
++@c      free asmalloc, memleak
++@c     nptl_deallocate_tsd asmalloc, memleak
++@c      tsd user-supplied dtors ok
++@c      free asmalloc, memleak
++@c     libc_thread_freeres
++@c      libc_thread_subfreeres ok
++@c     atomic_decrement_and_test ok
++@c     td_eventword ok
++@c     td_eventmask ok
++@c     atomic_compare_exchange_bool_acq ok
++@c     nptl_death_event ok
++@c     lll_robust_dead ok
++@c     getpagesize ok
++@c     madvise ok
++@c     free_tcb selfdeadlock, asmalloc, lockleak, memleak
++@c      free asmalloc, memleak
++@c      deallocate_stack selfdeadlock, asmalloc, lockleak, memleak
++@c     lll_futex_wait ok
++@c     exit_thread_inline ok
++@c      syscall(exit) ok
++
+ This function initiates an asynchronous read operation.  It
+ immediately returns after the operation was enqueued or when an
+ error was encountered.
+@@ -1988,6 +2200,7 @@ replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_read64 (struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function is similar to the @code{aio_read} function.  The only
+ difference is that on @w{32 bit} machines, the file descriptor should
+ be opened in the large file mode.  Internally, @code{aio_read64} uses
+@@ -2006,6 +2219,7 @@ of functions with a very similar interface.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_write (struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function initiates an asynchronous write operation.  The function
+ call immediately returns after the operation was enqueued or if before
+ this happens an error was encountered.
+@@ -2072,6 +2286,7 @@ replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_write64 (struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function is similar to the @code{aio_write} function.  The only
+ difference is that on @w{32 bit} machines the file descriptor should
+ be opened in the large file mode.  Internally @code{aio_write64} uses
+@@ -2093,6 +2308,12 @@ operations.  It is therefore similar to a combination of @code{readv} and
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int lio_listio (int @var{mode}, struct aiocb *const @var{list}[], int @var{nent}, struct sigevent *@var{sig})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
++@c Call lio_listio_internal, that takes the aio_requests_mutex lock and
++@c enqueues each request.  Then, it waits for notification or prepares
++@c for it before releasing the lock.  Even though it performs memory
++@c allocation and locking of its own, it doesn't add any classes of
++@c safety issues that aren't already covered by aio_enqueue_request.
+ The @code{lio_listio} function can be used to enqueue an arbitrary
+ number of read and write requests at one time.  The requests can all be
+ meant for the same file, all for different files or every solution in
+@@ -2176,6 +2397,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int lio_listio64 (int @var{mode}, struct aiocb64 *const @var{list}[], int @var{nent}, struct sigevent *@var{sig})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function is similar to the @code{lio_listio} function.  The only
+ difference is that on @w{32 bit} machines, the file descriptor should
+ be opened in the large file mode.  Internally, @code{lio_listio64} uses
+@@ -2204,6 +2426,7 @@ The following two functions allow you to get this kind of information.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_error (const struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function determines the error state of the request described by the
+ @code{struct aiocb} variable pointed to by @var{aiocbp}.  If the
+ request has not yet terminated the value returned is always
+@@ -2225,6 +2448,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_error64 (const struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is similar to @code{aio_error} with the only difference
+ that the argument is a reference to a variable of type @code{struct
+ aiocb64}.
+@@ -2238,6 +2462,7 @@ machines.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun ssize_t aio_return (struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function can be used to retrieve the return status of the operation
+ carried out by the request described in the variable pointed to by
+ @var{aiocbp}.  As long as the error status of this request as returned
+@@ -2261,6 +2486,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun ssize_t aio_return64 (struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function is similar to @code{aio_return} with the only difference
+ that the argument is a reference to a variable of type @code{struct
+ aiocb64}.
+@@ -2289,6 +2515,9 @@ if the symbol @code{_POSIX_SYNCHRONIZED_IO} is defined in @file{unistd.h}.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_fsync (int @var{op}, struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
++@c After fcntl to check that the FD is open, it calls
++@c aio_enqueue_request.
+ Calling this function forces all I/O operations operating queued at the
+ time of the function call operating on the file descriptor
+ @code{aiocbp->aio_fildes} into the synchronized I/O completion state
+@@ -2336,6 +2565,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_fsync64 (int @var{op}, struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function is similar to @code{aio_fsync} with the only difference
+ that the argument is a reference to a variable of type @code{struct
+ aiocb64}.
+@@ -2362,6 +2592,9 @@ before the current client is served.  For situations like this
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_suspend (const struct aiocb *const @var{list}[], int @var{nent}, const struct timespec *@var{timeout})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
++@c Take aio_requests_mutex, set up waitlist and requestlist, wait
++@c for completion or timeout, and release the mutex.
+ When calling this function, the calling thread is suspended until at
+ least one of the requests pointed to by the @var{nent} elements of the
+ array @var{list} has completed.  If any of the requests has already
+@@ -2400,6 +2633,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_suspend64 (const struct aiocb64 *const @var{list}[], int @var{nent}, const struct timespec *@var{timeout})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
+ This function is similar to @code{aio_suspend} with the only difference
+ that the argument is a reference to a variable of type @code{struct
+ aiocb64}.
+@@ -2427,6 +2661,16 @@ or not.  Therefore using this function is merely a hint.
+ @comment aio.h
+ @comment POSIX.1b
+ @deftypefun int aio_cancel (int @var{fildes}, struct aiocb *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
++@c After fcntl to check the fd is open, hold aio_requests_mutex, call
++@c aio_find_req_fd, aio_remove_request, then aio_notify and
++@c aio_free_request each request before releasing the lock.
++@c aio_notify calls aio_notify_only and free, besides cond signal or
++@c similar.  aio_notify_only calls pthread_attr_init,
++@c pthread_attr_setdetachstate, malloc, pthread_create,
++@c notify_func_wrapper, aio_sigqueue, getpid, raise.
++@c notify_func_wraper calls aio_start_notify_thread, free and then the
++@c notifier function.
+ The @code{aio_cancel} function can be used to cancel one or more
+ outstanding requests.  If the @var{aiocbp} parameter is @code{NULL}, the
+ function tries to cancel all of the outstanding requests which would process
+@@ -2474,6 +2718,7 @@ transparently replaces the normal implementation.
+ @comment aio.h
+ @comment Unix98
+ @deftypefun int aio_cancel64 (int @var{fildes}, struct aiocb64 *@var{aiocbp})
++@safety{@mtsafe{}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+ This function is similar to @code{aio_cancel} with the only difference
+ that the argument is a reference to a variable of type @code{struct
+ aiocb64}.
+@@ -2529,6 +2774,8 @@ Unused.
+ @comment aio.h
+ @comment GNU
+ @deftypefun void aio_init (const struct aioinit *@var{init})
++@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak}}
++@c All changes to global objects are guarded by aio_requests_mutex.
+ This function must be called before any other AIO function.  Calling it
+ is completely voluntary, as it is only meant to help the AIO
+ implementation perform better.
+@@ -2563,6 +2810,7 @@ function; see @ref{Opening and Closing Files}.
+ @comment fcntl.h
+ @comment POSIX.1
+ @deftypefun int fcntl (int @var{filedes}, int @var{command}, @dots{})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{fcntl} function performs the operation specified by
+ @var{command} on the file descriptor @var{filedes}.  Some commands
+ require additional arguments to be supplied.  These additional arguments
+@@ -2645,6 +2893,7 @@ while prototypes for @code{dup} and @code{dup2} are in the header file
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int dup (int @var{old})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function copies descriptor @var{old} to the first available
+ descriptor number (the first number not currently open).  It is
+ equivalent to @code{fcntl (@var{old}, F_DUPFD, 0)}.
+@@ -2653,6 +2902,7 @@ equivalent to @code{fcntl (@var{old}, F_DUPFD, 0)}.
+ @comment unistd.h
+ @comment POSIX.1
+ @deftypefun int dup2 (int @var{old}, int @var{new})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This function copies the descriptor @var{old} to descriptor number
+ @var{new}.
+ 
+@@ -3631,6 +3881,7 @@ different headers.
+ @comment sys/ioctl.h
+ @comment BSD
+ @deftypefun int ioctl (int @var{filedes}, int @var{command}, @dots{})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ 
+ The @code{ioctl} function performs the generic I/O operation
+ @var{command} on @var{filedes}.
+@@ -3650,3 +3901,6 @@ unknown device.
+ Most IOCTLs are OS-specific and/or only used in special system utilities,
+ and are thus beyond the scope of this document.  For an example of the use
+ of an IOCTL, see @ref{Out-of-Band Data}.
++
++@c FIXME this is undocumented:
++@c dup3
+diff --git a/manual/locale.texi b/manual/locale.texi
+index 323268d..da50d18 100644
+--- a/manual/locale.texi
++++ b/manual/locale.texi
+@@ -224,10 +224,16 @@ The symbols in this section are defined in the header file @file{locale.h}.
+ @comment locale.h
+ @comment ISO
+ @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
+-@safety{@mtunsafe{uunguard}}
+-@c This function is MT-Safe, but uses of the global locale object are
+-@c unguarded in functions that ought to be MT-Safe, so we're ruling out
+-@c the use of this function once threads are started.
++@safety{@mtunsafe{uunguard, envromt}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
++@c Uses of the global locale object are unguarded in functions that
++@c ought to be MT-Safe, so we're ruling out the use of this function
++@c once threads are started.  It takes a write lock itself, but it may
++@c return a pointer loaded from the global locale object after releasing
++@c the lock, or before taking it.  It calls getenv for LOCPATH, malloc
++@c and free, and _nl_find_locale, which amount to all documented safety
++@c issues.  It also calls new_composite_name, setdata, and setname,
++@c without any additional issues.  _nl_find_locale calls getenv, ...
++This function returns a pointer read 
+ The function @code{setlocale} sets the current locale for category
+ @var{category} to @var{locale}.  A list of all the locales the system
+ provides can be created by running
+diff --git a/manual/resource.texi b/manual/resource.texi
+index 1ec7af2..71b08f7 100644
+--- a/manual/resource.texi
++++ b/manual/resource.texi
+@@ -223,6 +223,8 @@ The symbols for use with @code{getrlimit}, @code{setrlimit},
+ @comment sys/resource.h
+ @comment BSD
+ @deftypefun int getrlimit (int @var{resource}, struct rlimit *@var{rlp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Direct syscall on most systems.
+ Read the current and maximum limits for the resource @var{resource}
+ and store them in @code{*@var{rlp}}.
+ 
+@@ -237,6 +239,8 @@ LFS interface transparently replaces the old interface.
+ @comment sys/resource.h
+ @comment Unix98
+ @deftypefun int getrlimit64 (int @var{resource}, struct rlimit64 *@var{rlp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Direct syscall on most systems, wrapper to the getrlimit otherwise.
+ This function is similar to @code{getrlimit} but its second parameter is
+ a pointer to a variable of type @code{struct rlimit64}, which allows it
+ to read values which wouldn't fit in the member of a @code{struct
+@@ -1516,6 +1520,9 @@ There is a much older interface available, too.
+ @comment unistd.h
+ @comment BSD
+ @deftypefun int getpagesize (void)
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Obtained from the aux vec at program startup time.  GNU/Linux/m68k is
++@c the exception, with the possibility of a syscall.
+ The @code{getpagesize} function returns the page size of the process.
+ This value is fixed for the runtime of the process but can vary in
+ different runs of the application.
+@@ -1559,6 +1566,8 @@ get this information two functions.  They are declared in the file
+ @comment sys/sysinfo.h
+ @comment GNU
+ @deftypefun {long int} get_phys_pages (void)
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
++@c This fopens a /proc file and scans it for the requested information.
+ The @code{get_phys_pages} function returns the total number of pages of
+ physical the system has.  To get the amount of memory this number has to
+ be multiplied by the page size.
+@@ -1569,6 +1578,7 @@ This function is a GNU extension.
+ @comment sys/sysinfo.h
+ @comment GNU
+ @deftypefun {long int} get_avphys_pages (void)
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+ The @code{get_phys_pages} function returns the number of available pages of
+ physical the system has.  To get the amount of memory this number has to
+ be multiplied by the page size.
+@@ -1614,6 +1624,10 @@ in @file{sys/sysinfo.h}.
+ @comment sys/sysinfo.h
+ @comment GNU
+ @deftypefun int get_nprocs_conf (void)
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
++@c This function reads from from /sys using dir streams (single user, so
++@c no staticbuf MT-Safety issue), and on some arches, from /proc using
++@c streams.
+ The @code{get_nprocs_conf} function returns the number of processors the
+ operating system configured.
+ 
+@@ -1623,6 +1637,8 @@ This function is a GNU extension.
+ @comment sys/sysinfo.h
+ @comment GNU
+ @deftypefun int get_nprocs (void)
++@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
++@c This function reads from /proc using file descriptor I/O.
+ The @code{get_nprocs} function returns the number of available processors.
+ 
+ This function is a GNU extension.
+diff --git a/manual/search.texi b/manual/search.texi
+index efd3604..6910edc 100644
+--- a/manual/search.texi
++++ b/manual/search.texi
+@@ -146,6 +146,7 @@ To sort an array using an arbitrary comparison function, use the
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun void qsort (void *@var{array}, size_t @var{count}, size_t @var{size}, comparison_fn_t @var{compare})
++@safety{@mtsafe{xguargs}@assafe{asmalloc}@acsafe{memleak}}
+ The @var{qsort} function sorts the array @var{array}.  The array contains
+ @var{count} elements, each of which is of size @var{size}.
+ 
+@@ -436,6 +437,11 @@ in the header file @file{search.h}.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tsearch (const void *@var{key}, void **@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtunsafe{xguargs}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, memleak}}
++@c The tree is not modified in a thread-safe manner, and rotations may
++@c leave the tree in an inconsistent state that could be observed in an
++@c asynchronous signal handler or after asynchronous cancellation of the
++@c thread performing the rotation or the insertion.
+ The @code{tsearch} function searches in the tree pointed to by
+ @code{*@var{rootp}} for an element matching @var{key}.  The function
+ pointed to by @var{compar} is used to determine whether two elements
+@@ -465,6 +471,7 @@ of space @code{NULL} is returned.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tfind (const void *@var{key}, void *const *@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
+ The @code{tfind} function is similar to the @code{tsearch} function.  It
+ locates an element matching the one pointed to by @var{key} and returns
+ a pointer to this element.  But if no matching element is available no
+@@ -479,6 +486,7 @@ elements.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tdelete (const void *@var{key}, void **@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtunsafe{xguargs}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, memleak}}
+ To remove a specific element matching @var{key} from the tree
+ @code{tdelete} can be used.  It locates the matching element using the
+ same method as @code{tfind}.  The corresponding element is then removed
+@@ -492,6 +500,7 @@ is deleted @code{tdelete} returns some unspecified value not equal to
+ @comment search.h
+ @comment GNU
+ @deftypefun void tdestroy (void *@var{vroot}, __free_fn_t @var{freefct})
++@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
+ If the complete search tree has to be removed one can use
+ @code{tdestroy}.  It frees all resources allocated by the @code{tsearch}
+ function to generate the tree pointed to by @var{vroot}.
+@@ -546,6 +555,7 @@ The current node is a leaf.
+ @comment search.h
+ @comment SVID
+ @deftypefun void twalk (const void *@var{root}, __action_fn_t @var{action})
++@safety{@mtsafe{xguards}@assafe{}@acsafe{}}
+ For each node in the tree with a node pointed to by @var{root}, the
+ @code{twalk} function calls the function provided by the parameter
+ @var{action}.  For leaf nodes the function is called exactly once with
+diff --git a/manual/startup.texi b/manual/startup.texi
+index a277714..7bbaf13 100644
+--- a/manual/startup.texi
++++ b/manual/startup.texi
+@@ -358,8 +358,8 @@ value is nonzero and @code{errno} is set to indicate the error.
+ The difference to the @code{setenv} function is that the exact string
+ given as the parameter @var{string} is put into the environment.  If the
+ user should change the string after the @code{putenv} call this will
+-reflect in automatically in the environment.  This also requires that
+-@var{string} is no automatic variable which scope is left before the
++reflect automatically in the environment.  This also requires that
++@var{string} not be an automatic variable whose scope is left before the
+ variable is removed from the environment.  The same applies of course to
+ dynamically allocated variables which are freed later.
+ 
+diff --git a/manual/stdio.texi b/manual/stdio.texi
+index 7809dd4..79a3340 100644
+--- a/manual/stdio.texi
++++ b/manual/stdio.texi
+@@ -148,7 +148,7 @@ Everything described in this section is declared in the header file
+ @comment stdio.h
+ @comment ISO
+ @deftypefun {FILE *} fopen (const char *@var{filename}, const char *@var{opentype})
+-@safety{@mtsafe{}@assafe{asmalloc, selfdeadlock}@acunsafe{memleak, fdleak, lockleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, fdleak, lockleak}}
+ @c fopen may leak the list lock if cancelled within _IO_link_in.
+ The @code{fopen} function opens a stream for I/O to the file
+ @var{filename}, and returns a pointer to the stream.
+@@ -267,7 +267,7 @@ Locks}.
+ @comment stdio.h
+ @comment Unix98
+ @deftypefun {FILE *} fopen64 (const char *@var{filename}, const char *@var{opentype})
+-@safety{@mtsafe{}@assafe{asmalloc, selfdeadlock}@acsafe{memleak, fdleak, lockleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acsafe{memleak, fdleak, lockleak}}
+ This function is similar to @code{fopen} but the stream it returns a
+ pointer for is opened using @code{open64}.  Therefore this stream can be
+ used even on files larger then @math{2^31} bytes on 32 bit machines.
+@@ -414,7 +414,7 @@ cannot perform any additional operations on it.
+ @comment stdio.h
+ @comment ISO
+ @deftypefun int fclose (FILE *@var{stream})
+-@safety{@mtsafe{}@assafe{asmalloc, selfdeadlock}@acunsafe{lockleak, memleak, fdleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, memleak, fdleak}}
+ @c After fclose, it is undefined behavior to use the stream it points
+ @c to.  Therefore, one must only call fclose when the stream is
+ @c otherwise unused.  Concurrent uses started before will complete
+@@ -2662,6 +2662,42 @@ pointer @var{ap}.
+ @c case of cancellation.  This doesn't make it unsafe, but cancelling it
+ @c may leak memory.  The unguarded use of __printf_function_table is
+ @c also of concern for all callers.
++@c _itoa ok
++@c   _udiv_qrnnd_preinv ok
++@c group_number ok
++@c _i18n_number_rewrite
++@c   __wctrans ok
++@c   __towctrans glocale
++@c   __wcrtomb ok? dup below
++@c   outdigit_value ok
++@c   outdigitwc_value ok
++@c outchar ok
++@c outstring ok
++@c PAD ok
++@c __printf_fp glocale memleak
++@c __printf_fphex glocale
++@c __readonly_area
++@c   [GNU/Linux] fopen, strtoul, free
++@c __strerror_r ok if no translation, check otherwise
++@c __btowc ? gconv-modules
++@c __wcrtomb ok (not using internal state) gconv-modules
++@c ARGCHECK
++@c UNBUFFERED_P (tested before taking the stream lock)
++@c buffered_vfprintf ok
++@c __find_spec(wc|mb)
++@c read_int
++@c __libc_use_alloca
++@c process_arg
++@c process_string_arg
++@c extend_alloca
++@c __parse_one_spec(wc|mb)
++@c *__printf_arginfo_table unguarded
++@c __printf_va_arg_table-> unguarded
++@c *__printf_function_table unguarded
++@c done_add
++@c printf_unknown
++@c   outchar
++@c   _itoa_word
+ This is the equivalent of @code{fprintf} with the variable argument list
+ specified directly as for @code{vprintf}.
+ @end deftypefun
+@@ -5020,7 +5056,7 @@ I/O to a string or memory buffer.  These facilities are declared in
+ @comment stdio.h
+ @comment GNU
+ @deftypefun {FILE *} fmemopen (void *@var{buf}, size_t @var{size}, const char *@var{opentype})
+-@safety{@mtsafe{}@assafe{asmalloc, selfdeadlock}@acsafe{memleak, lockleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acsafe{memleak, lockleak}}
+ @c Unlike open_memstream, fmemopen does (indirectly) call _IO_link_in,
+ @c bringing with it additional potential for async trouble with
+ @c list_all_lock.
+@@ -5076,7 +5112,7 @@ Got r
+ @comment stdio.h
+ @comment GNU
+ @deftypefun {FILE *} open_memstream (char **@var{ptr}, size_t *@var{sizeloc})
+-@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc}@acsafe{memleak}}
+ This function opens a stream for writing to a buffer.  The buffer is
+ allocated dynamically and grown as necessary, using @code{malloc}.
+ After you've closed the stream, this buffer is your responsibility to
+@@ -5192,7 +5228,7 @@ closed.
+ @comment stdio.h
+ @comment GNU
+ @deftypefun {FILE *} fopencookie (void *@var{cookie}, const char *@var{opentype}, cookie_io_functions_t @var{io-functions})
+-@safety{@mtsafe{}@assafe{asmalloc, selfdeadlock}@acunsafe{memleak, lockleak}}
++@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, lockleak}}
+ This function actually creates the stream for communicating with the
+ @var{cookie} using the functions in the @var{io-functions} argument.
+ The @var{opentype} argument is interpreted as for @code{fopen};
+diff --git a/manual/string.texi b/manual/string.texi
+index 246be84..a75d298 100644
+--- a/manual/string.texi
++++ b/manual/string.texi
+@@ -1247,6 +1247,8 @@ strncmp ("hello, world", "hello, stupid world!!!", 5)
+ @comment string.h
+ @comment GNU
+ @deftypefun int strverscmp (const char *@var{s1}, const char *@var{s2})
++@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
++@c Calls isdigit multiple times, locale may change in between.
+ The @code{strverscmp} function compares the string @var{s1} against
+ @var{s2}, considering them as holding indices/version numbers.  The
+ return value follows the same conventions as found in the
+@@ -1343,6 +1345,8 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
+ @comment string.h
+ @comment ISO
+ @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
++@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
++@c Adjust alphasort one safety info is determined.
+ The @code{strcoll} function is similar to @code{strcmp} but uses the
+ collating sequence of the current locale for collation (the
+ @code{LC_COLLATE} locale).
+diff --git a/manual/terminal.texi b/manual/terminal.texi
+index 9e9c057..7f62a4e 100644
+--- a/manual/terminal.texi
++++ b/manual/terminal.texi
+@@ -264,6 +264,9 @@ array.
+ @comment termios.h
+ @comment POSIX.1
+ @deftypefun int tcgetattr (int @var{filedes}, struct termios *@var{termios-p})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Converting the kernel-returned termios data structure to the userland
++@c format does not ensure atomic or consistent writing.
+ This function is used to examine the attributes of the terminal
+ device with file descriptor @var{filedes}.  The attributes are returned
+ in the structure that @var{termios-p} points to.
+@@ -284,6 +287,9 @@ The @var{filedes} is not associated with a terminal.
+ @comment termios.h
+ @comment POSIX.1
+ @deftypefun int tcsetattr (int @var{filedes}, int @var{when}, const struct termios *@var{termios-p})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Converting the incoming termios data structure to the kernel format
++@c does not ensure atomic or consistent reading.
+ This function sets the attributes of the terminal device with file
+ descriptor @var{filedes}.  The new attributes are taken from the
+ structure that @var{termios-p} points to.
+diff --git a/manual/threads.texi b/manual/threads.texi
+index a23ac26..19bfad6 100644
+--- a/manual/threads.texi
++++ b/manual/threads.texi
+@@ -31,6 +31,7 @@ before thread-specific data, so they should not be used in thread-specific
+ data destructors or even as members of the thread-specific data, since the
+ latter is passed as an argument to the destructor function.
+ 
++@c FIXME: use @deftypefun for these.
+ @item int pthread_key_delete (pthread_key_t @var{key})
+ Destroy the thread-specific data @var{key} in the calling thread.  The
+ destructor for the thread-specific data is not called during destruction, nor
+@@ -82,3 +83,124 @@ attributes or the stack address is set in the attribute.
+ The system does not have sufficient memory.
+ @end table
+ @end deftypefun
++
++@c FIXME these are undocumented:
++@c pthread_atfork
++@c pthread_attr_destroy
++@c pthread_attr_getaffinity_np
++@c pthread_attr_getdetachstate
++@c pthread_attr_getguardsize
++@c pthread_attr_getinheritsched
++@c pthread_attr_getschedparam
++@c pthread_attr_getschedpolicy
++@c pthread_attr_getscope
++@c pthread_attr_getstack
++@c pthread_attr_getstackaddr
++@c pthread_attr_getstacksize
++@c pthread_attr_init
++@c pthread_attr_setaffinity_np
++@c pthread_attr_setdetachstate
++@c pthread_attr_setguardsize
++@c pthread_attr_setinheritsched
++@c pthread_attr_setschedparam
++@c pthread_attr_setschedpolicy
++@c pthread_attr_setscope
++@c pthread_attr_setstack
++@c pthread_attr_setstackaddr
++@c pthread_attr_setstacksize
++@c pthread_barrierattr_destroy
++@c pthread_barrierattr_getpshared
++@c pthread_barrierattr_init
++@c pthread_barrierattr_setpshared
++@c pthread_barrier_destroy
++@c pthread_barrier_init
++@c pthread_barrier_wait
++@c pthread_cancel
++@c pthread_cleanup_push
++@c pthread_cleanup_pop
++@c pthread_condattr_destroy
++@c pthread_condattr_getclock
++@c pthread_condattr_getpshared
++@c pthread_condattr_init
++@c pthread_condattr_setclock
++@c pthread_condattr_setpshared
++@c pthread_cond_broadcast
++@c pthread_cond_destroy
++@c pthread_cond_init
++@c pthread_cond_signal
++@c pthread_cond_timedwait
++@c pthread_cond_wait
++@c pthread_create
++@c pthread_detach
++@c pthread_equal
++@c pthread_exit
++@c pthread_getaffinity_np
++@c pthread_getattr_np
++@c pthread_getconcurrency
++@c pthread_getcpuclockid
++@c pthread_getname_np
++@c pthread_getschedparam
++@c pthread_join
++@c pthread_kill
++@c pthread_kill_other_threads_np
++@c pthread_mutexattr_destroy
++@c pthread_mutexattr_getkind_np
++@c pthread_mutexattr_getprioceiling
++@c pthread_mutexattr_getprotocol
++@c pthread_mutexattr_getpshared
++@c pthread_mutexattr_getrobust
++@c pthread_mutexattr_getrobust_np
++@c pthread_mutexattr_gettype
++@c pthread_mutexattr_init
++@c pthread_mutexattr_setkind_np
++@c pthread_mutexattr_setprioceiling
++@c pthread_mutexattr_setprotocol
++@c pthread_mutexattr_setpshared
++@c pthread_mutexattr_setrobust
++@c pthread_mutexattr_setrobust_np
++@c pthread_mutexattr_settype
++@c pthread_mutex_consistent
++@c pthread_mutex_consistent_np
++@c pthread_mutex_destroy
++@c pthread_mutex_getprioceiling
++@c pthread_mutex_init
++@c pthread_mutex_lock
++@c pthread_mutex_setprioceiling
++@c pthread_mutex_timedlock
++@c pthread_mutex_trylock
++@c pthread_mutex_unlock
++@c pthread_once
++@c pthread_rwlockattr_destroy
++@c pthread_rwlockattr_getkind_np
++@c pthread_rwlockattr_getpshared
++@c pthread_rwlockattr_init
++@c pthread_rwlockattr_setkind_np
++@c pthread_rwlockattr_setpshared
++@c pthread_rwlock_destroy
++@c pthread_rwlock_init
++@c pthread_rwlock_rdlock
++@c pthread_rwlock_timedrdlock
++@c pthread_rwlock_timedwrlock
++@c pthread_rwlock_tryrdlock
++@c pthread_rwlock_trywrlock
++@c pthread_rwlock_unlock
++@c pthread_rwlock_wrlock
++@c pthread_self
++@c pthread_setaffinity_np
++@c pthread_setcancelstate
++@c pthread_setcanceltype
++@c pthread_setconcurrency
++@c pthread_setname_np
++@c pthread_setschedparam
++@c pthread_setschedprio
++@c pthread_sigmask
++@c pthread_sigqueue
++@c pthread_spin_destroy
++@c pthread_spin_init
++@c pthread_spin_lock
++@c pthread_spin_trylock
++@c pthread_spin_unlock
++@c pthread_testcancel
++@c pthread_timedjoin_np
++@c pthread_tryjoin_np
++@c pthread_yield
+diff --git a/manual/time.texi b/manual/time.texi
+index ff31e28..3967b24 100644
+--- a/manual/time.texi
++++ b/manual/time.texi
+@@ -475,6 +475,12 @@ Instead, use the facilities described in @ref{Time Zone Functions}.
+ @comment sys/time.h
+ @comment BSD
+ @deftypefun int gettimeofday (struct timeval *@var{tp}, struct timezone *@var{tzp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c On most GNU/Linux systems this is a direct syscall, but the posix/
++@c implementation (not used on GNU/Linux or GNU/Hurd) relies on time and
++@c localtime_r, saving and restoring tzname in an unsafe manner.
++@c On some GNU/Linux variants, ifunc resolvers are used in shared libc
++@c for vdso resolution.  ifunc-vdso-revisit.
+ The @code{gettimeofday} function returns the current calendar time as
+ the elapsed time since the epoch in the @code{struct timeval} structure
+ indicated by @var{tp}.  (@pxref{Elapsed Time} for a description of
