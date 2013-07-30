@@ -1,0 +1,144 @@
+Bottom: 0a849c59373d188b655eb565b331217df9a1c289
+Top:    ddb3776a9a203e24617cd4dd791350fe3ae34426
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2012-10-10 08:46:20 -0300
+
+Add probes for malloc arena changes.
+
+for ChangeLog
+
+	* malloc/arena.c (get_free_list): Add probe
+	memory_arena_reuse_free_list.
+	(reused_arena) [PER_THREAD]: Add probes memory_arena_reuse_wait
+	and memory_arena_reuse.
+	(arena_get2) [!PER_THREAD]: Likewise.
+	* malloc/malloc.c (__libc_realloc) [!PER_THREAD]: Add probe
+	memory_arena_reuse_realloc.
+	* manual/probes.texi: Document them.
+
+
+---
+
+diff --git a/malloc/arena.c b/malloc/arena.c
+index 0822fc8..89e8b92 100644
+--- a/malloc/arena.c
++++ b/malloc/arena.c
+@@ -775,6 +775,7 @@ get_free_list (void)
+ 
+       if (result != NULL)
+ 	{
++	  LIBC_PROBE (memory_arena_reuse_free_list, 1, result);
+ 	  (void)mutex_lock(&result->mutex);
+ 	  tsd_setspecific(arena_key, (void *)result);
+ 	  THREAD_STAT(++(result->stat_lock_loop));
+@@ -811,9 +812,11 @@ reused_arena (mstate avoid_arena)
+     result = result->next;
+ 
+   /* No arena available.  Wait for the next in line.  */
++  LIBC_PROBE (memory_arena_reuse_wait, 3, &result->mutex, result, avoid_arena);
+   (void)mutex_lock(&result->mutex);
+ 
+  out:
++  LIBC_PROBE (memory_arena_reuse, 2, result, avoid_arena);
+   tsd_setspecific(arena_key, (void *)result);
+   THREAD_STAT(++(result->stat_lock_loop));
+   next_to_use = result->next;
+@@ -892,6 +895,7 @@ arena_get2(mstate a_tsd, size_t size, mstate avoid_arena)
+       if (retried)
+ 	(void)mutex_unlock(&list_lock);
+       THREAD_STAT(++(a->stat_lock_loop));
++      LIBC_PROBE (memory_arena_reuse, 2, a, a_tsd);
+       tsd_setspecific(arena_key, (void *)a);
+       return a;
+     }
+@@ -904,6 +908,7 @@ arena_get2(mstate a_tsd, size_t size, mstate avoid_arena)
+      locks. */
+   if(!retried && mutex_trylock(&list_lock)) {
+     /* We will block to not run in a busy loop.  */
++    LIBC_PROBE (memory_arena_reuse_wait, 3, &list_lock, NULL, a_tsd);
+     (void)mutex_lock(&list_lock);
+ 
+     /* Since we blocked there might be an arena available now.  */
+diff --git a/malloc/malloc.c b/malloc/malloc.c
+index 5e23de2..46a1454 100644
+--- a/malloc/malloc.c
++++ b/malloc/malloc.c
+@@ -2977,6 +2977,7 @@ __libc_realloc(void* oldmem, size_t bytes)
+ #endif
+ 
+ #if !defined PER_THREAD
++  LIBC_PROBE (memory_arena_reuse_realloc, 1, ar_ptr);
+   /* As in malloc(), remember this arena for the next allocation. */
+   tsd_setspecific(arena_key, (void *)ar_ptr);
+ #endif
+diff --git a/manual/probes.texi b/manual/probes.texi
+index 9880eef..8e21190 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -33,6 +33,66 @@ located at @var{$arg1}, within a newly-allocated heap big enough to hold
+ at least @var{$arg2} bytes.
+ @end deftp
+ 
++@deftp Probe memory_arena_reuse (void *@var{$arg1}, void *@var{$arg2})
++This probe is hit when @code{malloc} has just selected an existing arena
++to reuse, and (temporarily) reserved it for exclusive use.  Argument
++@var{$arg1} is a pointer to the newly-selected arena, and @var{$arg2} is
++a pointer to the arena previously used by that thread.  
++
++When per-thread arenas are enabled, this occurs within
++@code{reused_arena}, right after the mutex mentioned in probe
++@code{memory_arena_reuse_wait} is acquired; argument @var{$arg1} will
++point to the same arena.  In this configuration, this will usually only
++occur once per thread.  The exception is when a thread first selected
++the main arena, but a subsequent allocation from it fails: then, and
++only then, may we switch to another arena to retry that allocations, and
++for further allocations within that thread.
++
++When per-thread arenas are disabled, this occurs within
++@code{arena_get2}, whenever the mutex for the previously-selected arena
++cannot be immediately acquired.
++@end deftp
++
++@deftp Probe memory_arena_reuse_wait (void *@var{$arg1}, void *@var{$arg2}, void *@var{$arg3})
++This probe is hit when @code{malloc} is about to wait for an arena to
++become available for reuse.  Argument @var{$arg1} holds a pointer to the
++mutex the thread is going to wait on, @var{$arg2} is a pointer to a
++newly-chosen arena to be reused, and @var{$arg3} is a pointer to the
++arena previously used by that thread.
++
++When per-thread arenas are enabled, this occurs within
++@code{reused_arena}, when a thread first tries to allocate memory or
++needs a retry after a failure to allocate from the main arena, there
++isn't any free arena, the maximum number of arenas has been reached, and
++an existing arena was chosen for reuse, but its mutex could not be
++immediately acquired.  The mutex in @var{$arg1} is the mutex of the
++selected arena.
++
++When per-thread arenas are disabled, this occurs within
++@code{arena_get2}, when a thread first tries to allocate memory or the
++mutex of the arena it previously used could not be immediately acquired,
++and none of the existing arenas could be immediately reserved for
++exclusive use.  The mutex in @var{$arg1} is that of the list of arenas,
++and since the arena won't have been selected yet, @var{$arg2} will be
++@code{NULL}.
++@end deftp
++
++@deftp Probe memory_arena_reuse_free_list (void *@var{$arg1})
++This probe is hit when @code{malloc} has chosen an arena that is in the
++free list for use by a thread, within the @code{get_free_list} function.
++This probe is only available when @code{malloc} is configured to use
++per-thread arenas.  The argument @var{$arg1} holds a pointer to the
++selected arena.
++@end deftp
++
++@deftp Probe memory_arena_reuse_realloc (void *@var{$arg1})
++This probe is hit within @code{realloc}, as the arena of the current
++thread is changed to match that in which the given address was
++allocated.  This probe is not available when @code{malloc} is configured
++to use per-thread arenas.  The argument @var{$arg1} holds a pointer to
++the newly-selected arena.
++@end deftp
++
+ @deftp Probe memory_mallopt (int @var{$arg1}, int @var{$arg2})
+ This probe is hit when function @code{mallopt} is called to change
+ @code{malloc} internal configuration parameters, before any change to

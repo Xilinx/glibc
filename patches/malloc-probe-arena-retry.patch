@@ -1,0 +1,50 @@
+Bottom: 98e970f78f5aaaa7568c1385ff494bfd3abe36a2
+Top:    9d4d6eaa4eb7480ef2542795e29ccad9cb9c63e5
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2012-10-10 08:46:21 -0300
+
+Add catch-all alloc retry probe.
+
+for ChangeLog
+
+	* malloc/arena.c (arena_get_retry): Add memory_arena_retry probe.
+	* manual/probes.texi: Document it.
+
+
+---
+
+diff --git a/malloc/arena.c b/malloc/arena.c
+index 89e8b92..9ace186 100644
+--- a/malloc/arena.c
++++ b/malloc/arena.c
+@@ -932,6 +932,7 @@ arena_get2(mstate a_tsd, size_t size, mstate avoid_arena)
+ static mstate
+ arena_get_retry (mstate ar_ptr, size_t bytes)
+ {
++  LIBC_PROBE (memory_arena_retry, 2, bytes, ar_ptr);
+   if(ar_ptr != &main_arena) {
+     (void)mutex_unlock(&ar_ptr->mutex);
+     ar_ptr = &main_arena;
+diff --git a/manual/probes.texi b/manual/probes.texi
+index ba30c0d..c5c2870 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -44,6 +44,18 @@ two-argument functions, so that in all of these probes the
+ user-requested allocation size is in @var{$arg1}.
+ @end deftp
+ 
++@deftp Probe memory_arena_retry (size_t @var{$arg1}, void *@var{$arg2})
++This probe is hit within @code{arena_get_retry}, the function used by
++all of the corresponding functions above to select the alternate arena
++in which to retry the allocation, before the selection takes place.
++This probe is redundant, but much easier to use when it's not important
++to determine which memory allocation functions are failing to allocate
++in the first try.  Argument @var{$arg1} is the same as in the
++function-specific probes, except for extra room for padding introduced
++by functions that have to ensure stricter alignment.  Argument
++@var{$arg2} is the arena in which allocation failed.
++@end deftp
++
+ @deftp Probe memory_arena_new (void *@var{$arg1}, size_t @var{$arg2})
+ This probe is hit when @code{malloc} allocated and initialized an
+ additional allocation arena (not the main arena), but before it is

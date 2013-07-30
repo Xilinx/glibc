@@ -1,0 +1,132 @@
+Bottom: 9d4d6eaa4eb7480ef2542795e29ccad9cb9c63e5
+Top:    4f46302d23a22100ef99c3cd62f39c3d6880e526
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2012-10-10 08:46:21 -0300
+
+Add malloc probes for sbrk and heap resizing.
+
+for ChangeLog
+
+	* malloc/arena.c (new_heap): New memory_heap_new probe.
+	(grow_heap): New memory_heap_more probe.
+	(shrink_heap): New memory_heap_less probe.
+	(heap_trim): New memory_heap_free probe.
+	* malloc/malloc.c (sysmalloc): New memory_sbrk_more probe.
+	(systrim): New memory_sbrk_less probe.
+	* manual/probes.texi: Document them.
+
+
+---
+
+diff --git a/malloc/arena.c b/malloc/arena.c
+index 9ace186..d81ed0d 100644
+--- a/malloc/arena.c
++++ b/malloc/arena.c
+@@ -581,6 +581,7 @@ new_heap(size_t size, size_t top_pad)
+   h->size = size;
+   h->mprotect_size = size;
+   THREAD_STAT(stat_n_heaps++);
++  LIBC_PROBE (memory_heap_new, 2, h, h->size);
+   return h;
+ }
+ 
+@@ -606,6 +607,7 @@ grow_heap(heap_info *h, long diff)
+   }
+ 
+   h->size = new_size;
++  LIBC_PROBE (memory_heap_more, 2, h, h->size);
+   return 0;
+ }
+ 
+@@ -633,6 +635,7 @@ shrink_heap(heap_info *h, long diff)
+   /*fprintf(stderr, "shrink %p %08lx\n", h, new_size);*/
+ 
+   h->size = new_size;
++  LIBC_PROBE (memory_heap_less, 2, h, h->size);
+   return 0;
+ }
+ 
+@@ -674,6 +677,7 @@ heap_trim(heap_info *heap, size_t pad)
+       break;
+     ar_ptr->system_mem -= heap->size;
+     arena_mem -= heap->size;
++    LIBC_PROBE (memory_heap_free, 2, heap, heap->size);
+     delete_heap(heap);
+     heap = prev_heap;
+     if(!prev_inuse(p)) { /* consolidate backward */
+diff --git a/malloc/malloc.c b/malloc/malloc.c
+index 54cdef8..b2684c6 100644
+--- a/malloc/malloc.c
++++ b/malloc/malloc.c
+@@ -2448,8 +2448,10 @@ static void* sysmalloc(INTERNAL_SIZE_T nb, mstate av)
+     below even if we cannot call MORECORE.
+   */
+ 
+-  if (size > 0)
++  if (size > 0) {
+     brk = (char*)(MORECORE(size));
++    LIBC_PROBE (memory_sbrk_more, 2, brk, size);
++  }
+ 
+   if (brk != (char*)(MORECORE_FAILURE)) {
+     /* Call the `morecore' hook if necessary.  */
+@@ -2747,6 +2749,8 @@ static int systrim(size_t pad, mstate av)
+ 	(*hook) ();
+       new_brk = (char*)(MORECORE(0));
+ 
++      LIBC_PROBE (memory_sbrk_less, 2, new_brk, extra);
++
+       if (new_brk != (char*)MORECORE_FAILURE) {
+ 	released = (long)(current_brk - new_brk);
+ 
+diff --git a/manual/probes.texi b/manual/probes.texi
+index c5c2870..40a241a 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -24,6 +24,46 @@ arguments.
+ These probes are designed to signal relatively unusual situations within
+ the virtual memory subsystem of @theglibc{}.
+ 
++@deftp Probe memory_sbrk_more (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit after the main arena is extended by calling
++@code{sbrk}.  Argument @var{$arg1} is the additional size requested to
++@code{sbrk}, and @var{$arg2} is the pointer that marks the end of the
++@code{sbrk} area, returned in response to the request.
++@end deftp
++
++@deftp Probe memory_sbrk_less (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit after the main arena is shortened by calling
++@code{sbrk}.  Argument @var{$arg1} is the size released by @code{sbrk}
++(the positive value, rather than the negated number passed to
++@code{sbrk}), and @var{$arg2} is the pointer that marks the end of the
++@code{sbrk} area, returned in response to the request.
++@end deftp
++
++@deftp Probe memory_heap_new (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit after a new heap is @code{mmap}ed.  Argument
++@var{$arg1} is a pointer to the base of the memory area, where the
++@code{heap_info} data structure is held, and @var{$arg2} is the size of
++the heap.
++@end deftp
++
++@deftp Probe memory_heap_free (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit before (unlike the other sbrk and heap probes) a heap
++is completely un@code{mmap}ped.  Argument @var{$arg1} is a pointer to
++the heap, and @var{$arg2} is the size of the heap.
++@end deftp
++
++@deftp Probe memory_heap_less (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit after a trailing portion of an @code{mmap}ed heap is
++released.  Argument @var{$arg1} is a pointer to the heap, and
++@var{$arg2} is the new size of the heap.
++@end deftp
++
++@deftp Probe memory_heap_more (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit after a trailing portion of an @code{mmap}ed heap is
++extended.  Argument @var{$arg1} is a pointer to the heap, and
++@var{$arg2} is the new size of the heap.
++@end deftp
++
+ @deftp Probe memory_malloc_retry (size_t @var{$arg1})
+ @deftpx Probe memory_realloc_retry (size_t @var{$arg1}, void *@var{$arg2})
+ @deftpx Probe memory_memalign_retry (size_t @var{$arg1}, size_t @var{$arg2})

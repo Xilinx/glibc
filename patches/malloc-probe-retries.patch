@@ -1,0 +1,103 @@
+Bottom: ddb3776a9a203e24617cd4dd791350fe3ae34426
+Top:    98e970f78f5aaaa7568c1385ff494bfd3abe36a2
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2012-10-10 08:46:20 -0300
+
+Add probes for malloc retries.
+
+for ChangeLog
+
+	* malloc/malloc.c (__libc_malloc): Add memory_malloc_retry probe.
+	(__libc_realloc): Add memory_realloc_retry probe.
+	(__libc_memalign): Add memory_memalign_retry probe.
+	(__libc_valloc): Add memory_valloc_retry probe.
+	(__libc_pvalloc): Add memory_pvalloc_retry probe.
+	(__libc_calloc): Add memory_calloc_retry probe.
+	* manual/probes.texi: Document them.
+
+
+---
+
+diff --git a/malloc/malloc.c b/malloc/malloc.c
+index 46a1454..54cdef8 100644
+--- a/malloc/malloc.c
++++ b/malloc/malloc.c
+@@ -2856,6 +2856,7 @@ __libc_malloc(size_t bytes)
+     return 0;
+   victim = _int_malloc(ar_ptr, bytes);
+   if(!victim) {
++    LIBC_PROBE (memory_malloc_retry, 1, bytes);
+     ar_ptr = arena_get_retry(ar_ptr, bytes);
+     if (__builtin_expect(ar_ptr != NULL, 1)) {
+       victim = _int_malloc(ar_ptr, bytes);
+@@ -2991,6 +2992,7 @@ __libc_realloc(void* oldmem, size_t bytes)
+   if (newp == NULL)
+     {
+       /* Try harder to allocate memory in other arenas.  */
++      LIBC_PROBE (memory_realloc_retry, 2, bytes, oldmem);
+       newp = __libc_malloc(bytes);
+       if (newp != NULL)
+ 	{
+@@ -3025,6 +3027,7 @@ __libc_memalign(size_t alignment, size_t bytes)
+     return 0;
+   p = _int_memalign(ar_ptr, alignment, bytes);
+   if(!p) {
++    LIBC_PROBE (memory_memalign_retry, 2, bytes, alignment);
+     ar_ptr = arena_get_retry (ar_ptr, bytes);
+     if (__builtin_expect(ar_ptr != NULL, 1)) {
+       p = _int_memalign(ar_ptr, alignment, bytes);
+@@ -3061,6 +3064,7 @@ __libc_valloc(size_t bytes)
+     return 0;
+   p = _int_valloc(ar_ptr, bytes);
+   if(!p) {
++    LIBC_PROBE (memory_valloc_retry, 1, bytes);
+     ar_ptr = arena_get_retry (ar_ptr, bytes);
+     if (__builtin_expect(ar_ptr != NULL, 1)) {
+       p = _int_memalign(ar_ptr, pagesz, bytes);
+@@ -3095,6 +3099,7 @@ __libc_pvalloc(size_t bytes)
+   arena_get(ar_ptr, bytes + 2*pagesz + MINSIZE);
+   p = _int_pvalloc(ar_ptr, bytes);
+   if(!p) {
++    LIBC_PROBE (memory_pvalloc_retry, 1, bytes);
+     ar_ptr = arena_get_retry (ar_ptr, bytes + 2*pagesz + MINSIZE);
+     if (__builtin_expect(ar_ptr != NULL, 1)) {
+       p = _int_memalign(ar_ptr, pagesz, rounded_bytes);
+@@ -3171,6 +3176,7 @@ __libc_calloc(size_t n, size_t elem_size)
+ 	 av == arena_for_chunk(mem2chunk(mem)));
+ 
+   if (mem == 0) {
++    LIBC_PROBE (memory_calloc_retry, 1, sz);
+     av = arena_get_retry (av, sz);
+     if (__builtin_expect(av != NULL, 1)) {
+       mem = _int_malloc(av, sz);
+diff --git a/manual/probes.texi b/manual/probes.texi
+index 8e21190..ba30c0d 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -24,6 +24,26 @@ arguments.
+ These probes are designed to signal relatively unusual situations within
+ the virtual memory subsystem of @theglibc{}.
+ 
++@deftp Probe memory_malloc_retry (size_t @var{$arg1})
++@deftpx Probe memory_realloc_retry (size_t @var{$arg1}, void *@var{$arg2})
++@deftpx Probe memory_memalign_retry (size_t @var{$arg1}, size_t @var{$arg2})
++@deftpx Probe memory_valloc_retry (size_t @var{$arg1})
++@deftpx Probe memory_pvalloc_retry (size_t @var{$arg1})
++@deftpx Probe memory_calloc_retry (size_t @var{$arg1})
++These probes are hit when the corresponding functions fail to obtain the
++requested amount of memory from the arena in use, before it retries on
++another arena.  Argument @var{$arg1} is the amount of memory requested
++by the user; in the @code{calloc} case, that is the total size computed
++from both function arguments.  In the @code{realloc} case, @var{$arg2}
++is the pointer to the memory area being resized.  In the @code{memalign}
++case, @var{$arg2} is the alignment to be used for the request, which may
++be stricter than the value passed to the @code{memalign} function.
++
++Note that the argument order does NOT match that of the corresponding
++two-argument functions, so that in all of these probes the
++user-requested allocation size is in @var{$arg1}.
++@end deftp
++
+ @deftp Probe memory_arena_new (void *@var{$arg1}, size_t @var{$arg2})
+ This probe is hit when @code{malloc} allocated and initialized an
+ additional allocation arena (not the main arena), but before it is

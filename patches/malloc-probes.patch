@@ -1,0 +1,124 @@
+Bottom: 0a6de6636226d8398fba9c6b85e3ca5ec69a7ec4
+Top:    4969ad31dede55b8da5ec5768a38f977ec30dced
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2012-10-10 08:46:18 -0300
+
+Add first set of memory probes.
+
+for ChangeLog
+
+	* malloc/malloc.c: Include stap-probe.h.
+	(__libc_mallopt): Add memory_mallopt probe.
+	* malloc/arena.c (_int_new_arena): Add memory_arena_new probe.
+	* manual/probes.texi: New.
+	* manual/Makefile (chapters): Add probes.
+	* manual/threads.texi: Set next node.
+
+
+---
+
+diff --git a/malloc/arena.c b/malloc/arena.c
+index 12a48ad..0822fc8 100644
+--- a/malloc/arena.c
++++ b/malloc/arena.c
+@@ -736,6 +736,7 @@ _int_new_arena(size_t size)
+   top(a) = (mchunkptr)ptr;
+   set_head(top(a), (((char*)h + h->size) - ptr) | PREV_INUSE);
+ 
++  LIBC_PROBE (memory_arena_new, 2, a, size);
+   tsd_setspecific(arena_key, (void *)a);
+   mutex_init(&a->mutex);
+   (void)mutex_lock(&a->mutex);
+diff --git a/malloc/malloc.c b/malloc/malloc.c
+index 70b9329..b68061b 100644
+--- a/malloc/malloc.c
++++ b/malloc/malloc.c
+@@ -1878,6 +1878,8 @@ static int perturb_byte;
+ #define free_perturb(p, n) memset (p, perturb_byte & 0xff, n)
+ 
+ 
++#include <stap-probe.h>
++
+ /* ------------------- Support for multiple arenas -------------------- */
+ #include "arena.c"
+ 
+@@ -4674,6 +4676,8 @@ int __libc_mallopt(int param_number, int value)
+   /* Ensure initialization/consolidation */
+   malloc_consolidate(av);
+ 
++  LIBC_PROBE (memory_mallopt, 2, param_number, value);
++
+   switch(param_number) {
+   case M_MXFAST:
+     if (value >= 0 && value <= MAX_FAST_SIZE) {
+diff --git a/manual/Makefile b/manual/Makefile
+index 44c0fd4..7bb419a 100644
+--- a/manual/Makefile
++++ b/manual/Makefile
+@@ -42,7 +42,7 @@ chapters = $(addsuffix .texi, \
+ 		       message search pattern io stdio llio filesys	\
+ 		       pipe socket terminal syslog math arith time	\
+ 		       resource setjmp signal startup process job nss	\
+-		       users sysinfo conf crypt debug threads)
++		       users sysinfo conf crypt debug threads probes)
+ add-chapters = $(wildcard $(foreach d, $(add-ons), ../$d/$d.texi))
+ appendices = lang.texi header.texi install.texi maint.texi platform.texi \
+ 	     contrib.texi
+diff --git a/manual/probes.texi b/manual/probes.texi
+new file mode 100644
+index 0000000..af07560
+--- /dev/null
++++ b/manual/probes.texi
+@@ -0,0 +1,41 @@
++@node Internal Probes
++@c @node Internal Probes, , Debugging Support, Top
++@c %MENU% Probes to monitor libc internal behavior
++@chapter Internal probes
++
++In order to aid in debugging and monitoring @glibcadj{} internal
++behavior, @theglibc{} exposes nearly-zero-overhead probes as Systemtap
++process marks with the @code{libc} provider.
++
++These probes are not part of the @glibcadj{} stable ABI, and they are
++subject to change or removal across releases.  Our only promise with
++regard to them is that, if we find a need to remove or modify the
++arguments of a probe, the modified probe will have a different name, so
++that program monitors relying on the old probe will not get unexpected
++arguments.
++
++@menu
++* Memory Allocation Probes::  Probes in the memory allocation subsystem
++@end menu
++
++@node Memory Allocation Probes
++@section Memory Allocation Probes
++
++These probes are designed to signal relatively unusual situations within
++the virtual memory subsystem of @theglibc{}.
++
++@deftp Probe memory_arena_new (void *@var{$arg1}, size_t @var{$arg2})
++This probe is hit when @code{malloc} allocated and initialized an
++additional allocation arena (not the main arena), but before it is
++assigned to the running thread and inserted in the internal linked list
++of arenas.  The arena's @code{malloc_state} internal data structure is
++located at @var{$arg1}, within a newly-allocated heap big enough to hold
++at least @var{$arg2} bytes.
++@end deftp
++
++@deftp Probe memory_mallopt (int @var{$arg1}, int @var{$arg2})
++This probe is hit when function @code{mallopt} is called to change
++@code{malloc} internal configuration parameters, before any change to
++the parameters is made.  The arguments @var{$arg1} and @var{$arg2} are
++the ones passed to the @code{mallopt} function.
++@end deftp
+diff --git a/manual/threads.texi b/manual/threads.texi
+index 9a1df1a..79a82c7 100644
+--- a/manual/threads.texi
++++ b/manual/threads.texi
+@@ -1,5 +1,5 @@
+ @node POSIX Threads
+-@c @node POSIX Threads, , Cryptographic Functions, Top
++@c @node POSIX Threads, Intenal Probes, Cryptographic Functions, Top
+ @chapter POSIX Threads
+ @c %MENU% POSIX Threads
+ @cindex pthreads
