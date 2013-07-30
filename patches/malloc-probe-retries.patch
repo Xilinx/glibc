@@ -1,7 +1,7 @@
-Bottom: 71b79e23c89f896c1de8dca6eb0567d1c55e7cff
-Top:    813ff2cf41ede6564fca640260dfa9ea798d3665
+Bottom: 3880bd43cb20c34065d53429ce64139a2fdb4c78
+Top:    7c5adf7d6edcd0522570314364ae9001f4061f39
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2012-10-10 08:46:20 -0300
+Date:   2013-07-30 04:35:14 -0300
 
 Add probes for malloc retries.
 
@@ -19,7 +19,7 @@ for ChangeLog
 ---
 
 diff --git a/malloc/malloc.c b/malloc/malloc.c
-index 46a1454..54cdef8 100644
+index 4620008..02bff7e 100644
 --- a/malloc/malloc.c
 +++ b/malloc/malloc.c
 @@ -2856,6 +2856,7 @@ __libc_malloc(size_t bytes)

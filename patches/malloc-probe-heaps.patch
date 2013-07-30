@@ -1,7 +1,7 @@
-Bottom: 1e3f5f07deb86b114d89d42181bd7cb0240cd463
-Top:    1a85a998f0168167763d4e1f62b9bc1f73a1634c
+Bottom: 063cabd1938fb1ea35620c408d2369fbadd9acec
+Top:    56c37ae963bd6aab8f43bce1d11c90db660600b9
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2012-10-10 08:46:21 -0300
+Date:   2013-07-30 04:35:14 -0300
 
 Add malloc probes for sbrk and heap resizing.
 
@@ -55,7 +55,7 @@ index 9ace186..d81ed0d 100644
      heap = prev_heap;
      if(!prev_inuse(p)) { /* consolidate backward */
 diff --git a/malloc/malloc.c b/malloc/malloc.c
-index 54cdef8..b2684c6 100644
+index 02bff7e..a1ed3b1 100644
 --- a/malloc/malloc.c
 +++ b/malloc/malloc.c
 @@ -2448,8 +2448,10 @@ static void* sysmalloc(INTERNAL_SIZE_T nb, mstate av)
