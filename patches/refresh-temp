@@ -1,0 +1,19 @@
+Bottom: 4969ad31dede55b8da5ec5768a38f977ec30dced
+Top:    db702c9315c73e17dec3f422731866c77dfa1f48
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-07-30 04:32:16 -0300
+
+Refresh of malloc-probes.patch
+
+---
+
+diff --git a/manual/probes.texi b/manual/probes.texi
+index af07560..500c2432 100644
+--- a/manual/probes.texi
++++ b/manual/probes.texi
+@@ -1,5 +1,5 @@
+ @node Internal Probes
+-@c @node Internal Probes, , Debugging Support, Top
++@c @node Internal Probes, , POSIX Threads, Top
+ @c %MENU% Probes to monitor libc internal behavior
+ @chapter Internal probes
