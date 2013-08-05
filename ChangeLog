@@ -1,5 +1,10 @@
 2013-08-05  Roland McGrath  <roland@hack.frob.com>
 
+	* Makefile ($(common-objpfx)linkobj/libc_pic.a):
+	If [sunrpc not in $(subdirs)], define to use libc_pic.a directly.
+
+2013-08-05  Roland McGrath  <roland@hack.frob.com>
+
 	* resolv/res_send.c (send_dg): Don't try to use ioctl unless [FIONREAD].
 
 2013-08-05  Roland McGrath  <roland@hack.frob.com>
