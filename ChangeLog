@@ -1,5 +1,12 @@
 2013-08-05  Roland McGrath  <roland@hack.frob.com>
 
+	* resolv/res_hconf.c [!NOT_IN_libc] (ifaddrs): Declare
+	only under [SIOCGIFCONF && SIOCGIFNETMASK].
+
+	* resolv/res_mkquery.c: Include <sys/time.h>.
+
+2013-08-05  Roland McGrath  <roland@hack.frob.com>
+
 	* inet/ifreq.c: Moved to ...
 	* sysdeps/unix/ifreq.c: ... here.
 	* inet/ifreq.c: New file, true stub version.
