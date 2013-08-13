@@ -224,6 +224,10 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @comment locale.h
 @comment ISO
 @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
+@safety{@mtunsafe{uunguard}}
+@c This function is MT-Safe, but uses of the global locale object are
+@c unguarded in functions that ought to be MT-Safe, so we're ruling out
+@c the use of this function once threads are started.
 The function @code{setlocale} sets the current locale for category
 @var{category} to @var{locale}.  A list of all the locales the system
 provides can be created by running
