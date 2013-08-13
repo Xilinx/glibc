@@ -1,12 +1,12 @@
 Version: 1
-Previous: a7ffd09a36a5acd1b173a90a3d4f07ef4250ed9f
-Head: 2a3f892306d80c5cb3dcc958f50c96213bfd73e3
+Previous: 672f9d8a307d575445cdcea9900926b79649f601
+Head: 93544c43ed8844bc091567e533e9bf90fb13ffac
 Applied:
   malloc-probes.patch: f598aa665ca0e9cb3efcbad120b6bf97b405ed62
   mallopt-detailed-probes.patch: 2a3f892306d80c5cb3dcc958f50c96213bfd73e3
+  malloc-probe-arena-changes.patch: b4278e199f9b2101c8dadadf901fca20bed26087
+  malloc-probe-retries.patch: a934be56da915e1abc0283aae8f4f11323e2d028
+  malloc-probe-arena-retry.patch: 1127e966ffcd209c226edafabcc6205196a39bbf
+  malloc-probe-heaps.patch: 93544c43ed8844bc091567e533e9bf90fb13ffac
 Unapplied:
-  malloc-probe-arena-changes.patch: 13439f7bf39b4a0e105beae3b8da983ebf138f41
-  malloc-probe-retries.patch: d14c57f9dd032cb48de19807e7e114e0119249db
-  malloc-probe-arena-retry.patch: 56f822b977e00a25c45122f05f650c284c2b5730
-  malloc-probe-heaps.patch: 7fcda4c4e8a3e34ce56b874e9f9108a7a45e2266
 Hidden:
