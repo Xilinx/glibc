@@ -560,6 +560,7 @@ negative), @code{logb} returns @math{@infinity{}}.  If @var{x} is zero,
 @comment math.h
 @comment ISO
 @deftypefunx int ilogbl (long double @var{x})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 These functions are equivalent to the corresponding @code{logb}
 functions except that they return signed integer values.
 @end deftypefun
