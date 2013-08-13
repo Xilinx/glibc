@@ -1,5 +1,5 @@
-Bottom: a3ca278d03ae3f1e19083582cffaadc7e2c2dfab
-Top:    d8ee598733a1c866c0553f0a24eb661a9a95fdf5
+Bottom: 4c44eaa5aaa7557e873046cfa7c812e97c9e6217
+Top:    7d4466858c949b771404c4051d361be6427430ab
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:31:31 -0300
 
@@ -60,7 +60,7 @@ index 0822fc8..89e8b92 100644
  
      /* Since we blocked there might be an arena available now.  */
 diff --git a/malloc/malloc.c b/malloc/malloc.c
-index 45e5208..6545ef8 100644
+index 4c40c2f..4620008 100644
 --- a/malloc/malloc.c
 +++ b/malloc/malloc.c
 @@ -2977,6 +2977,7 @@ __libc_realloc(void* oldmem, size_t bytes)

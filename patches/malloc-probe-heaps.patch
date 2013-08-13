@@ -1,5 +1,5 @@
-Bottom: b33cfc17d4a4e6d16693175efb1b282ed168c140
-Top:    0c6455546edd1f52575018aa67ff92bbbabb71df
+Bottom: 9775cea7f0e5808031a4fdc521d11ba34cc84601
+Top:    1fb542e2d47d22d0c29d644f87c54a8daa2be5e7
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:31:32 -0300
 
@@ -55,7 +55,7 @@ index 9ace186..d81ed0d 100644
      heap = prev_heap;
      if(!prev_inuse(p)) { /* consolidate backward */
 diff --git a/malloc/malloc.c b/malloc/malloc.c
-index 0d59a1f..67a16a2 100644
+index 02bff7e..a1ed3b1 100644
 --- a/malloc/malloc.c
 +++ b/malloc/malloc.c
 @@ -2448,8 +2448,10 @@ static void* sysmalloc(INTERNAL_SIZE_T nb, mstate av)

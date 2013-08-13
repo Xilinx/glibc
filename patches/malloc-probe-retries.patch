@@ -1,5 +1,5 @@
-Bottom: d8ee598733a1c866c0553f0a24eb661a9a95fdf5
-Top:    ce8902c03b213997a422961f9fe487b01776e275
+Bottom: 7d4466858c949b771404c4051d361be6427430ab
+Top:    83f39aaa860dd9e5752c433695edaf162707353c
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:31:31 -0300
 
@@ -19,7 +19,7 @@ for ChangeLog
 ---
 
 diff --git a/malloc/malloc.c b/malloc/malloc.c
-index 6545ef8..0d59a1f 100644
+index 4620008..02bff7e 100644
 --- a/malloc/malloc.c
 +++ b/malloc/malloc.c
 @@ -2856,6 +2856,7 @@ __libc_malloc(size_t bytes)
