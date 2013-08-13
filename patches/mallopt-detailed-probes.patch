@@ -1,7 +1,7 @@
-Bottom: 91d81adc08ce09255a6ca95e0a6622e456adb4cf
-Top:    644283f06be331a184735c9d0ffc22e97e942448
+Bottom: 8f155b7ea739aa01d55a9208e2cd45c9ccbacea0
+Top:    4c44eaa5aaa7557e873046cfa7c812e97c9e6217
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-07-30 04:35:13 -0300
+Date:   2013-08-13 15:31:31 -0300
 
 Add probes for all changes to malloc options.
 
