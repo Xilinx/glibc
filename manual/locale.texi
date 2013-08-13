@@ -224,10 +224,16 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @comment locale.h
 @comment ISO
 @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
-@safety{@mtunsafe{uunguard}}
-@c This function is MT-Safe, but uses of the global locale object are
-@c unguarded in functions that ought to be MT-Safe, so we're ruling out
-@c the use of this function once threads are started.
+@safety{@mtunsafe{uunguard, envromt}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+@c Uses of the global locale object are unguarded in functions that
+@c ought to be MT-Safe, so we're ruling out the use of this function
+@c once threads are started.  It takes a write lock itself, but it may
+@c return a pointer loaded from the global locale object after releasing
+@c the lock, or before taking it.  It calls getenv for LOCPATH, malloc
+@c and free, and _nl_find_locale, which amount to all documented safety
+@c issues.  It also calls new_composite_name, setdata, and setname,
+@c without any additional issues.  _nl_find_locale calls getenv, ...
+This function returns a pointer read 
 The function @code{setlocale} sets the current locale for category
 @var{category} to @var{locale}.  A list of all the locales the system
 provides can be created by running
