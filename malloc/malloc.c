@@ -4685,7 +4685,7 @@ int __libc_mallopt(int param_number, int value)
     if (value >= 0 && value <= MAX_FAST_SIZE)
       {
 	LIBC_PROBE (memory_mallopt_mxfast, 2, value, get_max_fast ());
-	set_max_fast(value);
+	set_max_fast (value);
       }
     else
       res = 0;
