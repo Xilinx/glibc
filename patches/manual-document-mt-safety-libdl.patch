@@ -1,0 +1,30 @@
+Bottom: 95e3af012c2d8222ce9c18f313b200f086405d32
+Top:    5d6bbf322290ec49c7df2274a5b3ec79d32fd303
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:08:59 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/libdl.texi: New.
+
+
+---
+
+diff --git a/manual/libdl.texi b/manual/libdl.texi
+new file mode 100644
+index 0000000..e3fe045
+--- /dev/null
++++ b/manual/libdl.texi
+@@ -0,0 +1,10 @@
++@c FIXME these are undocumented:
++@c dladdr
++@c dladdr1
++@c dlclose
++@c dlerror
++@c dlinfo
++@c dlmopen
++@c dlopen
++@c dlsym
++@c dlvsym
