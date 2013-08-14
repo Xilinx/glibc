@@ -1,5 +1,5 @@
 Version: 1
-Previous: 74ac784fe3cc7e497dd1777f02a8c29ec6152a44
+Previous: 7cbb268fad337dff229e13ac8be69351cc57313f
 Head: 08d53f635c15ae65cc8f2347e47894394c5a651f
 Applied:
   manual-document-mt-safety.patch: b636b87be9756886bb0f9f1396c31b42d3f83c23
@@ -24,7 +24,7 @@ Applied:
   wip-manual-document-mt-safety-locale.patch: 166651bfa122c6352028365fa0f89c9dc3003751
   wip-manual-document-mt-safety-startup.patch: f27de287f82231e5a93eaa44bafa8170abc3dce3
   manual-document-mt-safety-stdio.patch: 4bbeb1050d394dac154d328416785d3a4737bfca
-  manual-document-mt-safety-resource.patch: 08d53f635c15ae65cc8f2347e47894394c5a651f
+  wip-manual-document-mt-safety-resource.patch: 08d53f635c15ae65cc8f2347e47894394c5a651f
 Unapplied:
   wip-manual-document-mt-safety-string.patch: 358134baec989c2a7d7f3e6f2d4d0b3f002bcb39
   wip-manual-document-mt-safety-terminal.patch: 131f3d7cbdeaec2279062d5bd94af6281390b9ba
