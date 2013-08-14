@@ -1,6 +1,6 @@
 Version: 1
-Previous: 90a7b8873b45a59d4ab0a1247cdaaae5d4ce9466
-Head: c67c0318158e4a31db772c98b8828e54db56693e
+Previous: ff4b802a46c6ed82436bd4d9652222c18aa88b51
+Head: 61349e0a2ebc1b1cb265b25c74ae39b2d5b85636
 Applied:
   manual-document-mt-safety.patch: 2bd5708daeac2ff089c6eebd6944f4ced306e4d8
   powerpc-nofpu-sim-note-nothread.patch: 30710868f55ce7574b12ed319bf2a1c3dc0a3744
@@ -11,8 +11,8 @@ Applied:
   manual-document-mt-safety-conf.patch: b2f06012824f907fd1cb35844c2e7a054ddf81f9
   manual-document-mt-safety-crypt.patch: 93bce6450adbd4597a1a0d96bca4162b367a61c4
   manual-document-mt-safety-ctype.patch: c67c0318158e4a31db772c98b8828e54db56693e
+  manual-document-mt-safety-debug.patch: 61349e0a2ebc1b1cb265b25c74ae39b2d5b85636
 Unapplied:
-  manual-document-mt-safety-debug.patch: 90470ebb84408d72de8a13806b2e84801fbcc026
   manual-document-mt-safety-errno.patch: 4c83ae2974e8153950355eca983b33e13bad7490
   manual-document-mt-safety-filesys.patch: 75c783a7f653a4396cb2f3a1314fac5bda1b5a8f
   manual-document-mt-safety-getopt.patch: 178c538fec626552e7ec57072a93b3715623e6ac
