@@ -1,6 +1,6 @@
 Version: 1
-Previous: f0a7a15dfe10c4138b45924e98f82ac9f68d4ae1
-Head: d28c617b0914a75671912795729911dbc6fe09e5
+Previous: a6fbeb9aedbee6149c8ff623ea1afc5696e04ef2
+Head: fa6fb5b03c11257d3a3c8dc6b02338662de3178f
 Applied:
   manual-document-mt-safety.patch: b636b87be9756886bb0f9f1396c31b42d3f83c23
   powerpc-nofpu-sim-note-nothread.patch: 22b44b5585a77352a33172a9583ea1e002e1602c
@@ -19,9 +19,9 @@ Applied:
   manual-document-mt-safety-job.patch: 57c129a7691ad66436b380272a24d356111b19bf
   manual-document-mt-safety-lang.patch: e1bee872da33bdb7b911d4cd111906a390b9ea8a
   manual-document-mt-safety-llio.patch: 51babe049dfe3862b311b4ebbfd87a8eb915528c
-  manual-document-mt-safety-math.patch: ad614ca21bb3d439075824533620448aaca7dca6
-  manual-document-mt-safety-stdio.patch: e6e54eca8a8e68975917469f5af2de9f0f13343f
-  wip-manual-document-mt-safety-locale.patch: d28c617b0914a75671912795729911dbc6fe09e5
+  manual-document-mt-safety-stdio.patch: 0960f99a58ac496a2420e3d299e868f900662636
+  wip-manual-document-mt-safety-locale.patch: 6c6c8ecacf987abc5dda5f02425179c9f9c5acde
+  manual-document-mt-safety-math.patch: fa6fb5b03c11257d3a3c8dc6b02338662de3178f
 Unapplied:
   wip-manual-document-mt-safety-startup.patch: 4513b24df2381c1073bcb1b2eac60bddfc5f51da
   wip-manual-document-mt-safety-search.patch: 35815dbc011f65ef76ad028cbc0b8b32381dd13a
