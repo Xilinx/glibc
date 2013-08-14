@@ -1,0 +1,81 @@
+Bottom: 78811ad7f6f34dae902d17fe9939b1ed2877fc8c
+Top:    95e3af012c2d8222ce9c18f313b200f086405d32
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:08:32 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/lang.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/lang.texi b/manual/lang.texi
+index ee04e23..d6cd90c 100644
+--- a/manual/lang.texi
++++ b/manual/lang.texi
+@@ -51,6 +51,8 @@ without indicating anything might be wrong.
+ @comment assert.h
+ @comment ISO
+ @deftypefn Macro void assert (int @var{expression})
++@safety{@mtsafe{}@asunsafe{asmalloc, asynconsist}@acsafe{memleak, lockleak, incansist}}
++@c assert_fail_base calls asprintf, and fflushes stderr.
+ Verify the programmer's belief that @var{expression} is nonzero at
+ this point in the program.
+ 
+@@ -91,6 +93,8 @@ The @code{assert_perror} macro makes this easy.
+ @comment assert.h
+ @comment GNU
+ @deftypefn Macro void assert_perror (int @var{errnum})
++@safety{@mtsafe{}@asunsafe{asmalloc, asynconsist}@acsafe{memleak, lockleak, incansist}}
++@c assert_fail_base calls asprintf, and fflushes stderr.
+ Similar to @code{assert}, but verifies that @var{errnum} is zero.
+ 
+ If @code{NDEBUG} is not defined, @code{assert_perror} tests the value of
+@@ -423,6 +427,8 @@ The type @code{va_list} is used for argument pointer variables.
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} void va_start (va_list @var{ap}, @var{last-required})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This macro initializes the argument pointer variable @var{ap} to point
+ to the first of the optional arguments of the current function;
+ @var{last-required} must be the last required argument to the function.
+@@ -431,6 +437,8 @@ to the first of the optional arguments of the current function;
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} @var{type} va_arg (va_list @var{ap}, @var{type})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ The @code{va_arg} macro returns the value of the next optional argument,
+ and modifies the value of @var{ap} to point to the subsequent argument.
+ Thus, successive uses of @code{va_arg} return successive optional
+@@ -445,6 +453,8 @@ of the actual argument.
+ @comment stdarg.h
+ @comment ISO
+ @deftypefn {Macro} void va_end (va_list @var{ap})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This ends the use of @var{ap}.  After a @code{va_end} call, further
+ @code{va_arg} calls with the same @var{ap} may not work.  You should invoke
+ @code{va_end} before returning from the function in which @code{va_start}
+@@ -466,6 +476,8 @@ of the same type.
+ @comment ISO
+ @deftypefn {Macro} void va_copy (va_list @var{dest}, va_list @var{src})
+ @deftypefnx {Macro} void __va_copy (va_list @var{dest}, va_list @var{src})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ The @code{va_copy} macro allows copying of objects of type
+ @code{va_list} even if this is not an integral type.  The argument pointer
+ in @var{dest} is initialized to point to the same argument as the
+@@ -1212,6 +1224,8 @@ type of a particular structure member.
+ @comment stddef.h
+ @comment ISO
+ @deftypefn {Macro} size_t offsetof (@var{type}, @var{member})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c This is no longer provided by glibc, but rather by the compiler.
+ This expands to a integer constant expression that is the offset of the
+ structure member named @var{member} in the structure type @var{type}.
+ For example, @code{offsetof (struct s, elem)} is the offset, in bytes,
