@@ -233,7 +233,7 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c and free, and _nl_find_locale, which amount to all documented safety
 @c issues.  It also calls new_composite_name, setdata, and setname,
 @c without any additional issues.  _nl_find_locale calls getenv, ...
-This function returns a pointer read 
+@c This function returns a pointer read...
 The function @code{setlocale} sets the current locale for category
 @var{category} to @var{locale}.  A list of all the locales the system
 provides can be created by running
