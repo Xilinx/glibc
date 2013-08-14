@@ -92,7 +92,13 @@ in a convenient way.
 @comment unistd.h
 @comment BSD
 @deftypefun {char *} getpass (const char *@var{prompt})
-
+@safety{@mtunsafe{tempterm}@asunsafe{asmalloc, selfdeadlock, asynconsist}@acunsafe{tempterm, lockleak, incansist}}
+@c This function will attempt to create a stream for terminal I/O, but
+@c will fallback to stdio/stderr.  It attempts to change the terminal
+@c mode in a thread-unsafe way, write out the prompt, read the password,
+@c then restore the terminal mode.  It has a cleanup to close the stream
+@c in case of (synchronous) cancellation, but not to restore the
+@c terminal mode.
 @code{getpass} outputs @var{prompt}, then reads a string in from the
 terminal without echoing it.  It tries to connect to the real terminal,
 @file{/dev/tty}, if possible, to encourage users not to put plaintext
@@ -127,6 +133,13 @@ The substitute takes the same parameters as @code{getline}
 @comment crypt.h
 @comment BSD, SVID
 @deftypefun {char *} crypt (const char *@var{key}, const char *@var{salt})
+@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock, asmalloc, shlimb}@acunsafe{lockleak, memleak, shlimb}}
+@c Besides the obvious problem of returning a pointer into static
+@c storage, the DES initializer takes an internal lock with the usual
+@c set of problems for AS- and AC-Safety.  The FIPS mode checker and the
+@c NSS implementations of may leak file descriptors if canceled.  The
+@c The MD5, SHA256 and SHA512 implementations will malloc on long keys,
+@c and NSS relies on dlopening, which brings about another can of worms.
 
 The @code{crypt} function takes a password, @var{key}, as a string, and
 a @var{salt} character array which is described below, and returns a
@@ -188,6 +201,9 @@ for a password and prints ``Access granted.'' if the user types
 @comment crypt.h
 @comment GNU
 @deftypefun {char *} crypt_r (const char *@var{key}, const char *@var{salt}, {struct crypt_data *} @var{data})
+@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock, asmalloc, shlimb}@acunsafe{lockleak, memleak, shlimb}}
+@c Compared with crypt, this function fixes the staticbuf problem, but
+@c nothing else.
 
 The @code{crypt_r} function does the same thing as @code{crypt}, but
 takes an extra parameter which includes space for its result (among
@@ -233,6 +249,11 @@ specifies the unused bits.
 @comment crypt.h
 @comment BSD, SVID
 @deftypefun void setkey (const char *@var{key})
+@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
+@c The static buffer stores the key, making it fundamentally
+@c thread-unsafe.  The locking issues are only in the initialization
+@c path; cancelling the initialization will leave the lock held, it
+@c would otherwise repeat the initialization on the next call.
 
 The @code{setkey} function sets an internal data structure to be an
 expanded form of @var{key}.  @var{key} is specified as an array of 64
@@ -244,6 +265,8 @@ parity.
 @comment crypt.h
 @comment BSD, SVID
 @deftypefun void encrypt (char *@var{block}, int @var{edflag})
+@safety{@mtunsafe{staticbuf}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
+@c Same issues as setkey.
 
 The @code{encrypt} function encrypts @var{block} if
 @var{edflag} is 0, otherwise it decrypts @var{block}, using a key
@@ -257,9 +280,11 @@ stored in a @code{char}, but there are no parity bits in @var{block}.
 @comment crypt.h
 @comment GNU
 @deftypefun void setkey_r (const char *@var{key}, {struct crypt_data *} @var{data})
+@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
 @comment crypt.h
 @comment GNU
 @deftypefunx void encrypt_r (char *@var{block}, int @var{edflag}, {struct crypt_data *} @var{data})
+@safety{@mtsafe{}@asunsafe{asynconsist, selfdeadlock}@acunsafe{lockleak}}
 
 These are reentrant versions of @code{setkey} and @code{encrypt}.  The
 only difference is the extra parameter, which stores the expanded
@@ -274,6 +299,7 @@ defined in @file{crypt.h}.
 @comment rpc/des_crypt.h
 @comment SUNRPC
 @deftypefun int ecb_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 
 The function @code{ecb_crypt} encrypts or decrypts one or more blocks
 using DES.  Each block is encrypted independently.
@@ -355,6 +381,7 @@ This macro returns 1 if @var{err} is a `success' result code from
 @comment rpc/des_crypt.h
 @comment SUNRPC
 @deftypefun int cbc_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode}, char *@var{ivec})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 
 The function @code{cbc_crypt} encrypts or decrypts one or more blocks
 using DES in Cipher Block Chaining mode.
@@ -381,6 +408,7 @@ Otherwise, all the parameters are similar to those for @code{ecb_crypt}.
 @comment rpc/des_crypt.h
 @comment SUNRPC
 @deftypefun void des_setparity (char *@var{key})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 
 The function @code{des_setparity} changes the 64-bit @var{key}, stored
 packed in 8-bit bytes, to have odd parity by altering the low bits of
