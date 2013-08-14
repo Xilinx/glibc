@@ -1,0 +1,22 @@
+Bottom: 802ed278ee78a71e6694780a51b4b82573651127
+Top:    20fd58920c13f96b1451eda75458a9c942d2094e
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:36:33 -0300
+
+Refresh of manual-document-mt-safety-arith.patch
+
+---
+
+diff --git a/manual/arith.texi b/manual/arith.texi
+index 5c3aa9d..c0cd350 100644
+--- a/manual/arith.texi
++++ b/manual/arith.texi
+@@ -2666,7 +2666,7 @@ to @code{fcvt}.
+ @deftypefun {char *} gcvt (double @var{value}, int @var{ndigit}, char *@var{buf})
+ @safety{@mtsafe{}@assafe{}@acsafe{}}
+ @c gcvt calls sprintf, that ultimately calls vfprintf, which malloc()s
+-@c args_value if it's too large, but gcvt never exercises this path.  
++@c args_value if it's too large, but gcvt never exercises this path.
+ @code{gcvt} is functionally equivalent to @samp{sprintf(buf, "%*g",
+ ndigit, value}.  It is provided only for compatibility's sake.  It
+ returns @var{buf}.
