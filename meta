@@ -1,23 +1,23 @@
 Version: 1
-Previous: b4d906acf0574484a2eee239e7c46c7e060297be
-Head: 351fb371fa127df8fa5e27b38a330e4258b35180
+Previous: 8f0d964f583cad6e1513d3ee7521ebca819e5751
+Head: 4546f1ef42848ecd1b89ad15aa4c920e8aed77c2
 Applied:
   manual-document-mt-safety.patch: 351fb371fa127df8fa5e27b38a330e4258b35180
+  powerpc-nofpu-sim-note-nothread.patch: 8ff199e32650a502ca50da4736e82ed813e08fa4
+  unused-scalb-is-scalbn.patch: 62694b21850cd676e82306bc82418b952b9d3d31
+  manual-document-mt-safety-argp.patch: 8b86b0ead9b1494ad7b0aa283a423813ed5e8bc7
+  manual-document-mt-safety-arith.patch: 5a1a8a43ebaa9cc6a6dc182bd931fbca63e7d866
+  manual-document-mt-safety-charset.patch: 296ae41496afc524f6f75648a3298a5419b46990
+  manual-document-mt-safety-conf.patch: 95b0911edf2eb244430d9533ec0a8a3f7058581c
+  manual-document-mt-safety-crypt.patch: e600904c5eab885a1a7c8aef6bb2f570bd201275
+  manual-document-mt-safety-ctype.patch: 727a9c49e98194570a2c85e47c355bcc55398cd9
+  manual-document-mt-safety-debug.patch: 7f89734934ba539d84fdf02163f64ae84f795ac9
+  manual-document-mt-safety-errno.patch: b035d6eeb7b48636043919617d515c88522ba6c3
+  manual-document-mt-safety-filesys.patch: d1d06a086358b876405130714e2c5cf0d7740ab8
+  manual-document-mt-safety-getopt.patch: c48dff451b9a543c5f827092417468a0d6672c59
+  manual-document-mt-safety-stdio.patch: ce7a82428b383c27385283464762599a0000cba2
+  manual-document-mt-safety-locale.patch: e3578b80d486c85ecfce6a21f09e9051d868468b
+  manual-document-mt-safety-math.patch: 0082110725464cff983520a32eac4c49ff25339e
+  manual-document-mt-safety-wip.patch: 4546f1ef42848ecd1b89ad15aa4c920e8aed77c2
 Unapplied:
-  powerpc-nofpu-sim-note-nothread.patch: 6f9592e7a7e327deae62aae99a5238cfba2d572d
-  unused-scalb-is-scalbn.patch: 04381689562081fc1e2328e5807e0dc537c1c5fc
-  manual-document-mt-safety-argp.patch: 3a08620f4907bff742b31a6f67651e4a3b21c179
-  manual-document-mt-safety-arith.patch: a6f2df9755a82acf03faacd3844e32ff5336d033
-  manual-document-mt-safety-charset.patch: 3df069f9dba32efa41ab542b1ec3dbee3a8d71ae
-  manual-document-mt-safety-conf.patch: 517120c0f0268cfc4dc3361ab19e1fc5d0c5ce91
-  manual-document-mt-safety-crypt.patch: 77aa308dccc33e4ccba70b5ac186e1d5c2408f17
-  manual-document-mt-safety-ctype.patch: d3739e943bb05d4edb6ca163f33c2cda30ada1f6
-  manual-document-mt-safety-debug.patch: c7ee4c2aa47d7a32e68a01dd01e4087485df8ccf
-  manual-document-mt-safety-errno.patch: 6c7e1ffb65b6f160f2a901a4d7fb52654cee4521
-  manual-document-mt-safety-filesys.patch: 9ae778a025f0908ba789a9e0cf5065ab0d53628a
-  manual-document-mt-safety-getopt.patch: f79b9fc6a64c2160e49b66d3ffd8beff25d0317b
-  manual-document-mt-safety-stdio.patch: 168f6d659bcb7106985edac12bc7b3a2110a7fb0
-  manual-document-mt-safety-locale.patch: 0f17febc6eced1c8227402f12867a400ba58bd74
-  manual-document-mt-safety-math.patch: edeb8dbee9aa4cdef77764287545e16903acea6d
-  manual-document-mt-safety-wip.patch: 373cd1281ba686c2fef8b1307137684c40b28058
 Hidden:
