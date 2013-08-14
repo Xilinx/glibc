@@ -1,0 +1,31 @@
+Bottom: 934314e9de7d53f206e47915ea85ef4798ee295a
+Top:    7472b1dd7a8cc8760b98cd08cb7f8418374249ed
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:14:50 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/time.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/time.texi b/manual/time.texi
+index ff31e28..3967b24 100644
+--- a/manual/time.texi
++++ b/manual/time.texi
+@@ -475,6 +475,12 @@ Instead, use the facilities described in @ref{Time Zone Functions}.
+ @comment sys/time.h
+ @comment BSD
+ @deftypefun int gettimeofday (struct timeval *@var{tp}, struct timezone *@var{tzp})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c On most GNU/Linux systems this is a direct syscall, but the posix/
++@c implementation (not used on GNU/Linux or GNU/Hurd) relies on time and
++@c localtime_r, saving and restoring tzname in an unsafe manner.
++@c On some GNU/Linux variants, ifunc resolvers are used in shared libc
++@c for vdso resolution.  ifunc-vdso-revisit.
+ The @code{gettimeofday} function returns the current calendar time as
+ the elapsed time since the epoch in the @code{struct timeval} structure
+ indicated by @var{tp}.  (@pxref{Elapsed Time} for a description of
