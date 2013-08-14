@@ -1,5 +1,5 @@
 Version: 1
-Previous: 868381d9e68121f8017a7623afcda1bf00b77bf9
+Previous: 9eaea22809e3d84514c9a24279289cb5b093b745
 Head: 517120c0f0268cfc4dc3361ab19e1fc5d0c5ce91
 Applied:
   manual-document-mt-safety.patch: f159288e81a5a769e1274527d307f82bd918d8e5
@@ -8,7 +8,7 @@ Applied:
   manual-document-mt-safety-argp.patch: 3a08620f4907bff742b31a6f67651e4a3b21c179
   manual-document-mt-safety-arith.patch: a6f2df9755a82acf03faacd3844e32ff5336d033
   manual-document-mt-safety-charset.patch: 3df069f9dba32efa41ab542b1ec3dbee3a8d71ae
-  new.patch: 517120c0f0268cfc4dc3361ab19e1fc5d0c5ce91
+  manual-document-mt-safety-conf.patch: 517120c0f0268cfc4dc3361ab19e1fc5d0c5ce91
 Unapplied:
   manual-document-mt-safety-stdio.patch: 168f6d659bcb7106985edac12bc7b3a2110a7fb0
   manual-document-mt-safety-locale.patch: 0f17febc6eced1c8227402f12867a400ba58bd74
