@@ -1,12 +1,12 @@
 Version: 1
-Previous: 449608a0e1f9f7031456901831cf276d4a3ce2a8
-Head: 3be99ad69c588de34f357cdfc3e293046eb30b58
+Previous: 122aa56ad2927c13e7dff9bbd7eb1dca3dfb7b95
+Head: a1791992633c9fa1862a3073f1396b1b2984430f
 Applied:
   manual-document-mt-safety.patch: 2bd5708daeac2ff089c6eebd6944f4ced306e4d8
   powerpc-nofpu-sim-note-nothread.patch: 30710868f55ce7574b12ed319bf2a1c3dc0a3744
   unused-scalb-is-scalbn.patch: 3be99ad69c588de34f357cdfc3e293046eb30b58
+  manual-document-mt-safety-argp.patch: a1791992633c9fa1862a3073f1396b1b2984430f
 Unapplied:
-  manual-document-mt-safety-argp.patch: 5604d817c0a7feccf5aa0dfa7cb2d583d86ec65f
   manual-document-mt-safety-arith.patch: f4268118ff7169b7016697e2344525b93dd6be01
   manual-document-mt-safety-charset.patch: 2ba73f56d3ec95471df9cefd6db9935ec8bdc4ef
   manual-document-mt-safety-conf.patch: ada59d4ba350be38e3b5d960053eac19f0c22bf1
