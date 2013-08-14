@@ -1,6 +1,6 @@
 Version: 1
-Previous: b6864e5d068d813c95f42cc42a4af998364b9e2d
-Head: 1c7a149c0726600eabeb718bf88b5d82031f6857
+Previous: 5287c793843e946fd2f478b0a2785249cc640f9c
+Head: 1ae8e2eabd22a74ff8a80a4b565df5b4c36fe12e
 Applied:
   manual-document-mt-safety.patch: f159288e81a5a769e1274527d307f82bd918d8e5
   powerpc-nofpu-sim-note-nothread.patch: 6f9592e7a7e327deae62aae99a5238cfba2d572d
@@ -9,8 +9,7 @@ Applied:
   manual-document-mt-safety-stdio.patch: 49427f4017a13662522c4247e1eed08f867a3d73
   manual-document-mt-safety-locale.patch: 0f17febc6eced1c8227402f12867a400ba58bd74
   manual-document-mt-safety-math.patch: edeb8dbee9aa4cdef77764287545e16903acea6d
-  thread-safety-documentation: fbb71ce3cced40f87c25964011852d114f327c36
-  refresh-temp: 1c7a149c0726600eabeb718bf88b5d82031f6857
+  thread-safety-documentation: 1ae8e2eabd22a74ff8a80a4b565df5b4c36fe12e
 Unapplied:
   manual-document-mt-safety-ctype.patch: b1da9d49b81e23d658de4369181599c33e3acd9e
   manual-document-mt-safety-wip.patch: ed7e9cc5265b17c5dc7dc5bcd72b7247ad574f85
