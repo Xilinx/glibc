@@ -1,5 +1,5 @@
 Bottom: 6c9a45167e9f148c725e5d962b1cd083292f0adf
-Top:    e75a47b5ad278b7f85e5420cd63cda069e0b7030
+Top:    77a9710ea0dc3422d900f3c93d406942e132693c
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:29:40 -0300
 
@@ -13,7 +13,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/arith.texi b/manual/arith.texi
-index 77056c3..833e0c9 100644
+index 77056c3..5c3aa9d 100644
 --- a/manual/arith.texi
 +++ b/manual/arith.texi
 @@ -160,6 +160,8 @@ The remainder from the division.
@@ -49,7 +49,47 @@ index 77056c3..833e0c9 100644
  The @code{imaxdiv} function is like the @code{div} function, but the
  arguments are of type @code{intmax_t} and the result is returned as
  a structure of type @code{imaxdiv_t}.
-@@ -410,6 +415,7 @@ not have to worry about the type of their argument.
+@@ -318,6 +323,7 @@ floating-point number a variable holds.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int fpclassify (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This is a generic macro which works on all floating-point types and
+ which returns a value of type @code{int}.  The possible values are:
+ 
+@@ -354,6 +360,7 @@ You should therefore use the specific macros whenever possible.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isfinite (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is finite: not plus or
+ minus infinity, and not NaN.  It is equivalent to
+ 
+@@ -368,6 +375,7 @@ floating-point type.
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isnormal (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is finite and normalized.
+ It is equivalent to
+ 
+@@ -379,6 +387,7 @@ It is equivalent to
+ @comment math.h
+ @comment ISO
+ @deftypefn {Macro} int isnan (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is NaN.  It is equivalent
+ to
+ 
+@@ -390,6 +399,7 @@ to
+ @comment math.h
+ @comment GNU
+ @deftypefn {Macro} int issignaling (@emph{float-type} @var{x})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ This macro returns a nonzero value if @var{x} is a signaling NaN
+ (sNaN).  It is based on draft TS 18661 and currently enabled as a GNU
+ extension.
+@@ -410,6 +420,7 @@ not have to worry about the type of their argument.
  @comment math.h
  @comment BSD
  @deftypefunx int isinfl (long double @var{x})
@@ -57,7 +97,7 @@ index 77056c3..833e0c9 100644
  This function returns @code{-1} if @var{x} represents negative infinity,
  @code{1} if @var{x} represents positive infinity, and @code{0} otherwise.
  @end deftypefun
-@@ -423,6 +429,7 @@ This function returns @code{-1} if @var{x} represents negative infinity,
+@@ -423,6 +434,7 @@ This function returns @code{-1} if @var{x} represents negative infinity,
  @comment math.h
  @comment BSD
  @deftypefunx int isnanl (long double @var{x})
@@ -65,7 +105,7 @@ index 77056c3..833e0c9 100644
  This function returns a nonzero value if @var{x} is a ``not a number''
  value, and zero otherwise.
  
-@@ -445,6 +452,7 @@ function for some reason, you can write
+@@ -445,6 +457,7 @@ function for some reason, you can write
  @comment math.h
  @comment BSD
  @deftypefunx int finitel (long double @var{x})
@@ -73,7 +113,7 @@ index 77056c3..833e0c9 100644
  This function returns a nonzero value if @var{x} is finite or a ``not a
  number'' value, and zero otherwise.
  @end deftypefun
-@@ -713,6 +721,22 @@ and save and restore the set of exceptions flagged.
+@@ -713,6 +726,22 @@ and save and restore the set of exceptions flagged.
  @comment fenv.h
  @comment ISO
  @deftypefun int feclearexcept (int @var{excepts})
@@ -96,7 +136,7 @@ index 77056c3..833e0c9 100644
  This function clears all of the supported exception flags indicated by
  @var{excepts}.
  
-@@ -723,6 +747,7 @@ non-zero value otherwise.
+@@ -723,6 +752,7 @@ non-zero value otherwise.
  @comment fenv.h
  @comment ISO
  @deftypefun int feraiseexcept (int @var{excepts})
@@ -104,7 +144,7 @@ index 77056c3..833e0c9 100644
  This function raises the supported exceptions indicated by
  @var{excepts}.  If more than one exception bit in @var{excepts} is set
  the order in which the exceptions are raised is undefined except that
-@@ -738,6 +763,7 @@ non-zero value otherwise.
+@@ -738,6 +768,7 @@ non-zero value otherwise.
  @comment fenv.h
  @comment ISO
  @deftypefun int fetestexcept (int @var{excepts})
@@ -112,7 +152,7 @@ index 77056c3..833e0c9 100644
  Test whether the exception flags indicated by the parameter @var{except}
  are currently set.  If any of them are, a nonzero value is returned
  which specifies which exceptions are set.  Otherwise the result is zero.
-@@ -774,6 +800,7 @@ following functions:
+@@ -774,6 +805,7 @@ following functions:
  @comment fenv.h
  @comment ISO
  @deftypefun int fegetexceptflag (fexcept_t *@var{flagp}, int @var{excepts})
@@ -120,7 +160,7 @@ index 77056c3..833e0c9 100644
  This function stores in the variable pointed to by @var{flagp} an
  implementation-defined value representing the current setting of the
  exception flags indicated by @var{excepts}.
-@@ -785,6 +812,7 @@ non-zero value otherwise.
+@@ -785,6 +817,7 @@ non-zero value otherwise.
  @comment fenv.h
  @comment ISO
  @deftypefun int fesetexceptflag (const fexcept_t *@var{flagp}, int @var{excepts})
@@ -128,7 +168,7 @@ index 77056c3..833e0c9 100644
  This function restores the flags for the exceptions indicated by
  @var{excepts} to the values stored in the variable pointed to by
  @var{flagp}.
-@@ -940,6 +968,7 @@ find out which one with this function:
+@@ -940,6 +973,7 @@ find out which one with this function:
  @comment fenv.h
  @comment ISO
  @deftypefun int fegetround (void)
@@ -136,7 +176,7 @@ index 77056c3..833e0c9 100644
  Returns the currently selected rounding mode, represented by one of the
  values of the defined rounding mode macros.
  @end deftypefun
-@@ -950,6 +979,7 @@ To change the rounding mode, use this function:
+@@ -950,6 +984,7 @@ To change the rounding mode, use this function:
  @comment fenv.h
  @comment ISO
  @deftypefun int fesetround (int @var{round})
@@ -144,7 +184,7 @@ index 77056c3..833e0c9 100644
  Changes the currently selected rounding mode to @var{round}.  If
  @var{round} does not correspond to one of the supported rounding modes
  nothing is changed.  @code{fesetround} returns zero if it changed the
-@@ -994,6 +1024,7 @@ To save the state of the FPU, use one of these functions:
+@@ -994,6 +1029,7 @@ To save the state of the FPU, use one of these functions:
  @comment fenv.h
  @comment ISO
  @deftypefun int fegetenv (fenv_t *@var{envp})
@@ -152,7 +192,7 @@ index 77056c3..833e0c9 100644
  Store the floating-point environment in the variable pointed to by
  @var{envp}.
  
-@@ -1004,6 +1035,7 @@ non-zero value otherwise.
+@@ -1004,6 +1040,7 @@ non-zero value otherwise.
  @comment fenv.h
  @comment ISO
  @deftypefun int feholdexcept (fenv_t *@var{envp})
@@ -160,7 +200,7 @@ index 77056c3..833e0c9 100644
  Store the current floating-point environment in the object pointed to by
  @var{envp}.  Then clear all exception flags, and set the FPU to trap no
  exceptions.  Not all FPUs support trapping no exceptions; if
-@@ -1042,6 +1074,7 @@ functions:
+@@ -1042,6 +1079,7 @@ functions:
  @comment fenv.h
  @comment ISO
  @deftypefun int fesetenv (const fenv_t *@var{envp})
@@ -168,7 +208,7 @@ index 77056c3..833e0c9 100644
  Set the floating-point environment to that described by @var{envp}.
  
  The function returns zero in case the operation was successful, a
-@@ -1051,6 +1084,7 @@ non-zero value otherwise.
+@@ -1051,6 +1089,7 @@ non-zero value otherwise.
  @comment fenv.h
  @comment ISO
  @deftypefun int feupdateenv (const fenv_t *@var{envp})
@@ -176,7 +216,7 @@ index 77056c3..833e0c9 100644
  Like @code{fesetenv}, this function sets the floating-point environment
  to that described by @var{envp}.  However, if any exceptions were
  flagged in the status word before @code{feupdateenv} was called, they
-@@ -1071,6 +1105,7 @@ occur, you can use the following two functions.
+@@ -1071,6 +1110,7 @@ occur, you can use the following two functions.
  @comment fenv.h
  @comment GNU
  @deftypefun int feenableexcept (int @var{excepts})
@@ -184,7 +224,7 @@ index 77056c3..833e0c9 100644
  This functions enables traps for each of the exceptions as indicated by
  the parameter @var{except}.  The individual exceptions are described in
  @ref{Status bit operations}.  Only the specified exceptions are
-@@ -1083,6 +1118,7 @@ operation was successful, @code{-1} otherwise.
+@@ -1083,6 +1123,7 @@ operation was successful, @code{-1} otherwise.
  @comment fenv.h
  @comment GNU
  @deftypefun int fedisableexcept (int @var{excepts})
@@ -192,7 +232,7 @@ index 77056c3..833e0c9 100644
  This functions disables traps for each of the exceptions as indicated by
  the parameter @var{except}.  The individual exceptions are described in
  @ref{Status bit operations}.  Only the specified exceptions are
-@@ -1095,6 +1131,7 @@ operation was successful, @code{-1} otherwise.
+@@ -1095,6 +1136,7 @@ operation was successful, @code{-1} otherwise.
  @comment fenv.h
  @comment GNU
  @deftypefun int fegetexcept (void)
@@ -200,7 +240,7 @@ index 77056c3..833e0c9 100644
  The function returns a bitmask of all currently enabled exceptions.  It
  returns @code{-1} in case of failure.
  @end deftypefun
-@@ -1146,6 +1183,7 @@ Prototypes for @code{abs}, @code{labs} and @code{llabs} are in @file{stdlib.h};
+@@ -1146,6 +1188,7 @@ Prototypes for @code{abs}, @code{labs} and @code{llabs} are in @file{stdlib.h};
  @comment inttypes.h
  @comment ISO
  @deftypefunx intmax_t imaxabs (intmax_t @var{number})
@@ -208,7 +248,7 @@ index 77056c3..833e0c9 100644
  These functions return the absolute value of @var{number}.
  
  Most computers use a two's complement integer representation, in which
-@@ -1167,6 +1205,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.
+@@ -1167,6 +1210,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} fabsl (long double @var{number})
@@ -216,7 +256,7 @@ index 77056c3..833e0c9 100644
  This function returns the absolute value of the floating-point number
  @var{number}.
  @end deftypefun
-@@ -1180,6 +1219,7 @@ This function returns the absolute value of the floating-point number
+@@ -1180,6 +1224,7 @@ This function returns the absolute value of the floating-point number
  @comment complex.h
  @comment ISO
  @deftypefunx {long double} cabsl (complex long double @var{z})
@@ -224,7 +264,7 @@ index 77056c3..833e0c9 100644
  These functions return the absolute  value of the complex number @var{z}
  (@pxref{Complex Numbers}).  The absolute value of a complex number is:
  
-@@ -1217,6 +1257,7 @@ All these functions are declared in @file{math.h}.
+@@ -1217,6 +1262,7 @@ All these functions are declared in @file{math.h}.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} frexpl (long double @var{value}, int *@var{exponent})
@@ -232,7 +272,7 @@ index 77056c3..833e0c9 100644
  These functions are used to split the number @var{value}
  into a normalized fraction and an exponent.
  
-@@ -1242,6 +1283,7 @@ zero is stored in @code{*@var{exponent}}.
+@@ -1242,6 +1288,7 @@ zero is stored in @code{*@var{exponent}}.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} ldexpl (long double @var{value}, int @var{exponent})
@@ -240,7 +280,7 @@ index 77056c3..833e0c9 100644
  These functions return the result of multiplying the floating-point
  number @var{value} by 2 raised to the power @var{exponent}.  (It can
  be used to reassemble floating-point numbers that were taken apart
-@@ -1263,6 +1305,7 @@ equivalent to those of @code{ldexp} and @code{frexp}.  See also the
+@@ -1263,6 +1310,7 @@ equivalent to those of @code{ldexp} and @code{frexp}.  See also the
  @comment math.h
  @comment BSD
  @deftypefunx {long double} scalbl (long double @var{value}, long double @var{exponent})
@@ -248,7 +288,7 @@ index 77056c3..833e0c9 100644
  The @code{scalb} function is the BSD name for @code{ldexp}.
  @end deftypefun
  
-@@ -1275,6 +1318,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
+@@ -1275,6 +1323,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
  @comment math.h
  @comment BSD
  @deftypefunx {long double} scalbnl (long double @var{x}, int @var{n})
@@ -256,7 +296,7 @@ index 77056c3..833e0c9 100644
  @code{scalbn} is identical to @code{scalb}, except that the exponent
  @var{n} is an @code{int} instead of a floating-point number.
  @end deftypefun
-@@ -1288,6 +1332,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
+@@ -1288,6 +1337,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
  @comment math.h
  @comment BSD
  @deftypefunx {long double} scalblnl (long double @var{x}, long int @var{n})
@@ -264,7 +304,7 @@ index 77056c3..833e0c9 100644
  @code{scalbln} is identical to @code{scalb}, except that the exponent
  @var{n} is a @code{long int} instead of a floating-point number.
  @end deftypefun
-@@ -1301,6 +1346,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
+@@ -1301,6 +1351,7 @@ The @code{scalb} function is the BSD name for @code{ldexp}.
  @comment math.h
  @comment BSD
  @deftypefunx {long double} significandl (long double @var{x})
@@ -272,7 +312,7 @@ index 77056c3..833e0c9 100644
  @code{significand} returns the mantissa of @var{x} scaled to the range
  @math{[1, 2)}.
  It is equivalent to @w{@code{scalb (@var{x}, (double) -ilogb (@var{x}))}}.
-@@ -1335,6 +1381,7 @@ result as a @code{double} instead to get around this problem.
+@@ -1335,6 +1386,7 @@ result as a @code{double} instead to get around this problem.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} ceill (long double @var{x})
@@ -280,7 +320,7 @@ index 77056c3..833e0c9 100644
  These functions round @var{x} upwards to the nearest integer,
  returning that value as a @code{double}.  Thus, @code{ceil (1.5)}
  is @code{2.0}.
-@@ -1349,6 +1396,7 @@ is @code{2.0}.
+@@ -1349,6 +1401,7 @@ is @code{2.0}.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} floorl (long double @var{x})
@@ -288,7 +328,7 @@ index 77056c3..833e0c9 100644
  These functions round @var{x} downwards to the nearest
  integer, returning that value as a @code{double}.  Thus, @code{floor
  (1.5)} is @code{1.0} and @code{floor (-1.5)} is @code{-2.0}.
-@@ -1363,6 +1411,7 @@ integer, returning that value as a @code{double}.  Thus, @code{floor
+@@ -1363,6 +1416,7 @@ integer, returning that value as a @code{double}.  Thus, @code{floor
  @comment math.h
  @comment ISO
  @deftypefunx {long double} truncl (long double @var{x})
@@ -296,7 +336,7 @@ index 77056c3..833e0c9 100644
  The @code{trunc} functions round @var{x} towards zero to the nearest
  integer (returned in floating-point format).  Thus, @code{trunc (1.5)}
  is @code{1.0} and @code{trunc (-1.5)} is @code{-1.0}.
-@@ -1377,6 +1426,7 @@ is @code{1.0} and @code{trunc (-1.5)} is @code{-1.0}.
+@@ -1377,6 +1431,7 @@ is @code{1.0} and @code{trunc (-1.5)} is @code{-1.0}.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} rintl (long double @var{x})
@@ -304,7 +344,7 @@ index 77056c3..833e0c9 100644
  These functions round @var{x} to an integer value according to the
  current rounding mode.  @xref{Floating Point Parameters}, for
  information about the various rounding modes.  The default
-@@ -1397,6 +1447,7 @@ inexact exception.
+@@ -1397,6 +1452,7 @@ inexact exception.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} nearbyintl (long double @var{x})
@@ -312,7 +352,7 @@ index 77056c3..833e0c9 100644
  These functions return the same value as the @code{rint} functions, but
  do not raise the inexact exception if @var{x} is not an integer.
  @end deftypefun
-@@ -1410,6 +1461,7 @@ do not raise the inexact exception if @var{x} is not an integer.
+@@ -1410,6 +1466,7 @@ do not raise the inexact exception if @var{x} is not an integer.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} roundl (long double @var{x})
@@ -320,7 +360,7 @@ index 77056c3..833e0c9 100644
  These functions are similar to @code{rint}, but they round halfway
  cases away from zero instead of to the nearest integer (or other
  current rounding mode).
-@@ -1424,6 +1476,7 @@ current rounding mode).
+@@ -1424,6 +1481,7 @@ current rounding mode).
  @comment math.h
  @comment ISO
  @deftypefunx {long int} lrintl (long double @var{x})
@@ -328,7 +368,7 @@ index 77056c3..833e0c9 100644
  These functions are just like @code{rint}, but they return a
  @code{long int} instead of a floating-point number.
  @end deftypefun
-@@ -1437,6 +1490,7 @@ These functions are just like @code{rint}, but they return a
+@@ -1437,6 +1495,7 @@ These functions are just like @code{rint}, but they return a
  @comment math.h
  @comment ISO
  @deftypefunx {long long int} llrintl (long double @var{x})
@@ -336,7 +376,7 @@ index 77056c3..833e0c9 100644
  These functions are just like @code{rint}, but they return a
  @code{long long int} instead of a floating-point number.
  @end deftypefun
-@@ -1450,6 +1504,7 @@ These functions are just like @code{rint}, but they return a
+@@ -1450,6 +1509,7 @@ These functions are just like @code{rint}, but they return a
  @comment math.h
  @comment ISO
  @deftypefunx {long int} lroundl (long double @var{x})
@@ -344,7 +384,7 @@ index 77056c3..833e0c9 100644
  These functions are just like @code{round}, but they return a
  @code{long int} instead of a floating-point number.
  @end deftypefun
-@@ -1463,6 +1518,7 @@ These functions are just like @code{round}, but they return a
+@@ -1463,6 +1523,7 @@ These functions are just like @code{round}, but they return a
  @comment math.h
  @comment ISO
  @deftypefunx {long long int} llroundl (long double @var{x})
@@ -352,7 +392,7 @@ index 77056c3..833e0c9 100644
  These functions are just like @code{round}, but they return a
  @code{long long int} instead of a floating-point number.
  @end deftypefun
-@@ -1477,6 +1533,7 @@ These functions are just like @code{round}, but they return a
+@@ -1477,6 +1538,7 @@ These functions are just like @code{round}, but they return a
  @comment math.h
  @comment ISO
  @deftypefunx {long double} modfl (long double @var{value}, long double *@var{integer-part})
@@ -360,7 +400,7 @@ index 77056c3..833e0c9 100644
  These functions break the argument @var{value} into an integer part and a
  fractional part (between @code{-1} and @code{1}, exclusive).  Their sum
  equals @var{value}.  Each of the parts has the same sign as @var{value},
-@@ -1503,6 +1560,7 @@ suits your problem.
+@@ -1503,6 +1565,7 @@ suits your problem.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} fmodl (long double @var{numerator}, long double @var{denominator})
@@ -368,7 +408,7 @@ index 77056c3..833e0c9 100644
  These functions compute the remainder from the division of
  @var{numerator} by @var{denominator}.  Specifically, the return value is
  @code{@var{numerator} - @w{@var{n} * @var{denominator}}}, where @var{n}
-@@ -1525,6 +1583,7 @@ If @var{denominator} is zero, @code{fmod} signals a domain error.
+@@ -1525,6 +1588,7 @@ If @var{denominator} is zero, @code{fmod} signals a domain error.
  @comment math.h
  @comment BSD
  @deftypefunx {long double} dreml (long double @var{numerator}, long double @var{denominator})
@@ -376,7 +416,7 @@ index 77056c3..833e0c9 100644
  These functions are like @code{fmod} except that they round the
  internal quotient @var{n} to the nearest integer instead of towards zero
  to an integer.  For example, @code{drem (6.5, 2.3)} returns @code{-0.4},
-@@ -1548,6 +1607,7 @@ If @var{denominator} is zero, @code{drem} signals a domain error.
+@@ -1548,6 +1612,7 @@ If @var{denominator} is zero, @code{drem} signals a domain error.
  @comment math.h
  @comment BSD
  @deftypefunx {long double} remainderl (long double @var{numerator}, long double @var{denominator})
@@ -384,7 +424,7 @@ index 77056c3..833e0c9 100644
  This function is another name for @code{drem}.
  @end deftypefun
  
-@@ -1569,6 +1629,7 @@ bits.
+@@ -1569,6 +1634,7 @@ bits.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} copysignl (long double @var{x}, long double @var{y})
@@ -392,7 +432,7 @@ index 77056c3..833e0c9 100644
  These functions return @var{x} but with the sign of @var{y}.  They work
  even if @var{x} or @var{y} are NaN or zero.  Both of these can carry a
  sign (although not all implementations support it) and this is one of
-@@ -1584,6 +1645,7 @@ recommended functions in @w{IEEE 754}/@w{IEEE 854}).
+@@ -1584,6 +1650,7 @@ recommended functions in @w{IEEE 754}/@w{IEEE 854}).
  @comment math.h
  @comment ISO
  @deftypefun int signbit (@emph{float-type} @var{x})
@@ -400,7 +440,7 @@ index 77056c3..833e0c9 100644
  @code{signbit} is a generic macro which can work on all floating-point
  types.  It returns a nonzero value if the value of @var{x} has its sign
  bit set.
-@@ -1602,6 +1664,7 @@ false, but @code{signbit (-0.0)} will return a nonzero value.
+@@ -1602,6 +1669,7 @@ false, but @code{signbit (-0.0)} will return a nonzero value.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} nextafterl (long double @var{x}, long double @var{y})
@@ -408,7 +448,7 @@ index 77056c3..833e0c9 100644
  The @code{nextafter} function returns the next representable neighbor of
  @var{x} in the direction towards @var{y}.  The size of the step between
  @var{x} and the result depends on the type of the result.  If
-@@ -1625,6 +1688,7 @@ recommended functions in @w{IEEE 754}/@w{IEEE 854}).
+@@ -1625,6 +1693,7 @@ recommended functions in @w{IEEE 754}/@w{IEEE 854}).
  @comment math.h
  @comment ISO
  @deftypefunx {long double} nexttowardl (long double @var{x}, long double @var{y})
@@ -416,7 +456,7 @@ index 77056c3..833e0c9 100644
  These functions are identical to the corresponding versions of
  @code{nextafter} except that their second argument is a @code{long
  double}.
-@@ -1640,6 +1704,8 @@ double}.
+@@ -1640,6 +1709,8 @@ double}.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} nanl (const char *@var{tagp})
@@ -425,7 +465,7 @@ index 77056c3..833e0c9 100644
  The @code{nan} function returns a representation of NaN, provided that
  NaN is supported by the target platform.
  @code{nan ("@var{n-char-sequence}")} is equivalent to
-@@ -1674,6 +1740,7 @@ arguments only once.
+@@ -1674,6 +1745,7 @@ arguments only once.
  @comment math.h
  @comment ISO
  @deftypefn Macro int isgreater (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -433,7 +473,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether the argument @var{x} is greater than
  @var{y}.  It is equivalent to @code{(@var{x}) > (@var{y})}, but no
  exception is raised if @var{x} or @var{y} are NaN.
-@@ -1682,6 +1749,7 @@ exception is raised if @var{x} or @var{y} are NaN.
+@@ -1682,6 +1754,7 @@ exception is raised if @var{x} or @var{y} are NaN.
  @comment math.h
  @comment ISO
  @deftypefn Macro int isgreaterequal (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -441,7 +481,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether the argument @var{x} is greater than or
  equal to @var{y}.  It is equivalent to @code{(@var{x}) >= (@var{y})}, but no
  exception is raised if @var{x} or @var{y} are NaN.
-@@ -1690,6 +1758,7 @@ exception is raised if @var{x} or @var{y} are NaN.
+@@ -1690,6 +1763,7 @@ exception is raised if @var{x} or @var{y} are NaN.
  @comment math.h
  @comment ISO
  @deftypefn Macro int isless (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -449,7 +489,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether the argument @var{x} is less than @var{y}.
  It is equivalent to @code{(@var{x}) < (@var{y})}, but no exception is
  raised if @var{x} or @var{y} are NaN.
-@@ -1698,6 +1767,7 @@ raised if @var{x} or @var{y} are NaN.
+@@ -1698,6 +1772,7 @@ raised if @var{x} or @var{y} are NaN.
  @comment math.h
  @comment ISO
  @deftypefn Macro int islessequal (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -457,7 +497,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether the argument @var{x} is less than or equal
  to @var{y}.  It is equivalent to @code{(@var{x}) <= (@var{y})}, but no
  exception is raised if @var{x} or @var{y} are NaN.
-@@ -1706,6 +1776,7 @@ exception is raised if @var{x} or @var{y} are NaN.
+@@ -1706,6 +1781,7 @@ exception is raised if @var{x} or @var{y} are NaN.
  @comment math.h
  @comment ISO
  @deftypefn Macro int islessgreater (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -465,7 +505,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether the argument @var{x} is less or greater
  than @var{y}.  It is equivalent to @code{(@var{x}) < (@var{y}) ||
  (@var{x}) > (@var{y})} (although it only evaluates @var{x} and @var{y}
-@@ -1718,6 +1789,7 @@ expression is true if @var{x} or @var{y} are NaN.
+@@ -1718,6 +1794,7 @@ expression is true if @var{x} or @var{y} are NaN.
  @comment math.h
  @comment ISO
  @deftypefn Macro int isunordered (@emph{real-floating} @var{x}, @emph{real-floating} @var{y})
@@ -473,7 +513,7 @@ index 77056c3..833e0c9 100644
  This macro determines whether its arguments are unordered.  In other
  words, it is true if @var{x} or @var{y} are NaN, and false otherwise.
  @end deftypefn
-@@ -1751,6 +1823,7 @@ perform these operations faster than the equivalent C code.
+@@ -1751,6 +1828,7 @@ perform these operations faster than the equivalent C code.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} fminl (long double @var{x}, long double @var{y})
@@ -481,7 +521,7 @@ index 77056c3..833e0c9 100644
  The @code{fmin} function returns the lesser of the two values @var{x}
  and @var{y}.  It is similar to the expression
  @smallexample
-@@ -1771,6 +1844,7 @@ are NaN, NaN is returned.
+@@ -1771,6 +1849,7 @@ are NaN, NaN is returned.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} fmaxl (long double @var{x}, long double @var{y})
@@ -489,7 +529,7 @@ index 77056c3..833e0c9 100644
  The @code{fmax} function returns the greater of the two values @var{x}
  and @var{y}.
  
-@@ -1787,6 +1861,7 @@ are NaN, NaN is returned.
+@@ -1787,6 +1866,7 @@ are NaN, NaN is returned.
  @comment math.h
  @comment ISO
  @deftypefunx {long double} fdiml (long double @var{x}, long double @var{y})
@@ -497,7 +537,7 @@ index 77056c3..833e0c9 100644
  The @code{fdim} function returns the positive difference between
  @var{x} and @var{y}.  The positive difference is @math{@var{x} -
  @var{y}} if @var{x} is greater than @var{y}, and @math{0} otherwise.
-@@ -1804,6 +1879,7 @@ If @var{x}, @var{y}, or both are NaN, NaN is returned.
+@@ -1804,6 +1884,7 @@ If @var{x}, @var{y}, or both are NaN, NaN is returned.
  @comment ISO
  @deftypefunx {long double} fmal (long double @var{x}, long double @var{y}, long double @var{z})
  @cindex butterfly
@@ -505,7 +545,7 @@ index 77056c3..833e0c9 100644
  The @code{fma} function performs floating-point multiply-add.  This is
  the operation @math{(@var{x} @mul{} @var{y}) + @var{z}}, but the
  intermediate result is not rounded to the destination type.  This can
-@@ -1933,6 +2009,7 @@ available in three variants, one for each of the three complex types.
+@@ -1933,6 +2014,7 @@ available in three variants, one for each of the three complex types.
  @comment complex.h
  @comment ISO
  @deftypefunx {long double} creall (complex long double @var{z})
@@ -513,7 +553,7 @@ index 77056c3..833e0c9 100644
  These functions return the real part of the complex number @var{z}.
  @end deftypefun
  
-@@ -1945,6 +2022,7 @@ These functions return the real part of the complex number @var{z}.
+@@ -1945,6 +2027,7 @@ These functions return the real part of the complex number @var{z}.
  @comment complex.h
  @comment ISO
  @deftypefunx {long double} cimagl (complex long double @var{z})
@@ -521,7 +561,7 @@ index 77056c3..833e0c9 100644
  These functions return the imaginary part of the complex number @var{z}.
  @end deftypefun
  
-@@ -1957,6 +2035,7 @@ These functions return the imaginary part of the complex number @var{z}.
+@@ -1957,6 +2040,7 @@ These functions return the imaginary part of the complex number @var{z}.
  @comment complex.h
  @comment ISO
  @deftypefunx {complex long double} conjl (complex long double @var{z})
@@ -529,7 +569,7 @@ index 77056c3..833e0c9 100644
  These functions return the conjugate value of the complex number
  @var{z}.  The conjugate of a complex number has the same real part and a
  negated imaginary part.  In other words, @samp{conj(a + bi) = a + -bi}.
-@@ -1971,6 +2050,7 @@ negated imaginary part.  In other words, @samp{conj(a + bi) = a + -bi}.
+@@ -1971,6 +2055,7 @@ negated imaginary part.  In other words, @samp{conj(a + bi) = a + -bi}.
  @comment complex.h
  @comment ISO
  @deftypefunx {long double} cargl (complex long double @var{z})
@@ -537,7 +577,7 @@ index 77056c3..833e0c9 100644
  These functions return the argument of the complex number @var{z}.
  The argument of a complex number is the angle in the complex plane
  between the positive real axis and a line passing through zero and the
-@@ -1989,6 +2069,7 @@ number.  This angle is measured in the usual fashion and ranges from
+@@ -1989,6 +2074,7 @@ number.  This angle is measured in the usual fashion and ranges from
  @comment complex.h
  @comment ISO
  @deftypefunx {complex long double} cprojl (complex long double @var{z})
@@ -545,7 +585,7 @@ index 77056c3..833e0c9 100644
  These functions return the projection of the complex value @var{z} onto
  the Riemann sphere.  Values with a infinite imaginary part are projected
  to positive infinity on the real axis, even if the real part is NaN.  If
-@@ -2034,6 +2115,16 @@ as well.
+@@ -2034,6 +2120,16 @@ as well.
  @comment stdlib.h
  @comment ISO
  @deftypefun {long int} strtol (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -562,7 +602,7 @@ index 77056c3..833e0c9 100644
  The @code{strtol} (``string-to-long'') function converts the initial
  part of @var{string} to a signed integer, which is returned as a value
  of type @code{long int}.
-@@ -2097,6 +2188,7 @@ There is an example at the end of this section.
+@@ -2097,6 +2193,7 @@ There is an example at the end of this section.
  @comment wchar.h
  @comment ISO
  @deftypefun {long int} wcstol (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -570,7 +610,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstol} function is equivalent to the @code{strtol} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2106,6 +2198,7 @@ The @code{wcstol} function was introduced in @w{Amendment 1} of @w{ISO C90}.
+@@ -2106,6 +2203,7 @@ The @code{wcstol} function was introduced in @w{Amendment 1} of @w{ISO C90}.
  @comment stdlib.h
  @comment ISO
  @deftypefun {unsigned long int} strtoul (const char *retrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -578,7 +618,7 @@ index 77056c3..833e0c9 100644
  The @code{strtoul} (``string-to-unsigned-long'') function is like
  @code{strtol} except it converts to an @code{unsigned long int} value.
  The syntax is the same as described above for @code{strtol}.  The value
-@@ -2124,6 +2217,7 @@ range, or @code{ERANGE} on overflow.
+@@ -2124,6 +2222,7 @@ range, or @code{ERANGE} on overflow.
  @comment wchar.h
  @comment ISO
  @deftypefun {unsigned long int} wcstoul (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -586,7 +626,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoul} function is equivalent to the @code{strtoul} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2133,6 +2227,7 @@ The @code{wcstoul} function was introduced in @w{Amendment 1} of @w{ISO C90}.
+@@ -2133,6 +2232,7 @@ The @code{wcstoul} function was introduced in @w{Amendment 1} of @w{ISO C90}.
  @comment stdlib.h
  @comment ISO
  @deftypefun {long long int} strtoll (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -594,7 +634,7 @@ index 77056c3..833e0c9 100644
  The @code{strtoll} function is like @code{strtol} except that it returns
  a @code{long long int} value, and accepts numbers with a correspondingly
  larger range.
-@@ -2149,6 +2244,7 @@ The @code{strtoll} function was introduced in @w{ISO C99}.
+@@ -2149,6 +2249,7 @@ The @code{strtoll} function was introduced in @w{ISO C99}.
  @comment wchar.h
  @comment ISO
  @deftypefun {long long int} wcstoll (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -602,7 +642,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoll} function is equivalent to the @code{strtoll} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2158,12 +2254,14 @@ The @code{wcstoll} function was introduced in @w{Amendment 1} of @w{ISO C90}.
+@@ -2158,12 +2259,14 @@ The @code{wcstoll} function was introduced in @w{Amendment 1} of @w{ISO C90}.
  @comment stdlib.h
  @comment BSD
  @deftypefun {long long int} strtoq (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -617,7 +657,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoq} function is equivalent to the @code{strtoq} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2173,6 +2271,7 @@ The @code{wcstoq} function is a GNU extension.
+@@ -2173,6 +2276,7 @@ The @code{wcstoq} function is a GNU extension.
  @comment stdlib.h
  @comment ISO
  @deftypefun {unsigned long long int} strtoull (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -625,7 +665,7 @@ index 77056c3..833e0c9 100644
  The @code{strtoull} function is related to @code{strtoll} the same way
  @code{strtoul} is related to @code{strtol}.
  
-@@ -2182,6 +2281,7 @@ The @code{strtoull} function was introduced in @w{ISO C99}.
+@@ -2182,6 +2286,7 @@ The @code{strtoull} function was introduced in @w{ISO C99}.
  @comment wchar.h
  @comment ISO
  @deftypefun {unsigned long long int} wcstoull (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -633,7 +673,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoull} function is equivalent to the @code{strtoull} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2191,12 +2291,14 @@ The @code{wcstoull} function was introduced in @w{Amendment 1} of @w{ISO C90}.
+@@ -2191,12 +2296,14 @@ The @code{wcstoull} function was introduced in @w{Amendment 1} of @w{ISO C90}.
  @comment stdlib.h
  @comment BSD
  @deftypefun {unsigned long long int} strtouq (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -648,7 +688,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstouq} function is equivalent to the @code{strtouq} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2206,6 +2308,7 @@ The @code{wcstouq} function is a GNU extension.
+@@ -2206,6 +2313,7 @@ The @code{wcstouq} function is a GNU extension.
  @comment inttypes.h
  @comment ISO
  @deftypefun intmax_t strtoimax (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -656,7 +696,7 @@ index 77056c3..833e0c9 100644
  The @code{strtoimax} function is like @code{strtol} except that it returns
  a @code{intmax_t} value, and accepts numbers of a corresponding range.
  
-@@ -2222,6 +2325,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.  The
+@@ -2222,6 +2330,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.  The
  @comment wchar.h
  @comment ISO
  @deftypefun intmax_t wcstoimax (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -664,7 +704,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoimax} function is equivalent to the @code{strtoimax} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2231,6 +2335,7 @@ The @code{wcstoimax} function was introduced in @w{ISO C99}.
+@@ -2231,6 +2340,7 @@ The @code{wcstoimax} function was introduced in @w{ISO C99}.
  @comment inttypes.h
  @comment ISO
  @deftypefun uintmax_t strtoumax (const char *restrict @var{string}, char **restrict @var{tailptr}, int @var{base})
@@ -672,7 +712,7 @@ index 77056c3..833e0c9 100644
  The @code{strtoumax} function is related to @code{strtoimax}
  the same way that @code{strtoul} is related to @code{strtol}.
  
-@@ -2241,6 +2346,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.  The
+@@ -2241,6 +2351,7 @@ See @ref{Integers} for a description of the @code{intmax_t} type.  The
  @comment wchar.h
  @comment ISO
  @deftypefun uintmax_t wcstoumax (const wchar_t *restrict @var{string}, wchar_t **restrict @var{tailptr}, int @var{base})
@@ -680,7 +720,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstoumax} function is equivalent to the @code{strtoumax} function
  in nearly all aspects but handles wide character strings.
  
-@@ -2250,6 +2356,7 @@ The @code{wcstoumax} function was introduced in @w{ISO C99}.
+@@ -2250,6 +2361,7 @@ The @code{wcstoumax} function was introduced in @w{ISO C99}.
  @comment stdlib.h
  @comment ISO
  @deftypefun {long int} atol (const char *@var{string})
@@ -688,7 +728,7 @@ index 77056c3..833e0c9 100644
  This function is similar to the @code{strtol} function with a @var{base}
  argument of @code{10}, except that it need not detect overflow errors.
  The @code{atol} function is provided mostly for compatibility with
-@@ -2259,6 +2366,7 @@ existing code; using @code{strtol} is more robust.
+@@ -2259,6 +2371,7 @@ existing code; using @code{strtol} is more robust.
  @comment stdlib.h
  @comment ISO
  @deftypefun int atoi (const char *@var{string})
@@ -696,7 +736,7 @@ index 77056c3..833e0c9 100644
  This function is like @code{atol}, except that it returns an @code{int}.
  The @code{atoi} function is also considered obsolete; use @code{strtol}
  instead.
-@@ -2267,6 +2375,7 @@ instead.
+@@ -2267,6 +2380,7 @@ instead.
  @comment stdlib.h
  @comment ISO
  @deftypefun {long long int} atoll (const char *@var{string})
@@ -704,17 +744,43 @@ index 77056c3..833e0c9 100644
  This function is similar to @code{atol}, except it returns a @code{long
  long int}.
  
-@@ -2331,6 +2440,9 @@ as well.
+@@ -2331,6 +2445,35 @@ as well.
  @comment stdlib.h
  @comment ISO
  @deftypefun double strtod (const char *restrict @var{string}, char **restrict @var{tailptr})
 +@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
 +@c Besides the unsafe-but-ruled-safe locale uses, this uses a lot of
 +@c mpn, but it's all safe.
++@c
++@c round_and_return
++@c   get_rounding_mode ok
++@c   mpn_add_1 ok
++@c   mpn_rshift ok
++@c   MPN_ZERO ok
++@c   MPN2FLOAT -> mpn_construct_(float|double|long_double) ok
++@c str_to_mpn
++@c   mpn_mul_1 -> umul_ppmm ok
++@c   mpn_add_1 ok
++@c mpn_lshift_1 -> mpn_lshift ok
++@c STRTOF_INTERNAL
++@c   MPN_VAR ok
++@c   SET_MANTISSA ok
++@c   STRNCASECMP ok, wide and narrow
++@c   round_and_return ok
++@c   mpn_mul ok
++@c     mpn_addmul_1 ok
++@c     ... mpn_sub
++@c   mpn_lshift ok
++@c   udiv_qrnnd ok
++@c   count_leading_zeros ok
++@c   add_ssaaaa ok
++@c   sub_ddmmss ok
++@c   umul_ppmm ok
++@c   mpn_submul_1 ok
  The @code{strtod} (``string-to-double'') function converts the initial
  part of @var{string} to a floating-point number, which is returned as a
  value of type @code{double}.
-@@ -2416,6 +2528,7 @@ examining @var{errno} and @var{tailptr}.
+@@ -2416,6 +2559,7 @@ examining @var{errno} and @var{tailptr}.
  @comment stdlib.h
  @comment ISO
  @deftypefunx {long double} strtold (const char *@var{string}, char **@var{tailptr})
@@ -722,7 +788,7 @@ index 77056c3..833e0c9 100644
  These functions are analogous to @code{strtod}, but return @code{float}
  and @code{long double} values respectively.  They report errors in the
  same way as @code{strtod}.  @code{strtof} can be substantially faster
-@@ -2435,6 +2548,7 @@ These functions have been GNU extensions and are new to @w{ISO C99}.
+@@ -2435,6 +2579,7 @@ These functions have been GNU extensions and are new to @w{ISO C99}.
  @comment stdlib.h
  @comment ISO
  @deftypefunx {long double} wcstold (const wchar_t *@var{string}, wchar_t **@var{tailptr})
@@ -730,7 +796,7 @@ index 77056c3..833e0c9 100644
  The @code{wcstod}, @code{wcstof}, and @code{wcstol} functions are
  equivalent in nearly all aspect to the @code{strtod}, @code{strtof}, and
  @code{strtold} functions but it handles wide character string.
-@@ -2447,6 +2561,7 @@ C90}.  The @code{wcstof} and @code{wcstold} functions were introduced in
+@@ -2447,6 +2592,7 @@ C90}.  The @code{wcstof} and @code{wcstold} functions were introduced in
  @comment stdlib.h
  @comment ISO
  @deftypefun double atof (const char *@var{string})
@@ -738,7 +804,7 @@ index 77056c3..833e0c9 100644
  This function is similar to the @code{strtod} function, except that it
  need not detect overflow and underflow errors.  The @code{atof} function
  is provided mostly for compatibility with existing code; using
-@@ -2473,6 +2588,7 @@ All these functions are defined in @file{stdlib.h}.
+@@ -2473,6 +2619,7 @@ All these functions are defined in @file{stdlib.h}.
  @comment stdlib.h
  @comment SVID, Unix98
  @deftypefun {char *} ecvt (double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg})
@@ -746,7 +812,7 @@ index 77056c3..833e0c9 100644
  The function @code{ecvt} converts the floating-point number @var{value}
  to a string with at most @var{ndigit} decimal digits.  The
  returned string contains no decimal point or sign. The first digit of
-@@ -2498,6 +2614,7 @@ and sets @var{d} to @code{2} and @var{n} to @code{0}.
+@@ -2498,6 +2645,7 @@ and sets @var{d} to @code{2} and @var{n} to @code{0}.
  @comment stdlib.h
  @comment SVID, Unix98
  @deftypefun {char *} fcvt (double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg})
@@ -754,7 +820,7 @@ index 77056c3..833e0c9 100644
  The function @code{fcvt} is like @code{ecvt}, but @var{ndigit} specifies
  the number of digits after the decimal point.  If @var{ndigit} is less
  than zero, @var{value} is rounded to the @math{@var{ndigit}+1}'th place to the
-@@ -2516,6 +2633,9 @@ to @code{fcvt}.
+@@ -2516,6 +2664,9 @@ to @code{fcvt}.
  @comment stdlib.h
  @comment SVID, Unix98
  @deftypefun {char *} gcvt (double @var{value}, int @var{ndigit}, char *@var{buf})
@@ -764,7 +830,7 @@ index 77056c3..833e0c9 100644
  @code{gcvt} is functionally equivalent to @samp{sprintf(buf, "%*g",
  ndigit, value}.  It is provided only for compatibility's sake.  It
  returns @var{buf}.
-@@ -2530,6 +2650,7 @@ functions that take @code{long double} arguments.
+@@ -2530,6 +2681,7 @@ functions that take @code{long double} arguments.
  @comment stdlib.h
  @comment GNU
  @deftypefun {char *} qecvt (long double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg})
@@ -772,7 +838,7 @@ index 77056c3..833e0c9 100644
  This function is equivalent to @code{ecvt} except that it takes a
  @code{long double} for the first parameter and that @var{ndigit} is
  restricted by the precision of a @code{long double}.
-@@ -2538,6 +2659,7 @@ restricted by the precision of a @code{long double}.
+@@ -2538,6 +2690,7 @@ restricted by the precision of a @code{long double}.
  @comment stdlib.h
  @comment GNU
  @deftypefun {char *} qfcvt (long double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg})
@@ -780,7 +846,7 @@ index 77056c3..833e0c9 100644
  This function is equivalent to @code{fcvt} except that it
  takes a @code{long double} for the first parameter and that @var{ndigit} is
  restricted by the precision of a @code{long double}.
-@@ -2546,6 +2668,7 @@ restricted by the precision of a @code{long double}.
+@@ -2546,6 +2699,7 @@ restricted by the precision of a @code{long double}.
  @comment stdlib.h
  @comment GNU
  @deftypefun {char *} qgcvt (long double @var{value}, int @var{ndigit}, char *@var{buf})
@@ -788,7 +854,7 @@ index 77056c3..833e0c9 100644
  This function is equivalent to @code{gcvt} except that it takes a
  @code{long double} for the first parameter and that @var{ndigit} is
  restricted by the precision of a @code{long double}.
-@@ -2566,6 +2689,7 @@ user-supplied buffer.
+@@ -2566,6 +2720,7 @@ user-supplied buffer.
  @comment stdlib.h
  @comment GNU
  @deftypefun int ecvt_r (double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg}, char *@var{buf}, size_t @var{len})
@@ -796,7 +862,7 @@ index 77056c3..833e0c9 100644
  The @code{ecvt_r} function is the same as @code{ecvt}, except
  that it places its result into the user-specified buffer pointed to by
  @var{buf}, with length @var{len}.  The return value is @code{-1} in
-@@ -2577,6 +2701,7 @@ This function is a GNU extension.
+@@ -2577,6 +2732,7 @@ This function is a GNU extension.
  @comment stdlib.h
  @comment SVID, Unix98
  @deftypefun int fcvt_r (double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg}, char *@var{buf}, size_t @var{len})
@@ -804,7 +870,7 @@ index 77056c3..833e0c9 100644
  The @code{fcvt_r} function is the same as @code{fcvt}, except that it
  places its result into the user-specified buffer pointed to by
  @var{buf}, with length @var{len}.  The return value is @code{-1} in
-@@ -2588,6 +2713,7 @@ This function is a GNU extension.
+@@ -2588,6 +2744,7 @@ This function is a GNU extension.
  @comment stdlib.h
  @comment GNU
  @deftypefun int qecvt_r (long double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg}, char *@var{buf}, size_t @var{len})
@@ -812,7 +878,7 @@ index 77056c3..833e0c9 100644
  The @code{qecvt_r} function is the same as @code{qecvt}, except
  that it places its result into the user-specified buffer pointed to by
  @var{buf}, with length @var{len}.  The return value is @code{-1} in
-@@ -2599,6 +2725,7 @@ This function is a GNU extension.
+@@ -2599,6 +2756,7 @@ This function is a GNU extension.
  @comment stdlib.h
  @comment GNU
  @deftypefun int qfcvt_r (long double @var{value}, int @var{ndigit}, int *@var{decpt}, int *@var{neg}, char *@var{buf}, size_t @var{len})
