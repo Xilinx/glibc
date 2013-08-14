@@ -1034,7 +1034,7 @@ transparently replaces the old implementation.
 @c open_dir_stream calls malloc, realloc, readdir64, free, closedir,
 @c  then openat64_not_cancel_3 and fdopendir or opendir, then dirfd.
 @c process_entry may cal realloc, fxstatat/lxstat/xstat, ftw_dir, and
-@c  find_object (tsearch) and add_object (tfind).  
+@c  find_object (tsearch) and add_object (tfind).
 @c Since each invocation of *ftw uses its own private search tree, none
 @c  of the search tree concurrency issues apply.
 The @code{nftw} function works like the @code{ftw} functions.  They call
