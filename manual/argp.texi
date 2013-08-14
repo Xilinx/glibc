@@ -1108,7 +1108,7 @@ program options, argp offers the @code{argp_help} interface.
 @comment GNU
 @deftypefun void argp_help (const struct argp *@var{argp}, FILE *@var{stream}, unsigned @var{flags}, char *@var{name})
 @safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
-@c Just calls _help.  
+@c Just calls _help.
 This outputs a help message for the argp parser @var{argp} to
 @var{stream}.  The type of messages printed will be determined by
 @var{flags}.
