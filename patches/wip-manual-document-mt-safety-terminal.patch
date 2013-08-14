@@ -1,0 +1,38 @@
+Bottom: 12b763b61e3c2dff9a990b8c3271a64b6febfd63
+Top:    9f340cd557aceda321c8ef9f6db21082e5dbdaee
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:13:53 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/terminal.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/terminal.texi b/manual/terminal.texi
+index 9e9c057..7f62a4e 100644
+--- a/manual/terminal.texi
++++ b/manual/terminal.texi
+@@ -264,6 +264,9 @@ array.
+ @comment termios.h
+ @comment POSIX.1
+ @deftypefun int tcgetattr (int @var{filedes}, struct termios *@var{termios-p})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Converting the kernel-returned termios data structure to the userland
++@c format does not ensure atomic or consistent writing.
+ This function is used to examine the attributes of the terminal
+ device with file descriptor @var{filedes}.  The attributes are returned
+ in the structure that @var{termios-p} points to.
+@@ -284,6 +287,9 @@ The @var{filedes} is not associated with a terminal.
+ @comment termios.h
+ @comment POSIX.1
+ @deftypefun int tcsetattr (int @var{filedes}, int @var{when}, const struct termios *@var{termios-p})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
++@c Converting the incoming termios data structure to the kernel format
++@c does not ensure atomic or consistent reading.
+ This function sets the attributes of the terminal device with file
+ descriptor @var{filedes}.  The new attributes are taken from the
+ structure that @var{termios-p} points to.
