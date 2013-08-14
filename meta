@@ -1,7 +1,8 @@
 Version: 1
-Previous: 9b6d80ee7ab6e6fe72cc7cb62e9ab40b08d98fcf
-Head: 4022accc5d1f9f2ae322f8f76488286c694acd7b
+Previous: ffd5c5bfb94cde6cb1bb960cd9b0039fbc7e4165
+Head: ca0a6bc4c5c53aa6c4a735c36336408a06b8cd89
 Applied:
+Unapplied:
   manual-document-mt-safety.patch: b636b87be9756886bb0f9f1396c31b42d3f83c23
   powerpc-nofpu-sim-note-nothread.patch: 22b44b5585a77352a33172a9583ea1e002e1602c
   unused-scalb-is-scalbn.patch: b290d7167651106f65de65171d52b70c6188329a
@@ -29,5 +30,4 @@ Applied:
   wip-manual-document-mt-safety-terminal.patch: a9f83c82c1746276acceb4928131d8099c0caf6a
   wip-manual-document-mt-safety-threads.patch: 49c5533ec879c99f89ad9a1ba58929a9739a1254
   wip-manual-document-mt-safety-time.patch: 4022accc5d1f9f2ae322f8f76488286c694acd7b
-Unapplied:
 Hidden:
