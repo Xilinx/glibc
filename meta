@@ -1,8 +1,9 @@
 Version: 1
-Previous: d9c9f06fc82cd16d6b734513c4f0d533b3fdf2cf
-Head: f159288e81a5a769e1274527d307f82bd918d8e5
+Previous: 76dc6db481a93b17fc264340a48aa76e2afe8f75
+Head: cc2ab132a3cc951371827c846aa4dfa264ba321f
 Applied:
   manual-document-mt-safety.patch: f159288e81a5a769e1274527d307f82bd918d8e5
+  refresh-temp: cc2ab132a3cc951371827c846aa4dfa264ba321f
 Unapplied:
   powerpc-nofpu-sim-note-nothread.patch: 6f9592e7a7e327deae62aae99a5238cfba2d572d
   unused-scalb-is-scalbn.patch: 04381689562081fc1e2328e5807e0dc537c1c5fc
