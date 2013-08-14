@@ -1,0 +1,34 @@
+Bottom: 493d959bda4db41836ea91b2b9685b47ab733575
+Top:    1f38562405d3b5dadb8c27bd94ec1cba5a2481da
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 15:29:41 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/ctype.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/ctype.texi b/manual/ctype.texi
+index 3d13571..f05d509 100644
+--- a/manual/ctype.texi
++++ b/manual/ctype.texi
+@@ -691,6 +691,7 @@ This type is defined in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wctrans_t wctrans (const char *@var{property})
++@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
+ The @code{wctrans} function has to be used to find out whether a named
+ mapping is defined in the current locale selected for the
+ @code{LC_CTYPE} category.  If the returned value is non-zero, you can use
+@@ -713,6 +714,7 @@ These functions are declared in @file{wctype.h}.
+ @comment wctype.h
+ @comment ISO
+ @deftypefun wint_t towctrans (wint_t @var{wc}, wctrans_t @var{desc})
++@safety{@mtsafe{glocale}@assafe{glocale}@acsafe{}}
+ @code{towctrans} maps the input character @var{wc}
+ according to the rules of the mapping for which @var{desc} is a
+ descriptor, and returns the value it finds.  @var{desc} must be
