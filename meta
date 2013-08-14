@@ -1,5 +1,5 @@
 Version: 1
-Previous: df394563a1a1bdefbb23875c4edfd069bebfc906
+Previous: dfd49e9a54444aeb91fb80326a2b52b1b2b4fe5f
 Head: 290ed306adba817ec4cb4f5207e63269e7990930
 Applied:
   manual-document-mt-safety.patch: b636b87be9756886bb0f9f1396c31b42d3f83c23
@@ -15,7 +15,7 @@ Applied:
   manual-document-mt-safety-errno.patch: 4c83ae2974e8153950355eca983b33e13bad7490
   manual-document-mt-safety-filesys.patch: 75c783a7f653a4396cb2f3a1314fac5bda1b5a8f
   manual-document-mt-safety-getopt.patch: 178c538fec626552e7ec57072a93b3715623e6ac
-  wip-manual-document-mt-safety-libdl.patch: 290ed306adba817ec4cb4f5207e63269e7990930
+  manual-document-mt-safety-libdl.patch: 290ed306adba817ec4cb4f5207e63269e7990930
 Unapplied:
   manual-document-mt-safety-job.patch: 07add391d6215283f7338e451060a144bd241bd9
   manual-document-mt-safety-lang.patch: 722fae4ea63db2a00f51c08a14d723ad87fd97d9
