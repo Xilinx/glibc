@@ -1,5 +1,5 @@
 Version: 1
-Previous: 59ed620f06b93f72d4bfeeffad6efccee52fb9f5
+Previous: 7a837af0e05b2583166686c9c4318de041c45d60
 Head: 965b78d1907aee9c2883d16ed9978379e22eccce
 Applied:
   manual-document-mt-safety.patch: 351fb371fa127df8fa5e27b38a330e4258b35180
@@ -19,7 +19,7 @@ Applied:
   manual-document-mt-safety-lang.patch: a7fd5e42f1a4a4cb65dadb2a7ba4ef28bb8bb3fd
   manual-document-mt-safety-libdl.patch: ca4e6ed5fbcca95d7f29a49c4ed65651acda0efe
   manual-document-mt-safety-llio.patch: 59483ceaa7daf7600c59559794b428683ea152ba
-  manual-document-mt-safety-locale.patch: 965b78d1907aee9c2883d16ed9978379e22eccce
+  wip-manual-document-mt-safety-locale.patch: 965b78d1907aee9c2883d16ed9978379e22eccce
 Unapplied:
   manual-document-mt-safety-stdio.patch: ce7a82428b383c27385283464762599a0000cba2
   manual-document-mt-safety-math.patch: 0082110725464cff983520a32eac4c49ff25339e
