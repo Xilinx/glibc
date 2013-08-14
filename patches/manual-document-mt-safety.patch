@@ -1,5 +1,5 @@
 Bottom: fde38f49e9ff8e251fc3a4c9a8d5f194ba6decbf
-Top:    c59759fbdfb422ada848ebdd3845677059986449
+Top:    465695c41ceed4d41aaebf0e135b8f1123912988
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:29:39 -0300
 
@@ -15,7 +15,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/intro.texi b/manual/intro.texi
-index deaf089..e47832c 100644
+index deaf089..07f27c9 100644
 --- a/manual/intro.texi
 +++ b/manual/intro.texi
 @@ -172,6 +172,411 @@ pattern matching facilities (@pxref{Pattern Matching}).
@@ -32,12 +32,12 @@ index deaf089..e47832c 100644
 +
 +@itemize @bullet
 +
-+@item 
++@item
 +@cindex MT-Safe
 +MT-Safe functions are safe to call in the presence of other threads.  MT
 +stands for Multi Thread.
 +
-+@item 
++@item
 +@cindex AS-Safe
 +AS-Safe functions are safe to call from asynchronous signal handlers.
 +AS stands for Asynchronous Signal.
@@ -47,7 +47,7 @@ index deaf089..e47832c 100644
 +AC-Safe functions are safe to call when asynchronous cancellation is
 +enabled.  AC stands for Asynchronous Cancellation.
 +
-+@item 
++@item
 +@cindex MT-Unsafe
 +@cindex AS-Unsafe
 +@cindex AC-Unsafe
@@ -213,7 +213,7 @@ index deaf089..e47832c 100644
 +
 +Functions annotated with @code{staticbuf} use internal static buffers or
 +variables in ways that may cause concurrent calls to interfere
-+destructively.  
++destructively.
 +
 +These functions are all MT-Unsafe and AC-Unsafe.  However, many of them
 +offer reentrant variants for MT-Safe and, in some cases, AC-Safe use.
@@ -239,7 +239,7 @@ index deaf089..e47832c 100644
 +additional code modules.  This involves opening files, mapping them into
 +memory, allocating additional memory, resolving symbols, applying
 +relocations and more, all of this while holding the dynamic loader
-+lock.  
++lock.
 +
 +The non-recursive lock itself is enough for the function to be AS- and
 +AC-Unsafe, but many other issues may arise.
