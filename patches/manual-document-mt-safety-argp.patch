@@ -7,7 +7,7 @@ Thread safety documentation.
 
 for ChangeLog
 
-	* manual/???.texi: Document thread safety properties.
+	* manual/argp.texi: Document thread safety properties.
 
 
 ---
