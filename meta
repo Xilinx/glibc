@@ -1,6 +1,6 @@
 Version: 1
-Previous: 92ecb9cc92814d23ccb743dab61d49f352050d65
-Head: b1da9d49b81e23d658de4369181599c33e3acd9e
+Previous: 798b190d23f3f3a4ad79d3ad58033f247cfce24a
+Head: fbb71ce3cced40f87c25964011852d114f327c36
 Applied:
   manual-document-mt-safety.patch: f159288e81a5a769e1274527d307f82bd918d8e5
   powerpc-nofpu-sim-note-nothread.patch: 6f9592e7a7e327deae62aae99a5238cfba2d572d
