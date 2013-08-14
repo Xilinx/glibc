@@ -1,0 +1,22 @@
+Bottom: b0125a9bbb94b5659c715bf142ffbfd4f81ce170
+Top:    3b3317dffdd8fb0b673f39fa8b5d3c6443f8fc0b
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:35:47 -0300
+
+Refresh of manual-document-mt-safety-argp.patch
+
+---
+
+diff --git a/manual/argp.texi b/manual/argp.texi
+index 5322f91..22e7b9e 100644
+--- a/manual/argp.texi
++++ b/manual/argp.texi
+@@ -1108,7 +1108,7 @@ program options, argp offers the @code{argp_help} interface.
+ @comment GNU
+ @deftypefun void argp_help (const struct argp *@var{argp}, FILE *@var{stream}, unsigned @var{flags}, char *@var{name})
+ @safety{@mtunsafe{staticbuf, envromt, glocale}@asunsafe{asmalloc, asi18n, asynconsist}@acunsafe{memleak, incansist, lockleak}}
+-@c Just calls _help.  
++@c Just calls _help.
+ This outputs a help message for the argp parser @var{argp} to
+ @var{stream}.  The type of messages printed will be determined by
+ @var{flags}.
