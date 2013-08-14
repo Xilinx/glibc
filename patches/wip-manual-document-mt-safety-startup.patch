@@ -1,0 +1,28 @@
+Bottom: 8ae75524ca0a1176e4323c74b73cb0722e710364
+Top:    195f80ed20d8cfa61af3b5629d405de8be7b40fc
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:12:28 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/startup.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/startup.texi b/manual/startup.texi
+index a277714..7bbaf13 100644
+--- a/manual/startup.texi
++++ b/manual/startup.texi
+@@ -358,8 +358,8 @@ value is nonzero and @code{errno} is set to indicate the error.
+ The difference to the @code{setenv} function is that the exact string
+ given as the parameter @var{string} is put into the environment.  If the
+ user should change the string after the @code{putenv} call this will
+-reflect in automatically in the environment.  This also requires that
+-@var{string} is no automatic variable which scope is left before the
++reflect automatically in the environment.  This also requires that
++@var{string} not be an automatic variable whose scope is left before the
+ variable is removed from the environment.  The same applies of course to
+ dynamically allocated variables which are freed later.
