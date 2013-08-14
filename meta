@@ -1,6 +1,6 @@
 Version: 1
-Previous: b9765d52b038b1fdbfcfc48eee9147c715bac3ba
-Head: f543b69a645a445a7b7484e4e4729387deb00d58
+Previous: a93eed6f48d61323fe92247fc86da838ad4172f9
+Head: 3a6ba503d2949acb7fd0d23fbdaaf056bb0a819f
 Applied:
   manual-document-mt-safety.patch: 2bd5708daeac2ff089c6eebd6944f4ced306e4d8
   powerpc-nofpu-sim-note-nothread.patch: 30710868f55ce7574b12ed319bf2a1c3dc0a3744
@@ -15,8 +15,8 @@ Applied:
   manual-document-mt-safety-errno.patch: c809e22eb30fc43d15192d36963a8e19f7d65b0c
   manual-document-mt-safety-filesys.patch: 88f6858a8c928050ef2686d392ea593e05cfc34a
   manual-document-mt-safety-getopt.patch: f543b69a645a445a7b7484e4e4729387deb00d58
+  manual-document-mt-safety-libdl.patch: 3a6ba503d2949acb7fd0d23fbdaaf056bb0a819f
 Unapplied:
-  manual-document-mt-safety-libdl.patch: 290ed306adba817ec4cb4f5207e63269e7990930
   manual-document-mt-safety-job.patch: 57c129a7691ad66436b380272a24d356111b19bf
   manual-document-mt-safety-lang.patch: e1bee872da33bdb7b911d4cd111906a390b9ea8a
   manual-document-mt-safety-llio.patch: 51babe049dfe3862b311b4ebbfd87a8eb915528c
