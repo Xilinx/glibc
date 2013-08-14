@@ -182,12 +182,12 @@ the meaning of the standard definitions, follow:
 
 @itemize @bullet
 
-@item 
+@item
 @cindex MT-Safe
 MT-Safe functions are safe to call in the presence of other threads.  MT
 stands for Multi Thread.
 
-@item 
+@item
 @cindex AS-Safe
 AS-Safe functions are safe to call from asynchronous signal handlers.
 AS stands for Asynchronous Signal.
@@ -197,7 +197,7 @@ AS stands for Asynchronous Signal.
 AC-Safe functions are safe to call when asynchronous cancellation is
 enabled.  AC stands for Asynchronous Cancellation.
 
-@item 
+@item
 @cindex MT-Unsafe
 @cindex AS-Unsafe
 @cindex AC-Unsafe
@@ -363,7 +363,7 @@ as follows:
 
 Functions annotated with @code{staticbuf} use internal static buffers or
 variables in ways that may cause concurrent calls to interfere
-destructively.  
+destructively.
 
 These functions are all MT-Unsafe and AC-Unsafe.  However, many of them
 offer reentrant variants for MT-Safe and, in some cases, AC-Safe use.
@@ -389,7 +389,7 @@ Functions marked with @code{shlimb} use the dynamic loader to bring in
 additional code modules.  This involves opening files, mapping them into
 memory, allocating additional memory, resolving symbols, applying
 relocations and more, all of this while holding the dynamic loader
-lock.  
+lock.
 
 The non-recursive lock itself is enough for the function to be AS- and
 AC-Unsafe, but many other issues may arise.
