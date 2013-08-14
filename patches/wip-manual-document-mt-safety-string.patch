@@ -1,0 +1,36 @@
+Bottom: 3db5dacd3a8c55bbd9c4924b1ac2ec9a35d2d732
+Top:    12b763b61e3c2dff9a990b8c3271a64b6febfd63
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:13:24 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/string.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/string.texi b/manual/string.texi
+index 246be84..a75d298 100644
+--- a/manual/string.texi
++++ b/manual/string.texi
+@@ -1247,6 +1247,8 @@ strncmp ("hello, world", "hello, stupid world!!!", 5)
+ @comment string.h
+ @comment GNU
+ @deftypefun int strverscmp (const char *@var{s1}, const char *@var{s2})
++@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
++@c Calls isdigit multiple times, locale may change in between.
+ The @code{strverscmp} function compares the string @var{s1} against
+ @var{s2}, considering them as holding indices/version numbers.  The
+ return value follows the same conventions as found in the
+@@ -1343,6 +1345,8 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
+ @comment string.h
+ @comment ISO
+ @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
++@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
++@c Adjust alphasort one safety info is determined.
+ The @code{strcoll} function is similar to @code{strcmp} but uses the
+ collating sequence of the current locale for collation (the
+ @code{LC_COLLATE} locale).
