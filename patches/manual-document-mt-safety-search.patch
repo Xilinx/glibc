@@ -1,0 +1,70 @@
+Bottom: e27f818dd7517eeba6c572017e1d77241113d456
+Top:    8ae75524ca0a1176e4323c74b73cb0722e710364
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-13 22:11:55 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/search.texi: Document thread safety properties.
+
+
+---
+
+diff --git a/manual/search.texi b/manual/search.texi
+index efd3604..6910edc 100644
+--- a/manual/search.texi
++++ b/manual/search.texi
+@@ -146,6 +146,7 @@ To sort an array using an arbitrary comparison function, use the
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun void qsort (void *@var{array}, size_t @var{count}, size_t @var{size}, comparison_fn_t @var{compare})
++@safety{@mtsafe{xguargs}@assafe{asmalloc}@acsafe{memleak}}
+ The @var{qsort} function sorts the array @var{array}.  The array contains
+ @var{count} elements, each of which is of size @var{size}.
+ 
+@@ -436,6 +437,11 @@ in the header file @file{search.h}.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tsearch (const void *@var{key}, void **@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtunsafe{xguargs}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, memleak}}
++@c The tree is not modified in a thread-safe manner, and rotations may
++@c leave the tree in an inconsistent state that could be observed in an
++@c asynchronous signal handler or after asynchronous cancellation of the
++@c thread performing the rotation or the insertion.
+ The @code{tsearch} function searches in the tree pointed to by
+ @code{*@var{rootp}} for an element matching @var{key}.  The function
+ pointed to by @var{compar} is used to determine whether two elements
+@@ -465,6 +471,7 @@ of space @code{NULL} is returned.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tfind (const void *@var{key}, void *const *@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtsafe{xguargs}@assafe{}@acsafe{}}
+ The @code{tfind} function is similar to the @code{tsearch} function.  It
+ locates an element matching the one pointed to by @var{key} and returns
+ a pointer to this element.  But if no matching element is available no
+@@ -479,6 +486,7 @@ elements.
+ @comment search.h
+ @comment SVID
+ @deftypefun {void *} tdelete (const void *@var{key}, void **@var{rootp}, comparison_fn_t @var{compar})
++@safety{@mtunsafe{xguargs}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, memleak}}
+ To remove a specific element matching @var{key} from the tree
+ @code{tdelete} can be used.  It locates the matching element using the
+ same method as @code{tfind}.  The corresponding element is then removed
+@@ -492,6 +500,7 @@ is deleted @code{tdelete} returns some unspecified value not equal to
+ @comment search.h
+ @comment GNU
+ @deftypefun void tdestroy (void *@var{vroot}, __free_fn_t @var{freefct})
++@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
+ If the complete search tree has to be removed one can use
+ @code{tdestroy}.  It frees all resources allocated by the @code{tsearch}
+ function to generate the tree pointed to by @var{vroot}.
+@@ -546,6 +555,7 @@ The current node is a leaf.
+ @comment search.h
+ @comment SVID
+ @deftypefun void twalk (const void *@var{root}, __action_fn_t @var{action})
++@safety{@mtsafe{xguards}@assafe{}@acsafe{}}
+ For each node in the tree with a node pointed to by @var{root}, the
+ @code{twalk} function calls the function provided by the parameter
+ @var{action}.  For leaf nodes the function is called exactly once with
