@@ -1,5 +1,5 @@
 Bottom: 530229eff374ce006c4c7f955d1d897e0a4056c6
-Top:    399ffe27a17cf7d3358a5588aa455450336867d1
+Top:    8b03cdaff12cf5536b0a91677ddb1a0ac1f9368e
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:29:40 -0300
 
@@ -13,7 +13,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/locale.texi b/manual/locale.texi
-index 2f10fcd..da50d18 100644
+index 2f10fcd..60e08d8 100644
 --- a/manual/locale.texi
 +++ b/manual/locale.texi
 @@ -224,6 +224,16 @@ The symbols in this section are defined in the header file @file{locale.h}.
@@ -29,7 +29,7 @@ index 2f10fcd..da50d18 100644
 +@c and free, and _nl_find_locale, which amount to all documented safety
 +@c issues.  It also calls new_composite_name, setdata, and setname,
 +@c without any additional issues.  _nl_find_locale calls getenv, ...
-+This function returns a pointer read 
++@c This function returns a pointer read...
  The function @code{setlocale} sets the current locale for category
  @var{category} to @var{locale}.  A list of all the locales the system
  provides can be created by running
