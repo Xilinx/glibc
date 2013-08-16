@@ -99,6 +99,7 @@ in a convenient way.
 @c then restore the terminal mode.  It has a cleanup to close the stream
 @c in case of (synchronous) cancellation, but not to restore the
 @c terminal mode.
+
 @code{getpass} outputs @var{prompt}, then reads a string in from the
 terminal without echoing it.  It tries to connect to the real terminal,
 @file{/dev/tty}, if possible, to encourage users not to put plaintext
