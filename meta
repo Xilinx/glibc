@@ -1,33 +1,33 @@
 Version: 1
-Previous: 31ea81ea2424a6791bb4b12781ca4f80e78f537c
-Head: d2ce932c7ce9c31c4b085c61c43ac8e637713dcd
+Previous: 42b5c5b93dd5e0ab073b0976b5571e6df7852de6
+Head: f24766f16a7fc05837ee864671592bdd230d4631
 Applied:
   manual-document-mt-safety.patch: d2ce932c7ce9c31c4b085c61c43ac8e637713dcd
+  powerpc-nofpu-sim-note-nothread.patch: e34ecb782685d8b4d0d6a9badd3c4860d373179a
+  unused-scalb-is-scalbn.patch: 87cf27bcd012cd8ab3e3040aacaa99b93c037595
+  manual-document-mt-safety-argp.patch: ac784bfbcf7a152d47a16a6cf8627a4bf034b785
+  manual-document-mt-safety-arith.patch: f44135c2502e59169f999d4373ae92b799a3243f
+  manual-document-mt-safety-charset.patch: c4b388232d899078a1b6d6a59f8c81d91b48f0a1
+  manual-document-mt-safety-conf.patch: b5d8ce5c1458b5e838a2863d4ba4baa86c823b28
+  manual-document-mt-safety-crypt.patch: 72ef57b840cd42f1110c069ef69c5000ef9c88b7
+  manual-document-mt-safety-ctype.patch: f60b1d81ad9cb9c6c27a099d76bdc6abcaf790a2
+  manual-document-mt-safety-debug.patch: 68a39285b6322ffa0bc420d57ec68b14f732c4e3
+  manual-document-mt-safety-errno.patch: da9e9ee60c99d6dc0316d8546541e6dd9c0c9b99
+  manual-document-mt-safety-filesys.patch: d0691d184b91c2e2c5698ea76d17dd9f3a122f8f
+  manual-document-mt-safety-getopt.patch: 4a5d90dda6e00313cc5ba8ce421efaa9cb59081b
+  manual-document-mt-safety-libdl.patch: 307bd3daee46ac59346ae246cca438c773592157
+  manual-document-mt-safety-job.patch: 056831666a434aed7f142ee31ad9ca0d6ba2d3bc
+  manual-document-mt-safety-lang.patch: 63d1c42e6da89b0ad4d95cf9389cd10979efbe86
+  manual-document-mt-safety-llio.patch: 949a5e85be3e463201abb3eca47b28d136e6a748
+  manual-document-mt-safety-stdio.patch: fd97e2760a742412d0efb962445d45e5f6c31d25
+  wip-manual-document-mt-safety-locale.patch: 62c5d0311f8340f9adfd4020aaf20fc59b3bf99d
+  wip-manual-document-mt-safety-math.patch: 3c144b261343ed149aabebaf1644836f8cc743e5
+  wip-manual-document-mt-safety-startup.patch: 6300794e9ab2baa967f9a1778dbf68ab1dd6bded
+  wip-manual-document-mt-safety-search.patch: 41d5ae9e5dfbfe26fd2cd56fa6ca85642a89cccc
+  wip-manual-document-mt-safety-resource.patch: 1daf7c7b5916ddc5c68ab1eeb07c507dd20a6c24
+  wip-manual-document-mt-safety-string.patch: 733b88651a82568a50710faeb8984d6b4c9ed92e
+  wip-manual-document-mt-safety-terminal.patch: 88d6db1efac30fda4ced56f1f651174b35cf5214
+  wip-manual-document-mt-safety-threads.patch: a876db182b7283130d6189eb55ea401d35053850
+  wip-manual-document-mt-safety-time.patch: f24766f16a7fc05837ee864671592bdd230d4631
 Unapplied:
-  powerpc-nofpu-sim-note-nothread.patch: 30710868f55ce7574b12ed319bf2a1c3dc0a3744
-  unused-scalb-is-scalbn.patch: 3be99ad69c588de34f357cdfc3e293046eb30b58
-  manual-document-mt-safety-argp.patch: 3d307972daeb49e5b5bed74887140e9d5bcb58de
-  manual-document-mt-safety-arith.patch: 838c715e0d3f4c3674975edd26315e143cca1455
-  manual-document-mt-safety-charset.patch: 9e121d9ec8c4633d64cc9744360fbeca9f156bf0
-  manual-document-mt-safety-conf.patch: b2f06012824f907fd1cb35844c2e7a054ddf81f9
-  manual-document-mt-safety-crypt.patch: 93bce6450adbd4597a1a0d96bca4162b367a61c4
-  manual-document-mt-safety-ctype.patch: c67c0318158e4a31db772c98b8828e54db56693e
-  manual-document-mt-safety-debug.patch: 61349e0a2ebc1b1cb265b25c74ae39b2d5b85636
-  manual-document-mt-safety-errno.patch: c809e22eb30fc43d15192d36963a8e19f7d65b0c
-  manual-document-mt-safety-filesys.patch: 88f6858a8c928050ef2686d392ea593e05cfc34a
-  manual-document-mt-safety-getopt.patch: f543b69a645a445a7b7484e4e4729387deb00d58
-  manual-document-mt-safety-libdl.patch: 3a6ba503d2949acb7fd0d23fbdaaf056bb0a819f
-  manual-document-mt-safety-job.patch: d2b8bf860b81e8e95130a2b397bd63d3ac29f6f5
-  manual-document-mt-safety-lang.patch: b791ca7244516eba35200090ff65146015bbcf80
-  manual-document-mt-safety-llio.patch: accb81f4e2f55ac6c8c0a9d8762668829bca23f8
-  manual-document-mt-safety-stdio.patch: 622b7f4fdcb3b1ade62c26693365f35a3a7a7031
-  wip-manual-document-mt-safety-locale.patch: a7e2ad1ab8005398467e21a1903513ad72c3bb99
-  wip-manual-document-mt-safety-math.patch: 56b87287256294aac20d87cc8fb9f6b7febbe014
-  wip-manual-document-mt-safety-startup.patch: 062ff84a7871423535c7c5f066d10e4090c7538b
-  wip-manual-document-mt-safety-search.patch: b62126da8228002a5ceb39f3a8f8fc1335f71b52
-  wip-manual-document-mt-safety-resource.patch: bffba61b6f949ae966b8395e2285450fd747adae
-  wip-manual-document-mt-safety-string.patch: 618424dc72936ee238334d665063f1dd84a12715
-  wip-manual-document-mt-safety-terminal.patch: 7bdeaf7b03e2c3668857e0bd1506aff550d8d5a3
-  wip-manual-document-mt-safety-threads.patch: 03deacb6111e143a3cad124bf1aee0d111f3bb81
-  wip-manual-document-mt-safety-time.patch: a4db052d330a9c934252bc3a1489c922ea797683
 Hidden:
