@@ -1,10 +1,10 @@
 Version: 1
-Previous: 872dfa5c522f125ea0ae7678c4cd9af17b527c2a
+Previous: 479c336b75a91c9742290b344b093951c4afc234
 Head: a25c51911f256292d5cc15cc5dbb8f7f2726c9e6
 Applied:
   powerpc-nofpu-sim-note-nothread.patch: 06e4960536888589dff34cbc68b16091f303bc5e
   unused-scalb-is-scalbn.patch: ca2910ce3d85f4ab9b8c4e8d31bc243eab5f1c0f
-  remove-ieee754-support.patch: a25c51911f256292d5cc15cc5dbb8f7f2726c9e6
+  remove-sysdeps-ieee754-support.patch: a25c51911f256292d5cc15cc5dbb8f7f2726c9e6
 Unapplied:
   manual-document-mt-safety.patch: d2ce932c7ce9c31c4b085c61c43ac8e637713dcd
   manual-document-mt-safety-argp.patch: ac784bfbcf7a152d47a16a6cf8627a4bf034b785
