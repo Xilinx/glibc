@@ -1,5 +1,5 @@
 Bottom: fc738e25133a6fc7d7d322e4aaa73f98f45ee411
-Top:    70450337f67d11a45e01f8b02431ebb6673feb3e
+Top:    2ababec10bdc79e391c0dcfade6046586526bff9
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 22:09:32 -0300
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/llio.texi b/manual/llio.texi
-index b129cf4..66370c4 100644
+index b129cf4..c350585 100644
 --- a/manual/llio.texi
 +++ b/manual/llio.texi
 @@ -78,6 +78,7 @@ declared in @file{unistd.h}.
@@ -156,20 +156,19 @@ index b129cf4..66370c4 100644
  The @code{fileno_unlocked} function is equivalent to the @code{fileno}
  function except that it does not implicitly lock the stream if the state
  is @code{FSETLOCKING_INTERNAL}.
-@@ -1071,7 +1099,11 @@ Contains the length of the buffer.
+@@ -1071,6 +1099,11 @@ Contains the length of the buffer.
  @comment sys/uio.h
  @comment BSD
  @deftypefun ssize_t readv (int @var{filedes}, const struct iovec *@var{vector}, int @var{count})
--
 +@safety{@mtsafe{}@assafe{asmalloc}@acsafe{memleak}}
 +@c The fallback sysdeps/posix implementation, used even on GNU/Linux
 +@c with old kernels that lack a full readv/writev implementation, may
 +@c malloc the buffer into which data is read, if the total read size is
 +@c too large for alloca.
+ 
  The @code{readv} function reads data from @var{filedes} and scatters it
  into the buffers described in @var{vector}, which is taken to be
- @var{count} structures long.  As each buffer is filled, data is sent to the
-@@ -1089,6 +1121,11 @@ errors are the same as in @code{read}.
+@@ -1089,6 +1122,11 @@ errors are the same as in @code{read}.
  @comment sys/uio.h
  @comment BSD
  @deftypefun ssize_t writev (int @var{filedes}, const struct iovec *@var{vector}, int @var{count})
@@ -181,7 +180,7 @@ index b129cf4..66370c4 100644
  
  The @code{writev} function gathers data from the buffers described in
  @var{vector}, which is taken to be @var{count} structures long, and writes
-@@ -1149,6 +1186,7 @@ These functions are declared in @file{sys/mman.h}.
+@@ -1149,6 +1187,7 @@ These functions are declared in @file{sys/mman.h}.
  @comment sys/mman.h
  @comment POSIX
  @deftypefun {void *} mmap (void *@var{address}, size_t @var{length}, int @var{protect}, int @var{flags}, int @var{filedes}, off_t @var{offset})
@@ -189,7 +188,7 @@ index b129cf4..66370c4 100644
  
  The @code{mmap} function creates a new mapping, connected to bytes
  (@var{offset}) to (@var{offset} + @var{length} - 1) in the file open on
-@@ -1268,6 +1306,9 @@ The file is on a filesystem that doesn't support mapping.
+@@ -1268,6 +1307,9 @@ The file is on a filesystem that doesn't support mapping.
  @comment sys/mman.h
  @comment LFS
  @deftypefun {void *} mmap64 (void *@var{address}, size_t @var{length}, int @var{protect}, int @var{flags}, int @var{filedes}, off64_t @var{offset})
@@ -199,7 +198,7 @@ index b129cf4..66370c4 100644
  The @code{mmap64} function is equivalent to the @code{mmap} function but
  the @var{offset} parameter is of type @code{off64_t}.  On 32-bit systems
  this allows the file associated with the @var{filedes} descriptor to be
-@@ -1284,6 +1325,7 @@ replaces the old API.
+@@ -1284,6 +1326,7 @@ replaces the old API.
  @comment sys/mman.h
  @comment POSIX
  @deftypefun int munmap (void *@var{addr}, size_t @var{length})
@@ -207,7 +206,7 @@ index b129cf4..66370c4 100644
  
  @code{munmap} removes any memory maps from (@var{addr}) to (@var{addr} +
  @var{length}).  @var{length} should be the length of the mapping.
-@@ -1310,6 +1352,7 @@ aligned.
+@@ -1310,6 +1353,7 @@ aligned.
  @comment sys/mman.h
  @comment POSIX
  @deftypefun int msync (void *@var{address}, size_t @var{length}, int @var{flags})
@@ -215,7 +214,7 @@ index b129cf4..66370c4 100644
  
  When using shared mappings, the kernel can write the file at any time
  before the mapping is removed.  To be certain data has actually been
-@@ -1357,6 +1400,7 @@ There is no existing mapping in at least part of the given region.
+@@ -1357,6 +1401,7 @@ There is no existing mapping in at least part of the given region.
  @comment sys/mman.h
  @comment GNU
  @deftypefun {void *} mremap (void *@var{address}, size_t @var{length}, size_t @var{new_length}, int @var{flag})
@@ -223,7 +222,7 @@ index b129cf4..66370c4 100644
  
  This function can be used to change the size of an existing memory
  area. @var{address} and @var{length} must cover a region entirely mapped
-@@ -1405,6 +1449,7 @@ Coding Standards}.
+@@ -1405,6 +1450,7 @@ Coding Standards}.
  @comment sys/mman.h
  @comment POSIX
  @deftypefun int madvise (void *@var{addr}, size_t @var{length}, int @var{advice})
@@ -231,7 +230,7 @@ index b129cf4..66370c4 100644
  
  This function can be used to provide the system with @var{advice} about
  the intended usage patterns of the memory region starting at @var{addr}
-@@ -1531,6 +1576,7 @@ that descriptor into an @code{fd_set}.
+@@ -1531,6 +1577,7 @@ that descriptor into an @code{fd_set}.
  @comment sys/types.h
  @comment BSD
  @deftypefn Macro void FD_ZERO (fd_set *@var{set})
@@ -239,7 +238,7 @@ index b129cf4..66370c4 100644
  This macro initializes the file descriptor set @var{set} to be the
  empty set.
  @end deftypefn
-@@ -1538,6 +1584,9 @@ empty set.
+@@ -1538,6 +1585,9 @@ empty set.
  @comment sys/types.h
  @comment BSD
  @deftypefn Macro void FD_SET (int @var{filedes}, fd_set *@var{set})
@@ -249,7 +248,7 @@ index b129cf4..66370c4 100644
  This macro adds @var{filedes} to the file descriptor set @var{set}.
  
  The @var{filedes} parameter must not have side effects since it is
-@@ -1547,6 +1596,9 @@ evaluated more than once.
+@@ -1547,6 +1597,9 @@ evaluated more than once.
  @comment sys/types.h
  @comment BSD
  @deftypefn Macro void FD_CLR (int @var{filedes}, fd_set *@var{set})
@@ -259,7 +258,7 @@ index b129cf4..66370c4 100644
  This macro removes @var{filedes} from the file descriptor set @var{set}.
  
  The @var{filedes} parameter must not have side effects since it is
-@@ -1556,6 +1608,7 @@ evaluated more than once.
+@@ -1556,6 +1609,7 @@ evaluated more than once.
  @comment sys/types.h
  @comment BSD
  @deftypefn Macro int FD_ISSET (int @var{filedes}, const fd_set *@var{set})
@@ -267,7 +266,7 @@ index b129cf4..66370c4 100644
  This macro returns a nonzero value (true) if @var{filedes} is a member
  of the file descriptor set @var{set}, and zero (false) otherwise.
  
-@@ -1568,6 +1621,10 @@ Next, here is the description of the @code{select} function itself.
+@@ -1568,6 +1622,10 @@ Next, here is the description of the @code{select} function itself.
  @comment sys/types.h
  @comment BSD
  @deftypefun int select (int @var{nfds}, fd_set *@var{read-fds}, fd_set *@var{write-fds}, fd_set *@var{except-fds}, struct timeval *@var{timeout})
@@ -278,7 +277,7 @@ index b129cf4..66370c4 100644
  The @code{select} function blocks the calling process until there is
  activity on any of the specified sets of file descriptors, or until the
  timeout period has expired.
-@@ -1670,6 +1727,7 @@ they return.
+@@ -1670,6 +1728,7 @@ they return.
  @comment unistd.h
  @comment X/Open
  @deftypefun void sync (void)
@@ -286,7 +285,7 @@ index b129cf4..66370c4 100644
  A call to this function will not return as long as there is data which
  has not been written to the device.  All dirty buffers in the kernel will
  be written and so an overall consistent system can be achieved (if no
-@@ -1685,6 +1743,7 @@ committed, rather than all data in the system.  For this, @code{sync} is overkil
+@@ -1685,6 +1744,7 @@ committed, rather than all data in the system.  For this, @code{sync} is overkil
  @comment unistd.h
  @comment POSIX
  @deftypefun int fsync (int @var{fildes})
@@ -294,7 +293,7 @@ index b129cf4..66370c4 100644
  The @code{fsync} function can be used to make sure all data associated with
  the open file @var{fildes} is written to the device associated with the
  descriptor.  The function call does not return unless all actions have
-@@ -1722,6 +1781,7 @@ recovering of the file in case of a problem.
+@@ -1722,6 +1782,7 @@ recovering of the file in case of a problem.
  @comment unistd.h
  @comment POSIX
  @deftypefun int fdatasync (int @var{fildes})
@@ -302,7 +301,7 @@ index b129cf4..66370c4 100644
  When a call to the @code{fdatasync} function returns, it is ensured
  that all of the file data is written to the device.  For all pending I/O
  operations, the parts guaranteeing data integrity finished.
-@@ -1923,6 +1983,158 @@ aiocb64}, since the LFS transparently replaces the old interface.
+@@ -1923,6 +1984,158 @@ aiocb64}, since the LFS transparently replaces the old interface.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_read (struct aiocb *@var{aiocbp})
@@ -461,7 +460,7 @@ index b129cf4..66370c4 100644
  This function initiates an asynchronous read operation.  It
  immediately returns after the operation was enqueued or when an
  error was encountered.
-@@ -1988,6 +2200,7 @@ replaces the normal implementation.
+@@ -1988,6 +2201,7 @@ replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_read64 (struct aiocb64 *@var{aiocbp})
@@ -469,7 +468,7 @@ index b129cf4..66370c4 100644
  This function is similar to the @code{aio_read} function.  The only
  difference is that on @w{32 bit} machines, the file descriptor should
  be opened in the large file mode.  Internally, @code{aio_read64} uses
-@@ -2006,6 +2219,7 @@ of functions with a very similar interface.
+@@ -2006,6 +2220,7 @@ of functions with a very similar interface.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_write (struct aiocb *@var{aiocbp})
@@ -477,7 +476,7 @@ index b129cf4..66370c4 100644
  This function initiates an asynchronous write operation.  The function
  call immediately returns after the operation was enqueued or if before
  this happens an error was encountered.
-@@ -2072,6 +2286,7 @@ replaces the normal implementation.
+@@ -2072,6 +2287,7 @@ replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_write64 (struct aiocb64 *@var{aiocbp})
@@ -485,7 +484,7 @@ index b129cf4..66370c4 100644
  This function is similar to the @code{aio_write} function.  The only
  difference is that on @w{32 bit} machines the file descriptor should
  be opened in the large file mode.  Internally @code{aio_write64} uses
-@@ -2093,6 +2308,12 @@ operations.  It is therefore similar to a combination of @code{readv} and
+@@ -2093,6 +2309,12 @@ operations.  It is therefore similar to a combination of @code{readv} and
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int lio_listio (int @var{mode}, struct aiocb *const @var{list}[], int @var{nent}, struct sigevent *@var{sig})
@@ -498,7 +497,7 @@ index b129cf4..66370c4 100644
  The @code{lio_listio} function can be used to enqueue an arbitrary
  number of read and write requests at one time.  The requests can all be
  meant for the same file, all for different files or every solution in
-@@ -2176,6 +2397,7 @@ transparently replaces the normal implementation.
+@@ -2176,6 +2398,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int lio_listio64 (int @var{mode}, struct aiocb64 *const @var{list}[], int @var{nent}, struct sigevent *@var{sig})
@@ -506,7 +505,7 @@ index b129cf4..66370c4 100644
  This function is similar to the @code{lio_listio} function.  The only
  difference is that on @w{32 bit} machines, the file descriptor should
  be opened in the large file mode.  Internally, @code{lio_listio64} uses
-@@ -2204,6 +2426,7 @@ The following two functions allow you to get this kind of information.
+@@ -2204,6 +2427,7 @@ The following two functions allow you to get this kind of information.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_error (const struct aiocb *@var{aiocbp})
@@ -514,7 +513,7 @@ index b129cf4..66370c4 100644
  This function determines the error state of the request described by the
  @code{struct aiocb} variable pointed to by @var{aiocbp}.  If the
  request has not yet terminated the value returned is always
-@@ -2225,6 +2448,7 @@ transparently replaces the normal implementation.
+@@ -2225,6 +2449,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_error64 (const struct aiocb64 *@var{aiocbp})
@@ -522,7 +521,7 @@ index b129cf4..66370c4 100644
  This function is similar to @code{aio_error} with the only difference
  that the argument is a reference to a variable of type @code{struct
  aiocb64}.
-@@ -2238,6 +2462,7 @@ machines.
+@@ -2238,6 +2463,7 @@ machines.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun ssize_t aio_return (struct aiocb *@var{aiocbp})
@@ -530,7 +529,7 @@ index b129cf4..66370c4 100644
  This function can be used to retrieve the return status of the operation
  carried out by the request described in the variable pointed to by
  @var{aiocbp}.  As long as the error status of this request as returned
-@@ -2261,6 +2486,7 @@ transparently replaces the normal implementation.
+@@ -2261,6 +2487,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun ssize_t aio_return64 (struct aiocb64 *@var{aiocbp})
@@ -538,7 +537,7 @@ index b129cf4..66370c4 100644
  This function is similar to @code{aio_return} with the only difference
  that the argument is a reference to a variable of type @code{struct
  aiocb64}.
-@@ -2289,6 +2515,9 @@ if the symbol @code{_POSIX_SYNCHRONIZED_IO} is defined in @file{unistd.h}.
+@@ -2289,6 +2516,9 @@ if the symbol @code{_POSIX_SYNCHRONIZED_IO} is defined in @file{unistd.h}.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_fsync (int @var{op}, struct aiocb *@var{aiocbp})
@@ -548,7 +547,7 @@ index b129cf4..66370c4 100644
  Calling this function forces all I/O operations operating queued at the
  time of the function call operating on the file descriptor
  @code{aiocbp->aio_fildes} into the synchronized I/O completion state
-@@ -2336,6 +2565,7 @@ transparently replaces the normal implementation.
+@@ -2336,6 +2566,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_fsync64 (int @var{op}, struct aiocb64 *@var{aiocbp})
@@ -556,7 +555,7 @@ index b129cf4..66370c4 100644
  This function is similar to @code{aio_fsync} with the only difference
  that the argument is a reference to a variable of type @code{struct
  aiocb64}.
-@@ -2362,6 +2592,9 @@ before the current client is served.  For situations like this
+@@ -2362,6 +2593,9 @@ before the current client is served.  For situations like this
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_suspend (const struct aiocb *const @var{list}[], int @var{nent}, const struct timespec *@var{timeout})
@@ -566,7 +565,7 @@ index b129cf4..66370c4 100644
  When calling this function, the calling thread is suspended until at
  least one of the requests pointed to by the @var{nent} elements of the
  array @var{list} has completed.  If any of the requests has already
-@@ -2400,6 +2633,7 @@ transparently replaces the normal implementation.
+@@ -2400,6 +2634,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_suspend64 (const struct aiocb64 *const @var{list}[], int @var{nent}, const struct timespec *@var{timeout})
@@ -574,7 +573,7 @@ index b129cf4..66370c4 100644
  This function is similar to @code{aio_suspend} with the only difference
  that the argument is a reference to a variable of type @code{struct
  aiocb64}.
-@@ -2427,6 +2661,16 @@ or not.  Therefore using this function is merely a hint.
+@@ -2427,6 +2662,16 @@ or not.  Therefore using this function is merely a hint.
  @comment aio.h
  @comment POSIX.1b
  @deftypefun int aio_cancel (int @var{fildes}, struct aiocb *@var{aiocbp})
@@ -591,7 +590,7 @@ index b129cf4..66370c4 100644
  The @code{aio_cancel} function can be used to cancel one or more
  outstanding requests.  If the @var{aiocbp} parameter is @code{NULL}, the
  function tries to cancel all of the outstanding requests which would process
-@@ -2474,6 +2718,7 @@ transparently replaces the normal implementation.
+@@ -2474,6 +2719,7 @@ transparently replaces the normal implementation.
  @comment aio.h
  @comment Unix98
  @deftypefun int aio_cancel64 (int @var{fildes}, struct aiocb64 *@var{aiocbp})
@@ -599,7 +598,7 @@ index b129cf4..66370c4 100644
  This function is similar to @code{aio_cancel} with the only difference
  that the argument is a reference to a variable of type @code{struct
  aiocb64}.
-@@ -2529,6 +2774,8 @@ Unused.
+@@ -2529,6 +2775,8 @@ Unused.
  @comment aio.h
  @comment GNU
  @deftypefun void aio_init (const struct aioinit *@var{init})
@@ -608,7 +607,7 @@ index b129cf4..66370c4 100644
  This function must be called before any other AIO function.  Calling it
  is completely voluntary, as it is only meant to help the AIO
  implementation perform better.
-@@ -2563,6 +2810,7 @@ function; see @ref{Opening and Closing Files}.
+@@ -2563,6 +2811,7 @@ function; see @ref{Opening and Closing Files}.
  @comment fcntl.h
  @comment POSIX.1
  @deftypefun int fcntl (int @var{filedes}, int @var{command}, @dots{})
@@ -616,7 +615,7 @@ index b129cf4..66370c4 100644
  The @code{fcntl} function performs the operation specified by
  @var{command} on the file descriptor @var{filedes}.  Some commands
  require additional arguments to be supplied.  These additional arguments
-@@ -2645,6 +2893,7 @@ while prototypes for @code{dup} and @code{dup2} are in the header file
+@@ -2645,6 +2894,7 @@ while prototypes for @code{dup} and @code{dup2} are in the header file
  @comment unistd.h
  @comment POSIX.1
  @deftypefun int dup (int @var{old})
@@ -624,7 +623,7 @@ index b129cf4..66370c4 100644
  This function copies descriptor @var{old} to the first available
  descriptor number (the first number not currently open).  It is
  equivalent to @code{fcntl (@var{old}, F_DUPFD, 0)}.
-@@ -2653,6 +2902,7 @@ equivalent to @code{fcntl (@var{old}, F_DUPFD, 0)}.
+@@ -2653,6 +2903,7 @@ equivalent to @code{fcntl (@var{old}, F_DUPFD, 0)}.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun int dup2 (int @var{old}, int @var{new})
@@ -632,7 +631,7 @@ index b129cf4..66370c4 100644
  This function copies the descriptor @var{old} to descriptor number
  @var{new}.
  
-@@ -3631,6 +3881,7 @@ different headers.
+@@ -3631,6 +3882,7 @@ different headers.
  @comment sys/ioctl.h
  @comment BSD
  @deftypefun int ioctl (int @var{filedes}, int @var{command}, @dots{})
@@ -640,7 +639,7 @@ index b129cf4..66370c4 100644
  
  The @code{ioctl} function performs the generic I/O operation
  @var{command} on @var{filedes}.
-@@ -3650,3 +3901,6 @@ unknown device.
+@@ -3650,3 +3902,6 @@ unknown device.
  Most IOCTLs are OS-specific and/or only used in special system utilities,
  and are thus beyond the scope of this document.  For an example of the use
  of an IOCTL, see @ref{Out-of-Band Data}.
