@@ -1,5 +1,5 @@
 Bottom: 6971015fc6a93453edf7bda609669d84f67a4037
-Top:    089fd8db0fb871c7ca2e99ac7f4311e9010432ca
+Top:    7995ce65c762cc782885f999be1655c53385b187
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 22:03:47 -0300
 
@@ -13,14 +13,13 @@ for ChangeLog
 ---
 
 diff --git a/manual/crypt.texi b/manual/crypt.texi
-index ef90590..5c9f6f7 100644
+index ef90590..a3c8fa5 100644
 --- a/manual/crypt.texi
 +++ b/manual/crypt.texi
-@@ -92,7 +92,13 @@ in a convenient way.
+@@ -92,6 +92,13 @@ in a convenient way.
  @comment unistd.h
  @comment BSD
  @deftypefun {char *} getpass (const char *@var{prompt})
--
 +@safety{@mtunsafe{tempterm}@asunsafe{asmalloc, selfdeadlock, asynconsist}@acunsafe{tempterm, lockleak, incansist}}
 +@c This function will attempt to create a stream for terminal I/O, but
 +@c will fallback to stdio/stderr.  It attempts to change the terminal
@@ -28,10 +27,10 @@ index ef90590..5c9f6f7 100644
 +@c then restore the terminal mode.  It has a cleanup to close the stream
 +@c in case of (synchronous) cancellation, but not to restore the
 +@c terminal mode.
+ 
  @code{getpass} outputs @var{prompt}, then reads a string in from the
  terminal without echoing it.  It tries to connect to the real terminal,
- @file{/dev/tty}, if possible, to encourage users not to put plaintext
-@@ -127,6 +133,13 @@ The substitute takes the same parameters as @code{getline}
+@@ -127,6 +134,13 @@ The substitute takes the same parameters as @code{getline}
  @comment crypt.h
  @comment BSD, SVID
  @deftypefun {char *} crypt (const char *@var{key}, const char *@var{salt})
@@ -45,7 +44,7 @@ index ef90590..5c9f6f7 100644
  
  The @code{crypt} function takes a password, @var{key}, as a string, and
  a @var{salt} character array which is described below, and returns a
-@@ -188,6 +201,9 @@ for a password and prints ``Access granted.'' if the user types
+@@ -188,6 +202,9 @@ for a password and prints ``Access granted.'' if the user types
  @comment crypt.h
  @comment GNU
  @deftypefun {char *} crypt_r (const char *@var{key}, const char *@var{salt}, {struct crypt_data *} @var{data})
@@ -55,7 +54,7 @@ index ef90590..5c9f6f7 100644
  
  The @code{crypt_r} function does the same thing as @code{crypt}, but
  takes an extra parameter which includes space for its result (among
-@@ -233,6 +249,11 @@ specifies the unused bits.
+@@ -233,6 +250,11 @@ specifies the unused bits.
  @comment crypt.h
  @comment BSD, SVID
  @deftypefun void setkey (const char *@var{key})
@@ -67,7 +66,7 @@ index ef90590..5c9f6f7 100644
  
  The @code{setkey} function sets an internal data structure to be an
  expanded form of @var{key}.  @var{key} is specified as an array of 64
-@@ -244,6 +265,8 @@ parity.
+@@ -244,6 +266,8 @@ parity.
  @comment crypt.h
  @comment BSD, SVID
  @deftypefun void encrypt (char *@var{block}, int @var{edflag})
@@ -76,7 +75,7 @@ index ef90590..5c9f6f7 100644
  
  The @code{encrypt} function encrypts @var{block} if
  @var{edflag} is 0, otherwise it decrypts @var{block}, using a key
-@@ -257,9 +280,11 @@ stored in a @code{char}, but there are no parity bits in @var{block}.
+@@ -257,9 +281,11 @@ stored in a @code{char}, but there are no parity bits in @var{block}.
  @comment crypt.h
  @comment GNU
  @deftypefun void setkey_r (const char *@var{key}, {struct crypt_data *} @var{data})
@@ -88,7 +87,7 @@ index ef90590..5c9f6f7 100644
  
  These are reentrant versions of @code{setkey} and @code{encrypt}.  The
  only difference is the extra parameter, which stores the expanded
-@@ -274,6 +299,7 @@ defined in @file{crypt.h}.
+@@ -274,6 +300,7 @@ defined in @file{crypt.h}.
  @comment rpc/des_crypt.h
  @comment SUNRPC
  @deftypefun int ecb_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode})
@@ -96,7 +95,7 @@ index ef90590..5c9f6f7 100644
  
  The function @code{ecb_crypt} encrypts or decrypts one or more blocks
  using DES.  Each block is encrypted independently.
-@@ -355,6 +381,7 @@ This macro returns 1 if @var{err} is a `success' result code from
+@@ -355,6 +382,7 @@ This macro returns 1 if @var{err} is a `success' result code from
  @comment rpc/des_crypt.h
  @comment SUNRPC
  @deftypefun int cbc_crypt (char *@var{key}, char *@var{blocks}, unsigned @var{len}, unsigned @var{mode}, char *@var{ivec})
@@ -104,7 +103,7 @@ index ef90590..5c9f6f7 100644
  
  The function @code{cbc_crypt} encrypts or decrypts one or more blocks
  using DES in Cipher Block Chaining mode.
-@@ -381,6 +408,7 @@ Otherwise, all the parameters are similar to those for @code{ecb_crypt}.
+@@ -381,6 +409,7 @@ Otherwise, all the parameters are similar to those for @code{ecb_crypt}.
  @comment rpc/des_crypt.h
  @comment SUNRPC
  @deftypefun void des_setparity (char *@var{key})
