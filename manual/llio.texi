@@ -1104,6 +1104,7 @@ Contains the length of the buffer.
 @c with old kernels that lack a full readv/writev implementation, may
 @c malloc the buffer into which data is read, if the total read size is
 @c too large for alloca.
+
 The @code{readv} function reads data from @var{filedes} and scatters it
 into the buffers described in @var{vector}, which is taken to be
 @var{count} structures long.  As each buffer is filled, data is sent to the
