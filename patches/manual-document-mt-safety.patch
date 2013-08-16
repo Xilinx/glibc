@@ -1,5 +1,5 @@
 Bottom: fde38f49e9ff8e251fc3a4c9a8d5f194ba6decbf
-Top:    465695c41ceed4d41aaebf0e135b8f1123912988
+Top:    ec44285035bdee25fdfdd25c2385cb08deeced27
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 15:29:39 -0300
 
@@ -15,10 +15,10 @@ for  ChangeLog
 ---
 
 diff --git a/manual/intro.texi b/manual/intro.texi
-index deaf089..07f27c9 100644
+index deaf089..d183e12 100644
 --- a/manual/intro.texi
 +++ b/manual/intro.texi
-@@ -172,6 +172,411 @@ pattern matching facilities (@pxref{Pattern Matching}).
+@@ -172,6 +172,412 @@ pattern matching facilities (@pxref{Pattern Matching}).
  @comment <wordexp.h> (not yet implemented)
  @comment confstr
  
@@ -158,9 +158,10 @@ index deaf089..07f27c9 100644
 +@cindex xguargs
 +
 +Functions marked with @code{xguargs} may use or modify objects passed as
-+arguments without any guards to ensure consistency.  To ensure MT- and
-+AS-Safe behavior, callers must ensure that the objects passed in are not
-+modified concurrently by other threads or signal handlers.
++arguments without any guards that could guarantee consistency.  To
++ensure MT- and AS-Safe behavior, callers must ensure that the objects
++passed in are not modified concurrently by other threads or signal
++handlers.
 +
 +
 +@item @code{tempchwd}
@@ -422,7 +423,7 @@ index deaf089..07f27c9 100644
 +vice-versa.
 +
 +For the time being, the absence of this remark does not imply the safety
-+propertes we documentated are identical to those mandated by POSIX for
++properties we documented are identical to those mandated by POSIX for
 +the corresponding functions.
 +
 +@end itemize
