@@ -1,5 +1,5 @@
 Bottom: 6e873142fc9dc8e6673808013c93d2c58ce98443
-Top:    03e8d59af8e96de25460c03f60f6c5cc1a8c30d4
+Top:    c154c087966f912177b97ba1d21240ba8d015145
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-13 22:08:15 -0300
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/job.texi b/manual/job.texi
-index 4efeed3..779ea96 100644
+index 4efeed3..2c46771 100644
 --- a/manual/job.texi
 +++ b/manual/job.texi
 @@ -1039,6 +1039,10 @@ The function @code{ctermid} is declared in the header file
@@ -39,17 +39,16 @@ index 4efeed3..779ea96 100644
  The @code{setsid} function creates a new session.  The calling process
  becomes the session leader, and is put in a new process group whose
  process group ID is the same as the process ID of that process.  There
-@@ -1098,7 +1107,8 @@ already another process group around that has the same process group ID.
+@@ -1098,6 +1107,8 @@ already another process group around that has the same process group ID.
  @comment unistd.h
  @comment SVID
  @deftypefun pid_t getsid (pid_t @var{pid})
--
 +@safety{@mtsafe{}@assafe{}@acsafe{}}
 +@c Stub or direct syscall, except on hurd, where it is equally safe.
+ 
  The @code{getsid} function returns the process group ID of the session
  leader of the specified process.  If a @var{pid} is @code{0}, the
- process group ID of the session leader of the current process is
-@@ -1134,6 +1144,8 @@ programs with the @code{-lbsd-compat} option to get the BSD definition.@refill
+@@ -1134,6 +1145,8 @@ programs with the @code{-lbsd-compat} option to get the BSD definition.@refill
  @comment unistd.h
  @comment POSIX.1
  @deftypefn {POSIX.1 Function} pid_t getpgrp (void)
@@ -58,7 +57,7 @@ index 4efeed3..779ea96 100644
  The POSIX.1 definition of @code{getpgrp} returns the process group ID of
  the calling process.
  @end deftypefn
-@@ -1141,6 +1153,8 @@ the calling process.
+@@ -1141,6 +1154,8 @@ the calling process.
  @comment unistd.h
  @comment BSD
  @deftypefn {BSD Function} pid_t getpgrp (pid_t @var{pid})
@@ -67,7 +66,7 @@ index 4efeed3..779ea96 100644
  The BSD definition of @code{getpgrp} returns the process group ID of the
  process @var{pid}.  You can supply a value of @code{0} for the @var{pid}
  argument to get information about the calling process.
-@@ -1149,6 +1163,8 @@ argument to get information about the calling process.
+@@ -1149,6 +1164,8 @@ argument to get information about the calling process.
  @comment unistd.h
  @comment SVID
  @deftypefn {System V Function} int getpgid (pid_t @var{pid})
@@ -76,7 +75,7 @@ index 4efeed3..779ea96 100644
  
  @code{getpgid} is the same as the BSD function @code{getpgrp}.  It
  returns the process group ID of the process @var{pid}.  You can supply a
-@@ -1171,6 +1187,8 @@ process.
+@@ -1171,6 +1188,8 @@ process.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun int setpgid (pid_t @var{pid}, pid_t @var{pgid})
@@ -85,7 +84,7 @@ index 4efeed3..779ea96 100644
  The @code{setpgid} function puts the process @var{pid} into the process
  group @var{pgid}.  As a special case, either @var{pid} or @var{pgid} can
  be zero to indicate the process ID of the calling process.
-@@ -1208,6 +1226,8 @@ process or a child of the calling process.
+@@ -1208,6 +1227,8 @@ process or a child of the calling process.
  @comment unistd.h
  @comment BSD
  @deftypefun int setpgrp (pid_t @var{pid}, pid_t @var{pgid})
@@ -94,7 +93,7 @@ index 4efeed3..779ea96 100644
  This is the BSD Unix name for @code{setpgid}.  Both functions do exactly
  the same thing.
  @end deftypefun
-@@ -1230,6 +1250,8 @@ file itself and not a particular open file descriptor.
+@@ -1230,6 +1251,8 @@ file itself and not a particular open file descriptor.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun pid_t tcgetpgrp (int @var{filedes})
@@ -103,7 +102,7 @@ index 4efeed3..779ea96 100644
  This function returns the process group ID of the foreground process
  group associated with the terminal open on descriptor @var{filedes}.
  
-@@ -1258,6 +1280,8 @@ controlling terminal of the calling process.
+@@ -1258,6 +1281,8 @@ controlling terminal of the calling process.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun int tcsetpgrp (int @var{filedes}, pid_t @var{pgid})
@@ -112,7 +111,7 @@ index 4efeed3..779ea96 100644
  This function is used to set a terminal's foreground process group ID.
  The argument @var{filedes} is a descriptor which specifies the terminal;
  @var{pgid} specifies the process group.  The calling process must be a
-@@ -1297,6 +1321,8 @@ process.
+@@ -1297,6 +1322,8 @@ process.
  @comment termios.h
  @comment Unix98
  @deftypefun pid_t tcgetsid (int @var{fildes})
