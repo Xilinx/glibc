@@ -1,0 +1,15 @@
+Bottom: b84a5f688770814e8732185c0f64b14903b5b29a
+Top:    b84a5f688770814e8732185c0f64b14903b5b29a
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-16 00:32:53 -0300
+
+Remove unused sysdeps/ieee754/support.c.
+
+for  ChangeLog
+
+	* sysdeps/ieee754/support.c: Remove.
+
+
+---
+
+
