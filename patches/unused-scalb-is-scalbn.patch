@@ -1,7 +1,7 @@
-Bottom: b937cc635d4d2275aefa75f55fe195e302fbe4e3
-Top:    0cde62ba14858955eaea55ab1c1dff0f01f3a01a
+Bottom: 16be1a6432db4b53f29115b9a137e0a9b5f72d63
+Top:    411b24ed46994f8860e4a688d6846bba3af6a601
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-13 15:29:39 -0300
+Date:   2013-08-16 04:52:51 -0300
 
 Rename unused scalb to scalbn to match prototype.
 

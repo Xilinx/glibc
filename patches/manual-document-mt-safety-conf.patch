@@ -1,7 +1,7 @@
-Bottom: 11af94a52cfc833e6b706d5bb2641d219dd8e9b1
-Top:    6971015fc6a93453edf7bda609669d84f67a4037
+Bottom: 2057130a7d71203b9a9f38120e917b098c480a6f
+Top:    94804776420739d4e7851f76aae8683d669215d4
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-13 22:03:16 -0300
+Date:   2013-08-16 04:52:53 -0300
 
 Thread safety documentation.
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/conf.texi b/manual/conf.texi
-index 7eb8b36..edbb2fd 100644
+index c720063..79bfcdb 100644
 --- a/manual/conf.texi
 +++ b/manual/conf.texi
 @@ -288,6 +288,17 @@ constants are declared in the header file @file{unistd.h}.
@@ -34,7 +34,7 @@ index 7eb8b36..edbb2fd 100644
  This function is used to inquire about runtime system parameters.  The
  @var{parameter} argument should be one of the @samp{_SC_} symbols listed
  below.
-@@ -1342,6 +1353,11 @@ argument are declared in the header file @file{unistd.h}.
+@@ -1348,6 +1359,11 @@ argument are declared in the header file @file{unistd.h}.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun {long int} pathconf (const char *@var{filename}, int @var{parameter})
@@ -46,7 +46,7 @@ index 7eb8b36..edbb2fd 100644
  This function is used to inquire about the limits that apply to
  the file named @var{filename}.
  
-@@ -1369,6 +1385,8 @@ support the @var{parameter} for the specific file.
+@@ -1375,6 +1391,8 @@ support the @var{parameter} for the specific file.
  @comment unistd.h
  @comment POSIX.1
  @deftypefun {long int} fpathconf (int @var{filedes}, int @var{parameter})
@@ -55,7 +55,7 @@ index 7eb8b36..edbb2fd 100644
  This is just like @code{pathconf} except that an open file descriptor
  is used to specify the file for which information is requested, instead
  of a file name.
-@@ -1615,6 +1633,7 @@ system with the function @code{confstr}:
+@@ -1624,6 +1642,7 @@ system with the function @code{confstr}:
  @comment unistd.h
  @comment POSIX.2
  @deftypefun size_t confstr (int @var{parameter}, char *@var{buf}, size_t @var{len})

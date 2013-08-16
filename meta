@@ -1,19 +1,20 @@
 Version: 1
-Previous: cccee05222f6772a39cbeff86aee5e69c20800ec
-Head: ca6ff75c053a2dc37c42b12d238e3397c604960b
+Previous: cf9af743e59dfbf5fda5a2a47c3e79180f45abdb
+Head: 1de4023eaef09c4f66ee8cda9af72299102a6a11
 Applied:
-  powerpc-nofpu-sim-note-nothread.patch: 06e4960536888589dff34cbc68b16091f303bc5e
-  unused-scalb-is-scalbn.patch: ca2910ce3d85f4ab9b8c4e8d31bc243eab5f1c0f
-  remove-sysdeps-ieee754-support.patch: a25c51911f256292d5cc15cc5dbb8f7f2726c9e6
-  manual-document-mt-safety.patch: a55b2aa9900f7f2d98793bb44e882e32b000150b
-  manual-document-mt-safety-argp.patch: f8001a47dc69f4ca878ae0b18dde1eab6f47ca23
-  manual-document-mt-safety-arith.patch: 7288eb7651261bf0ff7d26fd94d47c4a6267169f
-  manual-document-mt-safety-charset.patch: d739c28d7512bc43968ecc860a2501aeb2b38862
-  manual-document-mt-safety-conf.patch: 30f1f3822b1f3a1e8a69529880d4e8e924a3d35a
-  manual-document-mt-safety-crypt.patch: dabcbeb1f646a611c3e18db1dbf0d317276c5fbc
-  manual-document-mt-safety-ctype.patch: 1d9117d74990d3b2c143fd888d1435b627116a49
-  manual-document-mt-safety-debug.patch: 2851febd94cec0ec11937f681c65ada586f9a223
-  manual-document-mt-safety-errno.patch: 06af1d5ee2d283ef4da1ec4190dd42b9bd9e5e53
+  powerpc-nofpu-sim-note-nothread.patch: 696f6dab87abef96e7993fda3f143bbdeb1f34e8
+  unused-scalb-is-scalbn.patch: 8e4917e9cf19e11865e8257a23808022f8661b79
+  remove-sysdeps-ieee754-support.patch: a695677bd128bab38d17152a529deb639c38a9cc
+  manual-document-mt-safety.patch: 68be24a2fdb555f49822dadce0e7a9dcce313fef
+  manual-document-mt-safety-argp.patch: 3140ac4a6f81a1c3771e446d1b992366ac25c1fd
+  manual-document-mt-safety-arith.patch: 26f6a615ed5791824c49a73f2c3f2363a1068a67
+  manual-document-mt-safety-charset.patch: 0df07b4fc684fb54e4439dc6d2c3dbbe1bfebcc1
+  manual-document-mt-safety-conf.patch: d07742aef69215a1f5e40b91d1ce62d2bd0f3436
+  manual-document-mt-safety-crypt.patch: 9612e68916ea2d715e826de3ea1e63449b56113a
+  manual-document-mt-safety-ctype.patch: f9c7c5a3a45afe0537eac97659a8035fcd353755
+  manual-document-mt-safety-debug.patch: 93d4600a981245726112f8653ae093789c5781bc
+  manual-document-mt-safety-errno.patch: 1de4023eaef09c4f66ee8cda9af72299102a6a11
+Unapplied:
   manual-document-mt-safety-filesys.patch: 48a6b75fc25dc87bedc75d3fdfc131da890b7f4b
   manual-document-mt-safety-getopt.patch: fef40984ed247dfb08395088c2518fd52154e035
   manual-document-mt-safety-libdl.patch: 3816c6c49233e9317ec22c571867fb8ff95c1edd
@@ -30,5 +31,4 @@ Applied:
   wip-manual-document-mt-safety-terminal.patch: 3497681f7e488536c7e151c731fff1a56e012b7d
   wip-manual-document-mt-safety-threads.patch: c0dc224a795deac0cc8aacebcade8ae14842af01
   wip-manual-document-mt-safety-time.patch: ca6ff75c053a2dc37c42b12d238e3397c604960b
-Unapplied:
 Hidden:
