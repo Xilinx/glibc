@@ -172,6 +172,412 @@ pattern matching facilities (@pxref{Pattern Matching}).
 @comment <wordexp.h> (not yet implemented)
 @comment confstr
 
+The safety properties of @glibcadj{} functions, documented as MT-, AS-
+and AC- -Safe and -Unsafe are assessed according to the criteria set
+forth in the POSIX standard for Multi-Thread, Async-Signal and
+Async-Cancel safety.
+
+Intuitive definition of these properties, that attempt to capture
+the meaning of the standard definitions, follow:
+
+@itemize @bullet
+
+@item
+@cindex MT-Safe
+MT-Safe functions are safe to call in the presence of other threads.  MT
+stands for Multi Thread.
+
+@item
+@cindex AS-Safe
+AS-Safe functions are safe to call from asynchronous signal handlers.
+AS stands for Asynchronous Signal.
+
+@item
+@cindex AC-Safe
+AC-Safe functions are safe to call when asynchronous cancellation is
+enabled.  AC stands for Asynchronous Cancellation.
+
+@item
+@cindex MT-Unsafe
+@cindex AS-Unsafe
+@cindex AC-Unsafe
+MT-Unsafe, AS-Unsafe, AC-Unsafe functions are not safe to call within
+the contexts described above: they may cause deviations from the
+specification in the behavior of the calls themselves, or of any other
+concurrent, ongoing or subsequent calls.
+
+Functions not explicitly documented as Safe should be regarded as
+Unsafe.
+
+@end itemize
+
+By ``safe to call'', we mean that, as long as the program does not
+invoke undefined or unspecified behavior, the called functions will
+behave as documented, and they won't cause any other functions to
+deviate from their documented behavior.
+
+Although we strive to abide by the standards, in some cases our
+implementation is safe even when the standard does not demand safety,
+and in other cases our implementation does not meet the standard safety
+requirements.  At this point, we document the result of an assessment of
+the properties of our implementation, so the safety documentation in
+this manual is not to be regarded as a promise of future behavior: in
+future releases, functions that are documented as safe may become
+unsafe, and safety constraints may be removed or introduced.  We
+envision turning the results of the assessment into a set of promises as
+stable as our interfaces, but we're not there yet.
+
+When a function is safe to call only under certain constraints, we will
+add keywords to the safety notes whose meanings are defined as follows:
+
+@itemize @bullet
+
+@c glocale-revisit
+@item @code{glocale}
+@cindex glocale
+
+In threads that have not overridden the thread-local locale object by
+calling @code{uselocale}, calling functions annotated with
+@code{glocale} concurrently with @code{setlocale} may cause the
+functions to behave in ways that don't correspond to either the previous
+or the subsequent global locale.
+
+Although the @code{setlocale} function modifies the global locale object
+while holding a lock, @code{glocale}-annotated functions may access this
+global object multiple times, without any measures to ensure it doesn't
+change while it's in use.
+
+Each of these unprotected uses will use either the previous or the
+subsequent locale information, so they won't cause crashes or access to
+uninitialized, unmapped or recycled memory.  However, since some cases
+use cached locale information while others access the effective locale
+object anew, concurrent changes to the global locale object may cause
+these functions to behave in ways that they could not behave should the
+execution of @code{setlocale} and of the so-annotated functions be
+atomic, or even should @code{setlocale} alone be atomic.
+
+The @code{glocale} constraint indicates functions are only safe to call
+if the effective thread-local locale is not the global locale object
+(because it was overridden with @code{uselocale}).  Failing that,
+@code{setlocale} should not be called while these functions are active.
+
+
+@item @code{envromt}
+@cindex envromt
+
+Functions marked with @code{envromt} access the environment with
+@code{getenv} or similar, requiring the environment to be effectively
+read-only for MT-Safe operation.
+
+Environment-modifying functions do not protect in any way against
+concurrent modifications or access, so calling @code{envromt}-marked
+functions concurrently with @code{setenv}, @code{putenv},
+@code{unsetenv} or direct modifications of the global environment data
+structures is ill-advised; external concurrency control must be
+introduced by callers of these environment-modifying and
+@code{envromt}-marked functions.
+
+Functions that modify the environment are also marked with
+@code{envromt}, but they are not MT-Safe for the reasons above.  Since
+all environment-modifying functions are MT-Unsafe, functions that only
+access the environment are marked as MT-Safe when no other safety issue
+applies.
+
+
+@item @code{uunguard}
+@cindex uunguard
+
+Functions marked with @code{uunguard} modify non-atomically arguments or
+global objects that other functions access without synchronization.  To
+ensure MT- and AS-Safe behavior, callers should refrain from calling
+so-marked functions concurrently with users of the corresponding
+objects.
+
+Unguarded users of the global locale object modified by @code{setlocale}
+are marked with @code{glocale}.
+
+Unguarded users of the @code{printf} extension objects modified by
+@code{register_printf_function} are the entire family of printf
+functions.
+
+Unguarded users of streams configured with @code{__fsetlocking} for
+locking by the caller are the entire family of stdio functions.
+
+
+@item @code{xguargs}
+@cindex xguargs
+
+Functions marked with @code{xguargs} may use or modify objects passed as
+arguments without any guards that could guarantee consistency.  To
+ensure MT- and AS-Safe behavior, callers must ensure that the objects
+passed in are not modified concurrently by other threads or signal
+handlers.
+
+
+@item @code{tempchwd}
+@cindex tempchwd
+
+Functions marked with @code{tempchwd} may temporarily change the current
+working directory during their execution, which may cause relative
+pathnames to be resolved in unexpected ways in other threads or within
+asynchronous signal or cancellation handlers.
+
+This is not enough of a reason to mark so-marked functions as MT-Unsafe,
+but when this behavior is optional (e.g., @code{nftw} with
+@code{FTW_CHDIR}), avoiding the option in multi-threaded programs may be
+a good alternative to using full pathnames or file descriptor-relative
+(e.g. @code{openat}) system calls.
+
+
+@item @code{tempterm}
+@cindex tempterm
+
+Functions marked with @code{tempterm} may temporarily change the
+terminal settings.
+
+This would not be enough of a reason to mark so-marked functions as
+MT-Unsafe, but the recommended mode to modify terminal settings is to
+call @code{tcgetattr}, modify some flags, and then call
+@code{tcsetattr}.  Functions marked with @code{tempterm} do that, so
+they leave a window in which changes made by other threads are lost.
+
+It is thus advisable for applications using the terminal to avoid
+concurrent interactions with it, more so if they expect different
+terminal modes.
+
+If this mark appears as an AC-Safety note, it means the function may
+also fail to restore the original terminal mode in case of asynchronous
+cancellation.
+
+
+@end itemize
+
+
+Additional safety issues that cannot be worked around by constraining
+the program are also documented with keywords, whose meaning is defined
+as follows:
+
+@itemize @bullet
+
+@item @code{staticbuf}
+@cindex staticbuf
+
+Functions annotated with @code{staticbuf} use internal static buffers or
+variables in ways that may cause concurrent calls to interfere
+destructively.
+
+These functions are all MT-Unsafe and AC-Unsafe.  However, many of them
+offer reentrant variants for MT-Safe and, in some cases, AC-Safe use.
+
+In many of these cases, the static buffer is only used to hold a return
+value; in a few of these, such as @code{tmpnam}, the use of the internal
+buffer can be avoided by passing the buffer as an argument, which makes
+the call MT-Safe and AS-Safe.
+
+
+@item @code{asi18n}
+@cindex asi18n
+
+Functions marked with @code{asi18n} use internationalization functions
+(@code{gettext}), which brings in a number of dependencies and issues
+yet to be documented.
+
+
+@item @code{shlimb}
+@cindex shlimb
+
+Functions marked with @code{shlimb} use the dynamic loader to bring in
+additional code modules.  This involves opening files, mapping them into
+memory, allocating additional memory, resolving symbols, applying
+relocations and more, all of this while holding the dynamic loader
+lock.
+
+The non-recursive lock itself is enough for the function to be AS- and
+AC-Unsafe, but many other issues may arise.
+
+
+@item @code{fdleak}
+@cindex fdleak
+
+Functions annotated with @code{fdleak} may leak file descriptors if
+asynchronous thread cancellation interrupts their execution.
+
+Functions that allocate or deallocate file descriptors will generally be
+marked as such, because even if they attempted to protect the file
+descriptor allocation and deallocation with cleanup regions, allocating
+a new descriptor and storing its number where the cleanup region could
+release it cannot be performed as a single atomic operation, just like
+releasing it and taking it out of the data structure normally
+responsible for releasing it cannot be performed atomically, always
+leaving a window in which the descriptor cannot be released because it
+wasn't stored in the cleanup handler argument yet, or in which it was
+already taken out of it before releasing it in the normal flow (we
+cannot keep it there because, in case of cancellation, we wouldn't be
+able to tell whether it was already released, and the same number could
+have been already assigned to another descriptor by another thread, so
+we couldn't just release it again).
+
+Such leaks could be internally avoided, with some performance penalty,
+by temporarily disabling asynchronous thread cancellation.  However,
+since callers of allocation or deallocation functions would have to do
+this themselves, to avoid the same sort of leak in their own layer, it
+makes more sense for the library to assume they are taking care of it
+than to impose a performance penalty that is redundant when the problem
+is solved in upper layers, and insufficient when it isn't.
+
+This remark by itself does not cause a function to be regarded as
+AC-Unsafe.  However, cummulative effects of such leaks may pose a
+problem for some programs.  If this is the case, suspending asynchronous
+cancellation for the duration of calls to such functions is recommended.
+
+
+@item @code{memleak}
+@cindex memleak
+
+Functions annotated with @code{memleak} may leak memory if asynchronous
+thread cancellation interrupts their execution.
+
+The problem is similar to that of file descriptors: there is no atomic
+interface to allocate memory and store its address in the argument to a
+cleanup handler, or to release it and remove its address from that
+argument, without at least temporarily disabling asynchronous
+cancellation, which these functions do not do.
+
+This remark does not by itself cause a function to be regarded as
+generally AC-Unsafe.  However, cummulative effects of such leaks may be
+severe enough for some programs that disabling asynchronous cancellation
+for the duration of calls to such functions may be required.
+
+
+@item @code{lockleak}
+@cindex lockleak
+
+Functions annotated with @code{lockleak} may leak locks if asynchronous
+thread cancellation interrupts their execution.
+
+While the problem is similar to that of file descriptors, in that there
+is not any atomic interface to lock and take note of the need for
+unlocking in a cleanup, or to unlock and take note that there is no
+longer such a need, the problem posed by lock leaks is far more serious:
+when a file descriptor or a piece of memory is leaked, it becomes
+inaccessible and subsequent attempts to allocate a file descriptor or
+some memory will just use another resource.  However, once a lock is
+left taken, attempts to take that lock will block indefinitely.
+(Recursive locks will only block other threads, and read locks will only
+block writer threads, but the point still holds in general).
+
+For the reasons above, functions that leak locks are all AC-Unsafe.
+
+
+@item @code{selfdeadlock}
+@cindex selfdeadlock
+
+Functions marked with @code{selfdeadlock} take a non-recursive lock to
+ensure MT-Safety while modifying data structures guarded by the lock.
+
+If such a function is called by a signal handler that interrupted
+another such function that took the lock, the result is a deadlock.
+
+Blocking asynchronous signal delivery while calling such functions is
+the only safe way to avoid a deadlock if any signal handler might need
+to call them.
+
+
+@item @code{asynconsist}
+@cindex asynconsist
+
+Functions marked with @code{asynconsist} take a recursive lock to ensure
+MT-Safety while accessing or modifying data structures guarded by the
+lock.
+
+If such a function is called by a signal handler that interrupted
+another such function that took the lock, both may misbehave for
+observing inconsistent (partially updated or cached) data structures.
+
+Blocking asynchronous signal delivery while calling such functions is
+the only safe way to avoid the misbehavior that may ensue if any signal
+handler might need to call them.
+
+
+@item @code{asmalloc}
+@cindex asmalloc
+
+This is a sub-case of @code{asynconsist}.  Functions marked with
+@code{asmalloc} perform memory allocation or deallocation with the
+@code{malloc}/@code{free} family of functions.
+
+If heap management functions are interrupted by asynchronous signals,
+and the signal handlers attempt to perform memory allocation or
+deallocation of their own, they may encounter heap data structures in a
+partially updated state, and the interrupted calls may malfunction
+because of the changes made within the signal handler.
+
+
+@item @code{incansist}
+@cindex incansist
+
+Functions marked with @code{incansist} modify data structures in a
+non-atomic way.
+
+If such a function is asynchronously canceled, it may leave the data
+structure in a partially updated, inconsistent state.  Subsequent uses
+of the data structure may misbehave.
+
+Disabling asynchronous cancelation while calling such functions is the
+only safe way to avoid the misbehavior that may ensure if the thread is
+canceled while the function is running.
+
+@c A special case, probably not worth documenting separately, involves
+@c reallocing, or even freeing pointers.  Any case involving free could
+@c be easily turned into an ac-safe memleak by resetting the pointer
+@c before releasing it; I don't think we have any case that calls for
+@c this sort of fixing.  Fixing the realloc cases would require a new
+@c interface: instead of @code{ptr=realloc(ptr,size)} we'd have to
+@c introduce @code{acsafe_realloc(&ptr,size)} that would modify ptr
+@c before releasing the old memory.  The ac-unsafe realloc could be
+@c implemented in terms of an internal interface with this semantics
+@c (say __acsafe_realloc), but since realloc can be overridden, the
+@c function we call to implement realloc should not be this internal
+@c interface, but another internal interface that calls __acsafe_realloc
+@c if realloc was not overridden, and calls the overridden realloc with
+@c async cancel disabled.  --lxoliva
+
+
+@item @code{simfpu}
+@cindex simfpu
+
+Functions annotated with @code{simfpu} may misbehave on powerpc ports in
+which the floating-point unit is disabled and floating point simulation
+is used instead.  On such platforms, @theglibc{} uses global variables
+to hold floating-point exceptions, rounding modes and disabled
+exceptions, rather than thread-local state.  This is a @glibcadj{} bug.
+
+Furthermore, even if this bug is fixed, the emulation of floating-point
+control and status registers will not go as far as saving and restoring
+these emulated registers across asynchronous signal handlers.  Indeed,
+although most platforms preserve floating-point context as part of the
+thread context, preserving control and status words is not mandatory:
+standards recommend that programs that modify them within signal
+handlers restore them to the original state before returning.
+
+This note does not cause functions to be marked as MT-Unsafe, even
+though, on the affected platform, they are MT-Unsafe indeed.
+
+
+@item @code{unposix}
+@cindex unposix
+
+This remark indicates our safety documentation is known to differ from
+the requirements set by the POSIX standard.  For example, POSIX does not
+require a function to be Safe, but our implementation is Safe, or
+vice-versa.
+
+For the time being, the absence of this remark does not imply the safety
+properties we documented are identical to those mandated by POSIX for
+the corresponding functions.
+
+@end itemize
+
 
 @node Berkeley Unix, SVID, POSIX, Standards and Portability
 @subsection Berkeley Unix
