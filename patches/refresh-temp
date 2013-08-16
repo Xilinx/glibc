@@ -1,0 +1,21 @@
+Bottom: 03e8d59af8e96de25460c03f60f6c5cc1a8c30d4
+Top:    c154c087966f912177b97ba1d21240ba8d015145
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-16 04:16:45 -0300
+
+Refresh of manual-document-mt-safety-job.patch
+
+---
+
+diff --git a/manual/job.texi b/manual/job.texi
+index 779ea96..2c46771 100644
+--- a/manual/job.texi
++++ b/manual/job.texi
+@@ -1109,6 +1109,7 @@ already another process group around that has the same process group ID.
+ @deftypefun pid_t getsid (pid_t @var{pid})
+ @safety{@mtsafe{}@assafe{}@acsafe{}}
+ @c Stub or direct syscall, except on hurd, where it is equally safe.
++
+ The @code{getsid} function returns the process group ID of the session
+ leader of the specified process.  If a @var{pid} is @code{0}, the
+ process group ID of the session leader of the current process is
