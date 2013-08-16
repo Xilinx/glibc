@@ -1,6 +1,6 @@
 Version: 1
-Previous: 6befbab55a0494cfde0b24c1273eeaa1bca585d9
-Head: 511350628e6d67533247487df877b6b5c8110398
+Previous: 575a99ada411dcc3ddc0be92200cbf114537f7b5
+Head: 45704a90d0c02a27353a86cce2023a7cff0850a8
 Applied:
   manual-document-mt-safety.patch: d2ce932c7ce9c31c4b085c61c43ac8e637713dcd
   powerpc-nofpu-sim-note-nothread.patch: e34ecb782685d8b4d0d6a9badd3c4860d373179a
@@ -30,5 +30,6 @@ Applied:
   wip-manual-document-mt-safety-threads.patch: a876db182b7283130d6189eb55ea401d35053850
   wip-manual-document-mt-safety-time.patch: f24766f16a7fc05837ee864671592bdd230d4631
   remove-ieee754-support.patch: 511350628e6d67533247487df877b6b5c8110398
+  refresh-temp: 45704a90d0c02a27353a86cce2023a7cff0850a8
 Unapplied:
 Hidden:
