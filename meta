@@ -1,6 +1,6 @@
 Version: 1
-Previous: aa465b0085f4d4bc6523c446f7ce6870227c8992
-Head: c759555d9d5560131f6dc67be34fa2ae51f54c4f
+Previous: 85c9005a07f05ad8d6d9f97158cb3e3292b0e989
+Head: 422aa76fa083b6e69ae5ed04429e32a406c7ec93
 Applied:
   unused-scalb-is-scalbn.patch: 05db560ffbca9d70d3f8cb8275b5f82ebd0a1fa7
   remove-sysdeps-ieee754-support.patch: fe6a5807692b034fba404bbe03d68929933eb91f
@@ -20,14 +20,14 @@ Applied:
   manual-document-mt-safety-lang.patch: df244861d2cc8225a441c53b523f53150727ae62
   manual-document-mt-safety-llio.patch: bf5c49825fd31327a529399b2400a6e592bbee3a
   manual-document-mt-safety-stdio.patch: 8d679074193b580e3ea1b810b03b6c976a47f9cd
-  wip-manual-document-mt-safety-locale.patch: 0c975e33c4db3c285d4144bd8fa8ab684c8b500a
-  wip-manual-document-mt-safety-math.patch: 0ded06d761bd842d9d7f6ab9473b5af3789e20e2
-  wip-manual-document-mt-safety-startup.patch: 93ca5fa817ae6dc3d50a6990be8ae64d8b398e83
-  wip-manual-document-mt-safety-search.patch: 2f91898f8002f8d61d9aad3c436468301513d49e
-  wip-manual-document-mt-safety-resource.patch: 56296c84c59e84bc5a577f60252a3bca4e57944d
-  wip-manual-document-mt-safety-string.patch: b16c3cb1e8fe3228f39d484598829d52e8b9ac43
-  wip-manual-document-mt-safety-terminal.patch: cfab792fb4bc046f3274734d629c29d86856ef28
-  wip-manual-document-mt-safety-threads.patch: 97ee1ff6ce212b9a9a750393c65224d306fb2ddd
-  wip-manual-document-mt-safety-time.patch: c759555d9d5560131f6dc67be34fa2ae51f54c4f
+  wip-manual-document-mt-safety-math.patch: 16ea0003407bdc31e8ec8dfe869a8b7692eb8d00
+  wip-manual-document-mt-safety-startup.patch: 12d50c8632aaee2f0763bb48c0b69349b09022bb
+  wip-manual-document-mt-safety-search.patch: 3b7789f2efb618f9cdc9cb4e3be46d1670660fc3
+  wip-manual-document-mt-safety-resource.patch: 561ca151dcd427e997cb452b8d6aad6b2e251fc7
+  wip-manual-document-mt-safety-string.patch: 7441ccb3ac0c3fd1cd2735d24268ed21182e3a77
+  wip-manual-document-mt-safety-terminal.patch: c02af6635e7cc131c702dcff10cfe433c617fad5
+  wip-manual-document-mt-safety-threads.patch: 5bc0ea1ef664f58498315ce61f27703cd001fd35
+  wip-manual-document-mt-safety-time.patch: afdf3f5f5bd3ee6fc4230618b617cd0d4da134ca
+  wip-manual-document-mt-safety-locale.patch: 422aa76fa083b6e69ae5ed04429e32a406c7ec93
 Unapplied:
 Hidden:
