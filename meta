@@ -1,6 +1,6 @@
 Version: 1
-Previous: 982014f3805467e9b2c5b7df8dad4e75c9f31ea8
-Head: eb47e54bf344d09d6c151a1bd6ea88fa1883c008
+Previous: 07e9fdf024892970154649093ccac69ee57d673a
+Head: 12d50c8632aaee2f0763bb48c0b69349b09022bb
 Applied:
   unused-scalb-is-scalbn.patch: 05db560ffbca9d70d3f8cb8275b5f82ebd0a1fa7
   remove-sysdeps-ieee754-support.patch: fe6a5807692b034fba404bbe03d68929933eb91f
@@ -22,8 +22,8 @@ Applied:
   manual-document-mt-safety-stdio.patch: 8d679074193b580e3ea1b810b03b6c976a47f9cd
   wip-manual-document-mt-safety-math.patch: 16ea0003407bdc31e8ec8dfe869a8b7692eb8d00
   wip-manual-document-mt-safety-startup.patch: 12d50c8632aaee2f0763bb48c0b69349b09022bb
-  wip-manual-document-mt-safety-resource.patch: eb47e54bf344d09d6c151a1bd6ea88fa1883c008
 Unapplied:
+  wip-manual-document-mt-safety-resource.patch: eb47e54bf344d09d6c151a1bd6ea88fa1883c008
   wip-manual-document-mt-safety-search.patch: 34f782743f44b2c627e74a640f2f29309d471b99
   wip-manual-document-mt-safety-string.patch: 1322d0df3da60812c2b42e23710a999109d4b2c8
   wip-manual-document-mt-safety-terminal.patch: f81b15daf3d55fe078f1605002575be2f98d1383
