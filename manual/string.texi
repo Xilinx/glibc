@@ -1646,6 +1646,7 @@ This function is a GNU extension.
 @comment string.h
 @comment ISO
 @deftypefun {char *} strchr (const char *@var{string}, int @var{c})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 The @code{strchr} function finds the first occurrence of the character
 @var{c} (converted to a @code{char}) in the null-terminated string
 beginning at @var{string}.  The return value is a pointer to the located
@@ -1687,6 +1688,7 @@ to use @code{wcschrnul} in this case, though.
 @comment string.h
 @comment GNU
 @deftypefun {char *} strchrnul (const char *@var{string}, int @var{c})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 @code{strchrnul} is the same as @code{strchr} except that if it does
 not find the character, it returns a pointer to string's terminating
 null character rather than a null pointer.
