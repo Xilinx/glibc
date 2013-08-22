@@ -113,6 +113,7 @@ the header file @file{stdlib.h}.
 @comment stdlib.h
 @comment ISO
 @deftypefun {void *} bsearch (const void *@var{key}, const void *@var{array}, size_t @var{count}, size_t @var{size}, comparison_fn_t @var{compare})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 The @code{bsearch} function searches the sorted array @var{array} for an object
 that is equivalent to @var{key}.  The array contains @var{count} elements,
 each of which is of size @var{size} bytes.
