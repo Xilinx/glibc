@@ -229,11 +229,44 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c ought to be MT-Safe, so we're ruling out the use of this function
 @c once threads are started.  It takes a write lock itself, but it may
 @c return a pointer loaded from the global locale object after releasing
-@c the lock, or before taking it.  It calls getenv for LOCPATH, malloc
-@c and free, and _nl_find_locale, which amount to all documented safety
-@c issues.  It also calls new_composite_name, setdata, and setname,
-@c without any additional issues.  _nl_find_locale calls getenv, ...
+@c the lock, or before taking it.
 @c This function returns a pointer read...
+@c setlocale
+@c  libc_rwlock_wrlock selfdeadlock, lockleak
+@c  libc_rwlock_unlock lockleak
+@c  getenv LOCPATH envromt
+@c  malloc asmalloc, memleak
+@c  free asmalloc, memleak
+@c  new_composite_name ok
+@c  setdata ok
+@c  setname ok
+@c  _nl_find_locale
+@c   getenv LC_ALL and LANG envromt
+@c   _nl_load_locale_from_archive
+@c   _nl_expand_alias
+@c    libc_lock_lock selfdeadlock, lockleak
+@c    bsearch
+@c     alias_compare
+@c      strcasecmp ok
+@c    read_alias_file
+@c     fopen asmalloc, selfdeadlock, memleak, fdleak, lockleak
+@c     fsetlocking ok
+@c     feof_unlocked ok
+@c     fgets_unlocked ok
+@c     isspace ok (locale mutex is locked)
+@c     extend_alias_table memleak, asmalloc
+@c      realloc memleak, asmalloc
+@c     realloc memleak, asmalloc
+@c     fclose asmalloc, selfdeadlock, memleak, fdleak, lockleak
+@c     qsort ok
+@c      alias_compare dup
+@c    libc_lock_unlock
+@c   _nl_explode_name
+@c   _nl_make_l10nflist
+@c   _nl_load_locale
+@c   __gconv_compare_alias
+@c   strndup asmalloc, memleak
+@c   strcasecmp_l (C locale)
 The function @code{setlocale} sets the current locale for category
 @var{category} to @var{locale}.  A list of all the locales the system
 provides can be created by running
