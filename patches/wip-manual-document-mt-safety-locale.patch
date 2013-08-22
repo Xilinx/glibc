@@ -1,5 +1,5 @@
 Bottom: 511381f5668e2c5f5c71e78b94857fa5949c5e6a
-Top:    52646e829b2c835e9171de316383f334d9b3e858
+Top:    b3d747791c6e00f127bed74d0194e39b84d6c9fd
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-17 01:25:08 -0300
 
@@ -13,10 +13,10 @@ for  ChangeLog
 ---
 
 diff --git a/manual/locale.texi b/manual/locale.texi
-index 2f10fcd..fb6de4e 100644
+index 2f10fcd..c61360b 100644
 --- a/manual/locale.texi
 +++ b/manual/locale.texi
-@@ -224,6 +224,49 @@ The symbols in this section are defined in the header file @file{locale.h}.
+@@ -224,6 +224,51 @@ The symbols in this section are defined in the header file @file{locale.h}.
  @comment locale.h
  @comment ISO
  @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
@@ -39,6 +39,8 @@ index 2f10fcd..fb6de4e 100644
 +@c  _nl_find_locale
 +@c   getenv LC_ALL and LANG envromt
 +@c   _nl_load_locale_from_archive
++@c    sysconf _SC_PAGE_SIZE ok
++@c    
 +@c   _nl_expand_alias asmalloc, selfdeadlock, memleak, fdleak, lockleak
 +@c    libc_lock_lock selfdeadlock, lockleak
 +@c    bsearch ok
