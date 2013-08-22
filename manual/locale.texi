@@ -243,6 +243,8 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c  _nl_find_locale
 @c   getenv LC_ALL and LANG envromt
 @c   _nl_load_locale_from_archive
+@c    sysconf _SC_PAGE_SIZE ok
+@c    
 @c   _nl_expand_alias asmalloc, selfdeadlock, memleak, fdleak, lockleak
 @c    libc_lock_lock selfdeadlock, lockleak
 @c    bsearch ok
