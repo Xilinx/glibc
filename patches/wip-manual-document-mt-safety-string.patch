@@ -1,5 +1,5 @@
 Bottom: 7c3a36b19e96ca71f5c07915ec0dbf244fd1096d
-Top:    29300d1844347314806a484be6c071c85ba34bfb
+Top:    fda3912674c43eb3cfb9ce73f0a0a3895805a9d4
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-17 01:25:09 -0300
 
@@ -13,10 +13,22 @@ for ChangeLog
 ---
 
 diff --git a/manual/string.texi b/manual/string.texi
-index 246be84..a75d298 100644
+index 246be84..6673a61 100644
 --- a/manual/string.texi
 +++ b/manual/string.texi
-@@ -1247,6 +1247,8 @@ strncmp ("hello, world", "hello, stupid world!!!", 5)
+@@ -1159,6 +1159,11 @@ strings are written in into account.  To get that one has to use
+ @comment string.h
+ @comment BSD
+ @deftypefun int strcasecmp (const char *@var{s1}, const char *@var{s2})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
++@c Although this calls tolower multiple times, it's a macro, and
++@c strcasecmp is optimized so that the locale pointer is read only once.
++@c There are some asm implementations too, for which the single-read
++@c from locale TLS pointers also applies.
+ This function is like @code{strcmp}, except that differences in case are
+ ignored.  How uppercase and lowercase characters are related is
+ determined by the currently selected locale.  In the standard @code{"C"}
+@@ -1247,6 +1252,8 @@ strncmp ("hello, world", "hello, stupid world!!!", 5)
  @comment string.h
  @comment GNU
  @deftypefun int strverscmp (const char *@var{s1}, const char *@var{s2})
@@ -25,7 +37,7 @@ index 246be84..a75d298 100644
  The @code{strverscmp} function compares the string @var{s1} against
  @var{s2}, considering them as holding indices/version numbers.  The
  return value follows the same conventions as found in the
-@@ -1343,6 +1345,8 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
+@@ -1343,6 +1350,8 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
  @comment string.h
  @comment ISO
  @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
