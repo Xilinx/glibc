@@ -1,0 +1,21 @@
+Bottom: 7b568eec0398262e28b2443863236ee58c339139
+Top:    32435639dae1b4c2a97e179c96d3885673119e94
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-22 07:19:05 -0300
+
+Refresh of wip-manual-document-mt-safety-search.patch
+
+---
+
+diff --git a/manual/search.texi b/manual/search.texi
+index 6910edc..46f5f1c 100644
+--- a/manual/search.texi
++++ b/manual/search.texi
+@@ -113,6 +113,7 @@ the header file @file{stdlib.h}.
+ @comment stdlib.h
+ @comment ISO
+ @deftypefun {void *} bsearch (const void *@var{key}, const void *@var{array}, size_t @var{count}, size_t @var{size}, comparison_fn_t @var{compare})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{bsearch} function searches the sorted array @var{array} for an object
+ that is equivalent to @var{key}.  The array contains @var{count} elements,
+ each of which is of size @var{size} bytes.
