@@ -2684,3 +2684,6 @@ being added to @var{envz}, if @var{override} is false.
 The @code{envz_strip} function removes any null entries from @var{envz},
 updating @code{*@var{envz}} and @code{*@var{envz_len}}.
 @end deftypefun
+
+@c FIXME this are undocumented:
+@c strcasecmp_l @safety{@mtsafe{}@assafe{}@acsafe{}} see strcasecmp
