@@ -1,0 +1,39 @@
+Bottom: c671a873d8dd4fd456cb14f37ccdeda91d0cb41f
+Top:    455c2ab778a60b1dcb4297adc071869fa6d1b05a
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-22 07:18:27 -0300
+
+Refresh of wip-manual-document-mt-safety-locale.patch
+
+---
+
+diff --git a/manual/locale.texi b/manual/locale.texi
+index 491e802..7d04c64 100644
+--- a/manual/locale.texi
++++ b/manual/locale.texi
+@@ -245,10 +245,10 @@ The symbols in this section are defined in the header file @file{locale.h}.
+ @c   _nl_load_locale_from_archive
+ @c   _nl_expand_alias
+ @c    libc_lock_lock selfdeadlock, lockleak
+-@c    bsearch
+-@c     alias_compare
++@c    bsearch ok
++@c     alias_compare ok
+ @c      strcasecmp ok
+-@c    read_alias_file
++@c    read_alias_file asmalloc, selfdeadlock, memleak, fdleak, lockleak
+ @c     fopen asmalloc, selfdeadlock, memleak, fdleak, lockleak
+ @c     fsetlocking ok
+ @c     feof_unlocked ok
+@@ -258,9 +258,9 @@ The symbols in this section are defined in the header file @file{locale.h}.
+ @c      realloc memleak, asmalloc
+ @c     realloc memleak, asmalloc
+ @c     fclose asmalloc, selfdeadlock, memleak, fdleak, lockleak
+-@c     qsort ok
++@c     qsort asmalloc, memleak
+ @c      alias_compare dup
+-@c    libc_lock_unlock
++@c    libc_lock_unlock lockleak
+ @c   _nl_explode_name
+ @c   _nl_make_l10nflist
+ @c   _nl_load_locale
