@@ -243,7 +243,7 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c  _nl_find_locale
 @c   getenv LC_ALL and LANG envromt
 @c   _nl_load_locale_from_archive
-@c   _nl_expand_alias
+@c   _nl_expand_alias asmalloc, selfdeadlock, memleak, fdleak, lockleak
 @c    libc_lock_lock selfdeadlock, lockleak
 @c    bsearch ok
 @c     alias_compare ok
@@ -266,7 +266,7 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c   _nl_load_locale
 @c   __gconv_compare_alias
 @c   strndup asmalloc, memleak
-@c   strcasecmp_l (C locale)
+@c   strcasecmp_l ok (C locale)
 The function @code{setlocale} sets the current locale for category
 @var{category} to @var{locale}.  A list of all the locales the system
 provides can be created by running
