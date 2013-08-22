@@ -245,10 +245,10 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c   _nl_load_locale_from_archive
 @c   _nl_expand_alias
 @c    libc_lock_lock selfdeadlock, lockleak
-@c    bsearch
-@c     alias_compare
+@c    bsearch ok
+@c     alias_compare ok
 @c      strcasecmp ok
-@c    read_alias_file
+@c    read_alias_file asmalloc, selfdeadlock, memleak, fdleak, lockleak
 @c     fopen asmalloc, selfdeadlock, memleak, fdleak, lockleak
 @c     fsetlocking ok
 @c     feof_unlocked ok
@@ -258,9 +258,9 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c      realloc memleak, asmalloc
 @c     realloc memleak, asmalloc
 @c     fclose asmalloc, selfdeadlock, memleak, fdleak, lockleak
-@c     qsort ok
+@c     qsort asmalloc, memleak
 @c      alias_compare dup
-@c    libc_lock_unlock
+@c    libc_lock_unlock lockleak
 @c   _nl_explode_name
 @c   _nl_make_l10nflist
 @c   _nl_load_locale
