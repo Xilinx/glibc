@@ -1,0 +1,20 @@
+Bottom: 96abc16a5fe1474a4250dc5d84dad1ed6af54a96
+Top:    af9838055fbc34eb8b44aa085a768b6672e2709a
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-22 07:25:28 -0300
+
+Refresh of wip-manual-document-mt-safety-string.patch
+
+---
+
+diff --git a/manual/string.texi b/manual/string.texi
+index 6673a61..b2e97bc 100644
+--- a/manual/string.texi
++++ b/manual/string.texi
+@@ -2684,3 +2684,6 @@ being added to @var{envz}, if @var{override} is false.
+ The @code{envz_strip} function removes any null entries from @var{envz},
+ updating @code{*@var{envz}} and @code{*@var{envz_len}}.
+ @end deftypefun
++
++@c FIXME this are undocumented:
++@c strcasecmp_l @safety{@mtsafe{}@assafe{}@acsafe{}} see strcasecmp
