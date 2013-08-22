@@ -1,0 +1,29 @@
+Bottom: af9838055fbc34eb8b44aa085a768b6672e2709a
+Top:    c7851f3716d07cb79899c2afd9060ba0012286ea
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-22 07:43:17 -0300
+
+Refresh of wip-manual-document-mt-safety-string.patch
+
+---
+
+diff --git a/manual/string.texi b/manual/string.texi
+index b2e97bc..1408033 100644
+--- a/manual/string.texi
++++ b/manual/string.texi
+@@ -1646,6 +1646,7 @@ This function is a GNU extension.
+ @comment string.h
+ @comment ISO
+ @deftypefun {char *} strchr (const char *@var{string}, int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ The @code{strchr} function finds the first occurrence of the character
+ @var{c} (converted to a @code{char}) in the null-terminated string
+ beginning at @var{string}.  The return value is a pointer to the located
+@@ -1687,6 +1688,7 @@ to use @code{wcschrnul} in this case, though.
+ @comment string.h
+ @comment GNU
+ @deftypefun {char *} strchrnul (const char *@var{string}, int @var{c})
++@safety{@mtsafe{}@assafe{}@acsafe{}}
+ @code{strchrnul} is the same as @code{strchr} except that if it does
+ not find the character, it returns a pointer to string's terminating
+ null character rather than a null pointer.
