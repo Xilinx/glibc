@@ -77,6 +77,9 @@ $(objpfx)tst-printf.out: tst-printf.sh $(objpfx)tst-printf
 endif
 
 CFLAGS-vfprintf.c = -Wno-uninitialized
+ifeq ($(enable-mpx), yes)
+CFLAGS-vfprintf.c += -O0 -D__OPTIMIZE__
+endif
 CFLAGS-vfwprintf.c = -Wno-uninitialized
 CFLAGS-tst-printf.c = -Wno-format
 CFLAGS-tstdiomisc.c = -Wno-format
