@@ -65,6 +65,10 @@ ENTRY(__gnu_mcount_nc)
 END(__gnu_mcount_nc)
 
 
+#include <shlib-compat.h>
+
+#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_19)
+
 /* Provide old mcount for backwards compatibility.  This requires
    code be compiled with APCS frame pointers.  */
 
@@ -102,3 +106,5 @@ END(_mcount)
    but some old asm code might assume it's `mcount'.  */
 #undef mcount
 weak_alias (_mcount, mcount)
+
+#endif

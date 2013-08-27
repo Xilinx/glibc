@@ -1,3 +1,9 @@
+2013-08-27  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/arm-mcount.S: #include <shlib-compat.h>.
+	(_mcount, mcount):
+	Protect under [SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_19)].
+
 2013-07-03  Joseph Myers  <joseph@codesourcery.com>
 
 	* sysdeps/arm/include/bits/setjmp.h [_ISOMAC] (JMP_BUF_REGLIST):
