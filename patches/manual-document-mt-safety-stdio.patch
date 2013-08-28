@@ -1,5 +1,5 @@
 Bottom: 93d7801d18acd26c49da4772fbbaa130e15e8c35
-Top:    e50028beb84ad6b675a13f914ea7f6020b0041fb
+Top:    255dc76dfd1273775d159fe84d9f9ff35f7d5184
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-17 01:25:08 -0300
 
@@ -13,7 +13,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/stdio.texi b/manual/stdio.texi
-index 3f9be9bc5..79a3340 100644
+index 3f9be9bc5..5667af3 100644
 --- a/manual/stdio.texi
 +++ b/manual/stdio.texi
 @@ -148,6 +148,8 @@ Everything described in this section is declared in the header file
@@ -452,23 +452,29 @@ index 3f9be9bc5..79a3340 100644
  This function reads a word (that is, an @code{int}) from @var{stream}.
  It's provided for compatibility with SVID.  We recommend you use
  @code{fread} instead (@pxref{Block Input/Output}).  Unlike @code{getc},
-@@ -1173,6 +1280,7 @@ All these functions are declared in @file{stdio.h}.
+@@ -1173,6 +1280,12 @@ All these functions are declared in @file{stdio.h}.
  @comment stdio.h
  @comment GNU
  @deftypefun ssize_t getline (char **@var{lineptr}, size_t *@var{n}, FILE *@var{stream})
-+@safety{@mtsafe{}@asunsafe{asynconsist}@acunsafe{lockleak, incansist}}
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc}@acunsafe{lockleak, incansist, memleak}}
++@c Besides the usual possibility of getting an inconsistent stream in a
++@c signal handler or leaving it inconsistent in case of cancellation,
++@c the possibility of leaving a dangling pointer upon cancellation
++@c between reallocing the buffer at *lineptr and updating the pointer
++@c brings about another case of incansist.
  This function reads an entire line from @var{stream}, storing the text
  (including the newline and a terminating null character) in a buffer
  and storing the buffer address in @code{*@var{lineptr}}.
-@@ -1208,6 +1316,7 @@ If an error occurs or end of file is reached without any bytes read,
+@@ -1208,6 +1321,8 @@ If an error occurs or end of file is reached without any bytes read,
  @comment stdio.h
  @comment GNU
  @deftypefun ssize_t getdelim (char **@var{lineptr}, size_t *@var{n}, int @var{delimiter}, FILE *@var{stream})
-+@safety{@mtsafe{}@asunsafe{asynconsist}@acunsafe{lockleak, incansist}}
++@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc}@acunsafe{lockleak, incansist, memleak}}
++@c See the getline incansist note.
  This function is like @code{getline} except that the character which
  tells it to stop reading is not necessarily newline.  The argument
  @var{delimiter} specifies the delimiter character; @code{getdelim} keeps
-@@ -1232,6 +1341,7 @@ getline (char **lineptr, size_t *n, FILE *stream)
+@@ -1232,6 +1347,7 @@ getline (char **lineptr, size_t *n, FILE *stream)
  @comment stdio.h
  @comment ISO
  @deftypefun {char *} fgets (char *@var{s}, int @var{count}, FILE *@var{stream})
@@ -476,7 +482,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fgets} function reads characters from the stream @var{stream}
  up to and including a newline character and stores them in the string
  @var{s}, adding a null character to mark the end of the string.  You
-@@ -1255,6 +1365,7 @@ error message.  We recommend using @code{getline} instead of @code{fgets}.
+@@ -1255,6 +1371,7 @@ error message.  We recommend using @code{getline} instead of @code{fgets}.
  @comment wchar.h
  @comment ISO
  @deftypefun {wchar_t *} fgetws (wchar_t *@var{ws}, int @var{count}, FILE *@var{stream})
@@ -484,7 +490,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fgetws} function reads wide characters from the stream
  @var{stream} up to and including a newline character and stores them in
  the string @var{ws}, adding a null wide character to mark the end of the
-@@ -1280,6 +1391,7 @@ message.
+@@ -1280,6 +1397,7 @@ message.
  @comment stdio.h
  @comment GNU
  @deftypefun {char *} fgets_unlocked (char *@var{s}, int @var{count}, FILE *@var{stream})
@@ -492,7 +498,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fgets_unlocked} function is equivalent to the @code{fgets}
  function except that it does not implicitly lock the stream.
  
-@@ -1289,6 +1401,7 @@ This function is a GNU extension.
+@@ -1289,6 +1407,7 @@ This function is a GNU extension.
  @comment wchar.h
  @comment GNU
  @deftypefun {wchar_t *} fgetws_unlocked (wchar_t *@var{ws}, int @var{count}, FILE *@var{stream})
@@ -500,7 +506,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fgetws_unlocked} function is equivalent to the @code{fgetws}
  function except that it does not implicitly lock the stream.
  
-@@ -1298,6 +1411,7 @@ This function is a GNU extension.
+@@ -1298,6 +1417,7 @@ This function is a GNU extension.
  @comment stdio.h
  @comment ISO
  @deftypefn {Deprecated function} {char *} gets (char *@var{s})
@@ -508,7 +514,7 @@ index 3f9be9bc5..79a3340 100644
  The function @code{gets} reads characters from the stream @code{stdin}
  up to the next newline character, and stores them in the string @var{s}.
  The newline character is discarded (note that this differs from the
-@@ -1388,6 +1502,7 @@ reverses the action of @code{getc}.
+@@ -1388,6 +1508,7 @@ reverses the action of @code{getc}.
  @comment stdio.h
  @comment ISO
  @deftypefun int ungetc (int @var{c}, FILE *@var{stream})
@@ -516,7 +522,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{ungetc} function pushes back the character @var{c} onto the
  input stream @var{stream}.  So the next input from @var{stream} will
  read @var{c} before anything else.
-@@ -1425,6 +1540,7 @@ will encounter end of file.
+@@ -1425,6 +1546,7 @@ will encounter end of file.
  @comment wchar.h
  @comment ISO
  @deftypefun wint_t ungetwc (wint_t @var{wc}, FILE *@var{stream})
@@ -524,7 +530,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{ungetwc} function behaves just like @code{ungetc} just that it
  pushes back a wide character.
  @end deftypefun
-@@ -1483,6 +1599,7 @@ These functions are declared in @file{stdio.h}.
+@@ -1483,6 +1605,7 @@ These functions are declared in @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun size_t fread (void *@var{data}, size_t @var{size}, size_t @var{count}, FILE *@var{stream})
@@ -532,7 +538,7 @@ index 3f9be9bc5..79a3340 100644
  This function reads up to @var{count} objects of size @var{size} into
  the array @var{data}, from the stream @var{stream}.  It returns the
  number of objects actually read, which might be less than @var{count} if
-@@ -1498,6 +1615,7 @@ object.  Therefore, the stream remains at the actual end of the file.
+@@ -1498,6 +1621,7 @@ object.  Therefore, the stream remains at the actual end of the file.
  @comment stdio.h
  @comment GNU
  @deftypefun size_t fread_unlocked (void *@var{data}, size_t @var{size}, size_t @var{count}, FILE *@var{stream})
@@ -540,7 +546,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fread_unlocked} function is equivalent to the @code{fread}
  function except that it does not implicitly lock the stream.
  
-@@ -1507,6 +1625,7 @@ This function is a GNU extension.
+@@ -1507,6 +1631,7 @@ This function is a GNU extension.
  @comment stdio.h
  @comment ISO
  @deftypefun size_t fwrite (const void *@var{data}, size_t @var{size}, size_t @var{count}, FILE *@var{stream})
@@ -548,7 +554,7 @@ index 3f9be9bc5..79a3340 100644
  This function writes up to @var{count} objects of size @var{size} from
  the array @var{data}, to the stream @var{stream}.  The return value is
  normally @var{count}, if the call succeeds.  Any other value indicates
-@@ -1516,6 +1635,7 @@ some sort of error, such as running out of space.
+@@ -1516,6 +1641,7 @@ some sort of error, such as running out of space.
  @comment stdio.h
  @comment GNU
  @deftypefun size_t fwrite_unlocked (const void *@var{data}, size_t @var{size}, size_t @var{count}, FILE *@var{stream})
@@ -556,7 +562,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fwrite_unlocked} function is equivalent to the @code{fwrite}
  function except that it does not implicitly lock the stream.
  
-@@ -2257,6 +2377,7 @@ just include @file{stdio.h}.
+@@ -2257,6 +2383,7 @@ just include @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int printf (const char *@var{template}, @dots{})
@@ -564,7 +570,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{printf} function prints the optional arguments under the
  control of the template string @var{template} to the stream
  @code{stdout}.  It returns the number of characters printed, or a
-@@ -2266,6 +2387,7 @@ negative value if there was an output error.
+@@ -2266,6 +2393,7 @@ negative value if there was an output error.
  @comment wchar.h
  @comment ISO
  @deftypefun int wprintf (const wchar_t *@var{template}, @dots{})
@@ -572,7 +578,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{wprintf} function prints the optional arguments under the
  control of the wide template string @var{template} to the stream
  @code{stdout}.  It returns the number of wide characters printed, or a
-@@ -2275,6 +2397,7 @@ negative value if there was an output error.
+@@ -2275,6 +2403,7 @@ negative value if there was an output error.
  @comment stdio.h
  @comment ISO
  @deftypefun int fprintf (FILE *@var{stream}, const char *@var{template}, @dots{})
@@ -580,7 +586,7 @@ index 3f9be9bc5..79a3340 100644
  This function is just like @code{printf}, except that the output is
  written to the stream @var{stream} instead of @code{stdout}.
  @end deftypefun
-@@ -2282,6 +2405,7 @@ written to the stream @var{stream} instead of @code{stdout}.
+@@ -2282,6 +2411,7 @@ written to the stream @var{stream} instead of @code{stdout}.
  @comment wchar.h
  @comment ISO
  @deftypefun int fwprintf (FILE *@var{stream}, const wchar_t *@var{template}, @dots{})
@@ -588,7 +594,7 @@ index 3f9be9bc5..79a3340 100644
  This function is just like @code{wprintf}, except that the output is
  written to the stream @var{stream} instead of @code{stdout}.
  @end deftypefun
-@@ -2289,6 +2413,7 @@ written to the stream @var{stream} instead of @code{stdout}.
+@@ -2289,6 +2419,7 @@ written to the stream @var{stream} instead of @code{stdout}.
  @comment stdio.h
  @comment ISO
  @deftypefun int sprintf (char *@var{s}, const char *@var{template}, @dots{})
@@ -596,7 +602,7 @@ index 3f9be9bc5..79a3340 100644
  This is like @code{printf}, except that the output is stored in the character
  array @var{s} instead of written to a stream.  A null character is written
  to mark the end of the string.
-@@ -2313,6 +2438,7 @@ described below.
+@@ -2313,6 +2444,7 @@ described below.
  @comment wchar.h
  @comment GNU
  @deftypefun int swprintf (wchar_t *@var{s}, size_t @var{size}, const wchar_t *@var{template}, @dots{})
@@ -604,7 +610,7 @@ index 3f9be9bc5..79a3340 100644
  This is like @code{wprintf}, except that the output is stored in the
  wide character array @var{ws} instead of written to a stream.  A null
  wide character is written to mark the end of the string.  The @var{size}
-@@ -2337,6 +2463,7 @@ again and decided to not define an function exactly corresponding to
+@@ -2337,6 +2469,7 @@ again and decided to not define an function exactly corresponding to
  @comment stdio.h
  @comment GNU
  @deftypefun int snprintf (char *@var{s}, size_t @var{size}, const char *@var{template}, @dots{})
@@ -612,7 +618,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{snprintf} function is similar to @code{sprintf}, except that
  the @var{size} argument specifies the maximum number of characters to
  produce.  The trailing null character is counted towards this limit, so
-@@ -2407,6 +2534,7 @@ in dynamically allocated memory.
+@@ -2407,6 +2540,7 @@ in dynamically allocated memory.
  @comment stdio.h
  @comment GNU
  @deftypefun int asprintf (char **@var{ptr}, const char *@var{template}, @dots{})
@@ -620,7 +626,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{sprintf}, except that it dynamically
  allocates a string (as with @code{malloc}; @pxref{Unconstrained
  Allocation}) to hold the output, instead of putting the output in a
-@@ -2439,6 +2567,7 @@ make_message (char *name, char *value)
+@@ -2439,6 +2573,7 @@ make_message (char *name, char *value)
  @comment stdio.h
  @comment GNU
  @deftypefun int obstack_printf (struct obstack *@var{obstack}, const char *@var{template}, @dots{})
@@ -628,7 +634,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{asprintf}, except that it uses the
  obstack @var{obstack} to allocate the space.  @xref{Obstacks}.
  
-@@ -2509,6 +2638,7 @@ Prototypes for these functions are declared in @file{stdio.h}.
+@@ -2509,6 +2644,7 @@ Prototypes for these functions are declared in @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int vprintf (const char *@var{template}, va_list @var{ap})
@@ -636,7 +642,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{printf} except that, instead of taking
  a variable number of arguments directly, it takes an argument list
  pointer @var{ap}.
-@@ -2517,6 +2647,7 @@ pointer @var{ap}.
+@@ -2517,6 +2653,7 @@ pointer @var{ap}.
  @comment wchar.h
  @comment ISO
  @deftypefun int vwprintf (const wchar_t *@var{template}, va_list @var{ap})
@@ -644,7 +650,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{wprintf} except that, instead of taking
  a variable number of arguments directly, it takes an argument list
  pointer @var{ap}.
-@@ -2525,6 +2656,48 @@ pointer @var{ap}.
+@@ -2525,6 +2662,48 @@ pointer @var{ap}.
  @comment stdio.h
  @comment ISO
  @deftypefun int vfprintf (FILE *@var{stream}, const char *@var{template}, va_list @var{ap})
@@ -693,7 +699,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{fprintf} with the variable argument list
  specified directly as for @code{vprintf}.
  @end deftypefun
-@@ -2532,6 +2705,7 @@ specified directly as for @code{vprintf}.
+@@ -2532,6 +2711,7 @@ specified directly as for @code{vprintf}.
  @comment wchar.h
  @comment ISO
  @deftypefun int vfwprintf (FILE *@var{stream}, const wchar_t *@var{template}, va_list @var{ap})
@@ -701,7 +707,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{fwprintf} with the variable argument list
  specified directly as for @code{vwprintf}.
  @end deftypefun
-@@ -2539,6 +2713,7 @@ specified directly as for @code{vwprintf}.
+@@ -2539,6 +2719,7 @@ specified directly as for @code{vwprintf}.
  @comment stdio.h
  @comment ISO
  @deftypefun int vsprintf (char *@var{s}, const char *@var{template}, va_list @var{ap})
@@ -709,7 +715,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{sprintf} with the variable argument list
  specified directly as for @code{vprintf}.
  @end deftypefun
-@@ -2546,6 +2721,7 @@ specified directly as for @code{vprintf}.
+@@ -2546,6 +2727,7 @@ specified directly as for @code{vprintf}.
  @comment wchar.h
  @comment GNU
  @deftypefun int vswprintf (wchar_t *@var{s}, size_t @var{size}, const wchar_t *@var{template}, va_list @var{ap})
@@ -717,7 +723,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{swprintf} with the variable argument list
  specified directly as for @code{vwprintf}.
  @end deftypefun
-@@ -2553,6 +2729,7 @@ specified directly as for @code{vwprintf}.
+@@ -2553,6 +2735,7 @@ specified directly as for @code{vwprintf}.
  @comment stdio.h
  @comment GNU
  @deftypefun int vsnprintf (char *@var{s}, size_t @var{size}, const char *@var{template}, va_list @var{ap})
@@ -725,7 +731,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{snprintf} with the variable argument list
  specified directly as for @code{vprintf}.
  @end deftypefun
-@@ -2560,6 +2737,7 @@ specified directly as for @code{vprintf}.
+@@ -2560,6 +2743,7 @@ specified directly as for @code{vprintf}.
  @comment stdio.h
  @comment GNU
  @deftypefun int vasprintf (char **@var{ptr}, const char *@var{template}, va_list @var{ap})
@@ -733,7 +739,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{vasprintf} function is the equivalent of @code{asprintf} with the
  variable argument list specified directly as for @code{vprintf}.
  @end deftypefun
-@@ -2567,6 +2745,10 @@ variable argument list specified directly as for @code{vprintf}.
+@@ -2567,6 +2751,10 @@ variable argument list specified directly as for @code{vprintf}.
  @comment stdio.h
  @comment GNU
  @deftypefun int obstack_vprintf (struct obstack *@var{obstack}, const char *@var{template}, va_list @var{ap})
@@ -744,7 +750,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{obstack_vprintf} function is the equivalent of
  @code{obstack_printf} with the variable argument list specified directly
  as for @code{vprintf}.@refill
-@@ -2639,6 +2821,7 @@ file @file{printf.h}.
+@@ -2639,6 +2827,7 @@ file @file{printf.h}.
  @comment printf.h
  @comment GNU
  @deftypefun size_t parse_printf_format (const char *@var{template}, size_t @var{n}, int *@var{argtypes})
@@ -752,7 +758,7 @@ index 3f9be9bc5..79a3340 100644
  This function returns information about the number and types of
  arguments expected by the @code{printf} template string @var{template}.
  The information is stored in the array @var{argtypes}; each element of
-@@ -2879,6 +3062,12 @@ The function to register a new output conversion is
+@@ -2879,6 +3068,12 @@ The function to register a new output conversion is
  @comment printf.h
  @comment GNU
  @deftypefun int register_printf_function (int @var{spec}, printf_function @var{handler-function}, printf_arginfo_function @var{arginfo-function})
@@ -765,7 +771,7 @@ index 3f9be9bc5..79a3340 100644
  This function defines the conversion specifier character @var{spec}.
  Thus, if @var{spec} is @code{'Y'}, it defines the conversion @samp{%Y}.
  You can redefine the built-in conversions like @samp{%s}, but flag
-@@ -3125,6 +3314,12 @@ which implement a special way to print floating-point numbers.
+@@ -3125,6 +3320,12 @@ which implement a special way to print floating-point numbers.
  @comment printf.h
  @comment GNU
  @deftypefun int printf_size (FILE *@var{fp}, const struct printf_info *@var{info}, const void *const *@var{args})
@@ -778,7 +784,7 @@ index 3f9be9bc5..79a3340 100644
  Print a given floating point number as for the format @code{%f} except
  that there is a postfix character indicating the divisor for the
  number to make this less than 1000.  There are two possible divisors:
-@@ -3183,6 +3378,7 @@ provide the function which returns information about the arguments.
+@@ -3183,6 +3384,7 @@ provide the function which returns information about the arguments.
  @comment printf.h
  @comment GNU
  @deftypefun int printf_size_info (const struct printf_info *@var{info}, size_t @var{n}, int *@var{argtypes})
@@ -786,7 +792,7 @@ index 3f9be9bc5..79a3340 100644
  This function will return in @var{argtypes} the information about the
  used parameters in the way the @code{vfprintf} implementation expects
  it.  The format always takes one argument.
-@@ -3799,6 +3995,7 @@ Prototypes for these functions are in the header file @file{stdio.h}.
+@@ -3799,6 +4001,7 @@ Prototypes for these functions are in the header file @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int scanf (const char *@var{template}, @dots{})
@@ -794,7 +800,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{scanf} function reads formatted input from the stream
  @code{stdin} under the control of the template string @var{template}.
  The optional arguments are pointers to the places which receive the
-@@ -3813,6 +4010,7 @@ template, then @code{EOF} is returned.
+@@ -3813,6 +4016,7 @@ template, then @code{EOF} is returned.
  @comment wchar.h
  @comment ISO
  @deftypefun int wscanf (const wchar_t *@var{template}, @dots{})
@@ -802,7 +808,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{wscanf} function reads formatted input from the stream
  @code{stdin} under the control of the template string @var{template}.
  The optional arguments are pointers to the places which receive the
-@@ -3827,6 +4025,7 @@ template, then @code{WEOF} is returned.
+@@ -3827,6 +4031,7 @@ template, then @code{WEOF} is returned.
  @comment stdio.h
  @comment ISO
  @deftypefun int fscanf (FILE *@var{stream}, const char *@var{template}, @dots{})
@@ -810,7 +816,7 @@ index 3f9be9bc5..79a3340 100644
  This function is just like @code{scanf}, except that the input is read
  from the stream @var{stream} instead of @code{stdin}.
  @end deftypefun
-@@ -3834,6 +4033,7 @@ from the stream @var{stream} instead of @code{stdin}.
+@@ -3834,6 +4039,7 @@ from the stream @var{stream} instead of @code{stdin}.
  @comment wchar.h
  @comment ISO
  @deftypefun int fwscanf (FILE *@var{stream}, const wchar_t *@var{template}, @dots{})
@@ -818,7 +824,7 @@ index 3f9be9bc5..79a3340 100644
  This function is just like @code{wscanf}, except that the input is read
  from the stream @var{stream} instead of @code{stdin}.
  @end deftypefun
-@@ -3841,6 +4041,7 @@ from the stream @var{stream} instead of @code{stdin}.
+@@ -3841,6 +4047,7 @@ from the stream @var{stream} instead of @code{stdin}.
  @comment stdio.h
  @comment ISO
  @deftypefun int sscanf (const char *@var{s}, const char *@var{template}, @dots{})
@@ -826,7 +832,7 @@ index 3f9be9bc5..79a3340 100644
  This is like @code{scanf}, except that the characters are taken from the
  null-terminated string @var{s} instead of from a stream.  Reaching the
  end of the string is treated as an end-of-file condition.
-@@ -3854,6 +4055,7 @@ as an argument to receive a string read under control of the @samp{%s},
+@@ -3854,6 +4061,7 @@ as an argument to receive a string read under control of the @samp{%s},
  @comment wchar.h
  @comment ISO
  @deftypefun int swscanf (const wchar_t *@var{ws}, const wchar_t *@var{template}, @dots{})
@@ -834,7 +840,7 @@ index 3f9be9bc5..79a3340 100644
  This is like @code{wscanf}, except that the characters are taken from the
  null-terminated string @var{ws} instead of from a stream.  Reaching the
  end of the string is treated as an end-of-file condition.
-@@ -3880,6 +4082,7 @@ introduced in @w{ISO C99} and were before available as GNU extensions.
+@@ -3880,6 +4088,7 @@ introduced in @w{ISO C99} and were before available as GNU extensions.
  @comment stdio.h
  @comment ISO
  @deftypefun int vscanf (const char *@var{template}, va_list @var{ap})
@@ -842,7 +848,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{scanf}, but instead of taking
  a variable number of arguments directly, it takes an argument list
  pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
-@@ -3888,6 +4091,7 @@ pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
+@@ -3888,6 +4097,7 @@ pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
  @comment wchar.h
  @comment ISO
  @deftypefun int vwscanf (const wchar_t *@var{template}, va_list @var{ap})
@@ -850,7 +856,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{wscanf}, but instead of taking
  a variable number of arguments directly, it takes an argument list
  pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
-@@ -3896,6 +4100,7 @@ pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
+@@ -3896,6 +4106,7 @@ pointer @var{ap} of type @code{va_list} (@pxref{Variadic Functions}).
  @comment stdio.h
  @comment ISO
  @deftypefun int vfscanf (FILE *@var{stream}, const char *@var{template}, va_list @var{ap})
@@ -858,7 +864,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{fscanf} with the variable argument list
  specified directly as for @code{vscanf}.
  @end deftypefun
-@@ -3903,6 +4108,7 @@ specified directly as for @code{vscanf}.
+@@ -3903,6 +4114,7 @@ specified directly as for @code{vscanf}.
  @comment wchar.h
  @comment ISO
  @deftypefun int vfwscanf (FILE *@var{stream}, const wchar_t *@var{template}, va_list @var{ap})
@@ -866,7 +872,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{fwscanf} with the variable argument list
  specified directly as for @code{vwscanf}.
  @end deftypefun
-@@ -3910,6 +4116,7 @@ specified directly as for @code{vwscanf}.
+@@ -3910,6 +4122,7 @@ specified directly as for @code{vwscanf}.
  @comment stdio.h
  @comment ISO
  @deftypefun int vsscanf (const char *@var{s}, const char *@var{template}, va_list @var{ap})
@@ -874,7 +880,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{sscanf} with the variable argument list
  specified directly as for @code{vscanf}.
  @end deftypefun
-@@ -3917,6 +4124,7 @@ specified directly as for @code{vscanf}.
+@@ -3917,6 +4130,7 @@ specified directly as for @code{vscanf}.
  @comment wchar.h
  @comment ISO
  @deftypefun int vswscanf (const wchar_t *@var{s}, const wchar_t *@var{template}, va_list @var{ap})
@@ -882,7 +888,7 @@ index 3f9be9bc5..79a3340 100644
  This is the equivalent of @code{swscanf} with the variable argument list
  specified directly as for @code{vwscanf}.
  @end deftypefun
-@@ -3966,6 +4174,7 @@ This symbol is declared in @file{wchar.h}.
+@@ -3966,6 +4180,7 @@ This symbol is declared in @file{wchar.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int feof (FILE *@var{stream})
@@ -890,7 +896,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{feof} function returns nonzero if and only if the end-of-file
  indicator for the stream @var{stream} is set.
  
-@@ -3975,6 +4184,9 @@ This symbol is declared in @file{stdio.h}.
+@@ -3975,6 +4190,9 @@ This symbol is declared in @file{stdio.h}.
  @comment stdio.h
  @comment GNU
  @deftypefun int feof_unlocked (FILE *@var{stream})
@@ -900,7 +906,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{feof_unlocked} function is equivalent to the @code{feof}
  function except that it does not implicitly lock the stream.
  
-@@ -3986,6 +4198,7 @@ This symbol is declared in @file{stdio.h}.
+@@ -3986,6 +4204,7 @@ This symbol is declared in @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int ferror (FILE *@var{stream})
@@ -908,7 +914,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{ferror} function returns nonzero if and only if the error
  indicator for the stream @var{stream} is set, indicating that an error
  has occurred on a previous operation on the stream.
-@@ -3996,6 +4209,7 @@ This symbol is declared in @file{stdio.h}.
+@@ -3996,6 +4215,7 @@ This symbol is declared in @file{stdio.h}.
  @comment stdio.h
  @comment GNU
  @deftypefun int ferror_unlocked (FILE *@var{stream})
@@ -916,7 +922,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{ferror_unlocked} function is equivalent to the @code{ferror}
  function except that it does not implicitly lock the stream.
  
-@@ -4023,6 +4237,7 @@ function.
+@@ -4023,6 +4243,7 @@ function.
  @comment stdio.h
  @comment ISO
  @deftypefun void clearerr (FILE *@var{stream})
@@ -924,7 +930,7 @@ index 3f9be9bc5..79a3340 100644
  This function clears the end-of-file and error indicators for the
  stream @var{stream}.
  
-@@ -4033,6 +4248,7 @@ end-of-file indicator for the stream.
+@@ -4033,6 +4254,7 @@ end-of-file indicator for the stream.
  @comment stdio.h
  @comment GNU
  @deftypefun void clearerr_unlocked (FILE *@var{stream})
@@ -932,7 +938,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{clearerr_unlocked} function is equivalent to the @code{clearerr}
  function except that it does not implicitly lock the stream.
  
-@@ -4146,6 +4362,7 @@ are declared in the header file @file{stdio.h}.
+@@ -4146,6 +4368,7 @@ are declared in the header file @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun {long int} ftell (FILE *@var{stream})
@@ -940,7 +946,7 @@ index 3f9be9bc5..79a3340 100644
  This function returns the current file position of the stream
  @var{stream}.
  
-@@ -4158,6 +4375,7 @@ possibly for other reasons as well.  If a failure occurs, a value of
+@@ -4158,6 +4381,7 @@ possibly for other reasons as well.  If a failure occurs, a value of
  @comment stdio.h
  @comment Unix98
  @deftypefun off_t ftello (FILE *@var{stream})
@@ -948,7 +954,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{ftello} function is similar to @code{ftell}, except that it
  returns a value of type @code{off_t}.  Systems which support this type
  use it to describe all file positions, unlike the POSIX specification
-@@ -4181,6 +4399,7 @@ LFS interface transparently replaces the old interface.
+@@ -4181,6 +4405,7 @@ LFS interface transparently replaces the old interface.
  @comment stdio.h
  @comment Unix98
  @deftypefun off64_t ftello64 (FILE *@var{stream})
@@ -956,7 +962,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{ftello} with the only difference that
  the return value is of type @code{off64_t}.  This also requires that the
  stream @var{stream} was opened using either @code{fopen64},
-@@ -4196,6 +4415,7 @@ and so transparently replaces the old interface.
+@@ -4196,6 +4421,7 @@ and so transparently replaces the old interface.
  @comment stdio.h
  @comment ISO
  @deftypefun int fseek (FILE *@var{stream}, long int @var{offset}, int @var{whence})
@@ -964,7 +970,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fseek} function is used to change the file position of the
  stream @var{stream}.  The value of @var{whence} must be one of the
  constants @code{SEEK_SET}, @code{SEEK_CUR}, or @code{SEEK_END}, to
-@@ -4215,6 +4435,7 @@ place in the file.
+@@ -4215,6 +4441,7 @@ place in the file.
  @comment stdio.h
  @comment Unix98
  @deftypefun int fseeko (FILE *@var{stream}, off_t @var{offset}, int @var{whence})
@@ -972,7 +978,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{fseek} but it corrects a problem with
  @code{fseek} in a system with POSIX types.  Using a value of type
  @code{long int} for the offset is not compatible with POSIX.
-@@ -4238,6 +4459,7 @@ LFS interface transparently replaces the old interface.
+@@ -4238,6 +4465,7 @@ LFS interface transparently replaces the old interface.
  @comment stdio.h
  @comment Unix98
  @deftypefun int fseeko64 (FILE *@var{stream}, off64_t @var{offset}, int @var{whence})
@@ -980,7 +986,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{fseeko} with the only difference that
  the @var{offset} parameter is of type @code{off64_t}.  This also
  requires that the stream @var{stream} was opened using either
-@@ -4286,6 +4508,7 @@ the offset provided is relative to the end of the file.
+@@ -4286,6 +4514,7 @@ the offset provided is relative to the end of the file.
  @comment stdio.h
  @comment ISO
  @deftypefun void rewind (FILE *@var{stream})
@@ -988,7 +994,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{rewind} function positions the stream @var{stream} at the
  beginning of the file.  It is equivalent to calling @code{fseek} or
  @code{fseeko} on the @var{stream} with an @var{offset} argument of
-@@ -4407,6 +4630,7 @@ representation.
+@@ -4407,6 +4636,7 @@ representation.
  @comment stdio.h
  @comment ISO
  @deftypefun int fgetpos (FILE *@var{stream}, fpos_t *@var{position})
@@ -996,7 +1002,7 @@ index 3f9be9bc5..79a3340 100644
  This function stores the value of the file position indicator for the
  stream @var{stream} in the @code{fpos_t} object pointed to by
  @var{position}.  If successful, @code{fgetpos} returns zero; otherwise
-@@ -4421,6 +4645,7 @@ interface transparently replaces the old interface.
+@@ -4421,6 +4651,7 @@ interface transparently replaces the old interface.
  @comment stdio.h
  @comment Unix98
  @deftypefun int fgetpos64 (FILE *@var{stream}, fpos64_t *@var{position})
@@ -1004,7 +1010,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{fgetpos} but the file position is
  returned in a variable of type @code{fpos64_t} to which @var{position}
  points.
-@@ -4433,6 +4658,7 @@ and so transparently replaces the old interface.
+@@ -4433,6 +4664,7 @@ and so transparently replaces the old interface.
  @comment stdio.h
  @comment ISO
  @deftypefun int fsetpos (FILE *@var{stream}, const fpos_t *@var{position})
@@ -1012,7 +1018,7 @@ index 3f9be9bc5..79a3340 100644
  This function sets the file position indicator for the stream @var{stream}
  to the position @var{position}, which must have been set by a previous
  call to @code{fgetpos} on the same stream.  If successful, @code{fsetpos}
-@@ -4449,6 +4675,7 @@ interface transparently replaces the old interface.
+@@ -4449,6 +4681,7 @@ interface transparently replaces the old interface.
  @comment stdio.h
  @comment Unix98
  @deftypefun int fsetpos64 (FILE *@var{stream}, const fpos64_t *@var{position})
@@ -1020,7 +1026,7 @@ index 3f9be9bc5..79a3340 100644
  This function is similar to @code{fsetpos} but the file position used
  for positioning is provided in a variable of type @code{fpos64_t} to
  which @var{position} points.
-@@ -4560,6 +4787,7 @@ If you want to flush the buffered output at another time, call
+@@ -4560,6 +4793,7 @@ If you want to flush the buffered output at another time, call
  @comment stdio.h
  @comment ISO
  @deftypefun int fflush (FILE *@var{stream})
@@ -1028,7 +1034,7 @@ index 3f9be9bc5..79a3340 100644
  This function causes any buffered output on @var{stream} to be delivered
  to the file.  If @var{stream} is a null pointer, then
  @code{fflush} causes buffered output on @emph{all} open output streams
-@@ -4572,6 +4800,7 @@ otherwise.
+@@ -4572,6 +4806,7 @@ otherwise.
  @comment stdio.h
  @comment POSIX
  @deftypefun int fflush_unlocked (FILE *@var{stream})
@@ -1036,7 +1042,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{fflush_unlocked} function is equivalent to the @code{fflush}
  function except that it does not implicitly lock the stream.
  @end deftypefun
-@@ -4588,6 +4817,7 @@ exported.
+@@ -4588,6 +4823,7 @@ exported.
  @comment stdio_ext.h
  @comment GNU
  @deftypefun void _flushlbf (void)
@@ -1044,7 +1050,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{_flushlbf} function flushes all line buffered streams
  currently opened.
  
-@@ -4609,6 +4839,7 @@ situation a non-standard function introduced in Solaris and available in
+@@ -4609,6 +4845,7 @@ situation a non-standard function introduced in Solaris and available in
  @comment stdio_ext.h
  @comment GNU
  @deftypefun void __fpurge (FILE *@var{stream})
@@ -1052,7 +1058,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{__fpurge} function causes the buffer of the stream
  @var{stream} to be emptied.  If the stream is currently in read mode all
  input in the buffer is lost.  If the stream is in output mode the
-@@ -4633,6 +4864,7 @@ file @file{stdio.h}.
+@@ -4633,6 +4870,7 @@ file @file{stdio.h}.
  @comment stdio.h
  @comment ISO
  @deftypefun int setvbuf (FILE *@var{stream}, char *@var{buf}, int @var{mode}, size_t @var{size})
@@ -1060,7 +1066,7 @@ index 3f9be9bc5..79a3340 100644
  This function is used to specify that the stream @var{stream} should
  have the buffering mode @var{mode}, which can be either @code{_IOFBF}
  (for full buffering), @code{_IOLBF} (for line buffering), or
-@@ -4710,6 +4942,7 @@ efficient size.
+@@ -4710,6 +4948,7 @@ efficient size.
  @comment stdio.h
  @comment ISO
  @deftypefun void setbuf (FILE *@var{stream}, char *@var{buf})
@@ -1068,7 +1074,7 @@ index 3f9be9bc5..79a3340 100644
  If @var{buf} is a null pointer, the effect of this function is
  equivalent to calling @code{setvbuf} with a @var{mode} argument of
  @code{_IONBF}.  Otherwise, it is equivalent to calling @code{setvbuf}
-@@ -4723,6 +4956,7 @@ use @code{setvbuf} in all new programs.
+@@ -4723,6 +4962,7 @@ use @code{setvbuf} in all new programs.
  @comment stdio.h
  @comment BSD
  @deftypefun void setbuffer (FILE *@var{stream}, char *@var{buf}, size_t @var{size})
@@ -1076,7 +1082,7 @@ index 3f9be9bc5..79a3340 100644
  If @var{buf} is a null pointer, this function makes @var{stream} unbuffered.
  Otherwise, it makes @var{stream} fully buffered using @var{buf} as the
  buffer.  The @var{size} argument specifies the length of @var{buf}.
-@@ -4734,6 +4968,7 @@ This function is provided for compatibility with old BSD code.  Use
+@@ -4734,6 +4974,7 @@ This function is provided for compatibility with old BSD code.  Use
  @comment stdio.h
  @comment BSD
  @deftypefun void setlinebuf (FILE *@var{stream})
@@ -1084,7 +1090,7 @@ index 3f9be9bc5..79a3340 100644
  This function makes @var{stream} be line buffered, and allocates the
  buffer for you.
  
-@@ -4748,6 +4983,7 @@ using a non-standard function introduced in Solaris and available in
+@@ -4748,6 +4989,7 @@ using a non-standard function introduced in Solaris and available in
  @comment stdio_ext.h
  @comment GNU
  @deftypefun int __flbf (FILE *@var{stream})
@@ -1092,7 +1098,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{__flbf} function will return a nonzero value in case the
  stream @var{stream} is line buffered.  Otherwise the return value is
  zero.
-@@ -4761,6 +4997,7 @@ much of it is used.  These functions were also introduced in Solaris.
+@@ -4761,6 +5003,7 @@ much of it is used.  These functions were also introduced in Solaris.
  @comment stdio_ext.h
  @comment GNU
  @deftypefun size_t __fbufsize (FILE *@var{stream})
@@ -1100,7 +1106,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{__fbufsize} function return the size of the buffer in the
  stream @var{stream}.  This value can be used to optimize the use of the
  stream.
-@@ -4771,6 +5008,7 @@ This function is declared in the @file{stdio_ext.h} header.
+@@ -4771,6 +5014,7 @@ This function is declared in the @file{stdio_ext.h} header.
  @comment stdio_ext.h
  @comment GNU
  @deftypefun size_t __fpending (FILE *@var{stream})
@@ -1108,7 +1114,7 @@ index 3f9be9bc5..79a3340 100644
  The @code{__fpending}
  function returns the number of bytes currently in the output buffer.
  For wide-oriented stream the measuring unit is wide characters.  This
-@@ -4818,6 +5056,10 @@ I/O to a string or memory buffer.  These facilities are declared in
+@@ -4818,6 +5062,10 @@ I/O to a string or memory buffer.  These facilities are declared in
  @comment stdio.h
  @comment GNU
  @deftypefun {FILE *} fmemopen (void *@var{buf}, size_t @var{size}, const char *@var{opentype})
@@ -1119,7 +1125,7 @@ index 3f9be9bc5..79a3340 100644
  This function opens a stream that allows the access specified by the
  @var{opentype} argument, that reads from or writes to the buffer specified
  by the argument @var{buf}.  This array must be at least @var{size} bytes long.
-@@ -4870,6 +5112,7 @@ Got r
+@@ -4870,6 +5118,7 @@ Got r
  @comment stdio.h
  @comment GNU
  @deftypefun {FILE *} open_memstream (char **@var{ptr}, size_t *@var{sizeloc})
@@ -1127,7 +1133,7 @@ index 3f9be9bc5..79a3340 100644
  This function opens a stream for writing to a buffer.  The buffer is
  allocated dynamically and grown as necessary, using @code{malloc}.
  After you've closed the stream, this buffer is your responsibility to
-@@ -4985,6 +5228,7 @@ closed.
+@@ -4985,6 +5234,7 @@ closed.
  @comment stdio.h
  @comment GNU
  @deftypefun {FILE *} fopencookie (void *@var{cookie}, const char *@var{opentype}, cookie_io_functions_t @var{io-functions})
@@ -1135,7 +1141,7 @@ index 3f9be9bc5..79a3340 100644
  This function actually creates the stream for communicating with the
  @var{cookie} using the functions in the @var{io-functions} argument.
  The @var{opentype} argument is interpreted as for @code{fopen};
-@@ -5166,6 +5410,7 @@ It is a non-recoverable error.
+@@ -5166,6 +5416,7 @@ It is a non-recoverable error.
  @comment fmtmsg.h
  @comment XPG
  @deftypefun int fmtmsg (long int @var{classification}, const char *@var{label}, int @var{severity}, const char *@var{text}, const char *@var{action}, const char *@var{tag})
@@ -1143,7 +1149,7 @@ index 3f9be9bc5..79a3340 100644
  Display a message described by its parameters on the device(s) specified
  in the @var{classification} parameter.  The @var{label} parameter
  identifies the source of the message.  The string should consist of two
-@@ -5306,6 +5551,7 @@ introducing new classes in a running program.  One could use the
+@@ -5306,6 +5557,7 @@ introducing new classes in a running program.  One could use the
  but this is toilsome.
  
  @deftypefun int addseverity (int @var{severity}, const char *@var{string})
