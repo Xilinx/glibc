@@ -1280,7 +1280,12 @@ All these functions are declared in @file{stdio.h}.
 @comment stdio.h
 @comment GNU
 @deftypefun ssize_t getline (char **@var{lineptr}, size_t *@var{n}, FILE *@var{stream})
-@safety{@mtsafe{}@asunsafe{asynconsist}@acunsafe{lockleak, incansist}}
+@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc}@acunsafe{lockleak, incansist, memleak}}
+@c Besides the usual possibility of getting an inconsistent stream in a
+@c signal handler or leaving it inconsistent in case of cancellation,
+@c the possibility of leaving a dangling pointer upon cancellation
+@c between reallocing the buffer at *lineptr and updating the pointer
+@c brings about another case of incansist.
 This function reads an entire line from @var{stream}, storing the text
 (including the newline and a terminating null character) in a buffer
 and storing the buffer address in @code{*@var{lineptr}}.
@@ -1316,7 +1321,8 @@ If an error occurs or end of file is reached without any bytes read,
 @comment stdio.h
 @comment GNU
 @deftypefun ssize_t getdelim (char **@var{lineptr}, size_t *@var{n}, int @var{delimiter}, FILE *@var{stream})
-@safety{@mtsafe{}@asunsafe{asynconsist}@acunsafe{lockleak, incansist}}
+@safety{@mtsafe{}@asunsafe{asynconsist, asmalloc}@acunsafe{lockleak, incansist, memleak}}
+@c See the getline incansist note.
 This function is like @code{getline} except that the character which
 tells it to stop reading is not necessarily newline.  The argument
 @var{delimiter} specifies the delimiter character; @code{getdelim} keeps
