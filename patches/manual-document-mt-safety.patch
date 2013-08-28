@@ -1,5 +1,5 @@
 Bottom: 39cf8b6977e5b0eb658a937d498281477afa6821
-Top:    9dc17c777e87d9e8550bcf18a685ec2e017a008c
+Top:    bc51276153dccb4e0691cf1f0eb3c565579e39f7
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-17 01:25:04 -0300
 
@@ -15,10 +15,10 @@ for  ChangeLog
 ---
 
 diff --git a/manual/intro.texi b/manual/intro.texi
-index deaf089..d183e12 100644
+index deaf089..c3142ad 100644
 --- a/manual/intro.texi
 +++ b/manual/intro.texi
-@@ -172,6 +172,412 @@ pattern matching facilities (@pxref{Pattern Matching}).
+@@ -172,6 +172,434 @@ pattern matching facilities (@pxref{Pattern Matching}).
  @comment <wordexp.h> (not yet implemented)
  @comment confstr
  
@@ -132,6 +132,28 @@ index deaf089..d183e12 100644
 +all environment-modifying functions are MT-Unsafe, functions that only
 +access the environment are marked as MT-Safe when no other safety issue
 +applies.
++
++
++@item @code{oncesafe}
++@cindex oncesafe
++
++Functions marked with @code{oncesafe} use the internal @code{libc_once}
++machinery to initialize internal data structures.
++
++If a signal handler interrupts such an initializer, and calls any
++function that also performs @code{libc_once} initialization, it will
++deadlock if the thread library is linked in.
++
++Furthermore, if an initializer is partially complete before it is
++canceled or interrupted by a signal whose handler requires the same
++initialization, some or all of the initialization may be performed more
++than once, leaking resources or even result in corrupt internal data
++structures.
++
++Applications that need to call functions marked with @code{oncesafe}
++should ensure the initialization is performed before configuring signal
++handlers or enabling cancellation, so that the AS- and AC-Safety issues
++related with @code{libc_once} do not arise.
 +
 +
 +@item @code{uunguard}
