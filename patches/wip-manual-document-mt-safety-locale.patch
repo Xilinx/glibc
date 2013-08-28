@@ -1,5 +1,5 @@
 Bottom: ea3ba54c73d659d8dfd72d24ca9bff1fd9d533a6
-Top:    31a338b2678571adc223b08713e368bb1acb39d9
+Top:    f84cb3a8a6935357a83211dd7476aa8cceee29ed
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-17 01:25:08 -0300
 
@@ -13,10 +13,10 @@ for  ChangeLog
 ---
 
 diff --git a/manual/locale.texi b/manual/locale.texi
-index 2f10fcd..c61360b 100644
+index 2f10fcd..36cda7f 100644
 --- a/manual/locale.texi
 +++ b/manual/locale.texi
-@@ -224,6 +224,51 @@ The symbols in this section are defined in the header file @file{locale.h}.
+@@ -224,6 +224,125 @@ The symbols in this section are defined in the header file @file{locale.h}.
  @comment locale.h
  @comment ISO
  @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
@@ -38,9 +38,27 @@ index 2f10fcd..c61360b 100644
 +@c  setname ok
 +@c  _nl_find_locale
 +@c   getenv LC_ALL and LANG envromt
-+@c   _nl_load_locale_from_archive
++@c   _nl_load_locale_from_archive asmalloc, memleak, fdleak
 +@c    sysconf _SC_PAGE_SIZE ok
-+@c    
++@c    _nl_normalize_codeset asmalloc, memleak
++@c     isalnum_l ok (C locale)
++@c     isdigit_l ok (C locale)
++@c     malloc asmalloc, memleak
++@c     tolower_l ok (C locale)
++@c    open_not_cancel_2 fdleak
++@c    fxstat64 ok
++@c    close_not_cancel_no_status ok
++@c    __mmap64 memleak
++@c    calculate_head_size ok
++@c    __munmap ok
++@c    compute_hashval ok
++@c    qsort dup asmalloc, memleak
++@c     rangecmp ok
++@c    malloc asmalloc, memleak
++@c    strdup asmalloc, memleak
++@c    _nl_intern_locale_data asmalloc, memleak
++@c     malloc asmalloc, memleak
++@c     free asmalloc, memleak
 +@c   _nl_expand_alias asmalloc, selfdeadlock, memleak, fdleak, lockleak
 +@c    libc_lock_lock selfdeadlock, lockleak
 +@c    bsearch ok
@@ -59,10 +77,66 @@ index 2f10fcd..c61360b 100644
 +@c     qsort asmalloc, memleak
 +@c      alias_compare dup
 +@c    libc_lock_unlock lockleak
-+@c   _nl_explode_name
-+@c   _nl_make_l10nflist
-+@c   _nl_load_locale
++@c   _nl_explode_name asmalloc, memleak
++@c    _nl_find_language ok
++@c    _nl_normalize_codeset dup asmalloc, memleak
++@c   _nl_make_l10nflist asmalloc, memleak
++@c    malloc asmalloc, memleak
++@c    free asmalloc, memleak
++@c    __argz_stringify ok
++@c    __argz_count ok
++@c    __argz_next ok
++@c   _nl_load_locale asmalloc, memleak, fdleak
++@c    open_not_cancel_2 fdleak
++@c    __fxstat64 ok
++@c    close_not_cancel_no_status ok
++@c    mmap memleak
++@c    malloc asmalloc, memleak
++@c    read_not_cancel ok
++@c    free asmalloc, memleak
++@c    _nl_intern_locale_data dup asmalloc, memleak
++@c    munmap ok
 +@c   __gconv_compare_alias
++@c    __gconv_read_conf oncesafe
++@c     (libc_once-initializes gconv_cache and gconv_path_envvar; they're
++@c      never modified afterwards)
++@c     __gconv_load_cache asmalloc, memleak, fdleak
++@c      getenv GCONV_PATH envromt
++@c      open_not_cancel fdleak
++@c      __fxstat64 ok
++@c      close_not_cancel_no_status ok
++@c      mmap memleak
++@c      malloc asmalloc, memleak
++@c      __read ok
++@c      free asmalloc, memleak
++@c      munmap ok
++@c     __gconv_get_path selfdeadlock, asmalloc, lockleak, memleak, fdleak
++@c      getcwd asmalloc, memleak, fdleak
++@c      libc_lock_lock selfdeadlock, lockleak
++@c      malloc asmalloc, memleak
++@c      strtok_r ok
++@c      libc_lock_unlock lockleak
++@c     read_conf_file
++@c      fopen asmalloc, selfdeadlock, memleak, fdleak, lockleak
++@c      fsetlocking ok
++@c      feof_unlocked ok
++@c      getdelim asmalloc, asynconsist, memleak, incansist
++@c      isspace_l ok (C locale)
++@c      add_alias
++@c       +
++@c      add_module
++@c       +
++@c     __tfind ok (because the tree is read only by then)
++@c      __gconv_alias_compare dup ok
++@c     insert_module
++@c      +
++@c     add_alias2
++@c      +
++@c    __gconv_compare_alias_cache ok
++@c     find_module_idx ok
++@c    do_lookup_alias ok
++@c     __tfind ok (because the tree is read only by then)
++@c      __gconv_alias_compare ok
 +@c   strndup asmalloc, memleak
 +@c   strcasecmp_l ok (C locale)
  The function @code{setlocale} sets the current locale for category
