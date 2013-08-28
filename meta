@@ -1,10 +1,11 @@
 Version: 1
-Previous: f1c163251b6c357ccacdec3328cb155295035dd1
-Head: cfd5bbe11be81bd19bd894478f09f14ddd746ac8
+Previous: 485f76b7b9c5f4375d8b28a566f5ab1b0f111e6d
+Head: 74c9e41f2c8561e8a8cc02e8655526580c3dd151
 Applied:
   unused-scalb-is-scalbn.patch: 05db560ffbca9d70d3f8cb8275b5f82ebd0a1fa7
   remove-sysdeps-ieee754-support.patch: fe6a5807692b034fba404bbe03d68929933eb91f
   manual-document-mt-safety.patch: cfd5bbe11be81bd19bd894478f09f14ddd746ac8
+  refresh-temp: 74c9e41f2c8561e8a8cc02e8655526580c3dd151
 Unapplied:
   manual-document-mt-safety-argp.patch: 091e1e16a3a7c50d382e0f9eee36d6d04bcd441a
   manual-document-mt-safety-arith.patch: 6dfda39adb1d84728fb4d392927fe32c70717f8c
