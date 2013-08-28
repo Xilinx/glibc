@@ -1,10 +1,11 @@
 Version: 1
-Previous: 037213016d6ba4fd70e0026d0c92c4ce1ea3372a
-Head: 3f6a86b4b41552229bec8e2e30c2f20b6e0cefa4
+Previous: f1c163251b6c357ccacdec3328cb155295035dd1
+Head: cfd5bbe11be81bd19bd894478f09f14ddd746ac8
 Applied:
   unused-scalb-is-scalbn.patch: 05db560ffbca9d70d3f8cb8275b5f82ebd0a1fa7
   remove-sysdeps-ieee754-support.patch: fe6a5807692b034fba404bbe03d68929933eb91f
   manual-document-mt-safety.patch: cfd5bbe11be81bd19bd894478f09f14ddd746ac8
+Unapplied:
   manual-document-mt-safety-argp.patch: 091e1e16a3a7c50d382e0f9eee36d6d04bcd441a
   manual-document-mt-safety-arith.patch: 6dfda39adb1d84728fb4d392927fe32c70717f8c
   manual-document-mt-safety-charset.patch: b58ef1fd4f0b6a89317ebce875a8c6217da8e8fa
@@ -20,7 +21,6 @@ Applied:
   manual-document-mt-safety-lang.patch: df244861d2cc8225a441c53b523f53150727ae62
   manual-document-mt-safety-llio.patch: bf5c49825fd31327a529399b2400a6e592bbee3a
   manual-document-mt-safety-stdio.patch: 3f6a86b4b41552229bec8e2e30c2f20b6e0cefa4
-Unapplied:
   wip-manual-document-mt-safety-math.patch: 16ea0003407bdc31e8ec8dfe869a8b7692eb8d00
   wip-manual-document-mt-safety-resource.patch: fc558f0f09d7886fab6a27dd914edd28b2e785c0
   wip-manual-document-mt-safety-startup.patch: fe85266926a3cdc0450318fd07dc476cf7e3a867
