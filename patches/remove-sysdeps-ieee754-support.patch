@@ -1,7 +1,7 @@
-Bottom: d06b3f23c180fe174e52c5f9388baa61d6ac33cc
-Top:    39cf8b6977e5b0eb658a937d498281477afa6821
+Bottom: a37ea8d691d49aaa2e36925f64cadc88674f1b39
+Top:    98aee56c2b6c46ef89db799efabe6ab30c9729a1
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-17 01:25:04 -0300
+Date:   2013-08-29 04:12:36 -0300
 
 Remove unused sysdeps/ieee754/support.c.
 

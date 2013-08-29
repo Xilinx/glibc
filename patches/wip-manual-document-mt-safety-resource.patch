@@ -1,7 +1,7 @@
-Bottom: 74197c280c2327b55e496226262a0ce471390321
-Top:    03e8cc5f3903301a0af65e6ddd0359e1c48cd0b1
+Bottom: 48f3dc76c3e3461d4a79137423312ee9d4a99ee0
+Top:    fe2388feda441b099b6db701fab60199b9a385f0
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-17 01:25:09 -0300
+Date:   2013-08-29 04:12:53 -0300
 
 Thread safety documentation.
 
