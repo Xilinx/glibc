@@ -224,14 +224,14 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @comment locale.h
 @comment ISO
 @deftypefun {char *} setlocale (int @var{category}, const char *@var{locale})
-@safety{@mtunsafe{uunguard, envromt}@asunsafe{selfdeadlock, asmalloc}@acunsafe{lockleak, memleak}}
+@safety{@mtunsafe{uunguard, envromt}@asunsafe{oncesafe, selfdeadlock, asmalloc, asynconsist, incansist}@acunsafe{oncesafe, incansist, lockleak, memleak, fdleak}}
 @c Uses of the global locale object are unguarded in functions that
 @c ought to be MT-Safe, so we're ruling out the use of this function
 @c once threads are started.  It takes a write lock itself, but it may
 @c return a pointer loaded from the global locale object after releasing
 @c the lock, or before taking it.
 @c This function returns a pointer read...
-@c setlocale
+@c setlocale envromt, oncesafe, asmalloc, selfdeadlock, asynconsist, incansist, memleak, fdleak, lockleak
 @c  libc_rwlock_wrlock selfdeadlock, lockleak
 @c  libc_rwlock_unlock lockleak
 @c  getenv LOCPATH envromt
@@ -240,7 +240,7 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c  new_composite_name ok
 @c  setdata ok
 @c  setname ok
-@c  _nl_find_locale
+@c  _nl_find_locale envromt, oncesafe, asmalloc, selfdeadlock, asynconsist, incansist, memleak, fdleak, lockleak
 @c   getenv LC_ALL and LANG envromt
 @c   _nl_load_locale_from_archive asmalloc, memleak, fdleak
 @c    sysconf _SC_PAGE_SIZE ok
@@ -300,8 +300,8 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c    free asmalloc, memleak
 @c    _nl_intern_locale_data dup asmalloc, memleak
 @c    munmap ok
-@c   __gconv_compare_alias
-@c    __gconv_read_conf oncesafe
+@c   __gconv_compare_alias oncesafe, asmalloc, asynconsist, selfdeadlock, memleak,incansist, fdleak, lockleak
+@c    __gconv_read_conf oncesafe, asmalloc, asynconsist, selfdeadlock, memleak,incansist, fdleak, lockleak
 @c     (libc_once-initializes gconv_cache and gconv_path_envvar; they're
 @c      never modified afterwards)
 @c     __gconv_load_cache asmalloc, memleak, fdleak
@@ -320,22 +320,34 @@ The symbols in this section are defined in the header file @file{locale.h}.
 @c      malloc asmalloc, memleak
 @c      strtok_r ok
 @c      libc_lock_unlock lockleak
-@c     read_conf_file
+@c     read_conf_file asmalloc, asynconsist, selfdeadlock, memleak, incansist, fdleak, lockleak
 @c      fopen asmalloc, selfdeadlock, memleak, fdleak, lockleak
 @c      fsetlocking ok
 @c      feof_unlocked ok
 @c      getdelim asmalloc, asynconsist, memleak, incansist
 @c      isspace_l ok (C locale)
 @c      add_alias
-@c       +
-@c      add_module
-@c       +
+@c       isspace_l ok (C locale)
+@c       toupper_l ok (C locale)
+@c       add_alias2 dup asynconsist, asmalloc, incansist, memleak
+@c      add_module asmalloc, memleak
+@c       isspace_l ok (C locale)
+@c       toupper_l ok (C locale)
+@c       strtol ok (glocale, but we hold the locale lock)
+@c       tfind __gconv_alias_db ok
+@c        __gconv_alias_compare dup ok
+@c       calloc asmalloc, memleak
+@c       insert_module dup asmalloc
 @c     __tfind ok (because the tree is read only by then)
 @c      __gconv_alias_compare dup ok
-@c     insert_module
-@c      +
-@c     add_alias2
-@c      +
+@c     insert_module asmalloc
+@c      free asmalloc
+@c     add_alias2 asynconsist, asmalloc, incansist, memleak
+@c      detect_conflict ok, reads __gconv_modules_db
+@c      malloc asmalloc, memleak
+@c      tsearch __gconv_alias_db asynconsist, asmalloc, incansist, memleak
+@c       __gconv_alias_compare ok
+@c      free asmalloc
 @c    __gconv_compare_alias_cache ok
 @c     find_module_idx ok
 @c    do_lookup_alias ok
