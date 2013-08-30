@@ -3,6 +3,10 @@ Top:    75c468eb7e225d96ebe0204714f96b4451f3fd0a
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-30 05:59:33 -0300
 
+for  ChangeLog
+
+	* locale/findlocale.c (_nl_find_locale): Retry archive search
+        after alias expansion.
 
 
 ---
