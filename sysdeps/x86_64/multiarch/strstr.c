@@ -165,8 +165,14 @@ char *
 __attribute__ ((section (".text.sse4.2")))
 STRSTR_SSE42 (const unsigned char *s1, const unsigned char *s2)
 {
-#define p1 s1
+#ifdef __CHKP__
+/* TODO: Implement Intel MPX manual checks for these vertorized version using new intrinsics */
+  unsigned char *p1 = __bnd_init_ptr_bounds(s1);
+  unsigned char *p2 = __bnd_init_ptr_bounds(s2);
+#else
+# define p1 s1
   const unsigned char *p2 = s2;
+#endif
 
 #ifndef STRCASESTR_NONASCII
   if (__builtin_expect (p2[0] == '\0', 0))

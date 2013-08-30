@@ -18,6 +18,8 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <nmmintrin.h>
+#ifdef __CHKP__
+#endif
 #include <string.h>
 #include "varshift.h"
 
@@ -61,6 +63,12 @@ __strspn_sse42 (const char *s, const char *a)
 {
   if (*a == 0)
     return 0;
+
+#ifdef __CHKP__
+/* TODO: Implement Intel MPX manual checks for these vertorized version using new intrinsics */
+		s = __bnd_init_ptr_bounds(s);
+		a = __bnd_init_ptr_bounds(a);
+#endif
 
   const char *aligned;
   __m128i mask;

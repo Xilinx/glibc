@@ -26,6 +26,15 @@ CFLAGS-strstr.c += -msse4
 CFLAGS-strcasestr.c += -msse4
 CFLAGS-strcasestr-nonascii.c += -msse4
 endif
+
+ifeq ($(enable-mpx), yes)
+sysdep_routines += memcpy-ssse3-back-1 mempcpy-ssse3-back-1 memmove-ssse3-back-1 \
+						 memcpy-c memmove-c mempcpy-c memcpy_chk-c mempcpy_chk-c memmove_chk-c
+ASFLAGS-memcpy-ssse3-back-1.S += -fno-mpx
+ASFLAGS-mempcpy-ssse3-back-1.S += -fno-mpx
+ASFLAGS-memmove-ssse3-back-1.S += -fno-mpx
+endif
+
 endif
 
 ifeq ($(subdir),wcsmbs)

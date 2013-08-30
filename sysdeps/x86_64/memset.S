@@ -26,6 +26,15 @@
 	.text
 #if !defined NOT_IN_libc
 ENTRY(__bzero)
+	testq	%rsi, %rsi
+	jz	L(only_return)
+
+# ifdef __CHKP__
+	bndcl	(%rdi), %bnd0
+	bndcu	-1(%rdi, %rsi), %bnd0
+# endif
+
+	mov	%rdi, %rax
 	movq	%rdi, %rax /* Set return value.  */
 	movq	%rsi, %rdx /* Set n.  */
 	pxor	%xmm8, %xmm8
@@ -53,7 +62,20 @@ ENTRY_CHK (__memset_chk)
 END_CHK (__memset_chk)
 #endif
 
+#ifdef __CHKP__
+ENTRY (mpx_memset_nochk)
+	jmp	L(entry_from_mpx_memset_nochk)
+END (mpx_memset_nochk)
+#endif
+
 ENTRY (memset)
+	testq	%rdx, %rdx
+	jz	L(only_return)
+#ifdef __CHKP__
+	bndcl	(%rdi), %bnd0
+	bndcu	-1(%rdi, %rdx), %bnd0
+L(entry_from_mpx_memset_nochk):
+#endif
 	movd	%esi, %xmm8
 	movq	%rdi, %rax
 	punpcklbw	%xmm8, %xmm8
@@ -70,6 +92,9 @@ L(entry_from_bzero):
 	ja	L(between_32_64_bytes)
 L(return):
 	rep
+	ret
+L(only_return):
+	movq	%rdi, %rax
 	ret
 	ALIGN (4)
 L(between_32_64_bytes):
@@ -128,6 +153,11 @@ L(between8_16bytes):
 
 END (memset)
 libc_hidden_builtin_def (memset)
+
+#ifdef __CHKP__
+weak_alias (memset, mpx_memset_nobnd)
+weak_alias (mpx_memset_nochk, mpx_memset_nobnd_nochk)
+#endif
 
 #if defined PIC && !defined NOT_IN_libc && !defined USE_MULTIARCH
 strong_alias (__memset_chk, __memset_zero_constant_len_parameter)

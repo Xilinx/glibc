@@ -20,6 +20,8 @@
 #include <nmmintrin.h>
 #include <string.h>
 #include "varshift.h"
+#ifdef __CHKP__
+#endif
 
 /* We use 0x2:
 	_SIDD_SBYTE_OPS
@@ -83,6 +85,12 @@ STRCSPN_SSE42 (const char *s, const char *a)
 {
   if (*a == 0)
     RETURN (NULL, strlen (s));
+
+#ifdef __CHKP__
+/* TODO: Implement MPX support for these vertorized version manually using mpx intrinsics */
+		a = __bnd_init_ptr_bounds(a);
+		s = __bnd_init_ptr_bounds(s);
+#endif
 
   const char *aligned;
   __m128i mask;
