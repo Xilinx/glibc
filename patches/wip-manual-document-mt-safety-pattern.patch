@@ -1,0 +1,15 @@
+Bottom: 15a8300141ee19f4516dae06220c3f742c3d7c85
+Top:    15a8300141ee19f4516dae06220c3f742c3d7c85
+Author: Alexandre Oliva <aoliva@redhat.com>
+Date:   2013-08-31 03:02:58 -0300
+
+Thread safety documentation.
+
+for ChangeLog
+
+	* manual/pattern.texi: Document thread safety properties.
+
+
+---
+
+
