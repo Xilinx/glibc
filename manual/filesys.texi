@@ -749,7 +749,7 @@ are very helpful for this purpose.
 @comment dirent.h
 @comment BSD/SVID
 @deftypefun int alphasort (const void *@var{a}, const void *@var{b})
-@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
+@safety{@mtsafe{glocale}@asunsafe{asmalloc}@acsafe{memleak}}
 @c Calls strcoll.
 The @code{alphasort} function behaves like the @code{strcoll} function
 (@pxref{String/Array Comparison}).  The difference is that the arguments
@@ -763,8 +763,8 @@ than zero depending on the order of the two entries @var{a} and @var{b}.
 @comment dirent.h
 @comment GNU
 @deftypefun int versionsort (const void *@var{a}, const void *@var{b})
-@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
-@c Calls strverscmp.
+@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
+@c Calls strverscmp, which will evaluate .
 The @code{versionsort} function is like @code{alphasort} except that it
 uses the @code{strverscmp} function internally.
 @end deftypefun
@@ -797,7 +797,7 @@ argument.  Instead we provide the two replacement functions below.
 @comment dirent.h
 @comment GNU
 @deftypefun int alphasort64 (const void *@var{a}, const void *@var{b})
-@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
+@safety{@mtsafe{glocale}@asunsafe{asmalloc}@acsafe{memleak}}
 @c See alphasort.
 The @code{alphasort64} function behaves like the @code{strcoll} function
 (@pxref{String/Array Comparison}).  The difference is that the arguments
@@ -811,7 +811,7 @@ than zero depending on the order of the two entries @var{a} and @var{b}.
 @comment dirent.h
 @comment GNU
 @deftypefun int versionsort64 (const void *@var{a}, const void *@var{b})
-@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
+@safety{@mtsafe{glocale}@assafe{}@acsafe{}}
 @c See versionsort.
 The @code{versionsort64} function is like @code{alphasort64}, excepted that it
 uses the @code{strverscmp} function internally.
