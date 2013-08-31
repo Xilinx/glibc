@@ -1,6 +1,6 @@
 Version: 1
-Previous: 38b88191060bafc589e7c0d4927b9398a5be2aac
-Head: 9d8222797fb192c47f61ef2756ba9bf721caed9d
+Previous: 8620221110d5cce755f0bc92af6422aa916ca8bb
+Head: fe706bad5be70be468054c3d603d2026477c8e9b
 Applied:
   unused-scalb-is-scalbn.patch: 1e5d1e38b6a866f88772d34ec2d1b3a75d78b233
   remove-sysdeps-ieee754-support.patch: 874e350341a8e14881907b059e6d988de123648f
@@ -22,13 +22,13 @@ Applied:
   manual-document-mt-safety-stdio.patch: 63ec6cc0ec5f71f1e34e18def7b86eda75a61ce8
   wip-manual-document-mt-safety-math.patch: db9625097d5f7d73d8ba1e10cf6a592ef525404f
   wip-manual-document-mt-safety-pattern.patch: 9d8222797fb192c47f61ef2756ba9bf721caed9d
+  wip-manual-document-mt-safety-resource.patch: ea9df22bfd43daf99bbcadfa546e4989e0bec7ea
+  wip-manual-document-mt-safety-startup.patch: 774b847dc98387e90b576162ae3037de3f804693
+  wip-manual-document-mt-safety-search.patch: 33ed2f703bf905ac3dbb8beadda4548fb8ec09d2
+  wip-manual-document-mt-safety-string.patch: b821402693242076cefaf22a0d5f04c48fedd3d0
+  wip-manual-document-mt-safety-terminal.patch: 21de0b6010d4445b2194624a4776886fcf61f982
+  wip-manual-document-mt-safety-threads.patch: eafe2b5006176bc49e35cfcd3e4e15ea5a1457d7
+  wip-manual-document-mt-safety-time.patch: 23fab67522c5b3d91610013fb2c8562cf7ec3169
+  wip-manual-document-mt-safety-locale.patch: fe706bad5be70be468054c3d603d2026477c8e9b
 Unapplied:
-  wip-manual-document-mt-safety-resource.patch: dcd90718c551e61f1cbeab38fa4363d8a7a32bd2
-  wip-manual-document-mt-safety-startup.patch: 230f153ea88ba8ed2cb29f2e2ef3cc40951f6225
-  wip-manual-document-mt-safety-search.patch: 5e0862c9507f9dc42f539d580c22b31cc9feb8df
-  wip-manual-document-mt-safety-string.patch: 18ca074b1729953c82b2ccfbe825c115d2e92612
-  wip-manual-document-mt-safety-terminal.patch: fe3192904116fc22495af608394faa50f46a1da0
-  wip-manual-document-mt-safety-threads.patch: 0130f8b910297080deea57ff964d8984d8d8df56
-  wip-manual-document-mt-safety-time.patch: 3a43e38278e86406b56895d8bf3b3040b0c1ebbb
-  wip-manual-document-mt-safety-locale.patch: e20d050989275a4938846e2098120ac93bb27b73
 Hidden:
