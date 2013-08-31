@@ -2680,7 +2680,7 @@ pointer @var{ap}.
 @c outchar ok
 @c outstring ok
 @c PAD ok
-@c __printf_fp glocale memleak
+@c __printf_fp glocale, asmalloc, memleak
 @c __printf_fphex glocale
 @c __readonly_area
 @c   [GNU/Linux] fopen, strtoul, free
