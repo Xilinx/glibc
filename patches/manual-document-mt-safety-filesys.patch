@@ -1,7 +1,7 @@
-Bottom: 0d10a649c4473d9a6fb609ec81fa26e8a629d061
-Top:    e36ec2efcbfbb0271060509e53c1c357a9688a7f
+Bottom: cd380e093eb8bd489394de0daad301f35820b2e8
+Top:    157f057fc8982c458959738c2a2c8d76e6c12c7e
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-29 04:12:43 -0300
+Date:   2013-08-31 01:03:56 -0300
 
 Thread safety documentation.
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/filesys.texi b/manual/filesys.texi
-index 814c210..c7eb13b 100644
+index 1cac453..182fd33 100644
 --- a/manual/filesys.texi
 +++ b/manual/filesys.texi
 @@ -58,6 +58,25 @@ Prototypes for these functions are declared in the header file
@@ -406,7 +406,7 @@ index 814c210..c7eb13b 100644
  @deftypefun int stat64 (const char *@var{filename}, struct stat64 *@var{buf})
 +@safety{@mtsafe{}@assafe{}@acsafe{}}
  This function is similar to @code{stat} but it is also able to work on
- files larger then @math{2^31} bytes on 32-bit systems.  To be able to do
+ files larger than @math{2^31} bytes on 32-bit systems.  To be able to do
  this the result is stored in a variable of type @code{struct stat64} to
 @@ -1921,6 +2034,7 @@ replaces the interface for small files on 32-bit machines.
  @comment sys/stat.h
@@ -449,7 +449,7 @@ index 814c210..c7eb13b 100644
 +@c Direct system call through lxstat64, sometimes with an xstat conv
 +@c call afterwards.
  This function is similar to @code{lstat} but it is also able to work on
- files larger then @math{2^31} bytes on 32-bit systems.  To be able to do
+ files larger than @math{2^31} bytes on 32-bit systems.  To be able to do
  this the result is stored in a variable of type @code{struct stat64} to
 @@ -2007,12 +2132,14 @@ that file:
  @comment sys/stat.h
@@ -701,7 +701,7 @@ index 814c210..c7eb13b 100644
 +@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{memleak, fdleak, lockleak}}
  This function is similar to @code{tmpfile}, but the stream it returns a
  pointer to was opened using @code{tmpfile64}.  Therefore this stream can
- be used for files larger then @math{2^31} bytes on 32-bit machines.
+ be used for files larger than @math{2^31} bytes on 32-bit machines.
 @@ -3165,6 +3347,11 @@ and so transparently replaces the old interface.
  @comment stdio.h
  @comment ISO

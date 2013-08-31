@@ -1,7 +1,7 @@
-Bottom: a46ac9b1deecd51710762b73ec64e2bb52a9d84b
-Top:    bd7cc55350cfbbd116f5a730a8bef8f534c74b53
+Bottom: 7cb1b26f3679a5f6ca27301fc2d16f2a63ee47ca
+Top:    779a8294863d1b2690c20f0ca9f1daa8923465db
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-29 04:12:40 -0300
+Date:   2013-08-31 01:03:54 -0300
 
 Thread safety documentation.
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/charset.texi b/manual/charset.texi
-index e21502e..7e6c416 100644
+index 4042639..4301727 100644
 --- a/manual/charset.texi
 +++ b/manual/charset.texi
 @@ -504,6 +504,8 @@ sequence points.  Communication protocols often require this.

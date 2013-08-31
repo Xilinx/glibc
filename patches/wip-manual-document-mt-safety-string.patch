@@ -1,7 +1,7 @@
-Bottom: aa3dbf5537f25ecc771448e84d89b4535b1c6f70
-Top:    df309a874addf70b8a7a1debf3b0de3512d70a58
+Bottom: 9bb36bae725f82fa35390671a43725efcd84ec88
+Top:    f2dc9605a7f5fc5e97f7243ee13b18c3e34fe5e3
 Author: Alexandre Oliva <aoliva@redhat.com>
-Date:   2013-08-29 04:12:54 -0300
+Date:   2013-08-31 01:04:00 -0300
 
 Thread safety documentation.
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/string.texi b/manual/string.texi
-index 246be84..1408033 100644
+index 2a164a9..173306c 100644
 --- a/manual/string.texi
 +++ b/manual/string.texi
 @@ -1159,6 +1159,11 @@ strings are written in into account.  To get that one has to use
