@@ -736,6 +736,10 @@ expression into it by calling @code{regcomp}.
 @comment regex.h
 @comment POSIX.2
 @deftypefun int regcomp (regex_t *restrict @var{compiled}, const char *restrict @var{pattern}, int @var{cflags})
+@c (re_)malloc
+@c re_compile_internal
+@c re_compile_fastmap
+@c (re_)free
 The function @code{regcomp} ``compiles'' a regular expression into a
 data structure that you can use with @code{regexec} to match against a
 string.  The compiled regular expression format is designed for
