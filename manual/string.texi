@@ -1350,8 +1350,9 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
 @comment string.h
 @comment ISO
 @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
-@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
-@c Adjust alphasort one safety info is determined.
+@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
+@c Calls strcoll_l with the current locale, which dereferences only the
+@c LC_COLLATE data pointer.
 The @code{strcoll} function is similar to @code{strcmp} but uses the
 collating sequence of the current locale for collation (the
 @code{LC_COLLATE} locale).
@@ -1360,6 +1361,8 @@ collating sequence of the current locale for collation (the
 @comment wchar.h
 @comment ISO
 @deftypefun int wcscoll (const wchar_t *@var{ws1}, const wchar_t *@var{ws2})
+@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
+@c Same as strcoll, but calling wcscoll_l.
 The @code{wcscoll} function is similar to @code{wcscmp} but uses the
 collating sequence of the current locale for collation (the
 @code{LC_COLLATE} locale).
