@@ -1,6 +1,6 @@
 Version: 1
-Previous: 3b4ccc92fd1387e7de7cd9b502c03f9b259d746b
-Head: 36c2f5c7a687deea27b8092521704a0e9be8f7c9
+Previous: 5c8f728e217b3cc071402ce31689d0cc3ddbbe4f
+Head: c6a95510e695760a3ff9c03a7a1a6a95d2f74573
 Applied:
   unused-scalb-is-scalbn.patch: 1e5d1e38b6a866f88772d34ec2d1b3a75d78b233
   remove-sysdeps-ieee754-support.patch: 874e350341a8e14881907b059e6d988de123648f
@@ -28,7 +28,6 @@ Applied:
   wip-manual-document-mt-safety-terminal.patch: 178585271fec5719c46b62c1a25f19cd9fd28655
   wip-manual-document-mt-safety-threads.patch: bcc2df98a27754a19ee0747e55f39302dbf3970e
   wip-manual-document-mt-safety-time.patch: 85e757c54f47a0ada4f7a940c638b2bc7fb01572
-  wip-manual-document-mt-safety-locale.patch: 992d05a094081cd47e58dcff300c4f202ac03eb2
-  refresh-temp: 36c2f5c7a687deea27b8092521704a0e9be8f7c9
+  wip-manual-document-mt-safety-locale.patch: c6a95510e695760a3ff9c03a7a1a6a95d2f74573
 Unapplied:
 Hidden:
