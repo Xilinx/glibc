@@ -1,5 +1,5 @@
 Bottom: 7f940b008b7f2743c4684dd4fcac50b2e707388b
-Top:    e8b652117ea1b56a1869c44cc40594c34af2f636
+Top:    574b1f3ead78e44f9134dc32d8cb5ccf08eeb941
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-31 01:04:01 -0300
 
@@ -13,7 +13,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/locale.texi b/manual/locale.texi
-index 2f10fcd..11c9dc7 100644
+index 2f10fcd..4afa104 100644
 --- a/manual/locale.texi
 +++ b/manual/locale.texi
 @@ -224,6 +224,137 @@ The symbols in this section are defined in the header file @file{locale.h}.
@@ -188,12 +188,14 @@ index 2f10fcd..11c9dc7 100644
  The @code{strfmon} function is similar to the @code{strftime} function
  in that it takes a buffer, its size, a format string,
  and values to write into the buffer as text in a form specified
-@@ -1185,6 +1329,8 @@ access to the corresponding locale definitions.
+@@ -1185,6 +1329,10 @@ access to the corresponding locale definitions.
  @comment GNU
  @comment stdlib.h
  @deftypefun int rpmatch (const char *@var{response})
-+@c Calls nl_langinfo with YESEXPR and NOEXPR, triggering glocale.  Calls
-+@c regfree, regcomp and regexec.
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
++@c Calls nl_langinfo with YESEXPR and NOEXPR, triggering glocale, but
++@c it's regcomp and regexec that bring in all of the safety issues.
++@c regfree is also called, but it doesn't introduce any further issues.
  The function @code{rpmatch} checks the string in @var{response} whether
  or not it is a correct yes-or-no answer and if yes, which one.  The
  check uses the @code{YESEXPR} and @code{NOEXPR} data in the
