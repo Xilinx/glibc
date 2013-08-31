@@ -1329,8 +1329,10 @@ access to the corresponding locale definitions.
 @comment GNU
 @comment stdlib.h
 @deftypefun int rpmatch (const char *@var{response})
-@c Calls nl_langinfo with YESEXPR and NOEXPR, triggering glocale.  Calls
-@c regfree, regcomp and regexec.
+@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
+@c Calls nl_langinfo with YESEXPR and NOEXPR, triggering glocale, but
+@c it's regcomp and regexec that bring in all of the safety issues.
+@c regfree is also called, but it doesn't introduce any further issues.
 The function @code{rpmatch} checks the string in @var{response} whether
 or not it is a correct yes-or-no answer and if yes, which one.  The
 check uses the @code{YESEXPR} and @code{NOEXPR} data in the
