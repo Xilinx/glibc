@@ -1,5 +1,5 @@
 Bottom: c5756e591f2df4db2169921a9937ae43e5dd0515
-Top:    b58480891cc51f5cdfe4434cd3a40ad48edac192
+Top:    e8b652117ea1b56a1869c44cc40594c34af2f636
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-31 03:02:58 -0300
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/pattern.texi b/manual/pattern.texi
-index 1966f3f..4b66204 100644
+index 1966f3f..da2c8b6d2 100644
 --- a/manual/pattern.texi
 +++ b/manual/pattern.texi
 @@ -736,6 +736,251 @@ expression into it by calling @code{regcomp}.
@@ -113,7 +113,7 @@ index 1966f3f..4b66204 100644
 +@c         re_string_fetch_byte dup ok
 +@c         re_string_peek_byte dup ok
 +@c         re_string_skip_bytes dup ok
-+@c        peek_token_bracket dup
++@c        peek_token_bracket dup ok
 +@c       auto build_range_exp asynconsist, asmalloc, sefldeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c        auto lookup_collation_sequence_value asynconsist, asmalloc, sefldeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c         btowc dup asynconsist, asmalloc, sefldeadlock, shlimb, incansist, lockleak, memleak, fdleak
@@ -268,12 +268,13 @@ index 1966f3f..4b66204 100644
  The function @code{regcomp} ``compiles'' a regular expression into a
  data structure that you can use with @code{regexec} to match against a
  string.  The compiled regular expression format is designed for
-@@ -885,6 +1130,246 @@ unless the regular expression contains anchor characters (@samp{^} or
+@@ -885,6 +1130,247 @@ unless the regular expression contains anchor characters (@samp{^} or
  @comment regex.h
  @comment POSIX.2
  @deftypefun int regexec (const regex_t *restrict @var{compiled}, const char *restrict @var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr}[restrict], int @var{eflags})
++@safety{@mtsafe{glocale}@asunsafe{asynconsist, asmalloc, selfdeadlock, shlimb}@acunsafe{incansist, lockleak, memleak, fdleak, shlimb}}
 +@c libc_lock_lock selfdeadlock, lockleak
-+@c re_search_internal
++@c re_search_internal glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c  re_string_allocate asmalloc, memleak
 +@c   re_string_construct_common dup ok
 +@c   re_string_realloc_buffers dup asmalloc, memleak
@@ -281,7 +282,7 @@ index 1966f3f..4b66204 100644
 +@c   (re_)malloc dup asmalloc, memleak
 +@c  re_string_byte_at ok
 +@c  re_string_first_byte dup ok
-+@c  check_matching
++@c  check_matching glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c   re_string_cur_idx dup ok
 +@c   acquire_init_state_context dup asmalloc, memleak
 +@c    re_string_context_at ok
@@ -292,11 +293,11 @@ index 1966f3f..4b66204 100644
 +@c    match_ctx_add_subtop asmalloc, memleak
 +@c     (re_)realloc dup asmalloc, memleak
 +@c     calloc dup asmalloc, memleak
-+@c   transit_state_bkref
++@c   transit_state_bkref glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c    re_string_cur_idx dup ok
 +@c    re_string_context_at dup ok
 +@c    NOT_SATISFY_NEXT_CONSTRAINT ok
-+@c    get_subexp glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak, ***wcscoll
++@c    get_subexp glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c     re_string_get_buffer ok
 +@c     search_cur_bkref_entry ok
 +@c     clean_state_log_if_needed glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
@@ -307,8 +308,8 @@ index 1966f3f..4b66204 100644
 +@c       build_upper_buffer dup ok (glocale, but optimized)
 +@c       build_wcs_buffer dup asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c       re_string_translate_buffer dup ok
-+@c     get_subexp_sub glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak, ***wcscoll
-+@c      check_arrival glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak, ***wcscoll
++@c     get_subexp_sub glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
++@c      check_arrival glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c       (re_)realloc dup asmalloc, memleak
 +@c       re_string_context_at dup ok
 +@c       re_node_set_init_1 dup asmalloc, memleak
@@ -343,9 +344,9 @@ index 1966f3f..4b66204 100644
 +@c          free_state dup asmalloc, memleak
 +@c       re_acquire_state_context dup asmalloc, memleak
 +@c       re_node_set_merge dup asmalloc, memleak
-+@c       check_arrival_add_next_nodes (maybe glocale), asmalloc, memleak, ***wcscoll
++@c       check_arrival_add_next_nodes glocale, asmalloc, memleak
 +@c        re_node_set_init_empty dup ok
-+@c        check_node_accept_bytes (maybe glocale), ***wcscoll
++@c        check_node_accept_bytes glocale, asmalloc, memleak
 +@c         re_string_byte_at dup ok
 +@c         re_string_char_size_at dup ok
 +@c         re_string_elem_size_at (maybe glocale)
@@ -359,7 +360,7 @@ index 1966f3f..4b66204 100644
 +@c          _NL_CURRENT_WORD dup ok
 +@c          _NL_CURRENT dup ok
 +@c         auto findidx dup ok
-+@c         wcscoll ***wcscoll
++@c         wcscoll glocale, asmalloc, memleak
 +@c        re_node_set_empty dup ok
 +@c        re_node_set_merge dup asmalloc, memleak
 +@c        re_node_set_free dup asmalloc, memleak
@@ -375,7 +376,7 @@ index 1966f3f..4b66204 100644
 +@c       (re_)free dup asmalloc, memleak
 +@c      clean_state_log_if_needed dup glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c     extend_buffers dup glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
-+@c     find_subexp_node dup
++@c     find_subexp_node dup ok
 +@c     calloc dup asmalloc, memleak
 +@c     check_arrival dup ***
 +@c     match_ctx_add_sublast asmalloc, memleak
@@ -393,11 +394,11 @@ index 1966f3f..4b66204 100644
 +@c     NOT_SATISFY_NEXT_CONSTRAINT dup ok
 +@c   re_string_eoi dup ok
 +@c   extend_buffers dup glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
-+@c   transit_state
-+@c    transit_state_mb
++@c   transit_state glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
++@c    transit_state_mb glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c     re_string_context_at dup ok
 +@c     NOT_SATISFY_NEXT_CONSTRAINT dup ok
-+@c     check_node_accept_bytes dup
++@c     check_node_accept_bytes dup glocale, asmalloc, memleak
 +@c     re_string_cur_idx dup ok
 +@c     clean_state_log_if_needed glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c     re_node_set_init_union dup asmalloc, memleak
@@ -429,26 +430,26 @@ index 1966f3f..4b66204 100644
 +@c     bitset_merge ok
 +@c     calloc dup asmalloc, memleak
 +@c     bitset_contain dup ok
-+@c   merge_state_with_log
++@c   merge_state_with_log glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c    re_string_cur_idx dup ok
 +@c    re_node_set_init_union dup asmalloc, memleak
 +@c    re_string_context_at dup ok
 +@c    re_node_set_free dup asmalloc, memleak
 +@c    check_subexp_matching_top asmalloc, memleak
 +@c     match_ctx_add_subtop dup asmalloc, memleak
-+@c    transit_state_bkref dup
++@c    transit_state_bkref dup glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
 +@c   find_recover_state
 +@c    re_string_cur_idx dup ok
 +@c    re_string_skip_bytes dup ok
-+@c    merge_state_with_log dup
-+@c  check_halt_state_context dup
-+@c  prune_impossible_nodes
++@c    merge_state_with_log dup glocale, asynconsist, asmalloc, selfdeadlock, shlimb, incansist, lockleak, memleak, fdleak
++@c  check_halt_state_context dup ok
++@c  prune_impossible_nodes glocale, asmalloc, memleak
 +@c   (re_)malloc dup asmalloc, memleak
 +@c   sift_ctx_init ok
 +@c    re_node_set_init_empty dup ok
-+@c   sift_states_backward
++@c   sift_states_backward glocale, asmalloc, memleak
 +@c    re_node_set_init_1 dup asmalloc, memleak
-+@c    update_cur_sifted_state asmalloc, memleak
++@c    update_cur_sifted_state glocale, asmalloc, memleak
 +@c     add_epsilon_src_nodes asmalloc, memleak
 +@c      re_acquire_state dup asmalloc, memleak
 +@c      re_node_set_alloc dup asmalloc, memleak
@@ -464,7 +465,7 @@ index 1966f3f..4b66204 100644
 +@c       re_node_set_remove_at dup ok
 +@c      re_node_set_contains dup ok
 +@c     re_acquire_state dup asmalloc, memleak
-+@c     sift_states_bkref asmalloc, memleak
++@c     sift_states_bkref glocale, asmalloc, memleak
 +@c      search_cur_bkref_entry dup ok
 +@c      check_dst_limits ok
 +@c       search_cur_bkref_entry dup ok
@@ -472,7 +473,7 @@ index 1966f3f..4b66204 100644
 +@c        check_dst_limits_calc_pos_1 ok
 +@c      re_node_set_init_copy dup asmalloc, memleak
 +@c      re_node_set_insert dup asmalloc, memleak
-+@c      sift_states_backward dup
++@c      sift_states_backward dup glocale, asmalloc, memleak
 +@c      merge_state_array dup asmalloc, memleak
 +@c      re_node_set_remove ok
 +@c       re_node_set_contains dup ok
@@ -480,9 +481,9 @@ index 1966f3f..4b66204 100644
 +@c      re_node_set_free dup asmalloc, memleak
 +@c    re_node_set_free dup asmalloc, memleak
 +@c    re_node_set_empty dup ok
-+@c    build_sifted_states
-+@c     sift_states_iter_mb
-+@c      check_node_accept_bytes dup
++@c    build_sifted_states glocale, asmalloc, memleak
++@c     sift_states_iter_mb glocale, asmalloc, memleak
++@c      check_node_accept_bytes dup glocale, asmalloc, memleak
 +@c     check_node_accept dup ok
 +@c     check_dst_limits dup ok
 +@c     re_node_set_insert dup asmalloc, memleak
@@ -515,7 +516,7 @@ index 1966f3f..4b66204 100644
  This function tries to match the compiled regular expression
  @code{*@var{compiled}} against @var{string}.
  
-@@ -1047,6 +1532,9 @@ free the storage it uses by calling @code{regfree}.
+@@ -1047,6 +1533,9 @@ free the storage it uses by calling @code{regfree}.
  @comment regex.h
  @comment POSIX.2
  @deftypefun void regfree (regex_t *@var{compiled})
