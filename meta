@@ -1,5 +1,5 @@
 Version: 1
-Previous: 0a7907b63c6a66c7e414744103819d7f8366771e
+Previous: e3dcc27d73ed78e729a25718727eb83d631db0ec
 Head: 4214cb36d3708ec427b9de7324c804d24d9c3552
 Applied:
   unused-scalb-is-scalbn.patch: 1e5d1e38b6a866f88772d34ec2d1b3a75d78b233
@@ -29,6 +29,6 @@ Applied:
   wip-manual-document-mt-safety-terminal.patch: 21de0b6010d4445b2194624a4776886fcf61f982
   wip-manual-document-mt-safety-threads.patch: eafe2b5006176bc49e35cfcd3e4e15ea5a1457d7
   wip-manual-document-mt-safety-time.patch: 23fab67522c5b3d91610013fb2c8562cf7ec3169
-  wip-manual-document-mt-safety-locale.patch: 4214cb36d3708ec427b9de7324c804d24d9c3552
+  manual-document-mt-safety-locale.patch: 4214cb36d3708ec427b9de7324c804d24d9c3552
 Unapplied:
 Hidden:
