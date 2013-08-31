@@ -1,6 +1,6 @@
 Version: 1
-Previous: 86477a8edf0127f256e096762f505b930595ab13
-Head: d11a5f289468002d2e001e32fbc1db8a8ab6004d
+Previous: 3eb260d75b2037994e4f90ebac51c25c51afded4
+Head: bbf7743976ec2adddb2f60002a8d591211e8d3c7
 Applied:
   unused-scalb-is-scalbn.patch: 1e5d1e38b6a866f88772d34ec2d1b3a75d78b233
   remove-sysdeps-ieee754-support.patch: 874e350341a8e14881907b059e6d988de123648f
@@ -14,21 +14,21 @@ Applied:
   manual-document-mt-safety-debug.patch: 1aa7f3b6fc9a8771b43d3adb63e254f8caf5aa5b
   manual-document-mt-safety-errno.patch: 3c03cf246bde895688e98b832b45fcc835a9d2dc
   manual-document-mt-safety-filesys.patch: d11a5f289468002d2e001e32fbc1db8a8ab6004d
+  manual-document-mt-safety-getopt.patch: 31e37cd2c481327f3f02639924b80fded791908f
+  manual-document-mt-safety-libdl.patch: d0718d8b1f3d220eb4f8ffbf095617a5feed49f2
+  manual-document-mt-safety-job.patch: 950462adffbb683bfe87aa0e8e80419c3ebe59f8
+  manual-document-mt-safety-lang.patch: eadd5e24321249b093b22f50057e8396fd887b2d
+  manual-document-mt-safety-llio.patch: 97db8a779b727d321dc9cf106a644fa761073224
+  manual-document-mt-safety-stdio.patch: 63ec6cc0ec5f71f1e34e18def7b86eda75a61ce8
+  wip-manual-document-mt-safety-math.patch: db9625097d5f7d73d8ba1e10cf6a592ef525404f
+  wip-manual-document-mt-safety-resource.patch: dcd90718c551e61f1cbeab38fa4363d8a7a32bd2
+  wip-manual-document-mt-safety-startup.patch: 230f153ea88ba8ed2cb29f2e2ef3cc40951f6225
+  wip-manual-document-mt-safety-search.patch: 5e0862c9507f9dc42f539d580c22b31cc9feb8df
+  wip-manual-document-mt-safety-string.patch: 18ca074b1729953c82b2ccfbe825c115d2e92612
+  wip-manual-document-mt-safety-terminal.patch: fe3192904116fc22495af608394faa50f46a1da0
+  wip-manual-document-mt-safety-threads.patch: 0130f8b910297080deea57ff964d8984d8d8df56
+  wip-manual-document-mt-safety-time.patch: 3a43e38278e86406b56895d8bf3b3040b0c1ebbb
+  wip-manual-document-mt-safety-locale.patch: e20d050989275a4938846e2098120ac93bb27b73
+  wip-manual-document-mt-safety-pattern.patch: bbf7743976ec2adddb2f60002a8d591211e8d3c7
 Unapplied:
-  manual-document-mt-safety-getopt.patch: fdbe248de910c1e7ef9ae9b744eed8d658ac5d29
-  manual-document-mt-safety-libdl.patch: ac5bbc507973eb6ce1cd3b11d0456f31bdbea7d3
-  manual-document-mt-safety-job.patch: 917a111878057a3254a5aae2a9e436e2da0521f2
-  manual-document-mt-safety-lang.patch: 74404662e804550da523e8be4c8cbca7d1df1e4d
-  manual-document-mt-safety-llio.patch: e500e6b451e90bcfa93b9ebc11eee98ff9948da4
-  manual-document-mt-safety-stdio.patch: 7c4dccbbd275011bd7e03d69e5026089a03dbc7b
-  wip-manual-document-mt-safety-math.patch: 0666d6743488860ce4130ed89f79bdda045e1559
-  wip-manual-document-mt-safety-resource.patch: e1924a257ca4ba889b69af5907ca22f235fac6c9
-  wip-manual-document-mt-safety-startup.patch: 9c28ed5886790c4874d527aa2a775a299263bad5
-  wip-manual-document-mt-safety-search.patch: 6ff8451b08998b4f998ec7de43aee9148d46f3e5
-  wip-manual-document-mt-safety-string.patch: 80f55c2d25e3968c30f5846ffabc81dedc50f709
-  wip-manual-document-mt-safety-terminal.patch: 178585271fec5719c46b62c1a25f19cd9fd28655
-  wip-manual-document-mt-safety-threads.patch: bcc2df98a27754a19ee0747e55f39302dbf3970e
-  wip-manual-document-mt-safety-time.patch: 85e757c54f47a0ada4f7a940c638b2bc7fb01572
-  wip-manual-document-mt-safety-locale.patch: c6a95510e695760a3ff9c03a7a1a6a95d2f74573
-  wip-manual-document-mt-safety-pattern.patch: 286fc6e694c6817dda55cebcdac48f49d58232ff
 Hidden:
