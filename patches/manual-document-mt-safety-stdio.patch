@@ -1,5 +1,5 @@
 Bottom: 7fe65183ca01afbf35f279fb8a0031a5633d2a1e
-Top:    59fc607250a481aac5da87d4296f1783f949792b
+Top:    642718307250c62d80e83e8ad81aafb696296a92
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-31 01:03:58 -0300
 
@@ -13,7 +13,7 @@ for  ChangeLog
 ---
 
 diff --git a/manual/stdio.texi b/manual/stdio.texi
-index 30630ca..dad1072 100644
+index 30630ca..9ffe87b 100644
 --- a/manual/stdio.texi
 +++ b/manual/stdio.texi
 @@ -148,6 +148,8 @@ Everything described in this section is declared in the header file
@@ -672,7 +672,7 @@ index 30630ca..dad1072 100644
 +@c outchar ok
 +@c outstring ok
 +@c PAD ok
-+@c __printf_fp glocale memleak
++@c __printf_fp glocale, asmalloc, memleak
 +@c __printf_fphex glocale
 +@c __readonly_area
 +@c   [GNU/Linux] fopen, strtoul, free
