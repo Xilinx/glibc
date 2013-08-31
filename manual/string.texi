@@ -1159,6 +1159,11 @@ strings are written in into account.  To get that one has to use
 @comment string.h
 @comment BSD
 @deftypefun int strcasecmp (const char *@var{s1}, const char *@var{s2})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
+@c Although this calls tolower multiple times, it's a macro, and
+@c strcasecmp is optimized so that the locale pointer is read only once.
+@c There are some asm implementations too, for which the single-read
+@c from locale TLS pointers also applies.
 This function is like @code{strcmp}, except that differences in case are
 ignored.  How uppercase and lowercase characters are related is
 determined by the currently selected locale.  In the standard @code{"C"}
@@ -1247,6 +1252,8 @@ strncmp ("hello, world", "hello, stupid world!!!", 5)
 @comment string.h
 @comment GNU
 @deftypefun int strverscmp (const char *@var{s1}, const char *@var{s2})
+@safety{@mtsafe{}@asunsafe{glocale}@acunsafe{glocale}}
+@c Calls isdigit multiple times, locale may change in between.
 The @code{strverscmp} function compares the string @var{s1} against
 @var{s2}, considering them as holding indices/version numbers.  The
 return value follows the same conventions as found in the
@@ -1343,6 +1350,9 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
 @comment string.h
 @comment ISO
 @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
+@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
+@c Calls strcoll_l with the current locale, which dereferences only the
+@c LC_COLLATE data pointer.
 The @code{strcoll} function is similar to @code{strcmp} but uses the
 collating sequence of the current locale for collation (the
 @code{LC_COLLATE} locale).
@@ -1351,6 +1361,8 @@ collating sequence of the current locale for collation (the
 @comment wchar.h
 @comment ISO
 @deftypefun int wcscoll (const wchar_t *@var{ws1}, const wchar_t *@var{ws2})
+@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
+@c Same as strcoll, but calling wcscoll_l.
 The @code{wcscoll} function is similar to @code{wcscmp} but uses the
 collating sequence of the current locale for collation (the
 @code{LC_COLLATE} locale).
@@ -1637,6 +1649,7 @@ This function is a GNU extension.
 @comment string.h
 @comment ISO
 @deftypefun {char *} strchr (const char *@var{string}, int @var{c})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 The @code{strchr} function finds the first occurrence of the character
 @var{c} (converted to a @code{char}) in the null-terminated string
 beginning at @var{string}.  The return value is a pointer to the located
@@ -1678,6 +1691,7 @@ to use @code{wcschrnul} in this case, though.
 @comment string.h
 @comment GNU
 @deftypefun {char *} strchrnul (const char *@var{string}, int @var{c})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
 @code{strchrnul} is the same as @code{strchr} except that if it does
 not find the character, it returns a pointer to string's terminating
 null character rather than a null pointer.
@@ -2675,3 +2689,6 @@ being added to @var{envz}, if @var{override} is false.
 The @code{envz_strip} function removes any null entries from @var{envz},
 updating @code{*@var{envz}} and @code{*@var{envz_len}}.
 @end deftypefun
+
+@c FIXME this are undocumented:
+@c strcasecmp_l @safety{@mtsafe{}@assafe{}@acsafe{}} see strcasecmp
