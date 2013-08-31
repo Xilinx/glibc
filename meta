@@ -1,6 +1,6 @@
 Version: 1
-Previous: a06afebee80c99a32f02cd410290a65b5f7e40f6
-Head: 76884a41c04d96b2e1bab16fd4f76157c306fc81
+Previous: 5abf433f4506e28fd73fd2b3dc1e5643add6bf53
+Head: 70482a4a8b5600e7458a51b6abf9728680496aab
 Applied:
   unused-scalb-is-scalbn.patch: 1e5d1e38b6a866f88772d34ec2d1b3a75d78b233
   remove-sysdeps-ieee754-support.patch: 874e350341a8e14881907b059e6d988de123648f
@@ -14,6 +14,7 @@ Applied:
   manual-document-mt-safety-debug.patch: 1aa7f3b6fc9a8771b43d3adb63e254f8caf5aa5b
   manual-document-mt-safety-errno.patch: 3c03cf246bde895688e98b832b45fcc835a9d2dc
   manual-document-mt-safety-filesys.patch: 76884a41c04d96b2e1bab16fd4f76157c306fc81
+  refresh-temp: 70482a4a8b5600e7458a51b6abf9728680496aab
 Unapplied:
   manual-document-mt-safety-getopt.patch: fdbe248de910c1e7ef9ae9b744eed8d658ac5d29
   manual-document-mt-safety-libdl.patch: ac5bbc507973eb6ce1cd3b11d0456f31bdbea7d3
