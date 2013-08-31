@@ -1,5 +1,5 @@
 Bottom: 974b65fdd740c5be01caf8296db702b20af31f6e
-Top:    4526eb59c2b81d3c38552d73b8bcdcbe825ea516
+Top:    b9bca735e36722eeee271d7923615db34ab3b069
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-31 01:04:00 -0300
 
@@ -13,7 +13,7 @@ for ChangeLog
 ---
 
 diff --git a/manual/string.texi b/manual/string.texi
-index 2a164a9..173306c 100644
+index 2a164a9..b63a849 100644
 --- a/manual/string.texi
 +++ b/manual/string.texi
 @@ -1159,6 +1159,11 @@ strings are written in into account.  To get that one has to use
@@ -37,16 +37,26 @@ index 2a164a9..173306c 100644
  The @code{strverscmp} function compares the string @var{s1} against
  @var{s2}, considering them as holding indices/version numbers.  The
  return value follows the same conventions as found in the
-@@ -1343,6 +1350,8 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
+@@ -1343,6 +1350,9 @@ transformed strings with @code{strcmp} or @code{wcscmp}.
  @comment string.h
  @comment ISO
  @deftypefun int strcoll (const char *@var{s1}, const char *@var{s2})
-+@safety{@mtsafe{}@asunsafe{glocale-revisit}@acunsafe{glocale-revisit}}
-+@c Adjust alphasort one safety info is determined.
++@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
++@c Calls strcoll_l with the current locale, which dereferences only the
++@c LC_COLLATE data pointer.
  The @code{strcoll} function is similar to @code{strcmp} but uses the
  collating sequence of the current locale for collation (the
  @code{LC_COLLATE} locale).
-@@ -1637,6 +1646,7 @@ This function is a GNU extension.
+@@ -1351,6 +1361,8 @@ collating sequence of the current locale for collation (the
+ @comment wchar.h
+ @comment ISO
+ @deftypefun int wcscoll (const wchar_t *@var{ws1}, const wchar_t *@var{ws2})
++@safety{@mtsafe{}@asunsafe{asmalloc}@acunsafe{memleak}}
++@c Same as strcoll, but calling wcscoll_l.
+ The @code{wcscoll} function is similar to @code{wcscmp} but uses the
+ collating sequence of the current locale for collation (the
+ @code{LC_COLLATE} locale).
+@@ -1637,6 +1649,7 @@ This function is a GNU extension.
  @comment string.h
  @comment ISO
  @deftypefun {char *} strchr (const char *@var{string}, int @var{c})
@@ -54,7 +64,7 @@ index 2a164a9..173306c 100644
  The @code{strchr} function finds the first occurrence of the character
  @var{c} (converted to a @code{char}) in the null-terminated string
  beginning at @var{string}.  The return value is a pointer to the located
-@@ -1678,6 +1688,7 @@ to use @code{wcschrnul} in this case, though.
+@@ -1678,6 +1691,7 @@ to use @code{wcschrnul} in this case, though.
  @comment string.h
  @comment GNU
  @deftypefun {char *} strchrnul (const char *@var{string}, int @var{c})
@@ -62,7 +72,7 @@ index 2a164a9..173306c 100644
  @code{strchrnul} is the same as @code{strchr} except that if it does
  not find the character, it returns a pointer to string's terminating
  null character rather than a null pointer.
-@@ -2675,3 +2686,6 @@ being added to @var{envz}, if @var{override} is false.
+@@ -2675,3 +2689,6 @@ being added to @var{envz}, if @var{override} is false.
  The @code{envz_strip} function removes any null entries from @var{envz},
  updating @code{*@var{envz}} and @code{*@var{envz_len}}.
  @end deftypefun
