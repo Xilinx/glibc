@@ -1,5 +1,5 @@
 Bottom: 15a8300141ee19f4516dae06220c3f742c3d7c85
-Top:    15a8300141ee19f4516dae06220c3f742c3d7c85
+Top:    43752d35196008e73c5b6234ceb965ba6b80c8ef
 Author: Alexandre Oliva <aoliva@redhat.com>
 Date:   2013-08-31 03:02:58 -0300
 
@@ -12,4 +12,18 @@ for ChangeLog
 
 ---
 
-
+diff --git a/manual/pattern.texi b/manual/pattern.texi
+index 1966f3f..376566e 100644
+--- a/manual/pattern.texi
++++ b/manual/pattern.texi
+@@ -736,6 +736,10 @@ expression into it by calling @code{regcomp}.
+ @comment regex.h
+ @comment POSIX.2
+ @deftypefun int regcomp (regex_t *restrict @var{compiled}, const char *restrict @var{pattern}, int @var{cflags})
++@c (re_)malloc
++@c re_compile_internal
++@c re_compile_fastmap
++@c (re_)free
+ The function @code{regcomp} ``compiles'' a regular expression into a
+ data structure that you can use with @code{regexec} to match against a
+ string.  The compiled regular expression format is designed for
