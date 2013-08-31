@@ -817,7 +817,8 @@ was introduced.
 @deftypefun {char *} nl_langinfo (nl_item @var{item})
 @safety{@mtsafe{}@assafe{}@acsafe{}}
 @c It calls _nl_langinfo_l with the current locale, which returns a
-@c pointer into constant strings defined in locale data structures.
+@c pointer into constant strings defined in locale data structures.  It
+@c doesn't run afoul of glocale itself, but callers may.
 The @code{nl_langinfo} function can be used to access individual
 elements of the locale categories.  Unlike the @code{localeconv}
 function, which returns all the information, @code{nl_langinfo}
@@ -1328,6 +1329,8 @@ access to the corresponding locale definitions.
 @comment GNU
 @comment stdlib.h
 @deftypefun int rpmatch (const char *@var{response})
+@c Calls nl_langinfo with YESEXPR and NOEXPR, triggering glocale.  Calls
+@c regfree, regcomp and regexec.
 The function @code{rpmatch} checks the string in @var{response} whether
 or not it is a correct yes-or-no answer and if yes, which one.  The
 check uses the @code{YESEXPR} and @code{NOEXPR} data in the
