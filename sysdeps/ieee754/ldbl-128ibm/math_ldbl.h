@@ -2,7 +2,6 @@
 #error "Never use <math_ldbl.h> directly; include <math_private.h> instead."
 #endif
 
-#include <sysdeps/ieee754/ldbl-128/math_ldbl.h>
 #include <ieee754.h>
 #include <stdint.h>
 
@@ -11,7 +10,7 @@
    implicit bit) and 64 bits in *lo64.  */
 
 static inline void
-ldbl_extract_mantissa (uint64_t *hi64, uint64_t *lo64, int *exp, long double x)
+ldbl_extract_mantissa (int64_t *hi64, uint64_t *lo64, int *exp, long double x)
 {
   /* We have 105 bits of mantissa plus one implicit digit.  Since
      106 bits are representable we use the first implicit digit for
@@ -89,7 +88,7 @@ ldbl_extract_mantissa (uint64_t *hi64, uint64_t *lo64, int *exp, long double x)
 }
 
 static inline long double
-ldbl_insert_mantissa (int sign, int exp, uint64_t hi64, uint64_t lo64)
+ldbl_insert_mantissa (int sign, int exp, int64_t hi64, uint64_t lo64)
 {
   union ibm_extended_long_double u;
   int expnt2;
