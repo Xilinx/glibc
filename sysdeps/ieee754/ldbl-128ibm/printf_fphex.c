@@ -27,7 +27,7 @@ do {									      \
       unsigned long long hi, lo;					      \
       int ediff;							      \
       union ibm_extended_long_double u;					      \
-      u.ld = fpnum.ldbl.d;						      \
+      u.ld = fpnum.ldbl;						      \
 									      \
       assert (sizeof (long double) == 16);				      \
 									      \
