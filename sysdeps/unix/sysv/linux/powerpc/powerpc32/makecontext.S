@@ -47,7 +47,7 @@ ENTRY(__makecontext)
 #ifdef PIC
 	mflr	r0
 	cfi_register(lr,r0)
-	bl	1f
+	bcl	20,31,1f
 1:	mflr	r6
 	addi	r6,r6,L(exitcode)-1b
 	mtlr	r0
@@ -136,7 +136,7 @@ ENTRY(__novec_makecontext)
 #ifdef PIC
 	mflr	r0
 	cfi_register(lr,r0)
-	bl	1f
+	bcl	20,31,1f
 1:	mflr	r6
 	addi	r6,r6,L(novec_exitcode)-1b
 	mtlr	r0
