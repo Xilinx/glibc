@@ -33,7 +33,8 @@
 static inline bool
 check_may_shrink_heap (void)
 {
-  static int may_shrink_heap = -1;
+  static int global_may_shrink_heap = -1;
+  int may_shrink_heap = global_may_shrink_heap;
 
   if (__builtin_expect (may_shrink_heap >= 0, 1))
     return may_shrink_heap;
@@ -53,6 +54,7 @@ check_may_shrink_heap (void)
 	}
     }
 
+  global_may_shrink_heap = may_shrink_heap;
   return may_shrink_heap;
 }
 
