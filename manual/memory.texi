@@ -302,6 +302,248 @@ this function is in @file{stdlib.h}.
 @comment malloc.h stdlib.h
 @comment ISO
 @deftypefun {void *} malloc (size_t @var{size})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c Malloc hooks and __morecore pointers, as well as such parameters as
+@c max_n_mmaps and max_mmapped_mem, are accessed without guards, so they
+@c could pose a thread safety issue; in order to not declare malloc
+@c MT-unsafe, it's modifying the hooks and parameters while multiple
+@c threads are active that is regarded as unsafe.  An arena's next field
+@c is initialized and never changed again, except for main_arena's,
+@c that's protected by list_lock; next_free is only modified while
+@c list_lock is held too.  All other data members of an arena, as well
+@c as the metadata of the memory areas assigned to it, are only modified
+@c while holding the arena's mutex (fastbin pointers use catomic ops
+@c because they may be modified by free without taking the arena's
+@c lock).  Some reassurance was needed for fastbins, for it wasn't clear
+@c how they were initialized.  It turns out they are always
+@c zero-initialized: main_arena's, for being static data, and other
+@c arena's, for being just-mmapped memory.
+
+@c Leaking file descriptors and memory in case of cancellation is
+@c unavoidable without disabling cancellation, but the lock situation is
+@c a bit more complicated: we don't have fallback arenas for malloc to
+@c be safe to call from within signal handlers.  Error-checking mutexes
+@c or trylock could enable us to try and use alternate arenas, even with
+@c -DPER_THREAD (enabled by default), but supporting interruption
+@c (cancellation or signal handling) while holding the arena list mutex
+@c would require more work; maybe blocking signals and disabling async
+@c cancellation while manipulating the arena lists?
+
+@c __libc_malloc selfdeadlock, lockleak, fdleak, memleak
+@c  force_reg ok
+@c  *malloc_hook unguarded
+@c  arena_lookup ok
+@c   tsd_getspecific ok, TLS
+@c  arena_lock selfdeadlock, lockleak, fdleak, memleak
+@c   mutex_lock selfdeadlock, lockleak
+@c   arena_get2 selfdeadlock, lockleak, fdleak, memleak
+@c    get_free_list selfdeadlock, lockleak
+@c     mutex_lock (list_lock) dup selfdeadlock, lockleak
+@c     mutex_unlock (list_lock) dup lockleak
+@c     mutex_lock (arena lock) dup selfdeadlock, lockleak, returns locked
+@c     tsd_setspecific ok, TLS
+@c    __get_nprocs ext ok fdleak
+@c    NARENAS_FROM_NCORES ok
+@c    catomic_compare_and_exchange_bool_acq ok
+@c    _int_new_arena ok selfdeadlock, lockleak, memleak
+@c     new_heap ok memleak
+@c      mmap ok memleak
+@c      munmap ok memleak
+@c      mprotect ok
+@c     chunk2mem ok
+@c     set_head ok
+@c     tsd_setspecific dup ok
+@c     mutex_init ok
+@c     mutex_lock (just-created mutex) ok, returns locked
+@c     mutex_lock (list_lock) dup selfdeadlock, lockleak
+@c     atomic_write_barrier ok
+@c     mutex_unlock (list_lock) lockleak
+@c    catomic_decrement ok
+@c    reused_arena selfdeadlock, lockleak
+@c      reads&writes next_to_use and iterates over arena next without guards
+@c      those are harmless as long as we don't drop arenas from the
+@c      NEXT list, and we never do; when a thread terminates,
+@c      arena_thread_freeres prepends the arena to the free_list
+@c      NEXT_FREE list, but NEXT is never modified, so it's safe!
+@c     mutex_trylock (arena lock) selfdeadlock, lockleak
+@c     mutex_lock (arena lock) dup selfdeadlock, lockleak
+@c     tsd_setspecific dup ok
+@c  _int_malloc fdleak, memleak
+@c   checked_request2size ok
+@c    REQUEST_OUT_OF_RANGE ok
+@c    request2size ok
+@c   get_max_fast ok
+@c   fastbin_index ok
+@c   fastbin ok
+@c   catomic_compare_and_exhange_val_acq ok
+@c   malloc_printerr dup envromt, but ok:
+@c     if we get to it, we're toast already, undefined behavior must have
+@c     been invoked before
+@c    libc_message envromt, no leaks with cancellation disabled
+@c     FATAL_PREPARE ok
+@c      pthread_setcancelstate disable ok
+@c     libc_secure_getenv envromt
+@c      getenv envromt
+@c     open_not_cancel_2 dup ok
+@c     strchrnul ok
+@c     WRITEV_FOR_FATAL ok
+@c      writev ok
+@c     mmap ok memleak
+@c     munmap ok memleak
+@c     BEFORE_ABORT fdleak
+@c      backtrace ok
+@c      write_not_cancel dup ok
+@c      backtrace_symbols_fd lockleak
+@c      open_not_cancel_2 dup fdleak
+@c      read_not_cancel dup ok
+@c      close_not_cancel_no_status dup fdleak
+@c     abort ok
+@c    itoa_word ok
+@c    abort ok
+@c   check_remalloced_chunk ok, disabled
+@c   chunk2mem dup ok
+@c   alloc_perturb ok
+@c   in_smallbin_range ok
+@c   smallbin_index ok
+@c   bin_at ok
+@c   last ok
+@c   malloc_consolidate ok
+@c    get_max_fast dup ok
+@c    clear_fastchunks ok
+@c    unsorted_chunks dup ok
+@c    fastbin dup ok
+@c    atomic_exchange_acq ok
+@c    check_inuse_chunk dup ok, disabled
+@c    chunk_at_offset dup ok
+@c    chunksize dup ok
+@c    inuse_bit_at_offset dup ok
+@c    unlink dup ok
+@c    clear_inuse_bit_at_offset dup ok
+@c    in_smallbin_range dup ok
+@c    set_head dup ok
+@c    malloc_init_state ok
+@c     bin_at dup ok
+@c     set_noncontiguous dup ok
+@c     set_max_fast dup ok
+@c     initial_top ok
+@c      unsorted_chunks dup ok
+@c    check_malloc_state ok, disabled
+@c   set_inuse_bit_at_offset ok
+@c   check_malloced_chunk ok, disabled
+@c   largebin_index ok
+@c   have_fastchunks ok
+@c   unsorted_chunks ok
+@c    bin_at ok
+@c   chunksize ok
+@c   chunk_at_offset ok
+@c   set_head ok
+@c   set_foot ok
+@c   mark_bin ok
+@c    idx2bit ok
+@c   first ok
+@c   unlink ok
+@c    malloc_printerr dup ok
+@c    in_smallbin_range dup ok
+@c   idx2block ok
+@c   idx2bit dup ok
+@c   next_bin ok
+@c   sysmalloc [uunguard], fdleak, memleak
+@c     n_mmaps and mmapped_mem and their max stats are modified
+@c     unguarded.  that is ok-ish, as it only affects statistics, but it
+@c     would be advisable to use catomic ops.
+@c    MMAP memleak
+@c    set_head dup ok
+@c    check_chunk ok, disabled
+@c    chunk2mem dup ok
+@c    chunksize dup ok
+@c    chunk_at_offset dup ok
+@c    heap_for_ptr ok
+@c    grow_heap ok
+@c     mprotect ok
+@c    set_head dup ok
+@c    new_heap memleak
+@c     MMAP dup memleak
+@c     munmap memleak
+@c    top ok
+@c    set_foot dup ok
+@c    contiguous ok
+@c    MORECORE ok
+@c     *__morecore ok unguarded
+@c      __default_morecore
+@c       sbrk ok
+@c    force_reg dup ok
+@c    *__after_morecore_hook unguarded
+@c    set_noncontiguous ok
+@c    malloc_printerr dup ok
+@c    _int_free (have_lock) [selfdeadlock, lockleak], fdleak, memleak
+@c     chunksize dup ok
+@c     mutex_unlock dup lockleak only if !have_lock
+@c     malloc_printerr dup ok
+@c     check_inuse_chunk ok, disabled
+@c     chunk_at_offset dup ok
+@c     mutex_lock dup selfdeadlock, lockleak only if !have_lock
+@c     chunk2mem dup ok
+@c     free_perturb ok
+@c     set_fastchunks ok
+@c      catomic_and ok
+@c     fastbin_index dup ok
+@c     fastbin dup ok
+@c     catomic_compare_and_exchange_val_rel ok
+@c     chunk_is_mmapped ok
+@c     contiguous dup ok
+@c     prev_inuse ok
+@c     unlink dup ok
+@c     inuse_bit_at_offset dup ok
+@c     clear_inuse_bit_at_offset ok
+@c     unsorted_chunks dup ok
+@c     in_smallbin_range dup ok
+@c     set_head dup ok
+@c     set_foot dup ok
+@c     check_free_chunk ok, disabled
+@c     check_chunk dup ok, disabled
+@c     have_fastchunks dup ok
+@c     malloc_consolidate dup ok
+@c     systrim ok
+@c      MORECORE dup ok
+@c      *__after_morecore_hook dup unguarded
+@c      set_head dup ok
+@c      check_malloc_state ok, disabled
+@c     top dup ok
+@c     heap_for_ptr dup ok
+@c     heap_trim fdleak, memleak
+@c      top dup ok
+@c      chunk_at_offset dup ok
+@c      prev_chunk ok
+@c      chunksize dup ok
+@c      prev_inuse dup ok
+@c      delete_heap memleak
+@c       munmap dup memleak
+@c      unlink dup ok
+@c      set_head dup ok
+@c      shrink_heap fdleak
+@c       check_may_shrink_heap fdleak
+@c        open_not_cancel_2 fdleak
+@c        read_not_cancel ok
+@c        close_not_cancel_no_status fdleak
+@c       MMAP dup ok
+@c       madvise ok
+@c     munmap_chunk memleak
+@c      chunksize dup ok
+@c      chunk_is_mmapped dup ok
+@c      chunk2mem dup ok
+@c      malloc_printerr dup ok
+@c      munmap dup memleak
+@c    check_malloc_state ok, disabled
+@c  arena_get_retry selfdeadlock, lockleak, fdleak, memleak
+@c   mutex_unlock dup lockleak
+@c   mutex_lock dup selfdeadlock, lockleak
+@c   arena_get2 dup selfdeadlock, lockleak, fdleak, memleak
+@c  mutex_unlock lockleak
+@c  mem2chunk ok
+@c  chunk_is_mmapped ok
+@c  arena_for_chunk ok
+@c   chunk_non_main_arena ok
+@c   heap_for_ptr ok
 This function returns a pointer to a newly allocated block @var{size}
 bytes long, or a null pointer if the block could not be allocated.
 @end deftypefun
@@ -407,6 +649,23 @@ The prototype for this function is in @file{stdlib.h}.
 @comment malloc.h stdlib.h
 @comment ISO
 @deftypefun void free (void *@var{ptr})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c __libc_free selfdeadlock, lockleak, fdleak, memleak
+@c   releasing memory into fastbins modifies the arena without taking
+@c   its mutex, but catomic operations ensure safety.  If two (or more)
+@c   threads are running malloc and have their own arenas locked when
+@c   each gets a signal whose handler free()s large (non-fastbin-able)
+@c   blocks from each other's arena, we deadlock; this is a more general
+@c   case of selfdeadlock.
+@c  *__free_hook unguarded
+@c  mem2chunk ok
+@c  chunk_is_mmapped ok, chunk bits not modified after allocation
+@c  chunksize ok
+@c  munmap_chunk dup [uunguard], memleak
+@c    n_mmaps and mmapped_mem are modified unguarded.  stats only, but
+@c    catomic ops would be advisable
+@c  arena_for_chunk dup ok
+@c  _int_free (!have_lock) dup selfdeadlock, lockleak, fdleak, memleak
 The @code{free} function deallocates the block of memory pointed at
 by @var{ptr}.
 @end deftypefun
@@ -414,6 +673,8 @@ by @var{ptr}.
 @comment stdlib.h
 @comment Sun
 @deftypefun void cfree (void *@var{ptr})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c alias to free
 This function does the same thing as @code{free}.  It's provided for
 backward compatibility with SunOS; you should use @code{free} instead.
 @end deftypefun
@@ -471,6 +732,48 @@ is declared in @file{stdlib.h}.
 @comment malloc.h stdlib.h
 @comment ISO
 @deftypefun {void *} realloc (void *@var{ptr}, size_t @var{newsize})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c It may call the implementations of malloc and free, so all of their
+@c issues arise, plus the realloc hook, also accessed without guards.
+
+@c __libc_realloc selfdeadlock, lockleak, fdleak, memleak
+@c  *__realloc_hook unguarded
+@c  __libc_free dup selfdeadlock, lockleak, fdleak, memleak
+@c  __libc_malloc dup selfdeadlock, lockleak, fdleak, memleak
+@c  mem2chunk dup ok
+@c  chunksize dup ok
+@c  malloc_printerr dup ok
+@c  checked_request2size dup ok
+@c  chunk_is_mmapped dup ok
+@c  mremap_chunk
+@c   chunksize dup ok
+@c   __mremap ok
+@c   set_head dup ok
+@c  MALLOC_COPY ok
+@c   memcpy ok
+@c  munmap_chunk dup memleak
+@c  arena_for_chunk dup ok
+@c  mutex_lock (arena mutex) dup selfdeadlock, lockleak
+@c  _int_realloc fdleak, memleak
+@c   malloc_printerr dup ok
+@c   check_inuse_chunk dup ok, disabled
+@c   chunk_at_offset dup ok
+@c   chunksize dup ok
+@c   set_head_size dup ok
+@c   chunk_at_offset dup ok
+@c   set_head dup ok
+@c   chunk2mem dup ok
+@c   inuse dup ok
+@c   unlink dup ok
+@c   _int_malloc dup fdleak, memleak
+@c   mem2chunk dup ok
+@c   MALLOC_COPY dup ok
+@c   _int_free (have_lock) dup fdleak, memleak
+@c   set_inuse_bit_at_offset dup ok
+@c   set_head dup ok
+@c  mutex_unlock (arena mutex) dup lockleak
+@c  _int_free (!have_lock) dup selfdeadlock, lockleak, fdleak, memleak
+
 The @code{realloc} function changes the size of the block whose address is
 @var{ptr} to be @var{newsize}.
 
@@ -530,6 +833,25 @@ is declared in @file{stdlib.h}.
 @comment malloc.h stdlib.h
 @comment ISO
 @deftypefun {void *} calloc (size_t @var{count}, size_t @var{eltsize})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c Same caveats as malloc.
+
+@c __libc_calloc selfdeadlock, lockleak, fdleak, memleak
+@c  *__malloc_hook dup unguarded
+@c  memset dup ok
+@c  arena_get selfdeadlock, lockleak, fdleak, memleak
+@c   arena_lookup dup ok
+@c   arena_lock dup selfdeadlock, lockleak, fdleak, memleak
+@c  top dup ok
+@c  chunksize dup ok
+@c  heap_for_ptr dup ok
+@c  _int_malloc dup fdleak, memleak
+@c  arena_get_retry dup selfdeadlock, lockleak, fdleak, memleak
+@c  mutex_unlock dup lockleak
+@c  mem2chunk dup ok
+@c  chunk_is_mmapped dup ok
+@c  MALLOC_ZERO ok
+@c   memset dup ok
 This function allocates a block long enough to contain a vector of
 @var{count} elements, each of size @var{eltsize}.  Its contents are
 cleared to zero before @code{calloc} returns.
@@ -628,6 +950,29 @@ such blocks.
 @comment malloc.h
 @comment BSD
 @deftypefun {void *} memalign (size_t @var{boundary}, size_t @var{size})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c Same issues as malloc.  The padding bytes are safely freed in
+@c _int_memalign, with the arena still locked.
+
+@c __libc_memalign selfdeadlock, lockleak, fdleak, memleak
+@c  *__memalign_hook dup unguarded
+@c  __libc_malloc dup selfdeadlock, lockleak, fdleak, memleak
+@c  arena_get dup selfdeadlock, lockleak, fdleak, memleak
+@c  _int_memalign fdleak, memleak
+@c   _int_malloc dup fdleak, memleak
+@c   checked_request2size dup ok
+@c   mem2chunk dup ok
+@c   chunksize dup ok
+@c   chunk_is_mmapped dup ok
+@c   set_head dup ok
+@c   chunk2mem dup ok
+@c   set_inuse_bit_at_offset dup ok
+@c   set_head_size dup ok
+@c   _int_free (have_lock) dup fdleak, memleak
+@c   chunk_at_offset dup ok
+@c   check_inuse_chunk dup ok
+@c  arena_get_retry dup selfdeadlock, lockleak, fdleak, memleak
+@c  mutex_unlock dup lockleak
 The @code{memalign} function allocates a block of @var{size} bytes whose
 address is a multiple of @var{boundary}.  The @var{boundary} must be a
 power of two!  The function @code{memalign} works by allocating a
@@ -638,6 +983,10 @@ that is on the specified boundary.
 @comment stdlib.h
 @comment POSIX
 @deftypefun int posix_memalign (void **@var{memptr}, size_t @var{alignment}, size_t @var{size})
+@safety{@mtsafe{}@asunsafe{selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c Calls memalign unless the requirements are not met (powerof2 macro is
+@c safe given an automatic variable as an argument) or there's a
+@c memalign hook (accessed unguarded, but safely).
 The @code{posix_memalign} function is similar to the @code{memalign}
 function in that it returns a buffer of @var{size} bytes aligned to a
 multiple of @var{alignment}.  But it adds one requirement to the
@@ -654,6 +1003,39 @@ This function was introduced in POSIX 1003.1d.
 @comment malloc.h stdlib.h
 @comment BSD
 @deftypefun {void *} valloc (size_t @var{size})
+@safety{@mtunsafe{1stcall}@asunsafe{oncesafe, selfdeadlock}@acunsafe{oncesafe, lockleak, fdleak, memleak}}
+@c __libc_valloc 1stcall, oncesafe, selfdeadlock, lockleak, fdleak, memleak
+@c  ptmalloc_init (once) envromt, selfdeadlock, lockleak, fdleak, memleak
+@c   _dl_addr asynconsist?, lockleak
+@c    __rtld_lock_lock_recursive (dl_load_lock) asynconsist?, lockleak
+@c    _dl_find_dso_for_object ok, iterates over dl_ns and its _ns_loaded objs
+@c      the ok above assumes no partial updates on dl_ns and _ns_loaded
+@c      that could confuse a _dl_addr call in a signal handler
+@c     _dl_addr_inside_object ok
+@c    determine_info ok
+@c    __rtld_lock_unlock_recursive (dl_load_lock) lockleak
+@c   thread_atfork selfdeadlock, lockleak, fdleak, memleak
+@c    __register_atfork selfdeadlock, lockleak, fdleak, memleak
+@c     lll_lock (__fork_lock) selfdeadlock, lockleak
+@c     fork_handler_alloc selfdeadlock, lockleak, fdleak, memleak
+@c      calloc dup selfdeadlock, lockleak, fdleak, memleak
+@c     __linkin_atfork ok
+@c      catomic_compare_and_exchange_bool_acq ok
+@c     lll_unlock (__fork_lock) lockleak
+@c   *_environ envromt
+@c   next_env_entry ok
+@c   strcspn dup ok
+@c   __libc_mallopt dup uunguard setting mp_
+@c   __malloc_check_init uunguard setting hooks
+@c   *__malloc_initialize_hook unguarded, ok
+@c  *__memalign_hook dup ok, unguarded
+@c  arena_get dup selfdeadlock, lockleak, fdleak, memleak
+@c  _int_valloc fdleak, memleak
+@c   malloc_consolidate dup ok
+@c   _int_memalign dup fdleak, memleak
+@c  arena_get_retry dup selfdeadlock, lockleak, fdleak, memleak
+@c  _int_memalign dup fdleak, memleak
+@c  mutex_unlock dup lockleak
 Using @code{valloc} is like using @code{memalign} and passing the page size
 as the value of the second argument.  It is implemented like this:
 
@@ -678,6 +1060,14 @@ interface, defined in @file{malloc.h}.
 @pindex malloc.h
 
 @deftypefun int mallopt (int @var{param}, int @var{value})
+@safety{@mtunsafe{1stcall, uunguard}@asunsafe{oncesafe, selfdeadlock}@acunsafe{oncesafe, lockleak}}
+@c __libc_mallopt 1stcall, uunguard, oncesafe, selfdeadlock, lockleak
+@c  ptmalloc_init (once) dup envromt, selfdeadlock, lockleak, fdleak, memleak
+@c  mutex_lock (main_arena->mutex) selfdeadlock, lockleak
+@c  malloc_consolidate dup ok
+@c  set_max_fast ok
+@c  mutex_unlock dup lockleak
+
 When calling @code{mallopt}, the @var{param} argument specifies the
 parameter to be set, and @var{value} the new value to be set.  Possible
 choices for @var{param}, as defined in @file{malloc.h}, are:
@@ -734,6 +1124,17 @@ declared in @file{mcheck.h}.
 @comment mcheck.h
 @comment GNU
 @deftypefun int mcheck (void (*@var{abortfn}) (enum mcheck_status @var{status}))
+@safety{@mtunsafe{uunguard}@asunsafe{asynconsist}@acunsafe{incansist}}
+@c The hooks must be set up before malloc is first used, which sort of
+@c implies 1stcall/oncesafe, but since the function is a no-op if malloc
+@c was already used, that doesn't pose any safety issues.  The actual
+@c problem is with the hooks, designed for single-threaded
+@c fully-synchronous operation: they manage an unguarded linked list of
+@c allocated blocks, and get temporarily overwritten before calling the
+@c allocation functions recursively while holding the old hooks.  There
+@c are no guards for thread safety, and inconsistent hooks may be found
+@c within signal handlers or left behind in case of cancellation.
+
 Calling @code{mcheck} tells @code{malloc} to perform occasional
 consistency checks.  These will catch things such as writing
 past the end of a block that was allocated with @code{malloc}.
@@ -776,6 +1177,18 @@ must be called before the first such function.
 @end deftypefun
 
 @deftypefun {enum mcheck_status} mprobe (void *@var{pointer})
+@safety{@mtunsafe{uunguard}@asunsafe{asynconsist}@acunsafe{incansist}}
+@c The linked list of headers may be modified concurrently by other
+@c threads, and it may find a partial update if called from a signal
+@c handler.  It's mostly read only, so cancelling it might be safe, but
+@c it will modify global state that, if cancellation hits at just the
+@c right spot, may be left behind inconsistent.  This path is only taken
+@c if checkhdr finds an inconsistency.  If the inconsistency could only
+@c occur because of earlier undefined behavior, that wouldn't be an
+@c additional safety issue problem, but because of the other concurrency
+@c issues in the mcheck hooks, the apparent inconsistency could be the
+@c result of mcheck's own internal data race.  So, AC-Unsafe it is.
+
 The @code{mprobe} function lets you explicitly check for inconsistencies
 in a particular allocated block.  You must have already called
 @code{mcheck} at the beginning of the program, to do its occasional
@@ -1088,6 +1501,24 @@ space's data segment).
 @comment malloc.h
 @comment SVID
 @deftypefun {struct mallinfo} mallinfo (void)
+@safety{@mtunsafe{1stcall, uunguard}@asunsafe{oncesafe, selfdeadlock}@acunsafe{oncesafe, lockleak}}
+@c Accessing mp_.n_mmaps and mp_.max_mmapped_mem, modified
+@c non-atomically elsewhere, may get us inconsistent results.  We mark
+@c the statistics as unsafe, rather than the fast-path functions that
+@c collect the possibly inconsistent data.
+
+@c __libc_mallinfo uunguard, 1stline, oncesafe, selfdeadlock, lockleak
+@c  ptmalloc_init (once) dup envromt, selfdeadlock, lockleak, fdleak, memleak
+@c  mutex_lock dup selfdeadlock, lockleak
+@c  int_mallinfo uunguard (mp_ access on main_arena)
+@c   malloc_consolidate dup ok
+@c   check_malloc_state dup ok, disabled
+@c   chunksize dup ok
+@c   fastbin dupo ok
+@c   bin_at dup ok
+@c   last dup ok
+@c  mutex_unlock lockleak
+
 This function returns information about the current dynamic memory usage
 in a structure of type @code{struct mallinfo}.
 @end deftypefun
@@ -1177,6 +1608,26 @@ penalties for the program if the debugging mode is not enabled.
 @comment mcheck.h
 @comment GNU
 @deftypefun void mtrace (void)
+@safety{@mtunsafe{envromt, uunguard, 1stcall}@asunsafe{oncesafe, asmalloc, asynconsist, selfdeadlock}@acunsafe{oncesafe, incansist, lockleak, fdleak, memleak}}
+@c Like the mcheck hooks, these are not designed with thread safety in
+@c mind, because the hook pointers are temporarily modified without
+@c regard to other threads, signals or cancellation.
+
+@c mtrace 1stcall, uunguard, envromt, oncesafe, asmalloc, asynconsist, oncesafe, incansist, lockleak, fdleak, memleak
+@c  __libc_secure_getenv dup envromt
+@c  malloc dup selfdeadlock, lockleak, fdleak, memleak
+@c  fopen dup asmalloc, selfdeadlock, lockleak, memleak, fdleak
+@c  fcntl dup ok
+@c  setvbuf dup lockleak
+@c  fprintf dup (on newly-created stream) lockleak
+@c  __cxa_atexit (once) selfdeadlock, lockleak, fdleak, memleak
+@c   __internal_atexit selfdeadlock, lockleak, fdleak, memleak
+@c    __new_exitfn selfdeadlock, lockleak, fdleak, memleak
+@c     __libc_lock_lock selfdeadlock, lockleak
+@c     calloc dup selfdeadlock, lockleak, fdleak, memleak
+@c     __libc_lock_unlock lockleak
+@c    atomic_write_barrier dup ok
+@c  free dup selfdeadlock, lockleak, fdleak, memleak
 When the @code{mtrace} function is called it looks for an environment
 variable named @code{MALLOC_TRACE}.  This variable is supposed to
 contain a valid file name.  The user must have write access.  If the
@@ -1200,6 +1651,11 @@ systems.  The prototype can be found in @file{mcheck.h}.
 @comment mcheck.h
 @comment GNU
 @deftypefun void muntrace (void)
+@safety{@mtunsafe{uunguard, glocale-revisit}@asunsafe{asynconsist, asmalloc}@acunsafe{incansist, memleak, lockleak, fdleak}}
+
+@c muntrace uunguard, glocale-reviist, asynconsist, asmalloc, incansist, memleak, lockleak, fdleak
+@c  fprintf (fputs) dup glocale-revisit, asynconsist, asmalloc, memleak, lockleak, incansist
+@c  fclose dup asmalloc, selfdeadlock, lockleak, memleak, fdleak
 The @code{muntrace} function can be called after @code{mtrace} was used
 to enable tracing the @code{malloc} calls.  If no (successful) call of
 @code{mtrace} was made @code{muntrace} does nothing.
