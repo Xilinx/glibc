@@ -223,6 +223,8 @@ The symbols for use with @code{getrlimit}, @code{setrlimit},
 @comment sys/resource.h
 @comment BSD
 @deftypefun int getrlimit (int @var{resource}, struct rlimit *@var{rlp})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
+@c Direct syscall on most systems.
 Read the current and maximum limits for the resource @var{resource}
 and store them in @code{*@var{rlp}}.
 
@@ -237,6 +239,8 @@ LFS interface transparently replaces the old interface.
 @comment sys/resource.h
 @comment Unix98
 @deftypefun int getrlimit64 (int @var{resource}, struct rlimit64 *@var{rlp})
+@safety{@mtsafe{}@assafe{}@acsafe{}}
+@c Direct syscall on most systems, wrapper to the getrlimit otherwise.
 This function is similar to @code{getrlimit} but its second parameter is
 a pointer to a variable of type @code{struct rlimit64}, which allows it
 to read values which wouldn't fit in the member of a @code{struct
@@ -1516,6 +1520,9 @@ There is a much older interface available, too.
 @comment unistd.h
 @comment BSD
 @deftypefun int getpagesize (void)
+@safety{@mtsafe{}@assafe{}@acsafe{}}
+@c Obtained from the aux vec at program startup time.  GNU/Linux/m68k is
+@c the exception, with the possibility of a syscall.
 The @code{getpagesize} function returns the page size of the process.
 This value is fixed for the runtime of the process but can vary in
 different runs of the application.
@@ -1559,6 +1566,8 @@ get this information two functions.  They are declared in the file
 @comment sys/sysinfo.h
 @comment GNU
 @deftypefun {long int} get_phys_pages (void)
+@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c This fopens a /proc file and scans it for the requested information.
 The @code{get_phys_pages} function returns the total number of pages of
 physical the system has.  To get the amount of memory this number has to
 be multiplied by the page size.
@@ -1569,6 +1578,7 @@ This function is a GNU extension.
 @comment sys/sysinfo.h
 @comment GNU
 @deftypefun {long int} get_avphys_pages (void)
+@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
 The @code{get_phys_pages} function returns the number of available pages of
 physical the system has.  To get the amount of memory this number has to
 be multiplied by the page size.
@@ -1614,6 +1624,10 @@ in @file{sys/sysinfo.h}.
 @comment sys/sysinfo.h
 @comment GNU
 @deftypefun int get_nprocs_conf (void)
+@safety{@mtsafe{}@asunsafe{asmalloc, selfdeadlock}@acunsafe{lockleak, fdleak, memleak}}
+@c This function reads from from /sys using dir streams (single user, so
+@c no staticbuf MT-Safety issue), and on some arches, from /proc using
+@c streams.
 The @code{get_nprocs_conf} function returns the number of processors the
 operating system configured.
 
@@ -1623,6 +1637,8 @@ This function is a GNU extension.
 @comment sys/sysinfo.h
 @comment GNU
 @deftypefun int get_nprocs (void)
+@safety{@mtsafe{}@assafe{}@acsafe{fdleak}}
+@c This function reads from /proc using file descriptor I/O.
 The @code{get_nprocs} function returns the number of available processors.
 
 This function is a GNU extension.
