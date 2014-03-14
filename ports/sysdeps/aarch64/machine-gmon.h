@@ -1,5 +1,5 @@
-/* Elided version of pthread_mutex_trylock.
-   Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
+/* AArch64 definitions for profiling support.
+   Copyright (C) 1996-2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,7 +16,20 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <elision-conf.h>
-#include "force-elision.h"
+/* GCC version 2 gives us a perfect magical function to get
+   just the information we need:
+     void *__builtin_return_address (unsigned int N)
+   returns the return address of the frame N frames up.  */
 
-#include "nptl/pthread_mutex_trylock.c"
+#include <sysdep.h>
+
+static void mcount_internal (u_long frompc, u_long selfpc);
+
+#define _MCOUNT_DECL(frompc, selfpc) \
+static inline void mcount_internal (u_long frompc, u_long selfpc)
+
+#define MCOUNT \
+void __mcount (void)							      \
+{									      \
+  mcount_internal ((u_long) RETURN_ADDRESS (1), (u_long) RETURN_ADDRESS (0)); \
+}

@@ -1,3 +1,94 @@
+2013-08-03  David S. Miller  <davem@davemloft.net>
+
+	* po/ko.po: Update Korean translation from translation project.
+
+2013-08-01  David S. Miller  <davem@davemloft.net>
+
+	* manual/contrib.texi: Update entry for Siddhesh Poyarekar.  Add
+	entries for Will Newton, Andi Kleen, David Holsgrove, and Ondrej
+	Bilka.
+
+2013-07-30  David S. Miller  <davem@davemloft.net>
+
+	* po/fr.po: Update French translation from translation project.
+
+2013-07-28  David S. Miller  <davem@davemloft.net>
+
+	* po/cs.po: Update Czech translation from translation project.
+
+	* po/sv.po: Update Swedish translation from translation project.
+
+2013-07-27  David S. Miller  <davem@davemloft.net>
+
+	* po/eo.po: Update Esperanto translation from translation project.
+
+	* po/vi.po: Update Vietnamese translation from translation project.
+
+	* po/de.po: Update German translation from translation project.
+
+2013-07-26  David S. Miller  <davem@davemloft.net>
+
+	* po/bg.po: Update Bulgarian translation from translation project.
+
+	* po/nl.po: Update Dutch translation from translation project.
+	* po/pl.po: Update Polish translation from translation project.
+	* po/ru.po: Update Russian translation from translation project.
+
+2013-07-24  David S. Miller  <davem@davemloft.net>
+
+	* po/libc.pot: Update.
+
+2013-07-23  Adhemerval Zanella  <azanella@linux.vnet.ibm.com>
+
+	* sysdeps/unix/sysv/linux/powerpc/dl-static.c: New file to support
+	variable page size.
+	* sysdeps/unix/sysv/linux/powerpc/ldsodefs.h: Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/Makefile: Build dl-static in elf.
+	* sysdeps/unix/sysv/linux/powerpc/Versions: Add _dl_var_init.
+
+2013-07-22  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* sysdeps/s390/fpu/libm-test-ulps: Refresh.
+
+2013-07-21  Siddhesh Poyarekar  <siddhesh@redhat.com>
+	    Andreas Schwab  <schwab@suse.de>
+	    Roland McGrath  <roland@hack.frob.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+	    Carlos O'Donell  <carlos@redhat.com>
+
+	[BZ #15755]
+	* config.h.in: Define HAVE_PT_CHOWN.
+	* config.make.in (build-pt-chown): New variable.
+	* configure.in (--enable-pt_chown): New configure option.
+	* configure: Regenerate.
+	* login/Makefile: Include Makeconfig.  Build pt_chown only if
+	build-pt-chown is enabled.
+	* sysdeps/unix/grantpt.c (grantpt) [HAVE_PT_CHOWN]: Spawn
+	pt_chown to fix pty ownership.
+	* sysdeps/unix/sysv/linux/grantpt.c [HAVE_PT_CHOWN]: Define
+	CLOSE_ALL_FDS.
+	* manual/install.texi (Configuring and compiling): Mention
+	--enable-pt_chown. Add @findex for grantpt.
+	* INSTALL: Regenerate.
+
+2013-07-20  David S. Miller  <davem@davemloft.net>
+
+	* sysdeps/sparc/fpu/libm-test-ulps: Update ULPs to handle minor
+	difference between 32-bit and 64-bit.
+
+2013-07-15  Carlos O'Donell  <carlos@redhat.com>
+
+	[BZ #15711]
+	* sysdeps/unix/sysv/linux/Makefile ($(objpfx)bits/syscall%h):
+	Avoid system header dependency with -ffreestanding.
+	($(objpfx)bits/syscall%d): Likewise.
+
+2013-07-13  David S. Miller  <davem@davemloft.net>
+
+	* math/libm-test.inc (casin_test_data): Annotate more cases of missing
+	underflows from atanl/atan2l due to bug 15319.
+	(casinh_test_data): Likewise.
+
 2013-07-07  David S. Miller  <davem@davemloft.net>
 
 	* sysdeps/sparc/fpu/libm-test-ulps: Regenerate from scratch.
@@ -6451,7 +6542,7 @@
 	* stdlib/Makefile (routines): Add __cxa_thread_atexit_impl.
 	(tests): Add test case tst-tls-atexit.
 	(modules-names): Add shared library for tst-tls-atexit.
-	* stdlib/Versions (GLIBC_2.17): Add __cxa_thread_atexit_impl.
+	* stdlib/Versions (GLIBC_2.18): Add __cxa_thread_atexit_impl.
 	(GLIBC_PRIVATE): Add __call_tls_dtors.
 	* stdlib/cxa_thread_atexit_impl.c: New file with helper function
 	for libstdc++.

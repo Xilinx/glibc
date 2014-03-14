@@ -1,5 +1,6 @@
-/* Elided version of pthread_mutex_trylock.
-   Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
+/* Run-time dynamic linker data structures for loaded ELF shared objects.
+   PowerPC version.
+   Copyright (C) 2013 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,7 +17,17 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <elision-conf.h>
-#include "force-elision.h"
+#ifndef _LDSODEFS_H
 
-#include "nptl/pthread_mutex_trylock.c"
+/* Get the real definitions.  */
+#include_next <ldsodefs.h>
+
+/* Now define our stuff.  */
+
+/* We need special support to initialize DSO loaded for statically linked
+   binaries.  */
+extern void _dl_static_init (struct link_map *map);
+#undef DL_STATIC_INIT
+#define DL_STATIC_INIT(map) _dl_static_init (map)
+
+#endif /* ldsodefs.h */
