@@ -1,5 +1,5 @@
 /* Checking macros for stdio functions.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ __NTH (vsprintf (char *__restrict __s, const char *__restrict __fmt,
 				   __bos (__s), __fmt, __ap);
 }
 
-#if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
+#if defined __USE_ISOC99 || defined __USE_UNIX98
 
 extern int __snprintf_chk (char *__restrict __s, size_t __n, int __flag,
 			   size_t __slen, const char *__restrict __format,

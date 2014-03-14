@@ -60,7 +60,8 @@ copy "bem_ZM"
 END LC_PAPER
 
 LC_MEASUREMENT
-copy "bem_ZM"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_MESSAGES
@@ -85,6 +86,16 @@ country_ab2   "<U005A><U004D>"
 % ZMB
 country_ab3   "<U005A><U004D><U0042>"
 country_num   894
+% Z
+country_car  "<U005A>"
+% English
+lang_name     "<U0045><U006E><U0067><U006C><U0069><U0073><U0068>"
+% en
+lang_ab      "<U0065><U006E>"
+% eng
+lang_term    "<U0065><U006E><U0067>"
+% eng
+lang_lib    "<U0065><U006E><U0067>"
 END LC_ADDRESS
 
 LC_TELEPHONE

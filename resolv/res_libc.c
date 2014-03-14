@@ -122,9 +122,7 @@ libc_hidden_def (__res_maybe_init)
    This differs from plain `struct __res_state _res;' in that it doesn't
    create a common definition, but a plain symbol that resides in .bss,
    which can have an alias.  */
-struct __res_state _res __attribute__((section (".bss")));
-
-#include <tls.h>
+struct __res_state _res __attribute__ ((nocommon));
 
 #undef __resp
 __thread struct __res_state *__resp = &_res;
@@ -133,7 +131,7 @@ extern __thread struct __res_state *__libc_resp
 
 /* We declare this with compat_symbol so that it's not
    visible at link time.  Programs must use the accessor functions.  */
-#if defined SHARED && defined DO_VERSIONING
+#ifdef SHARED
 # include <shlib-compat.h>
 compat_symbol (libc, _res, _res, GLIBC_2_0);
 #endif

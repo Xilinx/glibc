@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -22,6 +22,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <config.h>
 
 
 #ifndef TYPE
@@ -85,6 +86,8 @@ do_test (void)
       return 1;
     }
 
+  /* Elided locks do not time out.  */
+#ifdef ENABLE_LOCK_ELISION
   if (pthread_mutex_trylock (&m) == 0)
     {
       puts ("mutex_trylock succeeded");
@@ -180,6 +183,7 @@ do_test (void)
       puts ("3rd timedlock didn't return right away");
       return 1;
     }
+#endif
 
   if (pthread_mutex_unlock (&m) != 0)
     {

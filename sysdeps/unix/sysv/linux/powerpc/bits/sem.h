@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,16 +39,16 @@ struct semid_ds
 {
   struct ipc_perm sem_perm;            /* operation permission struct */
 #if __WORDSIZE == 32
-  unsigned int __unused1;
+  unsigned int __glibc_reserved1;
 #endif
   __time_t sem_otime;                  /* last semop() time */
 #if __WORDSIZE == 32
-  unsigned int __unused2;
+  unsigned int __glibc_reserved2;
 #endif
   __time_t sem_ctime;                  /* last time changed by semctl() */
   unsigned long int sem_nsems;         /* number of semaphores in set */
-  unsigned long __unused3;
-  unsigned long __unused4;
+  unsigned long __glibc_reserved3;
+  unsigned long __glibc_reserved4;
 };
 
 /* The user should define a union like the following to use it for arguments

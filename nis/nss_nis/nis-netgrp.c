@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1996.
 
@@ -54,16 +54,16 @@ _nss_nis_setnetgrent (const char *group, struct __netgrent *netgrp)
 
   status = NSS_STATUS_SUCCESS;
 
-  if (__builtin_expect (group == NULL || group[0] == '\0', 0))
+  if (__glibc_unlikely (group == NULL || group[0] == '\0'))
     return NSS_STATUS_UNAVAIL;
 
   char *domain;
-  if (__builtin_expect (yp_get_default_domain (&domain), 0))
+  if (__glibc_unlikely (yp_get_default_domain (&domain)))
     return NSS_STATUS_UNAVAIL;
 
   status = yperr2nss (yp_match (domain, "netgroup", group, strlen (group),
 				&netgrp->data, &len));
-  if (__builtin_expect (status == NSS_STATUS_SUCCESS, 1))
+  if (__glibc_likely (status == NSS_STATUS_SUCCESS))
     {
       /* Our implementation of yp_match already allocates a buffer
 	 which is one byte larger than the value in LEN specifies

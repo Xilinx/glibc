@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -38,7 +38,7 @@ const struct __locale_data _nl_C_LC_ADDRESS attribute_hidden =
     { .string = "" },
     { .string = "" },
     { .string = "" },
-    { .string = "" },
+    { .word = 0 },
     { .string = "" },
     { .string = "" },
     { .string = "" },

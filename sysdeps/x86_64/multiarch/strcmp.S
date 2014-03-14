@@ -1,5 +1,5 @@
 /* Multiple versions of strcmp
-   Copyright (C) 2009-2013 Free Software Foundation, Inc.
+   Copyright (C) 2009-2014 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -66,6 +66,7 @@
 # define STRCMP_SSE2	__strncasecmp_l_sse2
 # define __GI_STRCMP	__GI___strncasecmp_l
 #else
+# define USE_AS_STRCMP
 # define UPDATE_STRNCMP_COUNTER
 # ifndef STRCMP
 #  define STRCMP	strcmp
@@ -88,14 +89,22 @@ ENTRY(STRCMP)
 	jne	1f
 	call	__init_cpu_features
 1:
+#ifdef USE_AS_STRCMP
+	leaq	__strcmp_sse2_unaligned(%rip), %rax
+	testl   $bit_Fast_Unaligned_Load, __cpu_features+CPUID_OFFSET+index_Fast_Unaligned_Load(%rip)
+	jnz     3f
+#else
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	STRCMP_SSE42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	STRCMP_SSSE3(%rip), %rax
+	jnz	3f
+#endif
+2:	leaq	STRCMP_SSSE3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	STRCMP_SSE2(%rip), %rax
-2:	ret
+3:	ret
 END(STRCMP)
 
 # ifdef USE_AS_STRCASECMP_L
@@ -109,16 +118,18 @@ ENTRY(__strcasecmp)
 #  ifdef HAVE_AVX_SUPPORT
 	leaq	__strcasecmp_avx(%rip), %rax
 	testl	$bit_AVX_Usable, __cpu_features+FEATURE_OFFSET+index_AVX_Usable(%rip)
-	jnz	2f
+	jnz	3f
 #  endif
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	__strcasecmp_sse42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	__strcasecmp_ssse3(%rip), %rax
+	jnz	3f
+2:	leaq	__strcasecmp_ssse3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	__strcasecmp_sse2(%rip), %rax
-2:	ret
+3:	ret
 END(__strcasecmp)
 weak_alias (__strcasecmp, strcasecmp)
 # endif
@@ -133,16 +144,18 @@ ENTRY(__strncasecmp)
 #  ifdef HAVE_AVX_SUPPORT
 	leaq	__strncasecmp_avx(%rip), %rax
 	testl	$bit_AVX_Usable, __cpu_features+FEATURE_OFFSET+index_AVX_Usable(%rip)
-	jnz	2f
+	jnz	3f
 #  endif
+	testl	$bit_Slow_SSE4_2, __cpu_features+CPUID_OFFSET+index_Slow_SSE4_2(%rip)
+	jnz	2f
 	leaq	__strncasecmp_sse42(%rip), %rax
 	testl	$bit_SSE4_2, __cpu_features+CPUID_OFFSET+index_SSE4_2(%rip)
-	jnz	2f
-	leaq	__strncasecmp_ssse3(%rip), %rax
+	jnz	3f
+2:	leaq	__strncasecmp_ssse3(%rip), %rax
 	testl	$bit_SSSE3, __cpu_features+CPUID_OFFSET+index_SSSE3(%rip)
-	jnz	2f
+	jnz	3f
 	leaq	__strncasecmp_sse2(%rip), %rax
-2:	ret
+3:	ret
 END(__strncasecmp)
 weak_alias (__strncasecmp, strncasecmp)
 # endif

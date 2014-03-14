@@ -1,5 +1,5 @@
 /* Definitions for POSIX memory map interface.  Linux/HPPA version.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -76,7 +76,7 @@
 #endif
 
 /* Advice to "madvise"  */
-#ifdef __USE_BSD
+#ifdef __USE_MISC
 # define MADV_NORMAL	  0	/* No further special treatment */
 # define MADV_RANDOM	  1	/* Expect random page references */
 # define MADV_SEQUENTIAL  2	/* Expect sequential page references */

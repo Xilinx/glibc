@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@uni-paderborn.de>, 1997.
 
@@ -63,7 +63,7 @@ nis_lookup (const_nis_name name, const unsigned int flags)
       req.ns_object.ns_object_val = NULL;
 
       status = __prepare_niscall (req.ns_name, &dir, &bptr, flags);
-      if (__builtin_expect (status != NIS_SUCCESS, 0))
+      if (__glibc_unlikely (status != NIS_SUCCESS))
 	{
 	  NIS_RES_STATUS (res) = status;
 	  goto out;
@@ -147,7 +147,7 @@ nis_lookup (const_nis_name name, const unsigned int flags)
 			  dir = NULL;
 			  status = __prepare_niscall (req.ns_name, &dir,
 						      &bptr, flags);
-			  if (__builtin_expect (status != NIS_SUCCESS, 0))
+			  if (__glibc_unlikely (status != NIS_SUCCESS))
 			    {
 			      NIS_RES_STATUS (res) = status;
 			      goto out;

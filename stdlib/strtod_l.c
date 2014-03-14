@@ -1,5 +1,5 @@
 /* Convert string representing a number to float value, using given locale.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -42,11 +42,10 @@ extern unsigned long long int ____strtoull_l_internal (const char *, char **,
 # define SET_MANTISSA(flt, mant) \
   do { union ieee754_double u;						      \
        u.d = (flt);							      \
-       if ((mant & 0xfffffffffffffULL) == 0)				      \
-	 mant = 0x8000000000000ULL;					      \
-       u.ieee.mantissa0 = ((mant) >> 32) & 0xfffff;			      \
-       u.ieee.mantissa1 = (mant) & 0xffffffff;				      \
-       (flt) = u.d;							      \
+       u.ieee_nan.mantissa0 = (mant) >> 32;				      \
+       u.ieee_nan.mantissa1 = (mant);					      \
+       if ((u.ieee.mantissa0 | u.ieee.mantissa1) != 0)			      \
+	 (flt) = u.d;							      \
   } while (0)
 #endif
 /* End of configuration part.  */
@@ -229,7 +228,7 @@ round_and_return (mp_limb_t *retval, intmax_t exponent, int negative,
 
 	  round_limb = retval[RETURN_LIMB_SIZE - 1];
 	  round_bit = (MANT_DIG - 1) % BITS_PER_MP_LIMB;
-	  for (i = 0; i < RETURN_LIMB_SIZE; ++i)
+	  for (i = 0; i < RETURN_LIMB_SIZE - 1; ++i)
 	    more_bits |= retval[i] != 0;
 	  MPN_ZERO (retval, RETURN_LIMB_SIZE);
 	}
@@ -546,7 +545,7 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
 
   struct __locale_data *current = loc->__locales[LC_NUMERIC];
 
-  if (__builtin_expect (group, 0))
+  if (__glibc_unlikely (group))
     {
       grouping = _NL_CURRENT (LC_NUMERIC, GROUPING);
       if (*grouping <= 0 || *grouping == CHAR_MAX)
@@ -710,7 +709,7 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
   while (c == L'0' || ((wint_t) thousands != L'\0' && c == (wint_t) thousands))
     c = *++cp;
 #else
-  if (__builtin_expect (thousands == NULL, 1))
+  if (__glibc_likely (thousands == NULL))
     while (c == '0')
       c = *++cp;
   else
@@ -790,7 +789,7 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
 	    /* Not a digit or separator: end of the integer part.  */
 	    break;
 #else
-	  if (__builtin_expect (thousands == NULL, 1))
+	  if (__glibc_likely (thousands == NULL))
 	    break;
 	  else
 	    {
@@ -1182,10 +1181,10 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
     exponent -= incr;
   }
 
-  if (__builtin_expect (exponent > MAX_10_EXP + 1 - (intmax_t) int_no, 0))
+  if (__glibc_unlikely (exponent > MAX_10_EXP + 1 - (intmax_t) int_no))
     return overflow_value (negative);
 
-  if (__builtin_expect (exponent < MIN_10_EXP - (DIG + 1), 0))
+  if (__glibc_unlikely (exponent < MIN_10_EXP - (DIG + 1)))
     return underflow_value (negative);
 
   if (int_no > 0)
@@ -1246,7 +1245,7 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
 
       /* Now we know the exponent of the number in base two.
 	 Check it against the maximum possible exponent.  */
-      if (__builtin_expect (bits > MAX_EXP, 0))
+      if (__glibc_unlikely (bits > MAX_EXP))
 	return overflow_value (negative);
 
       /* We have already the first BITS bits of the result.  Together with
@@ -1753,7 +1752,7 @@ ____STRTOF_INTERNAL (nptr, endptr, group, loc)
 	      got_limb;
 	    }
 
-	  for (i = densize; num[i] == 0 && i >= 0; --i)
+	  for (i = densize; i >= 0 && num[i] == 0; --i)
 	    ;
 	  return round_and_return (retval, exponent - 1, negative,
 				   quot, BITS_PER_MP_LIMB - 1 - used,

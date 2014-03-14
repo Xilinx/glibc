@@ -38,14 +38,17 @@ long double __asinhl(long double x)
 {
 	long double t,w;
 	int64_t hx,ix;
-	GET_LDOUBLE_MSW64(hx,x);
+	double xhi;
+
+	xhi = ldbl_high (x);
+	EXTRACT_WORDS64 (hx, xhi);
 	ix = hx&0x7fffffffffffffffLL;
 	if(ix>=0x7ff0000000000000LL) return x+x;	/* x is inf or NaN */
 	if(ix< 0x3e20000000000000LL) {	/* |x|<2**-29 */
 	    if(huge+x>one) return x;	/* return x inexact except 0 */
 	}
 	if(ix>0x41b0000000000000LL) {	/* |x| > 2**28 */
-	    w = __ieee754_logl(fabs(x))+ln2;
+	    w = __ieee754_logl(fabsl(x))+ln2;
 	} else if (ix>0x4000000000000000LL) {	/* 2**28 > |x| > 2.0 */
 	    t = fabs(x);
 	    w = __ieee754_logl(2.0*t+one/(__ieee754_sqrtl(x*x+one)+t));

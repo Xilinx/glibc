@@ -1,5 +1,5 @@
 /* Assembler macros for PA-RISC.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@cygnus.com>, August 1999.
    Linux/PA-RISC changes by Philipp Rumpf, <prumpf@tux.org>, March 2000.
@@ -219,7 +219,7 @@
 
 
 /* FIXME: This comment is not true.
- * All the syscall assembly macros rely on finding the approriate
+ * All the syscall assembly macros rely on finding the appropriate
    SYSCALL_ERROR_LABEL or rather HANDLER. */
 
 /* int * __errno_location(void) so you have to store your value

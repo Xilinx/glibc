@@ -1,5 +1,5 @@
 /* Test for inet_network.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 2000.
 
@@ -38,6 +38,7 @@ struct
   {"0x0", 0},
   /* Now some invalid addresses.  */
   {"0x", INADDR_NONE},
+  {"1 bar", INADDR_NONE}, /* Bug 15277.  */
   {"141.30.225.2800", INADDR_NONE},
   {"141.76.1.1.1", INADDR_NONE},
   {"141.76.1.11.", INADDR_NONE},

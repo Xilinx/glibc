@@ -1,3 +1,17 @@
+2014-02-26  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile: Include Makeconfig immediately after defining subdir.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* configure.in: Moved to ...
+	* configure.ac: ... here.
+	* configure: Regenerated.
+
+2013-08-29   Ondřej Bílka  <neleai@seznam.cz>
+
+	* stringprep.c: Fix typos.
+
 2013-06-11   Ondřej Bílka  <neleai@seznam.cz>
 
 	* gunicomp.h: Fix trailing whitespaces.

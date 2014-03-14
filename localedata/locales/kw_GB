@@ -46,7 +46,7 @@ category  "kw_GB:2000";LC_PAPER
 category  "kw_GB:2000";LC_NAME
 category  "kw_GB:2000";LC_ADDRESS
 category  "kw_GB:2000";LC_TELEPHONE
-
+category  "kw_GB:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -146,8 +146,8 @@ int_prefix     "<U0034><U0034>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -164,4 +164,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0047><U0042>"
 country_ab3 "<U0047><U0042><U0052>"
 country_num 826
+% GB
+country_car    "<U0047><U0042>"
+% Kernowek
+lang_name    "<U004B><U0065><U0072><U006E><U006F><U0077><U0065><U006B>"
+% kw
+lang_ab      "<U006B><U0077>"
+% cor
+lang_term    "<U0063><U006F><U0072>"
+% cor
+lang_lib    "<U0063><U006F><U0072>"
 END LC_ADDRESS

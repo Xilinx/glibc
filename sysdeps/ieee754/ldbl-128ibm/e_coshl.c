@@ -41,9 +41,11 @@ __ieee754_coshl (long double x)
 {
 	long double t,w;
 	int64_t ix;
+	double xhi;
 
     /* High word of |x|. */
-	GET_LDOUBLE_MSW64(ix,x);
+	xhi = ldbl_high (x);
+	EXTRACT_WORDS64 (ix, xhi);
 	ix &= 0x7fffffffffffffffLL;
 
     /* x is INF or NaN */
@@ -67,7 +69,7 @@ __ieee754_coshl (long double x)
 	if (ix < 0x40862e42fefa39efLL)  return half*__ieee754_expl(fabsl(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
-	if (ix < 0x408633ce8fb9f87dLL) {
+	if (ix < 0x408633ce8fb9f87fLL) {
 	    w = __ieee754_expl(half*fabsl(x));
 	    t = half*w;
 	    return t*w;

@@ -1,5 +1,5 @@
 /* Convert string representing a number to integer value, using given locale.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -255,7 +255,7 @@ INTERNAL (__strtol_l) (nptr, endptr, base, group, loc)
      in the format described in <locale.h>.  */
   const char *grouping;
 
-  if (__builtin_expect (group, 0))
+  if (__glibc_unlikely (group))
     {
       grouping = _NL_CURRENT (LC_NUMERIC, GROUPING);
       if (*grouping <= 0 || *grouping == CHAR_MAX)
@@ -297,7 +297,7 @@ INTERNAL (__strtol_l) (nptr, endptr, base, group, loc)
   /* Skip white space.  */
   while (ISSPACE (*s))
     ++s;
-  if (__builtin_expect (*s == L_('\0'), 0))
+  if (__glibc_unlikely (*s == L_('\0')))
     goto noconv;
 
   /* Check for a sign.  */
@@ -331,7 +331,7 @@ INTERNAL (__strtol_l) (nptr, endptr, base, group, loc)
   if (base != 10)
     grouping = NULL;
 
-  if (__builtin_expect (grouping != NULL, 0))
+  if (__glibc_unlikely (grouping != NULL))
     {
 # ifndef USE_WIDE_CHAR
       thousands_len = strlen (thousands);
@@ -499,7 +499,7 @@ INTERNAL (__strtol_l) (nptr, endptr, base, group, loc)
     overflow = 1;
 #endif
 
-  if (__builtin_expect (overflow, 0))
+  if (__glibc_unlikely (overflow))
     {
       __set_errno (ERANGE);
 #if UNSIGNED

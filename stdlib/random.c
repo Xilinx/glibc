@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -160,7 +160,7 @@ static int32_t randtbl[DEG_3 + 1] =
 static struct random_data unsafe_state =
   {
 /* FPTR and RPTR are two pointers into the state info, a front and a rear
-   pointer.  These two pointers are always rand_sep places aparts, as they
+   pointer.  These two pointers are always rand_sep places apart, as they
    cycle through the state information.  (Yes, this does mean we could get
    away with just one pointer, but the code for random is more efficient
    this way).  The pointers are left positioned as they would be from the call:

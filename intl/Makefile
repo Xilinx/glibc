@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2013 Free Software Foundation, Inc.
+# Copyright (C) 1995-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -18,13 +18,14 @@
 # Makefile for intl subdirectory: message handling code from GNU gettext.
 
 subdir = intl
+
+include ../Makeconfig
+
 headers = libintl.h
 routines = bindtextdom dcgettext dgettext gettext	\
 	   dcigettext dcngettext dngettext ngettext \
 	   finddomain loadmsgcat localealias textdomain
 aux =	   l10nflist explodename plural plural-exp hash-string
-
-include ../Makeconfig
 
 multithread-test-srcs := tst-gettext4 tst-gettext5 tst-gettext6
 test-srcs := tst-gettext tst-translit tst-gettext2 tst-codeset tst-gettext3
@@ -33,12 +34,12 @@ test-srcs += $(multithread-test-srcs)
 endif
 tests = tst-ngettext
 
-before-compile = $(objpfx)msgs.h
+before-compile += $(objpfx)msgs.h
 
 install-others = $(inst_msgcatdir)/locale.alias
 
-generated = msgs.h mtrace-tst-gettext tst-gettext.mtrace
-generated-dirs := domaindir localedir
+generated += msgs.h mtrace-tst-gettext.out tst-gettext.mtrace
+generated-dirs += domaindir localedir
 
 ifneq (no,$(BISON))
 plural.c: plural.y
@@ -46,22 +47,27 @@ plural.c: plural.y
 endif
 $(objpfx)plural.o: plural.c
 
+ifeq ($(run-built-tests),yes)
+ifeq (yes,$(build-shared))
+ifneq ($(strip $(MSGFMT)),:)
+tests-special += $(objpfx)tst-translit.out $(objpfx)tst-gettext.out \
+		 $(objpfx)tst-gettext2.out $(objpfx)tst-codeset.out \
+		 $(objpfx)tst-gettext3.out
+ifeq ($(have-thread-library),yes)
+tests-special += $(objpfx)tst-gettext4.out $(objpfx)tst-gettext5.out \
+		 $(objpfx)tst-gettext6.out
+endif
+ifneq (no,$(PERL))
+tests-special += $(objpfx)mtrace-tst-gettext.out
+endif
+endif
+endif
+endif
+
 include ../Rules
 
 ifeq ($(run-built-tests),yes)
 ifeq (yes,$(build-shared))
-ifneq ($(strip $(MSGFMT)),:)
-tests: $(objpfx)tst-translit.out $(objpfx)tst-gettext2.out \
-       $(objpfx)tst-codeset.out $(objpfx)tst-gettext3.out
-ifeq ($(have-thread-library),yes)
-tests: $(objpfx)tst-gettext4.out $(objpfx)tst-gettext5.out \
-       $(objpfx)tst-gettext6.out
-endif
-ifneq (no,$(PERL))
-tests: $(objpfx)mtrace-tst-gettext
-endif
-endif
-
 # Multiple tests use this data.  Create it once to avoid racing and
 # spurious test failures.
 codeset_mo = $(objpfx)domaindir/de_DE/LC_MESSAGES/codeset.mo
@@ -71,21 +77,27 @@ $(codeset_mo): tstcodeset.po
 	msgfmt -o $@T $<
 	mv -f $@T $@
 
-$(objpfx)mtrace-tst-gettext: $(objpfx)tst-gettext.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-gettext.mtrace > $@
+$(objpfx)mtrace-tst-gettext.out: $(objpfx)tst-gettext.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-gettext.mtrace > $@; \
+	$(evaluate-test)
 $(objpfx)tst-gettext.out: tst-gettext.sh $(objpfx)tst-gettext
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
-	  $(common-objpfx)intl/ $(objpfx)tst-gettext.mtrace
+	  $(common-objpfx)intl/ $(objpfx)tst-gettext.mtrace; \
+	$(evaluate-test)
 $(objpfx)tst-translit.out: tst-translit.sh $(objpfx)tst-translit
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
-	  $(common-objpfx)intl/
+	  $(common-objpfx)intl/; \
+	$(evaluate-test)
 $(objpfx)tst-gettext2.out: tst-gettext2.sh $(objpfx)tst-gettext2
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' \
-	  $(common-objpfx)intl/
+	  $(common-objpfx)intl/; \
+	$(evaluate-test)
 $(objpfx)tst-gettext4.out: tst-gettext4.sh $(objpfx)tst-gettext4
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/; \
+	$(evaluate-test)
 $(objpfx)tst-gettext6.out: tst-gettext6.sh $(objpfx)tst-gettext6
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(common-objpfx)intl/; \
+	$(evaluate-test)
 
 $(objpfx)tst-codeset.out: $(codeset_mo)
 $(objpfx)tst-gettext3.out: $(codeset_mo)

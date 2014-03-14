@@ -1,5 +1,5 @@
 /* List dynamic shared objects linked into given process.
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <sys/ptrace.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include <ldsodefs.h>
 #include <version.h>
@@ -82,6 +83,7 @@ static char *exe;
 
 /* Local functions.  */
 static int get_process_info (int dfd, long int pid);
+static void wait_for_ptrace_stop (long int pid);
 
 
 int
@@ -170,6 +172,8 @@ main (int argc, char *argv[])
 		 tid);
 	}
 
+      wait_for_ptrace_stop (tid);
+
       struct thread_list *newp = alloca (sizeof (*newp));
       newp->tid = tid;
       newp->next = thread_list;
@@ -191,6 +195,27 @@ main (int argc, char *argv[])
   close (dfd);
 
   return status;
+}
+
+
+/* Wait for PID to enter ptrace-stop state after being attached.  */
+static void
+wait_for_ptrace_stop (long int pid)
+{
+  int status;
+
+  /* While waiting for SIGSTOP being delivered to the tracee we have to
+     reinject any other pending signal.  Ignore all other errors.  */
+  while (waitpid (pid, &status, __WALL) == pid && WIFSTOPPED (status))
+    {
+      /* The STOP signal should not be delivered to the tracee.  */
+      if (WSTOPSIG (status) == SIGSTOP)
+	return;
+      if (ptrace (PTRACE_CONT, pid, NULL,
+		  (void *) (uintptr_t) WSTOPSIG (status)))
+	/* The only possible error is that the process died.  */
+	return;
+    }
 }
 
 
@@ -236,7 +261,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 

@@ -27,7 +27,7 @@ category  "doi_IN:2012";LC_PAPER
 category  "doi_IN:2012";LC_NAME
 category  "doi_IN:2012";LC_ADDRESS
 category  "doi_IN:2012";LC_TELEPHONE
-
+category  "doi_IN:2012";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -163,7 +163,19 @@ END LC_NAME
 
 
 LC_ADDRESS
-copy "hi_IN"
+postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
+<U0025><U0062><U0025><U0065><U0025><U0072>"
+country_ab2 "<U0049><U004E>"
+country_ab3 "<U0049><U004E><U0044>"
+country_num 356
+% IND
+country_car    "<U0049><U004E><U0044>"
+% डोगरी
+lang_name    "<U0921><U094B><U0917><U0930><U0940>"
+% doi
+lang_term    "<U0064><U006F><U0069>"
+% doi
+lang_lib    "<U0064><U006F><U0069>"
 END LC_ADDRESS
 
 
@@ -172,5 +184,6 @@ copy "hi_IN"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

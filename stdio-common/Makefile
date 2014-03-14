@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 #
 subdir	:= stdio-common
 
+include ../Makeconfig
+
 headers	:= stdio_ext.h printf.h bits/printf-ldbl.h bits/stdio_lim.h
 
 routines	:=							      \
@@ -38,8 +40,6 @@ routines	:=							      \
 	isoc99_scanf isoc99_vscanf isoc99_fscanf isoc99_vfscanf isoc99_sscanf \
 	isoc99_vsscanf							      \
 	psiginfo
-
-include ../Makeconfig
 
 aux	:= errlist siglist printf-parsemb printf-parsewc fxprintf
 
@@ -61,19 +61,21 @@ tests := tstscanf test_rdwr test-popen tstgetln test-fseek \
 
 test-srcs = tst-unbputc tst-printf
 
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)tst-unbputc.out $(objpfx)tst-printf.out \
+		 $(objpfx)tst-setvbuf1-cmp.out
+endif
+
 include ../Rules
 
 ifeq ($(run-built-tests),yes)
-.PHONY: do-tst-unbputc do-tst-printf
-tests: do-tst-unbputc do-tst-printf
-
-do-tst-unbputc: $(objpfx)tst-unbputc.out
 $(objpfx)tst-unbputc.out: tst-unbputc.sh $(objpfx)tst-unbputc
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'; \
+	$(evaluate-test)
 
-do-tst-printf: $(objpfx)tst-printf.out
 $(objpfx)tst-printf.out: tst-printf.sh $(objpfx)tst-printf
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'; \
+	$(evaluate-test)
 endif
 
 CFLAGS-vfprintf.c = -Wno-uninitialized
@@ -119,6 +121,7 @@ CFLAGS-tst-sprintf.c = -Wno-format
 tst-sprintf-ENV = LOCPATH=$(common-objpfx)localedata
 tst-sscanf-ENV = LOCPATH=$(common-objpfx)localedata
 tst-swprintf-ENV = LOCPATH=$(common-objpfx)localedata
+tst-swscanf-ENV = LOCPATH=$(common-objpfx)localedata
 test-vfprintf-ENV = LOCPATH=$(common-objpfx)localedata
 scanf13-ENV = LOCPATH=$(common-objpfx)localedata
 bug14-ENV = LOCPATH=$(common-objpfx)localedata
@@ -126,9 +129,13 @@ tst-grouping-ENV = LOCPATH=$(common-objpfx)localedata
 
 CPPFLAGS += $(libio-mtsafe)
 
-$(objpfx)tst-setvbuf1.out: tst-setvbuf1.expect $(objpfx)tst-setvbuf1
-	$(test-program-cmd) > $@ 2>&1
-	cmp tst-setvbuf1.expect $@
+$(objpfx)tst-setvbuf1.out: /dev/null $(objpfx)tst-setvbuf1
+	$(test-program-cmd) > $@ 2>&1; \
+	$(evaluate-test)
+
+$(objpfx)tst-setvbuf1-cmp.out: tst-setvbuf1.expect $(objpfx)tst-setvbuf1.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 ifeq ($(build-shared),yes)
 link-libm = $(common-objpfx)math/libm.so

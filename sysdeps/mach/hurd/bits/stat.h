@@ -1,4 +1,4 @@
-/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ struct stat
     __off64_t st_size;		/* Size in bytes.  */
 #endif
 
-#if defined __USE_MISC || defined __USE_XOPEN2K8
+#ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -121,7 +121,7 @@ struct stat64
 
     __off64_t st_size;		/* Size in bytes.  */
 
-#if defined __USE_MISC || defined __USE_XOPEN2K8
+#ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -223,7 +223,7 @@ struct stat64
 #endif
 
 /* Default file creation mask (umask).  */
-#ifdef	__USE_BSD
+#ifdef	__USE_MISC
 # define CMASK		0022
 #endif
 

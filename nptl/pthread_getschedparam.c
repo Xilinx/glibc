@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -40,7 +40,7 @@ __pthread_getschedparam (threadid, policy, param)
   lll_lock (pd->lock, LLL_PRIVATE);
 
   /* The library is responsible for maintaining the values at all
-     times.  If the user uses a interface other than
+     times.  If the user uses an interface other than
      pthread_setschedparam to modify the scheduler setting it is not
      the library's problem.  In case the descriptor's values have
      not yet been retrieved do it now.  */

@@ -1,5 +1,5 @@
 /* getifaddrs -- get names and addresses of all network interfaces
-   Copyright (C) 2003-2013 Free Software Foundation, Inc.
+   Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -175,7 +175,7 @@ __netlink_request (struct netlink_handle *h, int type)
       if (nladdr.nl_pid != 0)
 	continue;
 
-      if (__builtin_expect (msg.msg_flags & MSG_TRUNC, 0))
+      if (__glibc_unlikely (msg.msg_flags & MSG_TRUNC))
 	goto out_fail;
 
       size_t count = 0;
@@ -301,7 +301,7 @@ map_newlink (int index, struct ifaddrs_storage *ifas, int *map, int max)
 	return i;
     }
 
-  /* This means interfaces changed inbetween the reading of the
+  /* This means interfaces changed between the reading of the
      RTM_GETLINK and RTM_GETADDR information.  We have to repeat
      everything.  */
   return -1;
@@ -459,7 +459,7 @@ getifaddrs_internal (struct ifaddrs **ifap)
 		 kernel.  */
 	      ifa_index = map_newlink (ifim->ifi_index - 1, ifas,
 				       map_newlink_data, newlink);
-	      if (__builtin_expect (ifa_index == -1, 0))
+	      if (__glibc_unlikely (ifa_index == -1))
 		{
 		try_again:
 		  result = -EAGAIN;
@@ -552,7 +552,7 @@ getifaddrs_internal (struct ifaddrs **ifap)
 	      ifa_index = newlink + newaddr_idx;
 	      int idx = map_newlink (ifam->ifa_index - 1, ifas,
 				     map_newlink_data, newlink);
-	      if (__builtin_expect (idx == -1, 0))
+	      if (__glibc_unlikely (idx == -1))
 		goto try_again;
 	      ifas[ifa_index].ifa.ifa_flags = ifas[idx].ifa.ifa_flags;
 	      if (ifa_index > 0)
@@ -737,7 +737,7 @@ getifaddrs_internal (struct ifaddrs **ifap)
 		{
 		  int idx = map_newlink (ifam->ifa_index - 1, ifas,
 					 map_newlink_data, newlink);
-		  if (__builtin_expect (idx == -1, 0))
+		  if (__glibc_unlikely (idx == -1))
 		    goto try_again;
 		  ifas[ifa_index].ifa.ifa_name = ifas[idx].ifa.ifa_name;
 		}

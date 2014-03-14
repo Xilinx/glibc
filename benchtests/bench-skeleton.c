@@ -1,5 +1,5 @@
 /* Skeleton for benchmark programs.
-   Copyright (C) 2013 Free Software Foundation, Inc.
+   Copyright (C) 2013-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -53,9 +53,11 @@ main (int argc, char **argv)
 
   memset (&runtime, 0, sizeof (runtime));
 
-  unsigned long iters;
+  unsigned long iters, res;
 
-  TIMING_INIT (iters);
+  TIMING_INIT (res);
+
+  iters = 1000 * res;
 
   for (int v = 0; v < NUM_VARIANTS; v++)
     {

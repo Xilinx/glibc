@@ -186,12 +186,12 @@ evNowTime(struct timespec *res) {
 static int		send_vc(res_state, const u_char *, int,
 				const u_char *, int,
 				u_char **, int *, int *, int, u_char **,
-				u_char **, int *, int *);
+				u_char **, int *, int *, int *);
 static int		send_dg(res_state, const u_char *, int,
 				const u_char *, int,
 				u_char **, int *, int *, int,
 				int *, int *, u_char **,
-				u_char **, int *, int *);
+				u_char **, int *, int *, int *);
 #ifdef DEBUG
 static void		Aerror(const res_state, FILE *, const char *, int,
 			       const struct sockaddr *);
@@ -343,7 +343,7 @@ int
 __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 		 const u_char *buf2, int buflen2,
 		 u_char *ans, int anssiz, u_char **ansp, u_char **ansp2,
-		 int *nansp2, int *resplen2)
+		 int *nansp2, int *resplen2, int *ansp2_malloced)
 {
   int gotsomewhere, terrno, try, v_circuit, resplen, ns, n;
 
@@ -358,7 +358,7 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 	}
 
 #ifdef USE_HOOKS
-	if (__builtin_expect (statp->qhook || statp->rhook, 0)) {
+	if (__glibc_unlikely (statp->qhook || statp->rhook))       {
 		if (anssiz < MAXPACKET && ansp) {
 			u_char *buf = malloc (MAXPACKET);
 			if (buf == NULL)
@@ -441,7 +441,7 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 				    malloc(sizeof (struct sockaddr_in6));
 			if (EXT(statp).nsaddrs[n] != NULL) {
 				memset (mempcpy(EXT(statp).nsaddrs[n],
-						&statp->nsaddr_list[n],
+						&statp->nsaddr_list[ns],
 						sizeof (struct sockaddr_in)),
 					'\0',
 					sizeof (struct sockaddr_in6)
@@ -499,7 +499,7 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 			goto next_ns;
 	    same_ns:
 #ifdef USE_HOOKS
-		if (__builtin_expect (statp->qhook != NULL, 0)) {
+		if (__glibc_unlikely (statp->qhook != NULL))       {
 			int done = 0, loops = 0;
 
 			do {
@@ -541,12 +541,13 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 					   : &((struct sockaddr_in *) nsap)->sin_addr),
 					  tmpbuf, sizeof (tmpbuf))));
 
-		if (__builtin_expect (v_circuit, 0)) {
+		if (__glibc_unlikely (v_circuit))       {
 			/* Use VC; at most one attempt per server. */
 			try = statp->retry;
 			n = send_vc(statp, buf, buflen, buf2, buflen2,
 				    &ans, &anssiz, &terrno,
-				    ns, ansp, ansp2, nansp2, resplen2);
+				    ns, ansp, ansp2, nansp2, resplen2,
+				    ansp2_malloced);
 			if (n < 0)
 				return (-1);
 			if (n == 0 && (buf2 == NULL || *resplen2 == 0))
@@ -556,7 +557,7 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 			n = send_dg(statp, buf, buflen, buf2, buflen2,
 				    &ans, &anssiz, &terrno,
 				    ns, &v_circuit, &gotsomewhere, ansp,
-				    ansp2, nansp2, resplen2);
+				    ansp2, nansp2, resplen2, ansp2_malloced);
 			if (n < 0)
 				return (-1);
 			if (n == 0 && (buf2 == NULL || *resplen2 == 0))
@@ -595,7 +596,7 @@ __libc_res_nsend(res_state statp, const u_char *buf, int buflen,
 			__res_iclose(statp, false);
 		}
 #ifdef USE_HOOKS
-		if (__builtin_expect (statp->rhook, 0)) {
+		if (__glibc_unlikely (statp->rhook))       {
 			int done = 0, loops = 0;
 
 			do {
@@ -646,7 +647,7 @@ res_nsend(res_state statp,
 	  const u_char *buf, int buflen, u_char *ans, int anssiz)
 {
   return __libc_res_nsend(statp, buf, buflen, NULL, 0, ans, anssiz,
-			  NULL, NULL, NULL, NULL);
+			  NULL, NULL, NULL, NULL, NULL);
 }
 libresolv_hidden_def (res_nsend)
 
@@ -657,7 +658,7 @@ send_vc(res_state statp,
 	const u_char *buf, int buflen, const u_char *buf2, int buflen2,
 	u_char **ansp, int *anssizp,
 	int *terrno, int ns, u_char **anscp, u_char **ansp2, int *anssizp2,
-	int *resplen2)
+	int *resplen2, int *ansp2_malloced)
 {
 	const HEADER *hp = (HEADER *) buf;
 	const HEADER *hp2 = (HEADER *) buf2;
@@ -814,7 +815,7 @@ send_vc(res_state statp,
 	if (rlen > *thisanssizp) {
 		/* Yes, we test ANSCP here.  If we have two buffers
 		   both will be allocatable.  */
-		if (__builtin_expect (anscp != NULL, 1)) {
+		if (__glibc_likely (anscp != NULL))       {
 			u_char *newp = malloc (MAXPACKET);
 			if (newp == NULL) {
 				*terrno = ENOMEM;
@@ -823,6 +824,8 @@ send_vc(res_state statp,
 			}
 			*thisanssizp = MAXPACKET;
 			*thisansp = newp;
+			if (thisansp == ansp2)
+			  *ansp2_malloced = 1;
 			anhp = (HEADER *) newp;
 			len = rlen;
 		} else {
@@ -835,7 +838,7 @@ send_vc(res_state statp,
 	} else
 		len = rlen;
 
-	if (__builtin_expect (len < HFIXEDSZ, 0)) {
+	if (__glibc_unlikely (len < HFIXEDSZ))       {
 		/*
 		 * Undersized message.
 		 */
@@ -851,13 +854,13 @@ send_vc(res_state statp,
 		cp += n;
 		len -= n;
 	}
-	if (__builtin_expect (n <= 0, 0)) {
+	if (__glibc_unlikely (n <= 0))       {
 		*terrno = errno;
 		Perror(statp, stderr, "read(vc)", errno);
 		__res_iclose(statp, false);
 		return (0);
 	}
-	if (__builtin_expect (truncating, 0)) {
+	if (__glibc_unlikely (truncating))       {
 		/*
 		 * Flush rest of answer so connection stays in synch.
 		 */
@@ -875,7 +878,7 @@ send_vc(res_state statp,
 		}
 	}
 	/*
-	 * If the calling applicating has bailed out of
+	 * If the calling application has bailed out of
 	 * a previous call and failed to arrange to have
 	 * the circuit closed or the server has got
 	 * itself confused, then drop the packet and
@@ -917,7 +920,7 @@ reopen (res_state statp, int *terrno, int ns)
 
 		/* only try IPv6 if IPv6 NS and if not failed before */
 		if (nsap->sa_family == AF_INET6 && !statp->ipv6_unavail) {
-			if (__builtin_expect (__have_o_nonblock >= 0, 1)) {
+			if (__glibc_likely (__have_o_nonblock >= 0))       {
 				EXT(statp).nssocks[ns] =
 				  socket(PF_INET6, SOCK_DGRAM|SOCK_NONBLOCK,
 					 0);
@@ -928,14 +931,14 @@ reopen (res_state statp, int *terrno, int ns)
 					     && errno == EINVAL ? -1 : 1);
 #endif
 			}
-			if (__builtin_expect (__have_o_nonblock < 0, 0))
+			if (__glibc_unlikely (__have_o_nonblock < 0))
 				EXT(statp).nssocks[ns] =
 				  socket(PF_INET6, SOCK_DGRAM, 0);
 			if (EXT(statp).nssocks[ns] < 0)
 			    statp->ipv6_unavail = errno == EAFNOSUPPORT;
 			slen = sizeof (struct sockaddr_in6);
 		} else if (nsap->sa_family == AF_INET) {
-			if (__builtin_expect (__have_o_nonblock >= 0, 1)) {
+			if (__glibc_likely (__have_o_nonblock >= 0))       {
 				EXT(statp).nssocks[ns]
 				  = socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK,
 					   0);
@@ -946,7 +949,7 @@ reopen (res_state statp, int *terrno, int ns)
 					     && errno == EINVAL ? -1 : 1);
 #endif
 			}
-			if (__builtin_expect (__have_o_nonblock < 0, 0))
+			if (__glibc_unlikely (__have_o_nonblock < 0))
 				EXT(statp).nssocks[ns]
 				  = socket(PF_INET, SOCK_DGRAM, 0);
 			slen = sizeof (struct sockaddr_in);
@@ -973,7 +976,7 @@ reopen (res_state statp, int *terrno, int ns)
 			__res_iclose(statp, false);
 			return (0);
 		}
-		if (__builtin_expect (__have_o_nonblock < 0, 0)) {
+		if (__glibc_unlikely (__have_o_nonblock < 0))       {
 			/* Make socket non-blocking.  */
 			int fl = __fcntl (EXT(statp).nssocks[ns], F_GETFL);
 			if  (fl != -1)
@@ -992,7 +995,7 @@ send_dg(res_state statp,
 	const u_char *buf, int buflen, const u_char *buf2, int buflen2,
 	u_char **ansp, int *anssizp,
 	int *terrno, int ns, int *v_circuit, int *gotsomewhere, u_char **anscp,
-	u_char **ansp2, int *anssizp2, int *resplen2)
+	u_char **ansp2, int *anssizp2, int *resplen2, int *ansp2_malloced)
 {
 	const HEADER *hp = (HEADER *) buf;
 	const HEADER *hp2 = (HEADER *) buf2;
@@ -1055,7 +1058,7 @@ send_dg(res_state statp,
 	n = 0;
 	if (nwritten == 0)
 	  n = __poll (pfd, 1, 0);
-	if (__builtin_expect (n == 0, 0)) {
+	if (__glibc_unlikely (n == 0))       {
 		n = __poll (pfd, 1, ptimeout);
 		need_recompute = 1;
 	}
@@ -1130,7 +1133,7 @@ send_dg(res_state statp,
 		    reqs[1].msg_hdr.msg_controllen = 0;
 
 		    int ndg = __sendmmsg (pfd[0].fd, reqs, 2, MSG_NOSIGNAL);
-		    if (__builtin_expect (ndg == 2, 1))
+		    if (__glibc_likely (ndg == 2))
 		      {
 			if (reqs[0].msg_len != buflen
 			    || reqs[1].msg_len != buflen2)
@@ -1146,7 +1149,7 @@ send_dg(res_state statp,
 		    else
 		      {
 #ifndef __ASSUME_SENDMMSG
-			if (__builtin_expect (have_sendmmsg == 0, 0))
+			if (__glibc_unlikely (have_sendmmsg == 0))
 			  {
 			    if (ndg < 0 && errno == ENOSYS)
 			      {
@@ -1229,12 +1232,17 @@ send_dg(res_state statp,
 		    /* Yes, we test ANSCP here.  If we have two buffers
 		       both will be allocatable.  */
 		    && anscp
+#ifdef FIONREAD
 		    && (ioctl (pfd[0].fd, FIONREAD, thisresplenp) < 0
-			|| *thisanssizp < *thisresplenp)) {
+			|| *thisanssizp < *thisresplenp)
+#endif
+                    ) {
 			u_char *newp = malloc (MAXPACKET);
 			if (newp != NULL) {
 				*anssizp = MAXPACKET;
 				*thisansp = ans = newp;
+				if (thisansp == ansp2)
+				  *ansp2_malloced = 1;
 			}
 		}
 		HEADER *anhp = (HEADER *) *thisansp;
@@ -1243,7 +1251,7 @@ send_dg(res_state statp,
 		*thisresplenp = recvfrom(pfd[0].fd, (char*)*thisansp,
 					 *thisanssizp, 0,
 					(struct sockaddr *)&from, &fromlen);
-		if (__builtin_expect (*thisresplenp <= 0, 0)) {
+		if (__glibc_unlikely (*thisresplenp <= 0))       {
 			if (errno == EINTR || errno == EAGAIN) {
 				need_recompute = 1;
 				goto wait;
@@ -1252,7 +1260,7 @@ send_dg(res_state statp,
 			goto err_out;
 		}
 		*gotsomewhere = 1;
-		if (__builtin_expect (*thisresplenp < HFIXEDSZ, 0)) {
+		if (__glibc_unlikely (*thisresplenp < HFIXEDSZ))       {
 			/*
 			 * Undersized message.
 			 */

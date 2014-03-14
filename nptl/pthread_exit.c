@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -29,3 +29,7 @@ __pthread_exit (value)
   __do_cancel ();
 }
 strong_alias (__pthread_exit, pthread_exit)
+
+/* After a thread terminates, __libc_start_main decrements
+   __nptl_nthreads defined in pthread_create.c.  */
+PTHREAD_STATIC_FN_REQUIRE (pthread_create)

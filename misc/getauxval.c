@@ -1,4 +1,4 @@
-/* Copyright (C) 2012-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2012-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sys/auxv.h>
+#include <errno.h>
 #include <ldsodefs.h>
 
 
@@ -26,10 +27,14 @@ __getauxval (unsigned long int type)
 
   if (type == AT_HWCAP)
     return GLRO(dl_hwcap);
+  else if (type == AT_HWCAP2)
+    return GLRO(dl_hwcap2);
 
   for (p = GLRO(dl_auxv); p->a_type != AT_NULL; p++)
     if (p->a_type == type)
       return p->a_un.a_val;
+
+  __set_errno (ENOENT);
   return 0;
 }
 

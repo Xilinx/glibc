@@ -1,3 +1,271 @@
+This file describes changes to the MIPS port while it was in the ports
+add-on directory.  This port is no longer part of an add-on and so
+future changes to it should be listed in the top-level ChangeLog file,
+not here.
+
+
+
+2014-02-10  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/mips: Move directory to ../sysdeps/mips.
+	* sysdeps/unix/mips: Move directory to ../sysdeps/unix/mips.
+	* sysdeps/unix/sysv/linux/mips: Move directory to
+	../sysdeps/unix/sysv/linux/mips.
+
+	* sysdeps/unix/sysv/linux/mips/mips64/umount.c: Move from
+	sysdeps/unix/sysv/linux/hppa/umount.c instead of #include of that
+	file.
+
+	* sysdeps/unix/sysv/linux/mips/ipc_priv.h: Directly include
+	sysdeps/unix/sysv/linux/powerpc/ipc_priv.h instead of via
+	sysdeps/unix/sysv/linux/alpha/ipc_priv.h.
+
+2014-01-07  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/mips/mips32/nptl/libc.abilist: Move to
+	....
+	* sysdeps/unix/sysv/linux/mips/mips32/fpu/nptl/libc.abilist:
+	... here.
+	* sysdeps/unix/sysv/linux/mips/mips32/nofpu/nptl/libc.abilist: New
+	file.
+
+2014-01-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/mips/mips32/libm-test-ulps: Regenerated.
+	* sysdeps/mips/mips64/libm-test-ulps: Likewise.
+
+2013-12-03  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/mips/dl-lookup.c: Update from generic version.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/mips/fpu/fegetround.c (fegetround): Use libm_hidden_def.
+
+2013-11-27  Aurelien Jarno <aurelien@aurel32.net>
+
+	* sysdeps/unix/sysv/linux/mips/bits/resource.h (RLIM64_INFINITY): Fix
+	Fix 64-bit value for 32-bit ABIs.
+	* sysdeps/unix/sysv/linux/mips/getrlimit64.c: Rename generic getrlimit64
+	version as getrlimit64@@GLIBC_2_2.  Provide the getrlimit64 as
+	getrlimit64@@GLIBC_2_19.
+	* sysdeps/unix/sysv/linux/mips/setrlimit64.c: Ditto with setrlimit64.
+	* sysdeps/unix/sysv/linux/mips/mips32/nptl/libc.abilist (GLIBC_2.19):
+	Add getrlimit64 and setrlimit64.
+	* sysdeps/unix/sysv/linux/mips/mips64/n32/nptl/libc.abilist: Ditto.
+	* sysdeps/unix/sysv/linux/mips/mips32/Versions (libc): Add
+	getrlimit64@@GLIBC_2_19 and setrlimit64@@GLIBC_2_19.
+	* sysdeps/unix/sysv/linux/mips/mips64/n32/Versions: Ditto.
+
+2013-11-27  Aurelien Jarno <aurelien@aurel32.net>
+
+	* sysdeps/unix/sysv/linux/mips/getrlimit64.c: On O32 and N32 ABIs,
+	include the generic getrlimit64 version as __internal_getrlimit64
+	and add a wrapper around it to convert the RLIM64_INFINITY constant
+	between the libc and the kernel version.
+	* sysdeps/unix/sysv/linux/mips/setrlimit64.c: Ditto with setrlimit64.
+
+2013-11-26  Ondřej Bílka  <neleai@seznam.cz>
+	* sysdeps/unix/sysv/linux/mips/bits/ipc.h: Use __glibc_reserved instead __unused.
+	* sysdeps/unix/sysv/linux/mips/bits/msq.h: Likewise.
+	* sysdeps/unix/sysv/linux/mips/bits/sem.h: Likewise.
+	* sysdeps/unix/sysv/linux/mips/bits/shm.h: Likewise.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/mips/configure.in: Moved to ...
+	* sysdeps/mips/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/mips/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/mips/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/mips/mips64/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/mips/mips64/configure.ac: ... here.
+	* sysdeps/mips/configure: Regenerated.
+	* sysdeps/unix/sysv/linux/mips/configure: Likewise.
+	* sysdeps/unix/sysv/linux/mips/mips64/configure: Likewise.
+
+2013-09-26  Steve Ellcey  <sellcey@mips.com>
+
+	[BZ #15632]
+	* sysdeps/mips/mips32/fpu/e_sqrt.c: New.
+	* sysdeps/mips/mips32/fpu/e_sqrtf.c: New.
+	* sysdeps/mips/mips64/n32/fpu/e_sqrt.c: New.
+	* sysdeps/mips/mips64/n32/fpu/e_sqrtf.c: New.
+	* sysdeps/mips/mips64/n64/fpu/e_sqrt.c: New.
+	* sysdeps/mips/mips64/n64/fpu/e_sqrtf.c: New.
+
+2013-09-23  Steve Ellcey  <sellcey@mips.com>
+
+	* sysdeps/mips/math_private.h (libc_feholdexcept_mips): New function.
+	(libc_feholdexcept): New macro.
+	(libc_feholdexceptf): New macro.
+	(libc_feholdexceptl): New macro.
+	(libc_fesetround_mips): New function.
+	(libc_fesetround): New macro.
+	(libc_fesetroundf): New macro.
+	(libc_fesetroundl): New macro.
+	(libc_feholdexcept_setround_mips): New function.
+	(libc_feholdexcept_setround): New macro.
+	(libc_feholdexcept_setroundf): New macro.
+	(libc_feholdexcept_setroundl): New macro.
+	(libc_fesetenv_mips): New function.
+	(libc_fesetenv): New macro.
+	(libc_fesetenvf): New macro.
+	(libc_fesetenvl): New macro.
+	(libc_feupdateenv_mips): New function.
+	(libc_feupdateenv): New macro.
+	(libc_feupdateenvf): New macro.
+	(libc_feupdateenvl): New macro.
+
+2013-09-23  Maciej W. Rozycki  <macro@codesourcery.com>
+
+	* sysdeps/mips/bits/atomic.h: Fix comment typo.
+
+2013-09-23  Steve Ellcey  <sellcey@mips.com>
+
+	* sysdeps/mips/fpu/fegetround.c (fegetround): Use _FPU_RC_MASK.
+	* sysdeps/mips/fpu/fesetround.c (fesetround): Use _FPU_RC_MASK.
+
+2013-09-23  Steve Ellcey  <sellcey@mips.com>
+
+	* sysdeps/mips/fpu_control.h (_FPU_RC_MASK): New.
+
+2013-09-23  Steve Ellcey  <sellcey@mips.com>
+
+	* sysdeps/mips/fpu_control.h (comments): Add capitalization and
+	periods to match GNU standard.
+
+2013-09-20  Steve Ellcey  <sellcey@mips.com>
+
+	* sysdeps/mips/memset.S: Change prefetching and add loop unrolling.
+	* sysdeps/mips/mips64/memset.S: Remove.
+
+2013-09-18  Maciej W. Rozycki  <macro@codesourcery.com>
+	    Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/mips/dl-machine.h (ELF_MACHINE_NAN2008): New macro.
+	(elf_machine_matches_host): Reject objects that use a different
+	NaN encoding convention.
+	* sysdeps/mips/fpu_control.h: Document IEEE 754-2008 feature
+	control bits.
+	(_FPU_ABS2008, _FPU_NAN2008): New macros.
+	(_FPU_RESERVED): Clear bits #20 and #19.
+	(_FPU_DEFAULT) [__mips_nan2008]: Set bit #18.
+	(_FPU_IEEE) [__mips_nan2008]: Likewise.
+	* sysdeps/mips/math_private.h [__mips_nan2008]
+	(HIGH_ORDER_BIT_IS_SET_FOR_SNAN): Don't define.
+	* sysdeps/mips/bits/nan.h [__mips_nan2008] (__qnan_bytes): Define
+	appropriately.
+	* sysdeps/mips/mips64/soft-fp/sfp-machine.h [__mips_nan2008]
+	(_FP_NANFRAC_S, _FP_NANFRAC_D, _FP_NANFRAC_Q): Define 2008-NaN
+	payloads.
+	(_FP_QNANNEGATEDP): Set to 0.
+	* sysdeps/mips/soft-fp/sfp-machine.h [__mips_nan2008]
+	(_FP_NANFRAC_S, _FP_NANFRAC_D, _FP_NANFRAC_Q): Define 2008-NaN
+	payloads.
+	(_FP_QNANNEGATEDP): Set to 0.
+	* sysdeps/unix/sysv/linux/mips/dl-cache.h (_DL_CACHE_DEFAULT_ID):
+	Define 2008 NaN encoding values.
+	* sysdeps/unix/sysv/linux/mips/readelflib.c (process_elf_file):
+	Handle 2008-NaN libraries.
+	* sysdeps/mips/shlib-versions [HAVE_MIPS_NAN2008]: Set
+	ld=ld-linux-mipsn8.so.1.
+	* sysdeps/mips/configure.in: Define HAVE_MIPS_NAN2008 if the
+	2008 NaN encoding is used.
+	* sysdeps/unix/sysv/linux/mips/Makefile (abi-variants): Add
+	2008-NaN ABI variants.
+	(abi-o32_soft-options, abi-o32_soft-condition): Update with the
+	__mips_nan2008 macro.
+	(abi-o32_hard-options, abi-o32_hard-condition): Likewise.
+	(abi-n32_soft-options, abi-n32_soft-condition): Likewise.
+	(abi-n32_hard-options, abi-n32_hard-condition): Likewise.
+	(abi-n64_soft-options, abi-n64_soft-condition): Likewise.
+	(abi-n64_hard-options, abi-n64_hard-condition): Likewise.
+	(abi-o32_soft-ld-soname, abi-o32_hard-ld-soname): New macros.
+	(abi-n32_soft-ld-soname, abi-n32_hard-ld-soname): Likewise.
+	(abi-n64_soft-ld-soname, abi-n64_hard-ld-soname): Likewise.
+	(abi-o32_soft_2008-options): Likewise.
+	(abi-o32_soft_2008-condition): Likewise.
+	(abi-o32_hard_2008-options): Likewise.
+	(abi-o32_hard_2008-condition): Likewise.
+	(abi-n32_soft_2008-options): Likewise.
+	(abi-n32_soft_2008-condition): Likewise.
+	(abi-n32_hard_2008-options): Likewise.
+	(abi-n32_hard_2008-condition): Likewise.
+	(abi-n64_soft_2008-options): Likewise.
+	(abi-n64_soft_2008-condition): Likewise.
+	(abi-n64_hard_2008-options): Likewise.
+	(abi-n64_hard_2008-condition): Likewise.
+	(abi-o32_soft_2008-ld-soname): Likewise.
+	(abi-o32_hard_2008-ld-soname): Likewise.
+	(abi-n32_soft_2008-ld-soname): Likewise.
+	(abi-n32_hard_2008-ld-soname): Likewise.
+	(abi-n64_soft_2008-ld-soname): Likewise.
+	(abi-n64_hard_2008-ld-soname): Likewise.
+	* sysdeps/unix/sysv/linux/mips/configure.in: Include the NaN
+	encoding selection in default-abi.  Set arch_minimum_kernel to
+	10.0.0 if 2008 NaN encoding is used.
+	* sysdeps/mips/configure: Regenerate.
+	* sysdeps/unix/sysv/linux/mips/configure: Regenerate.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/mips/memcpy.S: Fix then/than typos.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/mips/memcpy.S: Fix typos.
+
+2013-08-29  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/mips/ldsodefs.h (VALID_ELF_ABIVERSION):
+	Use ELFOSABI_GNU instead of ELFOSABI_LINUX.
+
+2013-08-29   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/mips/sys/asm.h: Fix typos.
+
+2013-08-22  Maciej W. Rozycki  <macro@codesourcery.com>
+
+	* sysdeps/mips/fpu_control.h: Document bits reserved for
+	architecture implementers.
+	(_FPU_RESERVED): Clear bit #21.
+	* sysdeps/mips/fpu/fedisblxcpt.c (fedisableexcept): Don't clear
+	reserved bits.
+	* sysdeps/mips/fpu/feenablxcpt.c (feenableexcept): Likewise.
+
+2013-07-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/mips/mips32/libm-test-ulps: Regenerated.
+	* sysdeps/mips/mips64/libm-test-ulps: Likewise.
+
+	[BZ #13304]
+	* sysdeps/mips/ieee754/s_fma.c: New file.
+	* sysdeps/mips/ieee754/s_fmaf.c: Likewise.
+	* sysdeps/mips/ieee754/s_fmal.c: Likewise.
+	* sysdeps/mips/mips32/Implies: Add mips/soft-fp.
+	* sysdeps/mips/mips64/n32/s_fma.c: Remove file.
+	* sysdeps/mips/mips64/n64/s_fma.c: Likewise.
+	* sysdeps/mips/mips64/soft-fp/sfp-machine.h (_FP_MUL_MEAT_DW_S):
+	New macro.
+	(_FP_MUL_MEAT_DW_D): Likewise.
+	(_FP_MUL_MEAT_DW_Q): Likewise.
+	* sysdeps/mips/soft-fp/sfp-machine.h (_FP_MUL_MEAT_DW_S): New
+	macro.
+	(_FP_MUL_MEAT_DW_D): Likewise.
+	(_FP_MUL_MEAT_DW_Q): Likewise.
+
+2013-06-28  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* sysdeps/mips/dl-procinfo.h (_dl_procinfo): Add TYPE parameter
+	to macro prototype for AT_HWCAP2 support.
+
+2013-06-27  Maciej W. Rozycki  <macro@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/mips/dl-static.c: Do not include
+	<bits/libc-lock.h>.
+	(_dl_static_lock): Remove variable.
+	(_dl_static_init): Remove _dl_static_lock locking.
+
 2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/unix/sysv/linux/mips/mips32/nptl/libpthread.abilist:

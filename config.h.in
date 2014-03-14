@@ -57,9 +57,6 @@
    directive.  */
 #undef	HAVE_ASM_POPSECTION_DIRECTIVE
 
-/* Define if versioning of the library is wanted.  */
-#undef	DO_VERSIONING
-
 /* Defined to the oldest ABI we support, like 2.1.  */
 #undef GLIBC_OLDEST_ABI
 
@@ -100,6 +97,12 @@
 
 /* Define if gcc supports VEX encoding.  */
 #undef	HAVE_SSE2AVX_SUPPORT
+
+/* Define if compiler supports AVX512.  */
+#undef  HAVE_AVX512_SUPPORT
+
+/* Define if assembler supports AVX512.  */
+#undef  HAVE_AVX512_ASM_SUPPORT
 
 /* Define if gcc supports FMA4.  */
 #undef	HAVE_FMA4_SUPPORT
@@ -164,6 +167,9 @@
 /* Define if __stack_chk_guard canary should be randomized at program startup.  */
 #undef ENABLE_STACKGUARD_RANDOMIZE
 
+/* Define if lock elision should be enabled by default.  */
+#undef ENABLE_LOCK_ELISION
+
 /* Package description.  */
 #undef PKGVERSION
 
@@ -192,6 +198,12 @@
 /* Define if STT_GNU_IFUNC support actually works.  */
 #undef HAVE_IFUNC
 
+/* Define if linux/fanotify.h is available.  */
+#undef HAVE_LINUX_FANOTIFY_H
+
+/* Define if the linker defines __ehdr_start.  */
+#undef HAVE_EHDR_START
+
 /*
  */
 
@@ -201,13 +213,13 @@
    They are used only in miscellaneous generator programs, not
    in compiling libc itself.   */
 
-/* sysdeps/generic/configure.in */
+/* sysdeps/generic/configure.ac */
 #undef	HAVE_PSIGNAL
 
-/* sysdeps/unix/configure.in */
+/* sysdeps/unix/configure.ac */
 #undef	HAVE_STRERROR
 
-/* sysdeps/unix/common/configure.in */
+/* sysdeps/unix/common/configure.ac */
 #undef	HAVE_SYS_SIGLIST
 #undef	HAVE__SYS_SIGLIST
 #undef	HAVE__CTYPE_
@@ -234,5 +246,12 @@
 
 /* The ARM hard-float ABI is being used.  */
 #undef HAVE_ARM_PCS_VFP
+
+/* The pt_chown binary is being built and used by grantpt.  */
+#undef HAVE_PT_CHOWN
+
+/* ports/sysdeps/mips/configure.in  */
+/* Define if using the IEEE 754-2008 NaN encoding on the MIPS target.  */
+#undef HAVE_MIPS_NAN2008
 
 #endif

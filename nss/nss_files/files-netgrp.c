@@ -1,5 +1,5 @@
 /* Netgroup file parser in nss_files modules.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -103,7 +103,8 @@ _nss_files_setnetgrent (const char *group, struct __netgrent *result)
 	      result->cursor += (curlen - group_len) - 1;
 	    }
 
-	  while (line[curlen - 1] == '\n' && line[curlen - 2] == '\\')
+	  while (curlen > 1 && line[curlen - 1] == '\n'
+		 && line[curlen - 2] == '\\')
 	    {
 	      /* Yes, we have a continuation line.  */
 	      if (found)

@@ -29,7 +29,7 @@ category  "yue_HK:2010";LC_PAPER
 category  "yue_HK:2010";LC_NAME
 category  "yue_HK:2010";LC_ADDRESS
 category  "yue_HK:2010";LC_TELEPHONE
-
+category  "yue_HK:2010";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 
@@ -151,6 +151,10 @@ country_ab3 "<U0048><U004B><U0047>"
 country_num 344
 country_isbn "<U0039><U0036><U0032>"
 lang_name "<U7CB5><U8A9E>"
+% yue
+lang_term    "<U0079><U0075><U0065>"
+% yue
+lang_lib    "<U0079><U0075><U0065>"
 END LC_ADDRESS
 
 
@@ -160,7 +164,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-% This is the ISO_IEC TR14652 Locale definition for the
-%
+% metric
 measurement 1
 END LC_MEASUREMENT

@@ -1,5 +1,5 @@
 /* longjmp for PowerPC.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
+#include <stap-probe.h>
 #define _ASM
 #ifdef __NO_VMX__
 # include <novmxsetjmp.h>
@@ -25,7 +26,7 @@
 #endif
 
 	.machine	"altivec"
-ENTRY (__longjmp)
+ENTRY (__longjmp_symbol)
 #ifndef __NO_VMX__
 # ifdef PIC
 	mflr    r6
@@ -43,16 +44,16 @@ ENTRY (__longjmp)
 #   endif
 	mtlr    r6
 	cfi_same_value (lr)
-	lwz     r5,RTLD_GLOBAL_RO_DL_HWCAP_OFFSET+4(r5)
+	lwz     r5,RTLD_GLOBAL_RO_DL_HWCAP_OFFSET+LOWORD(r5)
 #  else
 	lwz     r5,_dl_hwcap@got(r5)
 	mtlr    r6
 	cfi_same_value (lr)
-	lwz     r5,4(r5)
+	lwz     r5,LOWORD(r5)
 #  endif
 # else
-	lis	r5,(_dl_hwcap+4)@ha
-	lwz     r5,(_dl_hwcap+4)@l(r5)
+	lis	r5,(_dl_hwcap+LOWORD)@ha
+	lwz     r5,(_dl_hwcap+LOWORD)@l(r5)
 # endif
 	andis.	r5,r5,(PPC_FEATURE_HAS_ALTIVEC >> 16)
 	beq	L(no_vmx)
@@ -143,19 +144,22 @@ L(no_vmx):
 # endif
 	PTR_DEMANGLE2 (r0, r25)
 #endif
+	/* longjmp/longjmp_target probe expects longjmp first argument (4@3),
+	   second argument (-4@4), and target address (4@0), respectively.  */
+	LIBC_PROBE (longjmp, 3, 4@3, -4@4, 4@0)
 	mtlr r0
 	lwz r21,((JB_GPRS+7)*4)(r3)
 	lfd fp21,((JB_FPRS+7*2)*4)(r3)
 	lwz r22,((JB_GPRS+8)*4)(r3)
 	lfd fp22,((JB_FPRS+8*2)*4)(r3)
-	lwz r0,(JB_CR*4)(r3)
+	lwz r5,(JB_CR*4)(r3)
 	lwz r23,((JB_GPRS+9)*4)(r3)
 	lfd fp23,((JB_FPRS+9*2)*4)(r3)
 	lwz r24,((JB_GPRS+10)*4)(r3)
 	lfd fp24,((JB_FPRS+10*2)*4)(r3)
 	lwz r25,((JB_GPRS+11)*4)(r3)
 	lfd fp25,((JB_FPRS+11*2)*4)(r3)
-	mtcrf 0xFF,r0
+	mtcrf 0xFF,r5
 	lwz r26,((JB_GPRS+12)*4)(r3)
 	lfd fp26,((JB_FPRS+12*2)*4)(r3)
 	lwz r27,((JB_GPRS+13)*4)(r3)
@@ -168,6 +172,7 @@ L(no_vmx):
 	lfd fp30,((JB_FPRS+16*2)*4)(r3)
 	lwz r31,((JB_GPRS+17)*4)(r3)
 	lfd fp31,((JB_FPRS+17*2)*4)(r3)
+	LIBC_PROBE (longjmp_target, 3, 4@3, -4@4, 4@0)
 	mr r3,r4
 	blr
-END (__longjmp)
+END (__longjmp_symbol)

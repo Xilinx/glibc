@@ -1,3 +1,112 @@
+2014-02-12  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/alpha: Move directory to ../sysdeps/alpha.
+	* sysdeps/unix/alpha: Move directory to ../sysdeps/unix/alpha.
+	* sysdeps/unix/sysv/linux/alpha: Move directory to
+	../sysdeps/unix/sysv/linux/alpha.
+
+2014-02-08  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/alpha/msgctl.c: Move to
+	sysdeps/unix/sysv/linux/arm/msgctl.c and #include that file.
+	* sysdeps/unix/sysv/linux/alpha/semctl.c: Move to
+	sysdeps/unix/sysv/linux/arm/semctl.c and #include that file.
+	* sysdeps/unix/sysv/linux/alpha/shmctl.c: Move to
+	sysdeps/unix/sysv/linux/arm/shmctl.c and #include that file.
+
+2014-01-24  Richard Henderson <rth@redhat.com>
+
+	* sysdeps/alpha/fpu/libm-test-ulps: Update.
+
+	* sysdeps/alpha/tls-macros.h (TLS_GD): Add dependency on $gp.
+	(TLS_LD, TLS_IE): Likewise.
+
+2013-12-07  Richard Henderson <rth@redhat.com>
+
+	* sysdeps/unix/sysv/linux/alpha/bits/mman.h: Use <bits/mman-linux.h>,
+	dropping common values and overriding different values.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/alpha/fpu/fegetround.c (fegetround): Use
+	libm_hidden_def.
+
+2013-11-26  Ondřej Bílka  <neleai@seznam.cz>
+	* sysdeps/unix/sysv/linux/alpha/bits/ipc.h: Use __glibc_reserved instead __unused.
+	* sysdeps/unix/sysv/linux/alpha/bits/msq.h: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/bits/sem.h: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/bits/shm.h: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/bits/stat.h: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/kernel_stat.h: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/xstatconv.c: Likewise.
+
+2013-11-16  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/unix/sysv/linux/alpha/rt_sigaction.S: Include a nop
+	before each signal thunk.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/alpha/configure.in: Moved to ...
+	* sysdeps/alpha/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/alpha/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/alpha/configure.ac: ... here.
+	* sysdeps/alpha/configure: Regenerated.
+	* sysdeps/unix/sysv/linux/alpha/configure: Likewise.
+
+2013-10-12   Yuri Chornoivan <yurchor@ukr.net>
+
+	* sysdeps/unix/sysv/linux/alpha/nptl/pt-vfork.S: Fix typos.
+	* sysdeps/unix/sysv/linux/alpha/nptl/vfork.S: Likewise.
+
+2013-10-01  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/unix/alpha/sysdep.h (PTR_MANGLE): Improve conditions under
+	which it is defined.
+
+2013-09-20  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/alpha/alphaev67/ffs.S (__ffs): Define as hidden.
+	* sysdeps/alpha/ffs.S (__ffs): Likewise.
+
+2013-09-11  Andreas Schwab  <schwab@suse.de>
+
+	* sysdeps/unix/sysv/linux/alpha/bits/fcntl.h (__O_TMPFILE):
+	Define.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/alpha/alphaev67/stpncpy.S: Fix then/than typos.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/unix/sysv/linux/alpha/bits/netdb.h: Fix typos.
+
+2013-07-02  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/alpha/fpu/libm-test-ulps: Update.
+
+2013-06-28  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* sysdeps/alpha/dl-procinfo.h (_dl_procinfo): Add TYPE parameter
+	to macro prototype for AT_HWCAP2 support.
+
+2013-06-24  Richard Henderson  <rth@redhat.com>
+
+	[BZ #15666]
+	* sysdeps/alpha/Versions (GLIBC_2.18): Add __sqrt_finite,
+	__sqrtf_finite, and __sqrtl_finite.
+	* sysdeps/unix/sysv/linux/alpha/nptl/libm.abilist: Likewise.
+	* sysdeps/alpha/alphaev6/fpu/e_sqrt.S: Add __sqrt_finite.
+	* sysdeps/alpha/alphaev6/fpu/e_sqrtf.S: Add __sqrtf_finite.
+	* sysdeps/alpha/fpu/e_sqrt.c: Add __sqrt_finite compatibility.
+	* sysdeps/alpha/fpu/e_sqrtf.c: New file.
+	* sysdeps/alpha/soft-fp/e_sqrtl.c: Add __sqrtl_finite.
+
+2013-06-23  Richard Henderson  <rth@redhat.com>
+
+	* sysdeps/alpha/fpu/libm-test-ulps: Update.
+
 2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/unix/sysv/linux/alpha/nptl/libpthread.abilist: Update.

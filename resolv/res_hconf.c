@@ -1,4 +1,4 @@
-/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David Mosberger (davidm@azstarnet.com).
 
@@ -359,6 +359,7 @@ _res_hconf_init (void)
 
 
 #ifndef NOT_IN_libc
+# if defined SIOCGIFCONF && defined SIOCGIFNETMASK
 /* List of known interfaces.  */
 libc_freeres_ptr (
 static struct netaddr
@@ -373,6 +374,7 @@ static struct netaddr
     } ipv4;
   } u;
 } *ifaddrs);
+# endif
 
 /* Reorder addresses returned in a hostent such that the first address
    is an address on the local subnet, if there is such an address.

@@ -1,4 +1,4 @@
-/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ fgetws (buf, n, fp)
   CHECK_FILE (fp, NULL);
   if (n <= 0)
     return NULL;
-  if (__builtin_expect (n == 1, 0))
+  if (__glibc_unlikely (n == 1))
     {
       /* Another irregular case: since we have to store a NUL byte and
 	 there is only room for exactly one byte, we don't have to

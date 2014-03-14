@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# Copyright (C) 1999-2013 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Andreas Jaeger <aj@suse.de>, 1999.
 
@@ -104,7 +104,7 @@ sub find_files {
 # Parse ulps file
 sub parse_ulps {
   my ($file, $platform) = @_;
-  my ($test, $type, $float, $eps, $kind);
+  my ($test, $type, $float, $eps);
 
   # $type has the following values:
   # "normal": No complex variable
@@ -116,10 +116,6 @@ sub parse_ulps {
     # ignore comments and empty lines
     next if /^#/;
     next if /^\s*$/;
-    if (/^Test/) {
-      $kind = 'test';
-      next;
-    }
     if (/^Function: /) {
       if (/Real part of/) {
 	s/Real part of //;
@@ -131,11 +127,8 @@ sub parse_ulps {
 	$type = 'normal';
       }
       ($test) = ($_ =~ /^Function:\s*\"([a-zA-Z0-9_]+)\"/);
-      $kind = 'fct';
       next;
     }
-    # Only handle maximal errors of functions
-    next if ($kind eq 'test');
     if (/^i?(float|double|ldouble):/) {
       ($float, $eps) = split /\s*:\s*/,$_,2;
       if ($eps eq 'fail') {

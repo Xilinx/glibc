@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for PowerPC32 on POWER6.
-   Copyright (C) 2003-2013 Free Software Foundation, Inc.
+   Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -219,15 +219,28 @@ L(word_unaligned_short):
     blt   cr6,5f
     srwi  7,6,16
     bgt	  cr6,3f
+#ifdef __LITTLE_ENDIAN__
+    sth   7,0(3)
+#else
     sth   6,0(3)
+#endif
     b     7f
     .align  4
 3:
+#ifdef __LITTLE_ENDIAN__
+    rotlwi 6,6,24
+    stb   6,0(3)
+    sth   7,1(3)
+#else
     stb   7,0(3)
     sth   6,1(3)
+#endif
     b     7f
     .align  4
 5:
+#ifdef __LITTLE_ENDIAN__
+    rotlwi 6,6,8
+#endif
     stb   6,0(3)
 7:
     cmplwi	cr1,10,16
@@ -269,7 +282,7 @@ L(wus_tail16): /* Move 16 bytes.  */
     addi  1,1,32
     blr
     .align  4
-L(wus_tail16p8):  /* less then 8 bytes left.  */
+L(wus_tail16p8):  /* less than 8 bytes left.  */
     beq   cr1,L(wus_tailX) /* exactly 16 bytes, early exit.  */
     cmplwi	cr1,10,20
     bf    29,L(wus_tail16p2)
@@ -283,7 +296,7 @@ L(wus_tail16p8):  /* less then 8 bytes left.  */
     addi  1,1,32
     blr
     .align  4
-L(wus_tail16p4):  /* less then 4 bytes left.  */
+L(wus_tail16p4):  /* less than 4 bytes left.  */
     addi  12,12,24
     addi  11,11,24
     bgt   cr0,L(wus_tail2)
@@ -291,7 +304,7 @@ L(wus_tail16p4):  /* less then 4 bytes left.  */
     addi  1,1,32
     blr
     .align  4
-L(wus_tail16p2):  /* 16 bytes moved, less then 4 bytes left.  */
+L(wus_tail16p2):  /* 16 bytes moved, less than 4 bytes left.  */
     addi  12,12,16
     addi  11,11,16
     b     L(wus_tail2)
@@ -315,7 +328,7 @@ L(wus_tail8):  /* Move 8 bytes.  */
     addi  1,1,32
     blr
     .align  4
-L(wus_tail8p4):  /* less then 4 bytes left.  */
+L(wus_tail8p4):  /* less than 4 bytes left.  */
     addi  12,12,8
     addi  11,11,8
     bgt   cr1,L(wus_tail2)
@@ -326,7 +339,7 @@ L(wus_tail8p4):  /* less then 4 bytes left.  */
     .align  4
 L(wus_tail4):  /* Move 4 bytes.  */
 /*  r6 already loaded speculatively.  If we are here we know there is
-    more then 4 bytes left.  So there is no need to test.  */
+    more than 4 bytes left.  So there is no need to test.  */
     addi  12,12,4
     stw   6,0(11)
     addi  11,11,4
@@ -426,14 +439,14 @@ L(wdu):
      First we need to copy word up to but not crossing the next 32-byte
      boundary. Then perform aligned loads just before and just after
      the boundary and use shifts and or to generate the next aligned
-     word for dst. If more then 32 bytes remain we copy (unaligned src)
-     the next 7 words and repeat the loop until less then 32-bytes
+     word for dst. If more than 32 bytes remain we copy (unaligned src)
+     the next 7 words and repeat the loop until less than 32-bytes
      remain.
 
-     Then if more then 4 bytes remain we again use aligned loads,
+     Then if more than 4 bytes remain we again use aligned loads,
      shifts and or to generate the next dst word. We then process the
      remaining words using unaligned loads as needed. Finally we check
-     if there more then 0 bytes (1-3) bytes remaining and use
+     if there are more than 0 bytes (1-3) bytes remaining and use
      halfword and or byte load/stores to complete the copy.
 */
     mr      4,12      /* restore unaligned adjusted src ptr */
@@ -577,7 +590,11 @@ L(wdu1_32):
     lwz     6,-1(4)
     cmplwi  cr6,31,4
     srwi    8,31,5    /* calculate the 32 byte loop count */
+#ifdef __LITTLE_ENDIAN__
+    srwi    6,6,8
+#else
     slwi    6,6,8
+#endif
     clrlwi  31,31,27   /* The remaining bytes, < 32.  */
     blt     cr5,L(wdu1_32tail)
     mtctr   8
@@ -585,8 +602,12 @@ L(wdu1_32):
 
     lwz   8,3(4)
     lwz   7,4(4)
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,24,32
+#else
 /*  Equivalent to: srwi   8,8,32-8;  or    6,6,8 */
     rlwimi 6,8,8,(32-8),31
+#endif
     b      L(wdu1_loop32x)
     .align  4
 L(wdu1_loop32):
@@ -595,8 +616,12 @@ L(wdu1_loop32):
     lwz   7,4(4)
     stw   10,-8(3)
     stw   11,-4(3)
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,24,32
+#else
 /*  Equivalent to  srwi   8,8,32-8; or    6,6,8 */
     rlwimi 6,8,8,(32-8),31
+#endif
 L(wdu1_loop32x):
     lwz   10,8(4)
     lwz   11,12(4)
@@ -613,7 +638,11 @@ L(wdu1_loop32x):
     stw   6,16(3)
     stw   7,20(3)
     addi  3,3,32
+#ifdef __LITTLE_ENDIAN__
+    srwi  6,8,8
+#else
     slwi  6,8,8
+#endif
     bdnz+ L(wdu1_loop32)
     stw   10,-8(3)
     stw   11,-4(3)
@@ -624,8 +653,12 @@ L(wdu1_32tail):
     blt     cr6,L(wdu_4tail)
     /* calculate and store the final word */
     lwz   8,3(4)
-/*  Equivalent to: srwi   8,8,32-9;  or    6,6,8  */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,24,32
+#else
+/*  Equivalent to: srwi   8,8,32-8;  or    6,6,8  */
     rlwimi 6,8,8,(32-8),31
+#endif
     b     L(wdu_32tailx)
 
 L(wdu2_32):
@@ -633,7 +666,11 @@ L(wdu2_32):
     lwz     6,-2(4)
     cmplwi  cr6,31,4
     srwi    8,31,5    /* calculate the 32 byte loop count */
+#ifdef __LITTLE_ENDIAN__
+    srwi    6,6,16
+#else
     slwi    6,6,16
+#endif
     clrlwi  31,31,27   /* The remaining bytes, < 32.  */
     blt     cr5,L(wdu2_32tail)
     mtctr   8
@@ -641,8 +678,11 @@ L(wdu2_32):
 
     lwz   8,2(4)
     lwz   7,4(4)
-/*  Equivalent to: srwi   8,8,32-8;  or    6,6,8 */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,16,32
+#else
     rlwimi 6,8,16,(32-16),31
+#endif
     b      L(wdu2_loop32x)
     .align  4
 L(wdu2_loop32):
@@ -651,8 +691,11 @@ L(wdu2_loop32):
     lwz   7,4(4)
     stw   10,-8(3)
     stw   11,-4(3)
-/*  Equivalent to  srwi   8,8,32-8; or    6,6,8 */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,16,32
+#else
     rlwimi 6,8,16,(32-16),31
+#endif
 L(wdu2_loop32x):
     lwz   10,8(4)
     lwz   11,12(4)
@@ -670,7 +713,11 @@ L(wdu2_loop32x):
     stw   6,16(3)
     stw   7,20(3)
     addi  3,3,32
+#ifdef __LITTLE_ENDIAN__
+    srwi  6,8,16
+#else
     slwi  6,8,16
+#endif
     bdnz+ L(wdu2_loop32)
     stw   10,-8(3)
     stw   11,-4(3)
@@ -681,8 +728,11 @@ L(wdu2_32tail):
     blt     cr6,L(wdu_4tail)
     /* calculate and store the final word */
     lwz   8,2(4)
-/*  Equivalent to: srwi   8,8,32-9;  or    6,6,8  */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,16,32
+#else
     rlwimi 6,8,16,(32-16),31
+#endif
     b     L(wdu_32tailx)
 
 L(wdu3_32):
@@ -690,7 +740,11 @@ L(wdu3_32):
     lwz     6,-3(4)
     cmplwi  cr6,31,4
     srwi    8,31,5    /* calculate the 32 byte loop count */
+#ifdef __LITTLE_ENDIAN__
+    srwi    6,6,24
+#else
     slwi    6,6,24
+#endif
     clrlwi  31,31,27   /* The remaining bytes, < 32.  */
     blt     cr5,L(wdu3_32tail)
     mtctr   8
@@ -698,8 +752,11 @@ L(wdu3_32):
 
     lwz   8,1(4)
     lwz   7,4(4)
-/*  Equivalent to: srwi   8,8,32-8;  or    6,6,8 */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,8,32
+#else
     rlwimi 6,8,24,(32-24),31
+#endif
     b      L(wdu3_loop32x)
     .align  4
 L(wdu3_loop32):
@@ -708,8 +765,11 @@ L(wdu3_loop32):
     lwz   7,4(4)
     stw   10,-8(3)
     stw   11,-4(3)
-/*  Equivalent to  srwi   8,8,32-8; or    6,6,8 */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,8,32
+#else
     rlwimi 6,8,24,(32-24),31
+#endif
 L(wdu3_loop32x):
     lwz   10,8(4)
     lwz   11,12(4)
@@ -726,7 +786,11 @@ L(wdu3_loop32x):
     stw   6,16(3)
     stw   7,20(3)
     addi  3,3,32
+#ifdef __LITTLE_ENDIAN__
+    srwi  6,8,24
+#else
     slwi  6,8,24
+#endif
     bdnz+ L(wdu3_loop32)
     stw   10,-8(3)
     stw   11,-4(3)
@@ -737,8 +801,11 @@ L(wdu3_32tail):
     blt     cr6,L(wdu_4tail)
     /* calculate and store the final word */
     lwz   8,1(4)
-/*  Equivalent to: srwi   8,8,32-9;  or    6,6,8  */
+#ifdef __LITTLE_ENDIAN__
+    rldimi 6,8,8,32
+#else
     rlwimi 6,8,24,(32-24),31
+#endif
     b     L(wdu_32tailx)
     .align  4
 L(wdu_32tailx):

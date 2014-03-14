@@ -1,5 +1,5 @@
 /* termios type and macro definitions.  Linux/SPARC version.
-   Copyright (C) 1993-2013 Free Software Foundation, Inc.
+   Copyright (C) 1993-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -196,7 +196,7 @@ struct termios
 # define PENDIN		0x00004000
 #endif
 #define IEXTEN	0x00008000
-#ifdef __USE_BSD
+#ifdef __USE_MISC
 # define EXTPROC 0x00010000
 #endif
 

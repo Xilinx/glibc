@@ -1,5 +1,5 @@
 /* Cache handling for host lookup.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -25,6 +25,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <resolv/res_hconf.h>
 
 #include "dbg_log.h"
 #include "nscd.h"
@@ -76,7 +77,7 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
     char strdata[0];
   } *dataset = NULL;
 
-  if (__builtin_expect (debug_level > 0, 0))
+  if (__glibc_unlikely (debug_level > 0))
     {
       if (he == NULL)
 	dbg_log (_("Haven't found \"%s\" in hosts cache!"), (char *) key);
@@ -85,23 +86,25 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
     }
 
   static service_user *hosts_database;
-  service_user *nip = NULL;
+  service_user *nip;
   int no_more;
   int rc6 = 0;
   int rc4 = 0;
   int herrno = 0;
 
-  if (hosts_database != NULL)
-    {
-      nip = hosts_database;
-      no_more = 0;
-    }
-  else
+  if (hosts_database == NULL)
     no_more = __nss_database_lookup ("hosts", NULL,
-				     "dns [!UNAVAIL=return] files", &nip);
+				     "dns [!UNAVAIL=return] files",
+				     &hosts_database);
+  else
+    no_more = 0;
+  nip = hosts_database;
 
+  /* Initialize configurations.  */
+  if (__glibc_unlikely (!_res_hconf.initialized))
+    _res_hconf_init ();
   if (__res_maybe_init (&_res, 0) == -1)
-	    no_more = 1;
+    no_more = 1;
 
   /* If we are looking for both IPv4 and IPv6 address we don't want
      the lookup functions to automatically promote IPv4 addresses to
@@ -431,7 +434,7 @@ addhstaiX (struct database_dyn *db, int fd, request_header *req,
 	      struct dataset *newp
 		= (struct dataset *) mempool_alloc (db, total + req->key_len,
 						    1);
-	      if (__builtin_expect (newp != NULL, 1))
+	      if (__glibc_likely (newp != NULL))
 		{
 		  /* Adjust pointer into the memory block.  */
 		  key_copy = (char *) newp + (key_copy - (char *) dataset);

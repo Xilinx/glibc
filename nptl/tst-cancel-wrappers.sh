@@ -1,6 +1,6 @@
 #! /bin/sh
 # Test whether all cancelable functions are cancelable.
-# Copyright (C) 2002-2013 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Jakub Jelinek <jakub@redhat.com>, 2002.
 
@@ -54,7 +54,6 @@ C["sigpause"]=1
 C["sigsuspend"]=1
 C["sigwait"]=1
 C["sigwaitinfo"]=1
-C["system"]=1
 C["tcdrain"]=1
 C["wait"]=1
 C["waitid"]=1

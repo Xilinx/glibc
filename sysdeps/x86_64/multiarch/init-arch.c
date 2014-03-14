@@ -1,6 +1,6 @@
 /* Initialize CPU feature data.
    This file is part of the GNU C Library.
-   Copyright (C) 2008-2013 Free Software Foundation, Inc.
+   Copyright (C) 2008-2014 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@redhat.com>.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -81,8 +81,16 @@ __init_cpu_features (void)
 	    case 0x37:
 	      /* Unaligned load versions are faster than SSSE3
 		 on Silvermont.  */
+#if index_Fast_Unaligned_Load != index_Prefer_PMINUB_for_stringop
+# error index_Fast_Unaligned_Load != index_Prefer_PMINUB_for_stringop
+#endif
+#if index_Fast_Unaligned_Load != index_Slow_SSE4_2
+# error index_Fast_Unaligned_Load != index_Slow_SSE4_2
+#endif
 	      __cpu_features.feature[index_Fast_Unaligned_Load]
-		|= bit_Fast_Unaligned_Load;
+		|= (bit_Fast_Unaligned_Load
+		    | bit_Prefer_PMINUB_for_stringop
+		    | bit_Slow_SSE4_2);
 	      break;
 
 	    default:

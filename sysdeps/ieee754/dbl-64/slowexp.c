@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001-2013 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2014 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,8 @@
 /* e^x                                                                    */
 /**************************************************************************/
 #include <math_private.h>
+
+#include <stap-probe.h>
 
 #ifndef USE_LONG_DOUBLE_FOR_MP
 # include "mpa.h"
@@ -60,13 +62,22 @@ __slowexp (double x)
   __mp_dbl (&mpw, &w, p);
   __mp_dbl (&mpz, &z, p);
   if (w == z)
-    return w;
+    {
+      /* Track how often we get to the slow exp code plus
+	 its input/output values.  */
+      LIBC_PROBE (slowexp_p6, 2, &x, &w);
+      return w;
+    }
   else
     {
       p = 32;
       __dbl_mp (x, &mpx, p);
       __mpexp (&mpx, &mpy, p);
       __mp_dbl (&mpy, &res, p);
+
+      /* Track how often we get to the uber-slow exp code plus
+	 its input/output values.  */
+      LIBC_PROBE (slowexp_p32, 2, &x, &res);
       return res;
     }
 #else

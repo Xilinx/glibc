@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2013 Free Software Foundation, Inc.
+# Copyright (C) 1998-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Makefile for streams.
 #
 subdir	:= streams
+
+include ../Makeconfig
 
 headers		= stropts.h sys/stropts.h bits/stropts.h bits/xtitypes.h
 routines	= isastream getmsg getpmsg putmsg putpmsg fattach fdetach

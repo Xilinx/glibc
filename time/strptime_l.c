@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -320,17 +320,14 @@ __strptime_internal (rp, fmt, tmp, statep LOCALE_PARAM)
 	}
 
       ++fmt;
-      if (statep != NULL)
-	{
-	  /* In recursive calls silently discard strftime modifiers.  */
-	  while (*fmt == '-' || *fmt == '_' || *fmt == '0'
-		 || *fmt == '^' || *fmt == '#')
-	    ++fmt;
+      /* We discard strftime modifiers.  */
+      while (*fmt == '-' || *fmt == '_' || *fmt == '0'
+	     || *fmt == '^' || *fmt == '#')
+	++fmt;
 
-	  /* And field width.  */
-	  while (*fmt >= '0' && *fmt <= '9')
-	    ++fmt;
-	}
+      /* And field width.  */
+      while (*fmt >= '0' && *fmt <= '9')
+	++fmt;
 
 #ifndef _NL_CURRENT
       /* We need this for handling the `E' modifier.  */
@@ -744,7 +741,11 @@ __strptime_internal (rp, fmt, tmp, statep LOCALE_PARAM)
 	  s.want_xday = 1;
 	  break;
 	case 'Z':
-	  /* XXX How to handle this?  */
+	  /* Read timezone but perform no conversion.  */
+	  while (ISSPACE (*rp))
+	    rp++;
+	  while (!ISSPACE (*rp) && *rp != '\0')
+	    rp++;
 	  break;
 	case 'z':
 	  /* We recognize two formats: if two digits are given, these

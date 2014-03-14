@@ -1,5 +1,5 @@
 /* Definitions for POSIX 1003.1b-1993 (aka POSIX.4) scheduling interface.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,8 +27,10 @@
 #define __need_size_t
 #include <stddef.h>
 
-#define __need_time_t
-#define __need_timespec
+#ifdef __USE_XOPEN2K
+# define __need_time_t
+# define __need_timespec
+#endif
 #include <time.h>
 
 #ifndef __pid_t_defined

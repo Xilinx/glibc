@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,20 +58,13 @@ __END_NAMESPACE_STD
    This is the internal name for `sigsetjmp'.  */
 extern int __sigsetjmp (struct __jmp_buf_tag __env[1], int __savemask) __THROWNL;
 
-#ifndef	__FAVOR_BSD
 /* Store the calling environment in ENV, not saving the signal mask.
    Return 0.  */
 extern int _setjmp (struct __jmp_buf_tag __env[1]) __THROWNL;
 
 /* Do not save the signal mask.  This is equivalent to the `_setjmp'
    BSD function.  */
-# define setjmp(env)	_setjmp (env)
-#else
-/* We are in 4.3 BSD-compatibility mode in which `setjmp'
-   saves the signal mask like `sigsetjmp (ENV, 1)'.  We have to
-   define a macro since ISO C says `setjmp' is one.  */
-# define setjmp(env)	setjmp (env)
-#endif /* Favor BSD.  */
+#define setjmp(env)	_setjmp (env)
 
 
 __BEGIN_NAMESPACE_STD
@@ -83,7 +76,7 @@ extern void longjmp (struct __jmp_buf_tag __env[1], int __val)
 
 __END_NAMESPACE_STD
 
-#if defined __USE_BSD || defined __USE_XOPEN
+#if defined __USE_MISC || defined __USE_XOPEN
 /* Same.  Usually `_longjmp' is used with `_setjmp', which does not save
    the signal mask.  But it is how ENV was saved that determines whether
    `longjmp' restores the mask; `_longjmp' is just an alias.  */

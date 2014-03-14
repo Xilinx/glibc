@@ -1,5 +1,5 @@
 /* memcmp with SSE4.2, wmemcmp with SSE4.2
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -58,7 +58,7 @@
 /* Get the entry and convert the relative offset to the	\
 	absolute	address.  */	\
 	addl	(%ebx,INDEX,SCALE), %ebx;	\
-/* We loaded the jump table and adjuested EDX/ESI. Go.  */	\
+/* We loaded the jump table and adjusted EDX/ESI. Go.  */	\
 	jmp	*%ebx
 # else
 #  define JMPTBL(I, B)	I

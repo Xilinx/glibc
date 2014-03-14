@@ -63,7 +63,7 @@ category  "ko_KR:2000";LC_PAPER
 category  "ko_KR:2000";LC_NAME
 category  "ko_KR:2000";LC_ADDRESS
 category  "ko_KR:2000";LC_TELEPHONE
-
+category  "ko_KR:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -6229,8 +6229,8 @@ int_prefix     "<U0038><U0032>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -6247,4 +6247,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U004B><U0052>"
 country_ab3 "<U004B><U004F><U0052>"
 country_num 410
+% ROK
+country_car    "<U0052><U004F><U004B>"
+% 한국말
+lang_name    "<UD55C><UAD6D><UB9D0>"
+% ko
+lang_ab      "<U006B><U006F>"
+% kor
+lang_term    "<U006B><U006F><U0072>"
+% kor
+lang_lib    "<U006B><U006F><U0072>"
 END LC_ADDRESS

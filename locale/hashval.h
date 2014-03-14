@@ -1,5 +1,5 @@
 /* Implement simple hashing table with string based keys.
-   Copyright (C) 1994-2013 Free Software Foundation, Inc.
+   Copyright (C) 1994-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, October 1994.
 
@@ -37,7 +37,7 @@ compute_hashval (const void *key, size_t keylen)
   while (cnt < keylen)
     {
       hval = (hval << 9) | (hval >> (sizeof hval * CHAR_BIT - 9));
-      hval += (hashval_t) *(((char *) key) + cnt++);
+      hval += (hashval_t) ((const unsigned char *) key)[cnt++];
     }
   return hval != 0 ? hval : ~((hashval_t) 0);
 }

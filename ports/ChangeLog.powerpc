@@ -1,3 +1,62 @@
+This file describes changes to the soft-float powerpc port while it
+was in the ports add-on directory.  This port is no longer part of an
+add-on and so future changes to it should be listed in the top-level
+ChangeLog file, not here.
+
+
+
+2013-10-04  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/powerpc/powerpc32/Makefile: Remove file.
+	* sysdeps/powerpc/nofpu: Move directory to
+	../sysdeps/powerpc/nofpu.
+	* sysdeps/powerpc/soft-fp: Move directory to
+	../sysdeps/powerpc/soft-fp.
+	* sysdeps/powerpc/powerpc32/405: Move directory to
+	../sysdeps/powerpc/powerpc32/405.
+	* sysdeps/powerpc/powerpc32/440: Move directory to
+	../sysdeps/powerpc/powerpc32/440.
+	* sysdeps/powerpc/powerpc32/464: Move directory to
+	../sysdeps/powerpc/powerpc32/464.
+	* sysdeps/powerpc/powerpc32/476: Move directory to
+	../sysdeps/powerpc/powerpc32/476.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu: Move directory
+	to ../sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/405: Move directory to
+	../sysdeps/unix/sysv/linux/powerpc/powerpc32/405.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/440: Move directory to
+	../sysdeps/unix/sysv/linux/powerpc/powerpc32/440.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/464: Move directory to
+	../sysdeps/unix/sysv/linux/powerpc/powerpc32/464.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/476: Move directory to
+	../sysdeps/unix/sysv/linux/powerpc/powerpc32/476.
+
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu/context-e500.h:
+	New file.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu/getcontext.S:
+	Include <context-e500.h>.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu/setcontext.S:
+	Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu/swapcontext.S:
+	Likewise.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/powerpc/powerpc32/405/memcpy.S: Fix typos.
+
+2013-08-17  Alexandre Oliva <aoliva@redhat.com>
+
+	PR 15483
+	* sysdeps/powerpc/nofpu/sim-full.c: Add FIXME note about
+	the need for thread-specific variables preserved across signal
+	handlers.
+	* sysdeps/powerpc/nofpu/soft-supp.h: Likewise.
+	* sysdeps/powerpc/soft-fp/sfp-machine.h: Likewise.
+
+2013-07-03  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/powerpc/nofpu/libm-test-ulps: Regenerated.
+
 2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/unix/sysv/linux/powerpc/powerpc32/nofpu/nptl/libpthread.abilist:

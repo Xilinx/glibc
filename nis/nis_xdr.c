@@ -1,4 +1,4 @@
-/* Copyright (c) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (c) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1997.
 
@@ -75,7 +75,7 @@ xdr_endpoint (XDR *xdrs, endpoint *objp)
   if (__builtin_expect (res, TRUE))
     {
       res = xdr_string (xdrs, &objp->family, ~0);
-      if (__builtin_expect (res, 1))
+      if (__glibc_likely (res))
 	res = xdr_string (xdrs, &objp->proto, ~0);
     }
   return res;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -27,7 +27,7 @@ sysv_scalbl (long double x, long double fn)
 {
   long double z = __ieee754_scalbl (x, fn);
 
-  if (__builtin_expect (__isinfl (z), 0))
+  if (__glibc_unlikely (__isinfl (z)))
     {
       if (__finitel (x))
 	return __kernel_standard_l (x, fn, 232); /* scalb overflow */

@@ -1,5 +1,5 @@
 /* C string table handling.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@redhat.com>, 2000.
 
    This program is free software; you can redistribute it and/or modify
@@ -180,7 +180,7 @@ newstring (struct Strtab *st, const char *str, size_t len)
 
 
 /* XXX This function should definitely be rewritten to use a balancing
-   tree algorith (AVL, red-black trees).  For now a simple, correct
+   tree algorithm (AVL, red-black trees).  For now a simple, correct
    implementation is enough.  */
 static struct Strent **
 searchstring (struct Strent **sep, struct Strent *newstr)

@@ -1,19 +1,19 @@
 comment_char %
 escape_char /
 
-% Oriya locale for India.
+% Odia locale for India.
 % Contributed by Masahide Washizawa <washi at jp ibm com>
 
 %%%%%%%%%%%%%
 LC_IDENTIFICATION
-title       "Oriya language locale for India"
+title       "Odia language locale for India"
 source      "IBM AP Linux Technology Center, Yamato Software Laboratory"
 address     "1623-14, Shimotsuruma, Yamato-shi, Kanagawa-ken, 242-8502, Japan"
 contact     ""
 email       "bug-glibc@gnu.org"
 tel         ""
 fax         ""
-language    "Oriya"
+language    "Odia"
 territory   "India"
 revision    "1.0"
 date        "2006-05-25"
@@ -29,16 +29,17 @@ category  "or_IN:2004";LC_PAPER
 category  "or_IN:2004";LC_NAME
 category  "or_IN:2004";LC_ADDRESS
 category  "or_IN:2004";LC_TELEPHONE
+category  "or_IN:2004";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 %%%%%%%%%%%%%
 LC_CTYPE
 copy "i18n"
 
-% Oriya uses the alternate digits U+0B66..U+0B6F
+% Odia uses the alternate digits U+0B66..U+0B6F
 outdigit <U0B66>..<U0B6F>
 
-% This is used in the scanf family of functions to read Oriya numbers
+% This is used in the scanf family of functions to read Odia numbers
 % using "%Id" and such.
 map to_inpunct; /
   (<U0030>,<U0B66>); /
@@ -808,10 +809,21 @@ END LC_NAME
 
 %%%%%%%%%%%%%
 LC_ADDRESS
-% This is the ISO_IEC TR14652 Locale definition for the
-% LC_ADDRESS
 postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
 <U0025><U0062><U0025><U0065><U0025><U0072>"
+country_ab2 "<U0049><U004E>"
+country_ab3 "<U0049><U004E><U0044>"
+country_num 356
+% IND
+country_car    "<U0049><U004E><U0044>"
+% ଓଡ଼ିଆ
+lang_name    "<U0B13><U0B21><U0B3C><U0B3F><U0B06>"
+% or
+lang_ab      "<U006F><U0072>"
+% ori
+lang_term    "<U006F><U0072><U0069>"
+% ori
+lang_lib    "<U006F><U0072><U0069>"
 END LC_ADDRESS
 
 %%%%%%%%%%%%%
@@ -824,5 +836,6 @@ END LC_TELEPHONE
 
 %%%%%%%%%%%%%
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

@@ -1,5 +1,5 @@
 /* Convert text in given files from the specified from-set to the to-set.
-   Copyright (C) 1998-2013 Free Software Foundation, Inc.
+   Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -426,7 +426,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 
@@ -789,7 +789,7 @@ print_known_names (void)
 
   if (human_readable)
     fputs (_("\
-The following list contain all the coded character sets known.  This does\n\
+The following list contains all the coded character sets known.  This does\n\
 not necessarily mean that all combinations of these names can be used for\n\
 the FROM and TO command line parameters.  One coded character set can be\n\
 listed with several different names (aliases).\n\n  "), stdout);

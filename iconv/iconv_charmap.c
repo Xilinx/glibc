@@ -1,5 +1,5 @@
 /* Convert using charmaps and possibly iconv().
-   Copyright (C) 2001-2013 Free Software Foundation, Inc.
+   Copyright (C) 2001-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2001.
 
@@ -454,7 +454,7 @@ process_block (struct convtable *tbl, char *addr, size_t len, FILE *output)
       while (! is_term (cur, byte))
 	if (cur->val[byte].sub == NULL)
 	  {
-	    /* This is a invalid sequence.  Skip the first byte if we are
+	    /* This is an invalid sequence.  Skip the first byte if we are
 	       ignoring errors.  Otherwise punt.  */
 	    if (! omit_invalid)
 	      {

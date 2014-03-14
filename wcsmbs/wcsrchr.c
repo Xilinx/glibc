@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.ai.mit.edu>
 
@@ -18,10 +18,13 @@
 
 #include <wchar.h>
 
+#ifndef WCSRCHR
+# define WCSRCHR wcsrchr
+#endif
 
 /* Find the last occurrence of WC in WCS.  */
 wchar_t *
-wcsrchr (wcs, wc)
+WCSRCHR (wcs, wc)
      const wchar_t *wcs;
      const wchar_t wc;
 {

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -32,7 +32,11 @@ __pthread_attr_getstack (attr, stackaddr, stacksize)
   iattr = (struct pthread_attr *) attr;
 
   /* Store the result.  */
+#if _STACK_GROWS_DOWN
   *stackaddr = (char *) iattr->stackaddr - iattr->stacksize;
+#else
+  *stackaddr = (char *) iattr->stackaddr;
+#endif
   *stacksize = iattr->stacksize;
 
   return 0;

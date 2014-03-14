@@ -1,5 +1,5 @@
 /* Support for reading /etc/ld.so.cache files written by Linux ldconfig.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -65,7 +65,7 @@ do									      \
 									      \
 	/* Actually compare the entry with the key.  */			      \
 	cmpres = _dl_cache_libcmp (name, cache_data + key);		      \
-	if (__builtin_expect (cmpres == 0, 0))				      \
+	if (__glibc_unlikely (cmpres == 0))				      \
 	  {								      \
 	    /* Found it.  LEFT now marks the last entry for which we	      \
 	       know the name is correct.  */				      \
@@ -187,7 +187,7 @@ _dl_load_cache_lookup (const char *name)
   const char *best;
 
   /* Print a message if the loading of libs is traced.  */
-  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_LIBS, 0))
+  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_LIBS))
     _dl_debug_printf (" search cache=%s\n", LD_SO_CACHE);
 
   if (cache == NULL)

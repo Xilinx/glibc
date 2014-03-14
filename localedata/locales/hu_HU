@@ -55,7 +55,7 @@ category  "hu_HU:2000";LC_PAPER
 category  "hu_HU:2000";LC_NAME
 category  "hu_HU:2000";LC_ADDRESS
 category  "hu_HU:2000";LC_TELEPHONE
-
+category  "hu_HU:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -566,8 +566,8 @@ int_select     "<U0030><U0030>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -584,4 +584,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0048><U0055>"
 country_ab3 "<U0048><U0055><U004E>"
 country_num 348
+% H
+country_car    "<U0048>"
+% magyar
+lang_name    "<U006D><U0061><U0067><U0079><U0061><U0072>"
+% hu
+lang_ab      "<U0068><U0075>"
+% hun
+lang_term    "<U0068><U0075><U006E>"
+% hun
+lang_lib    "<U0068><U0075><U006E>"
 END LC_ADDRESS

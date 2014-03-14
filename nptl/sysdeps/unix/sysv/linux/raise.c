@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -50,7 +50,7 @@ raise (sig)
     /* raise is an async-safe function.  It could be called while the
        fork/vfork function temporarily invalidated the PID field.  Adjust for
        that.  */
-    if (__builtin_expect (pid <= 0, 0))
+    if (__glibc_unlikely (pid <= 0))
       pid = (pid & INT_MAX) == 0 ? selftid : -pid;
 
   return INLINE_SYSCALL (tgkill, 3, pid, selftid, sig);

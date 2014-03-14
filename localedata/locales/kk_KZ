@@ -42,7 +42,7 @@ category  "kk_KZ:2000";LC_PAPER
 category  "kk_KZ:2000";LC_NAME
 category  "kk_KZ:2000";LC_ADDRESS
 category  "kk_KZ:2000";LC_TELEPHONE
-
+category  "kk_KZ:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -246,8 +246,8 @@ int_prefix     "<U0037>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -261,4 +261,12 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 <U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
 <U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
 <U004E><U0025><U0063><U0025><U004E>"
+% KZ
+country_car    "<U004B><U005A>"
+% kk
+lang_ab      "<U006B><U006B>"
+% kaz
+lang_term    "<U006B><U0061><U007A>"
+% kaz
+lang_lib    "<U006B><U0061><U007A>"
 END LC_ADDRESS

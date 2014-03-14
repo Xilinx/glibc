@@ -43,7 +43,7 @@ category  "de_BE:2000";LC_PAPER
 category  "de_BE:2000";LC_NAME
 category  "de_BE:2000";LC_ADDRESS
 category  "de_BE:2000";LC_TELEPHONE
-
+category  "de_BE:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -132,7 +132,8 @@ copy "fr_BE"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "fr_BE"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -149,4 +150,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0042><U0045>"
 country_ab3 "<U0042><U0045><U004C>"
 country_num 056
+% B
+country_car    "<U0042>"
+% Deutsch
+lang_name     "<U0044><U0065><U0075><U0074><U0073><U0063><U0068>"
+% de
+lang_ab       "<U0064><U0065>"
+% deu
+lang_term     "<U0064><U0065><U0075>"
+% ger
+lang_lib      "<U0067><U0065><U0072>"
 END LC_ADDRESS

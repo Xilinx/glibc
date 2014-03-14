@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001-2013 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2014 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,7 @@
 #include "uatan.tbl"
 #include "atnat2.h"
 #include <math_private.h>
+#include <stap-probe.h>
 
 #ifndef SECTION
 # define SECTION
@@ -71,14 +72,14 @@ __ieee754_atan2 (double y, double x)
   int i, de, ux, dx, uy, dy;
   static const int pr[MM] = { 6, 8, 10, 20, 32 };
   double ax, ay, u, du, u9, ua, v, vv, dv, t1, t2, t3, t7, t8,
-    z, zz, cor, s1, ss1, s2, ss2;
+	 z, zz, cor, s1, ss1, s2, ss2;
 #ifndef DLA_FMS
   double t4, t5, t6;
 #endif
   number num;
 
-  static const int ep = 59768832,	/*  57*16**5   */
-    em = -59768832;		/* -57*16**5   */
+  static const int ep = 59768832,      /*  57*16**5   */
+		   em = -59768832;      /* -57*16**5   */
 
   /* x=NaN or y=NaN */
   num.d = x;
@@ -293,17 +294,17 @@ __ieee754_atan2 (double y, double x)
 	  if (i < 112)
 	    {
 	      if (i < 48)
-		u9 = u91.d;	/* u < 1/4	*/
+		u9 = u91.d;     /* u < 1/4	*/
 	      else
 		u9 = u92.d;
-	    }		/* 1/4 <= u < 1/2 */
+	    }           /* 1/4 <= u < 1/2 */
 	  else
 	    {
 	      if (i < 176)
-		u9 = u93.d;	/* 1/2 <= u < 3/4 */
+		u9 = u93.d;     /* 1/2 <= u < 3/4 */
 	      else
 		u9 = u94.d;
-	    }		/* 3/4 <= u <= 1  */
+	    }           /* 3/4 <= u <= 1  */
 	  if ((z = t1 + (zz - u9 * t1)) == t1 + (zz + u9 * t1))
 	    return signArctan2 (y, z);
 
@@ -311,9 +312,9 @@ __ieee754_atan2 (double y, double x)
 	  EADD (t1, du, v, vv);
 	  s1 = v * (hij[i][11].d
 		    + v * (hij[i][12].d
-			   +  v * (hij[i][13].d
-				   + v * (hij[i][14].d
-					  + v * hij[i][15].d))));
+			   + v * (hij[i][13].d
+				  + v * (hij[i][14].d
+					 + v * hij[i][15].d))));
 	  ADD2 (hij[i][9].d, hij[i][10].d, s1, 0, s2, ss2, t1, t2);
 	  MUL2 (v, vv, s2, ss2, s1, ss1, t1, t2, t3, t4, t5, t6, t7, t8);
 	  ADD2 (hij[i][7].d, hij[i][8].d, s1, ss1, s2, ss2, t1, t2);
@@ -597,7 +598,11 @@ atan2Mp (double x, double y, const int pr[])
       __mp_dbl (&mpz1, &z1, p);
       __mp_dbl (&mpz2, &z2, p);
       if (z1 == z2)
-	return z1;
+	{
+	  LIBC_PROBE (slowatan2, 4, &p, &x, &y, &z1);
+	  return z1;
+	}
     }
+  LIBC_PROBE (slowatan2_inexact, 4, &p, &x, &y, &z1);
   return z1;			/*if impossible to do exact computing */
 }

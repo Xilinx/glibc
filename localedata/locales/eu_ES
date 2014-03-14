@@ -47,7 +47,7 @@ category  "eu_ES:2000";LC_PAPER
 category  "eu_ES:2000";LC_NAME
 category  "eu_ES:2000";LC_ADDRESS
 category  "eu_ES:2000";LC_TELEPHONE
-
+category  "eu_ES:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -149,8 +149,8 @@ int_prefix     "<U0033><U0034>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -167,4 +167,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0045><U0053>"
 country_ab3 "<U0045><U0053><U0050>"
 country_num 724
+% E
+country_car    "<U0045>"
+% Euskara
+lang_name    "<U0045><U0075><U0073><U006B><U0061><U0072><U0061>"
+% eu
+lang_ab      "<U0065><U0075>"
+% eus
+lang_term    "<U0065><U0075><U0073>"
+% eus
+lang_lib    "<U0065><U0075><U0073>"
 END LC_ADDRESS

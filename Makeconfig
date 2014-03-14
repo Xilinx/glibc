@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -88,16 +88,16 @@ $(common-objpfx)config.status: $(..)version.h $(..)configure \
 					 $(wildcard $(dir)/Implies) \
 					 $(patsubst %.in,%,\
 						    $(firstword $(wildcard \
- $(addprefix $(dir)/,configure configure.in))))) \
+ $(addprefix $(dir)/,configure configure.ac))))) \
 			       $(patsubst %.in,%,\
- $(wildcard $(..)sysdeps/*/preconfigure $(..)sysdeps/*/preconfigure.in)) \
+ $(wildcard $(..)sysdeps/*/preconfigure $(..)sysdeps/*/preconfigure.ac)) \
 			       $(patsubst %.in,%,\
 					  $(foreach add-on,$(add-ons),\
 						    $(firstword $(wildcard \
  $(addprefix $(firstword $(filter /%,$(add-on)) $(..)$(add-on))/,\
-	     configure configure.in))) \
+	     configure configure.ac))) \
  $(wildcard $(addprefix $(firstword $(filter /%,$(add-on)) $(..)$(add-on))/,\
-			sysdeps/*/preconfigure sysdeps/*/preconfigure.in))))
+			sysdeps/*/preconfigure sysdeps/*/preconfigure.ac))))
 	@cd $(@D); if test -f $(@F); then exec $(SHELL) $(@F) --recheck; else \
 	 echo The GNU C library has not been configured. >&2; \
 	 echo Run \`configure\' to configure it before building. >&2; \
@@ -601,6 +601,12 @@ run-built-tests = yes
 endif
 endif
 
+# Whether to stop immediately when a test fails.  Nonempty means to
+# stop, empty means not to stop.
+ifndef stop-on-test-failure
+stop-on-test-failure =
+endif
+
 # How to run a program we just linked with our library.
 # The program binary is assumed to be $(word 2,$^).
 built-program-file = $(dir $(word 2,$^))$(notdir $(word 2,$^))
@@ -685,6 +691,7 @@ ifeq ($(all-warnings),yes)
 else
 +gccwarn := -Wall -Wwrite-strings -Winline
 endif
++gccwarn += -Wundef
 +gccwarn-c = -Wstrict-prototypes
 
 # We do not depend on the address of constants in different files to be
@@ -1079,6 +1086,20 @@ defines += -D_LIBC_REENTRANT
 
 libio-mtsafe = -D_IO_MTSAFE_IO
 endif
+
+# The name to give to a test in test results summaries.
+test-name = $(strip $(patsubst %.out, %, $(patsubst $(common-objpfx)%, %, $@)))
+
+# Likewise, in XFAIL variable names.
+test-xfail-name = $(strip $(patsubst %.out, %, $(patsubst $(objpfx)%, %, $@)))
+
+# Command to output a test status line (such as PASS: test-name).  If
+# test-xfail-$(test-xfail-name) has a nonempty value, the status will be
+# XPASS or XFAIL rather than PASS or FAIL.
+evaluate-test = $(..)scripts/evaluate-test.sh $(test-name) $$? \
+		  $(if $(test-xfail-$(test-xfail-name)),true,false) \
+		  $(if $(stop-on-test-failure),true,false) \
+		  > $(common-objpfx)$(test-name).test-result
 
 endif # Makeconfig not yet included
 

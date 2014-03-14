@@ -1,5 +1,5 @@
 /* Floating point output for `printf'.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
@@ -332,8 +332,7 @@ ___printf_fp (FILE *fp,
       int res;
       if (__isnanl (fpnum.ldbl))
 	{
-	  union ieee854_long_double u = { .d = fpnum.ldbl };
-	  is_neg = u.ieee.negative != 0;
+	  is_neg = signbit (fpnum.ldbl);
 	  if (isupper (info->spec))
 	    {
 	      special = "NAN";
@@ -1095,7 +1094,7 @@ ___printf_fp (FILE *fp,
     /* Write the exponent if it is needed.  */
     if (type != 'f')
       {
-	if (__builtin_expect (expsign != 0 && exponent == 4 && spec == 'g', 0))
+	if (__glibc_unlikely (expsign != 0 && exponent == 4 && spec == 'g'))
 	  {
 	    /* This is another special case.  The exponent of the number is
 	       really smaller than -4, which requires the 'e'/'E' format.
@@ -1181,7 +1180,7 @@ ___printf_fp (FILE *fp,
 
 	  size_t nbuffer = (2 + chars_needed * factor + decimal_len
 			    + ngroups * thousands_sep_len);
-	  if (__builtin_expect (buffer_malloced, 0))
+	  if (__glibc_unlikely (buffer_malloced))
 	    {
 	      buffer = (char *) malloc (nbuffer);
 	      if (buffer == NULL)
@@ -1209,7 +1208,7 @@ ___printf_fp (FILE *fp,
 	}
 
       tmpptr = buffer;
-      if (__builtin_expect (info->i18n, 0))
+      if (__glibc_unlikely (info->i18n))
 	{
 #ifdef COMPILE_WPRINTF
 	  wstartp = _i18n_number_rewrite (wstartp, wcp,
@@ -1229,7 +1228,7 @@ ___printf_fp (FILE *fp,
       PRINT (tmpptr, wstartp, wide ? wcp - wstartp : cp - tmpptr);
 
       /* Free the memory if necessary.  */
-      if (__builtin_expect (buffer_malloced, 0))
+      if (__glibc_unlikely (buffer_malloced))
 	{
 	  free (buffer);
 	  free (wbuffer);

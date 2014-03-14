@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -175,7 +175,7 @@ sigcancel_handler (int sig, siginfo_t *si, void *ctx)
   /* Determine the process ID.  It might be negative if the thread is
      in the middle of a fork() call.  */
   pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
-  if (__builtin_expect (pid < 0, 0))
+  if (__glibc_unlikely (pid < 0))
     pid = -pid;
 
   /* Safety check.  It would be possible to call this function for
@@ -232,7 +232,7 @@ sighandler_setxid (int sig, siginfo_t *si, void *ctx)
   /* Determine the process ID.  It might be negative if the thread is
      in the middle of a fork() call.  */
   pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
-  if (__builtin_expect (pid < 0, 0))
+  if (__glibc_unlikely (pid < 0))
     pid = -pid;
 
   /* Safety check.  It would be possible to call this function for

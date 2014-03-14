@@ -27,7 +27,7 @@ category  "de_DE:2000";LC_PAPER
 category  "de_DE:2000";LC_NAME
 category  "de_DE:2000";LC_ADDRESS
 category  "de_DE:2000";LC_TELEPHONE
-
+category  "de_DE:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -194,9 +194,13 @@ country_ab3   "<U0044><U0045><U0055>"
 country_num   276
 country_car   "<U0044>"
 country_isbn  3
+% Deutsch
 lang_name     "<U0044><U0065><U0075><U0074><U0073><U0063><U0068>"
+% de
 lang_ab       "<U0064><U0065>"
+% deu
 lang_term     "<U0064><U0065><U0075>"
+% ger
 lang_lib      "<U0067><U0065><U0072>"
 END LC_ADDRESS
 
@@ -209,5 +213,6 @@ int_prefix     "<U0034><U0039>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT

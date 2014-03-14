@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1997.
 
@@ -797,7 +797,7 @@ __prepare_niscall (const_nis_name name, directory_obj **dirp,
 		   dir_binding *bptrp, unsigned int flags)
 {
   nis_error retcode = __nisfind_server (name, 1, dirp, bptrp, flags);
-  if (__builtin_expect (retcode != NIS_SUCCESS, 0))
+  if (__glibc_unlikely (retcode != NIS_SUCCESS))
     return retcode;
 
   do

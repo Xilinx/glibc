@@ -29,7 +29,7 @@ category  "bn_IN:2000";LC_PAPER
 category  "bn_IN:2000";LC_NAME
 category  "bn_IN:2000";LC_ADDRESS
 category  "bn_IN:2000";LC_TELEPHONE
-
+category  "bn_IN:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 
@@ -181,7 +181,16 @@ postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073><U0025><U00
 country_ab2 "<U0049><U004E>"
 country_ab3 "<U0049><U004E><U0044>"
 country_num 356
-
+% IND
+country_car    "<U0049><U004E><U0044>"
+% বাংলা
+lang_name    "<U09AC><U09BE><U0982><U09B2><U09BE>"
+% bn
+lang_ab      "<U0062><U006E>"
+% ben
+lang_term    "<U0062><U0065><U006E>"
+% ben
+lang_lib       "<U0062><U0065><U006E>"
 END LC_ADDRESS
 
 
@@ -191,5 +200,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 1996.
 
@@ -18,18 +18,22 @@
 #ifndef _LOCFILE_H
 #define _LOCFILE_H	1
 
+#include <byteswap.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/uio.h>
 
+#include "obstack.h"
 #include "linereader.h"
 #include "localedef.h"
 
-
-/* Header of the locale data files.  */
+/* Structure for storing the contents of a category file.  */
 struct locale_file
 {
-  int magic;
-  int n;
+  size_t n_elements, next_element;
+  uint32_t *offsets;
+  struct obstack data;
+  int structure_stage;
 };
 
 
@@ -65,10 +69,62 @@ extern void write_all_categories (struct localedef_t *definitions,
 				  const char *locname,
 				  const char *output_path);
 
+extern bool swap_endianness_p;
+
+/* Change the output to be big-endian if BIG_ENDIAN is true and
+   little-endian otherwise.  */
+static inline void
+set_big_endian (bool big_endian)
+{
+  swap_endianness_p = (big_endian != (__BYTE_ORDER == __BIG_ENDIAN));
+}
+
+/* Munge VALUE so that, when stored, it has the correct byte order
+   for the output files.  */
+static inline uint32_t
+maybe_swap_uint32 (uint32_t value)
+{
+  return swap_endianness_p ? bswap_32 (value) : value;
+}
+
+/* Likewise, but munge an array of N uint32_ts starting at ARRAY.  */
+static inline void
+maybe_swap_uint32_array (uint32_t *array, size_t n)
+{
+  if (swap_endianness_p)
+    while (n-- > 0)
+      array[n] = bswap_32 (array[n]);
+}
+
+/* Like maybe_swap_uint32_array, but the array of N elements is at
+   the end of OBSTACK's current object.  */
+static inline void
+maybe_swap_uint32_obstack (struct obstack *obstack, size_t n)
+{
+  maybe_swap_uint32_array ((uint32_t *) obstack_next_free (obstack) - n, n);
+}
+
 /* Write out the data.  */
+extern void init_locale_data (struct locale_file *file, size_t n_elements);
+extern void align_locale_data (struct locale_file *file, size_t boundary);
+extern void add_locale_empty (struct locale_file *file);
+extern void add_locale_raw_data (struct locale_file *file, const void *data,
+				 size_t size);
+extern void add_locale_raw_obstack (struct locale_file *file,
+				    struct obstack *obstack);
+extern void add_locale_string (struct locale_file *file, const char *string);
+extern void add_locale_wstring (struct locale_file *file,
+				const uint32_t *string);
+extern void add_locale_uint32 (struct locale_file *file, uint32_t value);
+extern void add_locale_uint32_array (struct locale_file *file,
+				     const uint32_t *data, size_t n_elems);
+extern void add_locale_char (struct locale_file *file, char value);
+extern void start_locale_structure (struct locale_file *file);
+extern void end_locale_structure (struct locale_file *file);
+extern void start_locale_prelude (struct locale_file *file);
+extern void end_locale_prelude (struct locale_file *file);
 extern void write_locale_data (const char *output_path, int catidx,
-			       const char *category, size_t n_elem,
-			       struct iovec *vec);
+			       const char *category, struct locale_file *file);
 
 
 /* Entrypoints for the parsers of the individual categories.  */

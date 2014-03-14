@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David Huggins-Daines <dhd@debian.org>, 2000.
    Based on the Alpha version by Richard Henderson <rth@tamu.edu>, 1996.
@@ -155,7 +155,7 @@ ENTRY(__clone)
 	ldw	-60(%sp), %arg0
 	ldw     -64(%sp), %r22
 
-	/* $$dyncall fixes childs PIC register */
+	/* $$dyncall fixes child's PIC register */
 
 	/* Call the user's function */
 #ifdef PIC

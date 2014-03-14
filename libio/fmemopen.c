@@ -1,5 +1,5 @@
 /* Fmemopen implementation.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Hanno Mueller, kontakt@hanno.de, 2000.
 
@@ -202,7 +202,7 @@ fmemopen (void *buf, size_t len, const char *mode)
   cookie_io_functions_t iof;
   fmemopen_cookie_t *c;
 
-  if (__builtin_expect (len == 0, 0))
+  if (__glibc_unlikely (len == 0))
     {
     einval:
       __set_errno (EINVAL);
@@ -228,7 +228,7 @@ fmemopen (void *buf, size_t len, const char *mode)
     }
   else
     {
-      if (__builtin_expect ((uintptr_t) len > -(uintptr_t) buf, 0))
+      if (__glibc_unlikely ((uintptr_t) len > -(uintptr_t) buf))
 	{
 	  free (c);
 	  goto einval;

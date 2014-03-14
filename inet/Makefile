@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Sub-makefile for inet portion of the library.
 #
 subdir	:= inet
+
+include ../Makeconfig
 
 headers	:= netinet/ether.h netinet/in.h netinet/in_systm.h \
 	   netinet/if_ether.h netinet/igmp.h \

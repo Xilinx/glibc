@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -32,7 +32,7 @@ pthread_barrier_destroy (barrier)
 
   lll_lock (ibarrier->lock, ibarrier->private ^ FUTEX_PRIVATE_FLAG);
 
-  if (__builtin_expect (ibarrier->left == ibarrier->init_count, 1))
+  if (__glibc_likely (ibarrier->left == ibarrier->init_count))
     /* The barrier is not used anymore.  */
     result = 0;
   else

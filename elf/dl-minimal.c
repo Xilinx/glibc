@@ -1,5 +1,5 @@
 /* Minimal replacements for basic facilities used in the dynamic linker.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -68,7 +68,7 @@ __libc_memalign (size_t align, size_t n)
       /* Insufficient space left; allocate another page.  */
       caddr_t page;
       size_t nup = (n + GLRO(dl_pagesize) - 1) & ~(GLRO(dl_pagesize) - 1);
-      if (__builtin_expect (nup == 0, 0))
+      if (__glibc_unlikely (nup == 0))
 	{
 	  if (n)
 	    return NULL;

@@ -1,5 +1,5 @@
 /* Run-time dynamic linker data structures for loaded ELF shared objects.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -76,8 +76,9 @@ typedef struct link_map *lookup_t;
 # define DL_SYMBOL_ADDRESS(map, ref) \
  (void *) (LOOKUP_VALUE_ADDRESS (map) + ref->st_value)
 # define DL_LOOKUP_ADDRESS(addr) ((ElfW(Addr)) (addr))
-# define DL_DT_INIT_ADDRESS(map, start) (start)
-# define DL_DT_FINI_ADDRESS(map, start) (start)
+# define DL_CALL_DT_INIT(map, start, argc, argv, env) \
+ ((init_t) (start)) (argc, argv, env)
+# define DL_CALL_DT_FINI(map, start) ((fini_t) (start)) ()
 #endif
 
 /* On some architectures dladdr can't use st_size of all symbols this way.  */
@@ -554,6 +555,10 @@ struct rtld_global_ro
   EXTERN struct link_map *_dl_sysinfo_map;
 #endif
 
+  /* Mask for more hardware capabilities that are available on some
+     platforms.  */
+  EXTERN uint64_t _dl_hwcap2;
+
 #ifdef SHARED
   /* We add a function table to _rtld_global which is then used to
      call the function instead of going through the PLT.  The result
@@ -951,6 +956,9 @@ extern void _dl_sysdep_start_cleanup (void)
 
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;
+
+/* Count the modules with TLS segments.  */
+extern size_t _dl_count_modids (void) internal_function attribute_hidden;
 
 /* Calculate offset of the TLS blocks in the static TLS block.  */
 extern void _dl_determine_tlsoffset (void) internal_function attribute_hidden;

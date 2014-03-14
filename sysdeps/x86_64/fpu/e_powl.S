@@ -1,5 +1,5 @@
 /* ix87 specific implementation of pow function.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
 
@@ -95,6 +95,9 @@ ENTRY(__ieee754_powl)
 
 	cmpb	$0x05, %ah
 	je	15f		// x is ±inf
+
+	cmpb	$0x01, %ah
+	je	31f		// x is NaN
 
 	fxch			// y : x
 

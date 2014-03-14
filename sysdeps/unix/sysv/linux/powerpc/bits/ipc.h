@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -49,8 +49,8 @@ struct ipc_perm
     __mode_t mode;		/* Read/write permission.  */
     __uint32_t __seq;		/* Sequence number.  */
     __uint32_t __pad1;
-    __uint64_t __unused1;
-    __uint64_t __unused2;
+    __uint64_t __glibc_reserved1;
+    __uint64_t __glibc_reserved2;
   };
 
 

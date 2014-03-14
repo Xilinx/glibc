@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,16 +19,20 @@
 #define	_STRINGS_H	1
 
 /* We don't need and should not read this file if <string.h> was already
-   read. The one exception being that if __USE_BSD isn't defined, then
+   read. The one exception being that if __USE_MISC isn't defined, then
    these aren't defined in string.h, so we need to define them here.  */
-#if !defined _STRING_H || !defined __USE_BSD
+#if !defined _STRING_H || !defined __USE_MISC
 
 # include <features.h>
 # define __need_size_t
 # include <stddef.h>
 
-/* Tell the caller that we provide correct C++ prototypes.  */
-# if defined __cplusplus && __GNUC_PREREQ (4, 4)
+/* Provide correct C++ prototypes, and indicate this to the caller.  This
+   requires a compatible C++ standard library.  As a heuristic, we provide
+   these when the compiler indicates full conformance with C++98 or later,
+   and for older GCC versions that are known to provide a compatible
+   libstdc++.  */
+# if defined __cplusplus && (__cplusplus >= 199711L || __GNUC_PREREQ (4, 4))
 #  define __CORRECT_ISO_CPP_STRINGS_H_PROTO
 # endif
 

@@ -28,7 +28,7 @@ category  "nn_NO:2000";LC_PAPER
 category  "nn_NO:2000";LC_NAME
 category  "nn_NO:2000";LC_ADDRESS
 category  "nn_NO:2000";LC_TELEPHONE
-
+category  "nn_NO:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -151,7 +151,24 @@ END LC_NAME
 
 
 LC_ADDRESS
-copy "nb_NO"
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U004E><U004F>"
+country_ab3 "<U004E><U004F><U0052>"
+country_num 578
+% N
+country_car    "<U004E>"
+% Nynorsk
+lang_name    "<U004E><U0079><U006E><U006F><U0072><U0073><U006B>"
+% nn
+lang_ab      "<U006E><U006E>"
+% nno
+lang_term    "<U006E><U006E><U006F>"
+% nno
+lang_lib    "<U006E><U006E><U006F>"
 END LC_ADDRESS
 
 
@@ -161,5 +178,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-copy "nb_NO"
+% metric
+measurement 1
 END LC_MEASUREMENT

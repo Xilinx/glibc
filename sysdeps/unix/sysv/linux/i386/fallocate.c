@@ -1,4 +1,4 @@
-/* Copyright (C) 2007-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2007-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ fallocate (int fd, int mode, __off_t offset, __off_t len)
 
       LIBC_CANCEL_RESET (oldtype);
     }
-  if (__builtin_expect (err, 0))
+  if (__glibc_unlikely (err))
     {
       __set_errno (err);
       err = -1;

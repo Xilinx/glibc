@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -130,7 +130,7 @@ __nscd_getgrouplist (const char *user, gid_t group, long int *size,
     }
   else
     {
-      if (__builtin_expect (initgr_resp.found == -1, 0))
+      if (__glibc_unlikely (initgr_resp.found == -1))
 	{
 	  /* The daemon does not cache this database.  */
 	  __nss_not_use_nscd_group = 1;

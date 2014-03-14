@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/i386 version.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ typedef struct
 #ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
 #else
-  int __unused1;
+  int __glibc_reserved1;
 #endif
   /* Reservation of some values for the TM ABI.  */
   void *__private_tm[4];
@@ -104,9 +104,6 @@ union user_desc_init
 };
 
 
-/* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
-
 /* This is the size of the initial TCB.  Can't be just sizeof (tcbhead_t),
    because NPTL getpid, __libc_alloca_cutoff etc. need (almost) the whole
    struct pthread even when not linked with -lpthread.  */
@@ -124,6 +121,10 @@ union user_desc_init
 /* The TCB can have any size and the memory following the address the
    thread pointer points to is unspecified.  Allocate the TCB there.  */
 # define TLS_TCB_AT_TP	1
+# define TLS_DTV_AT_TP	0
+
+/* Get the thread descriptor definition.  */
+# include <nptl/descr.h>
 
 
 /* Install the dtv pointer.  The pointer passed is to the element with

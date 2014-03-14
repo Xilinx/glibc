@@ -1,5 +1,5 @@
 /* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #define __O_CLOEXEC	010000000 /* Set close_on_exec.  */
 #define __O_NOATIME	004000000 /* Do not set atime.  */
 #define __O_PATH        020000000
+#define __O_TMPFILE     040010000 /* Atomically create nameless file. */
 
 #define __O_LARGEFILE	00004000
 

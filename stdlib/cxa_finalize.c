@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ __cxa_finalize (void *d)
 
 	      /* It is possible that that last exit function registered
 		 more exit functions.  Start the loop over.  */
-	      if (__builtin_expect (check != __new_exitfn_called, 0))
+	      if (__glibc_unlikely (check != __new_exitfn_called))
 		goto restart;
 	    }
 	}

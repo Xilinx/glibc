@@ -1,3 +1,203 @@
+This file describes changes to the ARM port while it was in the ports
+add-on directory.  This port is no longer part of an add-on and so
+future changes to it should be listed in the top-level ChangeLog file,
+not here.
+
+
+
+2014-02-08  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/arm: Move directory to ../sysdeps/arm.
+	* sysdeps/unix/arm: Move directory to ../sysdeps.arm.
+	* sysdeps/unix/sysv/linux/arm: Move directory to
+	../sysdeps/unix/sysv/linux/arm.
+
+	* sysdeps/unix/sysv/linux/arm/msgctl.c: Move from
+	sysdeps/unix/sysv/linux/alpha/msgctl.c instead of #include of that
+	file.
+	* sysdeps/unix/sysv/linux/arm/semctl.c: Move from
+	sysdeps/unix/sysv/linux/alpha/semctl.c instead of #include of that
+	file.
+	* sysdeps/unix/sysv/linux/arm/shmctl.c: Move from
+	sysdeps/unix/sysv/linux/alpha/shmctl.c instead of #include of that
+	file.
+
+2014-01-24  Will Newton  <will.newton@linaro.org>
+
+	[BZ #16499]
+	* sysdeps/unix/sysv/linux/arm/clone.S: Use BLX macro instead
+	of blx instruction directly.
+
+2014-01-14  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/__longjmp.S: Don't apply pointer encryption
+	to fp register.
+	* sysdeps/arm/setjmp.S: Likewise.
+	* sysdeps/arm/include/bits/setjmp.h (JMP_BUF_REGLIST): Add
+	fp to register list, remove a4.
+	* sysdeps/unix/sysv/linux/arm/sysdep.h (PTR_MANGLE_LOAD):
+	New macro.
+
+2014-01-10  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/arm-mcount.S:
+	#include <shlib-compat.h> and <gcc-compat.h>.
+	(_mcount): Renamed to __mcount_arm_compat.  Made conditional on
+	[GCC_COMPAT (4, 3) || SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_19)].
+	(_mcount, mcount): Define (as aliases) only under [GCC_COMPAT (4, 3)],
+	with compat_symbol under [SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_19)].
+
+	* sysdeps/arm/gcc-compat.h: New file.
+
+2014-01-01  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/arm/libm-test-ulps: Regenerated.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/arm/fegetround.c (fegetround): Use libm_hidden_def.
+
+2013-11-26  Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/unix/sysv/linux/arm/bits/shm.h: Use __glibc_reserved
+	instead of __unused.
+
+2013-11-22  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/armv7/multiarch/memcpy_impl.S
+	[ARM_ALWAYS_BX] (dispatch_helper): Fix PC computation to properly
+	account for instructions after the reference to PC given that 'bx'
+	might actually be expanded to multiple instructions.
+	* sysdeps/arm/arm-features.h (ARM_BX_NINSNS): Macro removed.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/arm/configure.in: Moved to ...
+	* sysdeps/arm/configure.ac: ... here.
+	* sysdeps/arm/preconfigure.in: Moved to ...
+	* sysdeps/arm/preconfigure.ac: ... here. Change reference to
+	configure.in to configure.ac.
+	* sysdeps/arm/preconfigure: Regenerated.
+	* sysdeps/arm/armv7/configure.in: Moved to ...
+	* sysdeps/arm/armv7/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/arm/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/arm/configure.ac: ... here. Change
+	reference to preconfigure.in to preconfigure.ac.
+	* sysdeps/unix/sysv/linux/arm/configure: Regenerated.
+	* sysdeps/unix/sysv/linux/arm/nptl/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/arm/nptl/configure.ac: ... here.
+	* sysdeps/arm/configure: Regenerated.
+	* sysdeps/sysdeps/arm/armv7/configure: Likewise.
+	* sysdeps/unix/sysv/linux/arm/nptl/configure: Likewise.
+
+2013-10-04  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/__longjmp.S (NO_THUMB): Remove define.
+	(__longjmp): Use Thumb supported instructions.
+	* sysdeps/unix/sysv/linux/arm/____longjmp_chk.S (NO_THUMB):
+	Remove define.
+
+	* sysdeps/arm/setjmp.S (NO_THUMB): Remove define.
+	(__sigsetjmp): Use Thumb supported instructions.
+
+2013-10-03  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/__longjmp.S (__longjmp): Demangle fp, sp
+	and lr when restoring register values.
+	* sysdeps/arm/include/bits/setjmp.h (JMP_BUF_REGLIST): Remove
+	sp and lr from list and replace fp with a4.
+	* sysdeps/arm/jmpbuf-unwind.h (_jmpbuf_sp): New function.
+	(_JMPBUF_UNWINDS_ADJ): Call _jmpbuf_sp.
+	* sysdeps/arm/setjmp.S (__sigsetjmp): Mangle fp, sp and lr
+	before storing register values.
+	* sysdeps/arm/sysdep.h (LDST_GLOBAL): New macro.
+	* sysdeps/unix/sysv/linux/arm/sysdep.h (PTR_MANGLE): New macro.
+	(PTR_DEMANGLE): Likewise. (PTR_MANGLE2): Likewise.
+	(PTR_DEMANGLE2): Likewise.
+
+2013-09-24  Will Newton  <will.newton@linaro.org>
+
+	* ports/sysdeps/arm/nptl/tls.h (TLS_INIT_TP_EXPENSIVE): Remove
+	macro.
+
+2013-09-20  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/arm/armv6t2/ffs.S (__ffs): Define as hidden.
+
+2013-09-18  Dinar Temirbulatov  <dtemirbulatov@gmail.com>
+
+	[BZ #15640]
+	* sysdeps/arm/bits/atomic.h (atomic_exchange_acq, atomic_exchange_rel)
+	(atomic_compare_and_exchange_bool_acq)
+	(atomic_compare_and_exchange_val_acq)
+	(atomic_compare_and_exchange_bool_rel)
+	(atomic_compare_and_exchange_val_rel): Use __atomic_exchange_n and
+	__atomic_compare_exchange_n builtins when GCC supports them.
+
+2013-09-16  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/armv7/multiarch/memcpy_impl.S: Tighten check
+	on entry to aligned copy loop to improve performance.
+
+2013-08-30  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/arm/armv6t2/strlen.S: Use sfi_pld and sfi_breg macros.
+
+	* sysdeps/arm/armv6t2/strlen.S: Include <arm-features.h> first thing.
+	[NO_THUMB]: Adapt code for ARM mode.
+
+2013-08-30  Will Newton  <will.newton@linaro.org>
+
+	[BZ #15909]
+	* sysdeps/unix/sysv/linux/arm/clone.S (__clone): Use blx
+	instead of mov lr, pc.
+
+2013-08-30  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/armv6t2/strlen.S: New file.
+
+2013-08-29  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/arm/ldsodefs.h (VALID_ELF_OSABI)
+	(MORE_ELF_HEADER_DATA): Use ELFOSABI_GNU instead of
+	ELFOSABI_LINUX.
+
+2013-08-28  Kyle McMartin  <kyle@redhat.com>
+	    Carlos O'Donell  <carlos@redhat.com>
+
+	[BZ #15905]
+	* sysdeps/arm/dl-machine [!RTLD_BOOTSTRAP] (elf_machine_rel):
+	Pass GLRO(dl_hwcap) to the IFUNC resolver.
+
+2013-07-03  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/arm/include/bits/setjmp.h [_ISOMAC] (JMP_BUF_REGLIST):
+	Do not define.
+	[_ISOMAC] (__JMP_BUF_SP): Likewise.
+
+2013-07-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/arm/libm-test-ulps: Regenerated.
+
+	[BZ #13304]
+	* sysdeps/arm/s_fma.c: New file.
+	* sysdeps/arm/s_fmaf.c: New file.
+	* sysdeps/arm/soft-fp/sfp-machine.h: New file.  Based on powerpc
+	version.
+	* sysdeps/arm/Implies: Add arm/soft-fp.
+
+2013-07-02  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/arm/dl-machine.h (elf_machine_rela): Pass dl_hwcap
+	to IFUNC resolver functions.
+
+2013-06-28  Ryan S. Arnold  <rsa@linux.vnet.ibm.com>
+
+	* sysdeps/unix/sysv/linux/arm/dl-procinfo.h (_dl_procinfo): Add
+	TYPE parameter to macro prototype for AT_HWCAP2 support.  Make WORD
+	unsigned long int rather than signed int.  Stub in handler for TYPE ==
+	AT_HWCAP2 to return -1 for unknown a_type display fallback.
+
 2013-06-18  Roland McGrath  <roland@hack.frob.com>
 
 	* sysdeps/arm/arm-mcount.S: Comment typo fix.

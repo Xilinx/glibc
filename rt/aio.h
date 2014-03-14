@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ struct aiocb
 #else
   __off64_t aio_offset;		/* File offset.  */
 #endif
-  char __unused[32];
+  char __glibc_reserved[32];
 };
 
 /* The same for the 64bit offsets.  Please note that the members aio_fildes
@@ -77,7 +77,7 @@ struct aiocb64
   __ssize_t __return_value;
 
   __off64_t aio_offset;		/* File offset.  */
-  char __unused[32];
+  char __glibc_reserved[32];
 };
 #endif
 

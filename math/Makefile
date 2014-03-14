@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -18,6 +18,8 @@
 # Makefile for the math library.
 
 subdir		:= math
+
+include ../Makeconfig
 
 # Installed header files.
 headers		:= math.h bits/mathcalls.h bits/mathinline.h bits/huge_val.h \
@@ -61,8 +63,6 @@ libm-calls = e_acos e_acosh e_asin e_atan2 e_atanh e_cosh e_exp e_fmod	\
 	     s_isinf_ns s_issignaling $(calls:s_%=m_%) x2y2m1 k_casinh	\
 	     gamma_product
 
-include ../Makeconfig
-
 dbl-only-routines := branred doasin dosincos halfulp mpa mpatan2	\
 		     mpatan mpexp mplog mpsqrt mptan sincos32 slowexp	\
 		     slowpow sincostab
@@ -87,9 +87,11 @@ long-c-yes = $(calls:=l)
 
 # Rules for the test suite.
 tests = test-matherr test-fenv atest-exp atest-sincos atest-exp2 basic-test \
-	test-misc test-fpucw tst-definitions test-tgmath test-tgmath-ret \
-	bug-nextafter bug-nexttoward bug-tgmath1 test-tgmath-int \
-	test-tgmath2 test-powl tst-CMPLX tst-CMPLX2 test-snan
+	test-misc test-fpucw test-fpucw-ieee tst-definitions test-tgmath \
+	test-tgmath-ret bug-nextafter bug-nexttoward bug-tgmath1 \
+	test-tgmath-int test-tgmath2 test-powl tst-CMPLX tst-CMPLX2 test-snan \
+	test-fenv-tls $(tests-static)
+tests-static = test-fpucw-static test-fpucw-ieee-static
 # We do the `long double' tests only if this data type is available and
 # distinct from `double'.
 test-longdouble-yes = test-ldouble test-ildoubl
@@ -110,7 +112,8 @@ ulps-file = $(firstword $(wildcard $(sysdirs:%=%/libm-test-ulps)))
 
 $(addprefix $(objpfx), $(libm-tests-generated)): $(objpfx)libm-test.stmp
 
-$(objpfx)libm-test.stmp: $(ulps-file) libm-test.inc gen-libm-test.pl
+$(objpfx)libm-test.stmp: $(ulps-file) libm-test.inc gen-libm-test.pl \
+			 auto-libm-test-out
 	$(make-target-directory)
 	$(PERL) gen-libm-test.pl -u $< -o "$(objpfx)"
 	@echo > $@
@@ -217,7 +220,8 @@ $(objpfx)libieee.a: $(objpfx)ieee-math.o
 	$(LN_S) $(<F) $(@F)
 
 ifeq ($(build-shared),yes)
-$(addprefix $(objpfx),$(tests)): $(objpfx)libm.so$(libm.so-version)
+$(addprefix $(objpfx),$(filter-out $(tests-static),$(tests))): $(objpfx)libm.so$(libm.so-version)
+$(addprefix $(objpfx),$(tests-static)): $(objpfx)libm.a
 else
 $(addprefix $(objpfx),$(tests)): $(objpfx)libm.a
 endif
@@ -229,3 +233,4 @@ gmp-objs = $(patsubst %,$(common-objpfx)stdlib/%.o,\
 $(objpfx)atest-exp: $(gmp-objs)
 $(objpfx)atest-sincos: $(gmp-objs)
 $(objpfx)atest-exp2: $(gmp-objs)
+$(objpfx)test-fenv-tls: $(common-objpfx)nptl/libpthread.so

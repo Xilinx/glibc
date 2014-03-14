@@ -1,4 +1,4 @@
-/* Copyright (C) 2010-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2010-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Schwab <schwab@redhat.com>, 2010.
 
@@ -23,6 +23,14 @@
 #include <sys/syscall.h>
 #include <kernel-features.h>
 
+/* Do not use the recvmmsg syscall on socketcall architectures unless
+   it was added at the same time as the socketcall support or can be
+   assumed to be present.  */
+#if defined __ASSUME_SOCKETCALL \
+    && !defined __ASSUME_RECVMMSG_SYSCALL_WITH_SOCKETCALL \
+    && !defined __ASSUME_RECVMMSG_SYSCALL
+# undef __NR_recvmmsg
+#endif
 
 #ifdef __NR_recvmmsg
 int
@@ -41,7 +49,7 @@ recvmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags,
   return result;
 }
 #elif defined __NR_socketcall
-# ifndef __ASSUME_RECVMMSG
+# ifndef __ASSUME_RECVMMSG_SOCKETCALL
 extern int __internal_recvmmsg (int fd, struct mmsghdr *vmessages,
 				unsigned int vlen, int flags,
 				const struct timespec *tmo)
@@ -53,7 +61,7 @@ int
 recvmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags,
 	  const struct timespec *tmo)
 {
-  if (__builtin_expect (have_recvmmsg >= 0, 1))
+  if (__glibc_likely (have_recvmmsg >= 0))
     {
       int ret = __internal_recvmmsg (fd, vmessages, vlen, flags, tmo);
       /* The kernel returns -EINVAL for unknown socket operations.
@@ -85,7 +93,8 @@ recvmmsg (int fd, struct mmsghdr *vmessages, unsigned int vlen, int flags,
   return -1;
 }
 # else
-/* When __ASSUME_RECVMMSG recvmmsg is defined in internal_recvmmsg.S.  */
+/* When __ASSUME_RECVMMSG_SOCKETCALL recvmmsg is defined in
+   internal_recvmmsg.S.  */
 # endif
 #else
 # include <socket/recvmmsg.c>

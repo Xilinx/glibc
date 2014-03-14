@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2001.
 
@@ -117,7 +117,7 @@ __gai_notify (struct requestlist *req)
 #endif
 	}
       else
-	/* This is part of a asynchronous `getaddrinfo_a' operation.  If
+	/* This is part of an asynchronous `getaddrinfo_a' operation.  If
 	   this request is the last one, send the signal.  */
 	if (--*waitlist->counterp == 0)
 	  {

@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 
 subdir := localedata
 
-all: # Make this the default target; it will be defined in Rules.
+include ../Makeconfig
 
 # List with all available character set descriptions.
 charmaps := $(wildcard charmaps/[A-I]*) $(wildcard charmaps/[J-Z]*)
@@ -51,13 +51,10 @@ ld-test-srcs := $(addprefix tests/,$(addsuffix .cm,$(ld-test-names)) \
 fmon-tests = n01y12 n02n40 n10y31 n11y41 n12y11 n20n32 n30y20 n41n00 \
 	     y01y10 y02n22 y22n42 y30y21 y32n31 y40y00 y42n21
 
-generated := $(test-input) $(test-output) sort-test.out tst-locale.out \
-	     tst-mbswcs.out tst-leaks.mtrace mtrace-tst-leaks
-generated-dirs := $(ld-test-names) tt_TT de_DE.437			\
+generated += $(test-input) $(test-output) sort-test.out tst-locale.out \
+	     tst-mbswcs.out tst-leaks.mtrace mtrace-tst-leaks.out
+generated-dirs += $(ld-test-names) tt_TT de_DE.437			\
 		  $(addprefix tstfmon_,$(fmon-tests))			\
-
-# Get $(inst_i18ndir) defined.
-include ../Makeconfig
 
 ifeq ($(run-built-tests),yes)
 locale_test_suite := tst_iswalnum tst_iswalpha tst_iswcntrl            \
@@ -82,7 +79,7 @@ tests-static = bug-setlocale1-static
 tests += $(tests-static)
 ifeq (yes,$(build-shared))
 ifneq (no,$(PERL))
-tests: $(objpfx)mtrace-tst-leaks
+tests-special += $(objpfx)mtrace-tst-leaks.out
 endif
 endif
 endif
@@ -93,6 +90,27 @@ install-others := $(addprefix $(inst_i18ndir)/, \
 			      $(locales))
 
 tests: $(objdir)/iconvdata/gconv-modules
+
+tests-special += $(objpfx)sort-test.out $(objpfx)tst-fmon.out \
+		 $(objpfx)tst-locale.out $(objpfx)tst-rpmatch.out \
+		 $(objpfx)tst-trans.out $(objpfx)tst-mbswcs.out \
+		 $(objpfx)tst-ctype.out $(objpfx)tst-wctype.out \
+		 $(objpfx)tst-langinfo.out $(objpfx)tst-numeric.out
+
+ifeq ($(run-built-tests),yes)
+# We have to generate locales
+LOCALES := de_DE.ISO-8859-1 de_DE.UTF-8 en_US.ANSI_X3.4-1968 \
+	   en_US.ISO-8859-1 en_US.UTF-8 ja_JP.EUC-JP da_DK.ISO-8859-1 \
+	   hr_HR.ISO-8859-2 sv_SE.ISO-8859-1 ja_JP.SJIS fr_FR.ISO-8859-1 \
+	   nb_NO.ISO-8859-1 nn_NO.ISO-8859-1 tr_TR.UTF-8 cs_CZ.UTF-8 \
+	   zh_TW.EUC-TW fa_IR.UTF-8 fr_FR.UTF-8 ja_JP.UTF-8 si_LK.UTF-8 \
+	   tr_TR.ISO-8859-9
+LOCALE_SRCS := $(shell echo "$(LOCALES)"|sed 's/\([^ .]*\)[^ ]*/\1/g')
+CHARMAPS := $(shell echo "$(LOCALES)" | \
+		    sed -e 's/[^ .]*[.]\([^ ]*\)/\1/g' -e s/SJIS/SHIFT_JIS/g)
+CTYPE_FILES = $(addsuffix /LC_CTYPE,$(LOCALES))
+tests-special += $(addprefix $(objpfx),$(CTYPE_FILES))
+endif
 
 include ../Rules
 
@@ -116,18 +134,6 @@ CFLAGS-tst-trans.c = -Wno-format
 
 
 ifeq ($(run-built-tests),yes)
-# We have to generate locales
-LOCALES := de_DE.ISO-8859-1 de_DE.UTF-8 en_US.ANSI_X3.4-1968 \
-	   en_US.ISO-8859-1 en_US.UTF-8 ja_JP.EUC-JP da_DK.ISO-8859-1 \
-	   hr_HR.ISO-8859-2 sv_SE.ISO-8859-1 ja_JP.SJIS fr_FR.ISO-8859-1 \
-	   nb_NO.ISO-8859-1 nn_NO.ISO-8859-1 tr_TR.UTF-8 cs_CZ.UTF-8 \
-	   zh_TW.EUC-TW fa_IR.UTF-8 fr_FR.UTF-8 ja_JP.UTF-8 si_LK.UTF-8 \
-	   tr_TR.ISO-8859-9
-LOCALE_SRCS := $(shell echo "$(LOCALES)"|sed 's/\([^ .]*\)[^ ]*/\1/g')
-CHARMAPS := $(shell echo "$(LOCALES)" | \
-		    sed -e 's/[^ .]*[.]\([^ ]*\)/\1/g' -e s/SJIS/SHIFT_JIS/g)
-CTYPE_FILES = $(addsuffix /LC_CTYPE,$(LOCALES))
-
 generated-dirs += $(LOCALES)
 
 # Dependency for the locale files.  We actually make it depend only on
@@ -135,58 +141,64 @@ generated-dirs += $(LOCALES)
 $(addprefix $(objpfx),$(CTYPE_FILES)): %: \
   gen-locale.sh $(common-objpfx)locale/localedef Makefile \
   $(addprefix charmaps/,$(CHARMAPS)) $(addprefix locales/,$(LOCALE_SRCS))
-	@$(SHELL) gen-locale.sh $(common-objpfx) '$(built-program-cmd)' $@
+	@$(SHELL) gen-locale.sh $(common-objpfx) '$(built-program-cmd)' $@; \
+	$(evaluate-test)
 
 $(addsuffix .out,$(addprefix $(objpfx),$(tests))): %: \
   $(addprefix $(objpfx),$(CTYPE_FILES))
 
-tests: $(objpfx)sort-test.out $(objpfx)tst-fmon.out $(objpfx)tst-locale.out \
-       $(objpfx)tst-rpmatch.out $(objpfx)tst-trans.out \
-       $(objpfx)tst-mbswcs.out $(objpfx)tst-ctype.out $(objpfx)tst-wctype.out \
-       $(objpfx)tst-langinfo.out $(objpfx)tst-numeric.out
-
 $(objpfx)sort-test.out: sort-test.sh $(objpfx)collate-test $(objpfx)xfrm-test \
 		       $(test-input-data) $(addprefix $(objpfx),$(CTYPE_FILES))
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' $(test-input) \
-	  > $@
+	  > $@; \
+	$(evaluate-test)
 $(objpfx)tst-fmon.out: tst-fmon.sh $(objpfx)tst-fmon tst-fmon.data \
 		       $(objpfx)sort-test.out \
 		       $(addprefix $(objpfx),$(CTYPE_FILES))
 	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)' \
 		'$(test-program-prefix)' tst-fmon.data  \
-	  > $@
+	  > $@; \
+	$(evaluate-test)
 $(objpfx)tst-numeric.out: tst-numeric.sh $(objpfx)tst-numeric tst-numeric.data \
 		       $(objpfx)sort-test.out \
 		       $(addprefix $(objpfx),$(CTYPE_FILES))
 	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' tst-numeric.data \
-	  > $@
+	  > $@; \
+	$(evaluate-test)
 $(objpfx)tst-locale.out: tst-locale.sh $(common-objpfx)locale/localedef \
 			 $(ld-test-srcs) $(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(built-program-cmd)' > $@
+	$(SHELL) $< $(common-objpfx) '$(built-program-cmd)' > $@; \
+	$(evaluate-test)
 $(objpfx)tst-rpmatch.out: tst-rpmatch.sh $(objpfx)tst-rpmatch \
 			  $(objpfx)tst-fmon.out \
 			  $(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@; \
+	$(evaluate-test)
 $(objpfx)tst-trans.out: tst-trans.sh $(objpfx)tst-trans \
 			$(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)' '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(run-program-prefix)' '$(test-program-prefix)'; \
+	$(evaluate-test)
 $(objpfx)tst-mbswcs.out: tst-mbswcs.sh $(objpfx)tst-mbswcs1 \
 			 $(objpfx)tst-mbswcs2 $(objpfx)tst-mbswcs3 \
 			 $(objpfx)tst-mbswcs4 $(objpfx)tst-mbswcs5 \
 			 $(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'; \
+	$(evaluate-test)
 $(objpfx)tst-ctype.out: tst-ctype.sh $(objpfx)tst-ctype \
 			$(objpfx)sort-test.out \
 			$(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'; \
+	$(evaluate-test)
 $(objpfx)tst-wctype.out: tst-wctype.sh $(objpfx)tst-wctype \
 			$(objpfx)sort-test.out tst-wctype.input \
 			$(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'; \
+	$(evaluate-test)
 $(objpfx)tst-langinfo.out: tst-langinfo.sh $(objpfx)tst-langinfo \
 			$(objpfx)sort-test.out \
 			$(addprefix $(objpfx),$(CTYPE_FILES))
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'; \
+	$(evaluate-test)
 $(objpfx)tst-digits.out: $(objpfx)tst-locale.out
 $(objpfx)tst-mbswcs6.out: $(addprefix $(objpfx),$(CTYPE_FILES))
 endif
@@ -284,8 +296,9 @@ tst-sscanf-ENV = LOCPATH=$(common-objpfx)localedata
 
 tst-leaks-ENV = MALLOC_TRACE=$(objpfx)tst-leaks.mtrace \
 		LOCPATH=$(common-objpfx)localedata
-$(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
+$(objpfx)mtrace-tst-leaks.out: $(objpfx)tst-leaks.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@; \
+	$(evaluate-test)
 
 bug-setlocale1-ENV = LOCPATH=$(common-objpfx)localedata
 bug-setlocale1-ARGS = -- $(host-test-program-cmd)

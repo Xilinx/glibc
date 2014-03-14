@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,7 +58,7 @@ struct stat
     int pad0;
     __dev_t st_rdev;		/* Device number, if device.  */
     __off_t st_size;		/* Size of file, in bytes.  */
-#if defined __USE_MISC || defined __USE_XOPEN2K8
+#ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -81,7 +81,7 @@ struct stat
 #endif
     __blksize_t st_blksize;	/* Optimal block size for I/O.	*/
     __blkcnt_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-    long int __unused[3];
+    long int __glibc_reserved[3];
   };
 #else
 struct stat
@@ -111,7 +111,7 @@ struct stat
 # else
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
 # endif
-# if defined __USE_MISC || defined __USE_XOPEN2K8
+# ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -133,8 +133,8 @@ struct stat
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
 # endif
 # ifndef __USE_FILE_OFFSET64
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    unsigned long int __glibc_reserved4;
+    unsigned long int __glibc_reserved5;
 # else
     __ino64_t st_ino;			/* File serial number.	*/
 # endif
@@ -155,7 +155,7 @@ struct stat64
     int pad0;
     __dev_t st_rdev;		/* Device number, if device.  */
     __off_t st_size;		/* Size of file, in bytes.  */
-#  if defined __USE_MISC || defined __USE_XOPEN2K8
+#  ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -178,7 +178,7 @@ struct stat64
 #  endif
     __blksize_t st_blksize;	/* Optimal block size for I/O.	*/
     __blkcnt64_t st_blocks;	/* Nr. 512-byte blocks allocated.  */
-    long int __unused[3];
+    long int __glibc_reserved[3];
   };
 # else
 struct stat64
@@ -197,7 +197,7 @@ struct stat64
     __blksize_t st_blksize;		/* Optimal block size for I/O.  */
 
     __blkcnt64_t st_blocks;		/* Number 512-byte blocks allocated. */
-#  if defined __USE_MISC || defined __USE_XOPEN2K8
+#  ifdef __USE_XOPEN2K8
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the

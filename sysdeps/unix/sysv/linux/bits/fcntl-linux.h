@@ -1,5 +1,5 @@
 /* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 2001-2013 Free Software Foundation, Inc.
+   Copyright (C) 2001-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -96,6 +96,9 @@
 #ifndef __O_DSYNC
 # define __O_DSYNC	 010000
 #endif
+#ifndef __O_TMPFILE
+# define __O_TMPFILE   020200000
+#endif
 
 #ifndef F_GETLK
 # ifndef __USE_FILE_OFFSET64
@@ -128,6 +131,7 @@
 # define O_DIRECT	__O_DIRECT	/* Direct disk access.	*/
 # define O_NOATIME	__O_NOATIME	/* Do not set atime.  */
 # define O_PATH		__O_PATH	/* Resolve pathname but do not open file.  */
+# define O_TMPFILE	__O_TMPFILE	/* Atomically create nameless file.  */
 #endif
 
 /* For now, Linux has no separate synchronicitiy options for read
@@ -154,7 +158,7 @@
 # define __F_GETOWN	9
 #endif
 
-#if defined __USE_BSD || defined __USE_UNIX98 || defined __USE_XOPEN2K8
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
 # define F_SETOWN	__F_SETOWN /* Get owner (process receiving SIGIO).  */
 # define F_GETOWN	__F_GETOWN /* Set owner (process receiving SIGIO).  */
 #endif
@@ -204,7 +208,7 @@
 # define F_SHLCK		8	/* or 4 */
 #endif
 
-#ifdef __USE_BSD
+#ifdef __USE_MISC
 /* Operations for BSD flock, also used by the kernel implementation.  */
 # define LOCK_SH	1	/* Shared lock.  */
 # define LOCK_EX	2	/* Exclusive lock.  */
@@ -252,13 +256,13 @@ struct f_owner_ex
 
 /* Define some more compatibility macros to be backward compatible with
    BSD systems which did not managed to hide these kernel macros.  */
-#ifdef	__USE_BSD
+#ifdef	__USE_MISC
 # define FAPPEND	O_APPEND
 # define FFSYNC		O_FSYNC
 # define FASYNC		O_ASYNC
 # define FNONBLOCK	O_NONBLOCK
 # define FNDELAY	O_NDELAY
-#endif /* Use BSD.  */
+#endif /* Use misc.  */
 
 #ifndef __POSIX_FADV_DONTNEED
 #  define __POSIX_FADV_DONTNEED	4

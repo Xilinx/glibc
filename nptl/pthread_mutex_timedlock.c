@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -25,6 +25,17 @@
 
 #include <stap-probe.h>
 
+#ifndef lll_timedlock_elision
+#define lll_timedlock_elision(a,dummy,b,c) lll_timedlock(a, b, c)
+#endif
+
+#ifndef lll_trylock_elision
+#define lll_trylock_elision(a,t) lll_trylock(a)
+#endif
+
+#ifndef FORCE_ELISION
+#define FORCE_ELISION(m, s)
+#endif
 
 int
 pthread_mutex_timedlock (mutex, abstime)
@@ -40,16 +51,17 @@ pthread_mutex_timedlock (mutex, abstime)
   /* We must not check ABSTIME here.  If the thread does not block
      abstime must not be checked for a valid value.  */
 
-  switch (__builtin_expect (PTHREAD_MUTEX_TYPE (mutex),
+  switch (__builtin_expect (PTHREAD_MUTEX_TYPE_ELISION (mutex),
 			    PTHREAD_MUTEX_TIMED_NP))
     {
       /* Recursive mutex.  */
+    case PTHREAD_MUTEX_RECURSIVE_NP|PTHREAD_MUTEX_ELISION_NP:
     case PTHREAD_MUTEX_RECURSIVE_NP:
       /* Check whether we already hold the mutex.  */
       if (mutex->__data.__owner == id)
 	{
 	  /* Just bump the counter.  */
-	  if (__builtin_expect (mutex->__data.__count + 1 == 0, 0))
+	  if (__glibc_unlikely (mutex->__data.__count + 1 == 0))
 	    /* Overflow of the counter.  */
 	    return EAGAIN;
 
@@ -72,17 +84,27 @@ pthread_mutex_timedlock (mutex, abstime)
       /* Error checking mutex.  */
     case PTHREAD_MUTEX_ERRORCHECK_NP:
       /* Check whether we already hold the mutex.  */
-      if (__builtin_expect (mutex->__data.__owner == id, 0))
+      if (__glibc_unlikely (mutex->__data.__owner == id))
 	return EDEADLK;
 
       /* FALLTHROUGH */
 
     case PTHREAD_MUTEX_TIMED_NP:
+      FORCE_ELISION (mutex, goto elision);
     simple:
       /* Normal mutex.  */
       result = lll_timedlock (mutex->__data.__lock, abstime,
 			      PTHREAD_MUTEX_PSHARED (mutex));
       break;
+
+    case PTHREAD_MUTEX_TIMED_ELISION_NP:
+    elision: __attribute__((unused))
+      /* Don't record ownership */
+      return lll_timedlock_elision (mutex->__data.__lock,
+				    mutex->__data.__spins,
+				    abstime,
+				    PTHREAD_MUTEX_PSHARED (mutex));
+
 
     case PTHREAD_MUTEX_ADAPTIVE_NP:
       if (! __is_smp)
@@ -153,7 +175,7 @@ pthread_mutex_timedlock (mutex, abstime)
 	    }
 
 	  /* Check whether we already hold the mutex.  */
-	  if (__builtin_expect ((oldval & FUTEX_TID_MASK) == id, 0))
+	  if (__glibc_unlikely ((oldval & FUTEX_TID_MASK) == id))
 	    {
 	      int kind = PTHREAD_MUTEX_TYPE (mutex);
 	      if (kind == PTHREAD_MUTEX_ROBUST_ERRORCHECK_NP)
@@ -169,7 +191,7 @@ pthread_mutex_timedlock (mutex, abstime)
 				 NULL);
 
 		  /* Just bump the counter.  */
-		  if (__builtin_expect (mutex->__data.__count + 1 == 0, 0))
+		  if (__glibc_unlikely (mutex->__data.__count + 1 == 0))
 		    /* Overflow of the counter.  */
 		    return EAGAIN;
 
@@ -228,7 +250,7 @@ pthread_mutex_timedlock (mutex, abstime)
 	oldval = mutex->__data.__lock;
 
 	/* Check whether we already hold the mutex.  */
-	if (__builtin_expect ((oldval & FUTEX_TID_MASK) == id, 0))
+	if (__glibc_unlikely ((oldval & FUTEX_TID_MASK) == id))
 	  {
 	    if (kind == PTHREAD_MUTEX_ERRORCHECK_NP)
 	      {
@@ -241,7 +263,7 @@ pthread_mutex_timedlock (mutex, abstime)
 		THREAD_SETMEM (THREAD_SELF, robust_head.list_op_pending, NULL);
 
 		/* Just bump the counter.  */
-		if (__builtin_expect (mutex->__data.__count + 1 == 0, 0))
+		if (__glibc_unlikely (mutex->__data.__count + 1 == 0))
 		  /* Overflow of the counter.  */
 		  return EAGAIN;
 
@@ -315,7 +337,7 @@ pthread_mutex_timedlock (mutex, abstime)
 	    assert (robust || (oldval & FUTEX_OWNER_DIED) == 0);
 	  }
 
-	if (__builtin_expect (oldval & FUTEX_OWNER_DIED, 0))
+	if (__glibc_unlikely (oldval & FUTEX_OWNER_DIED))
 	  {
 	    atomic_and (&mutex->__data.__lock, ~FUTEX_OWNER_DIED);
 
@@ -378,7 +400,7 @@ pthread_mutex_timedlock (mutex, abstime)
 	    if (kind == PTHREAD_MUTEX_RECURSIVE_NP)
 	      {
 		/* Just bump the counter.  */
-		if (__builtin_expect (mutex->__data.__count + 1 == 0, 0))
+		if (__glibc_unlikely (mutex->__data.__count + 1 == 0))
 		  /* Overflow of the counter.  */
 		  return EAGAIN;
 

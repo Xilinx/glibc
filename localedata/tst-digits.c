@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 2000.
 
@@ -178,7 +178,7 @@ main (void)
   printf ("%d failures in wprintf tests\n", failures);
   status = failures != 0;
 
-  /* ctype tests.  This makes sure that the multibyte chracter digit
+  /* ctype tests.  This makes sure that the multibyte character digit
      representations are not handle in this table.  */
   failures = 0;
   for (cnt = 0; cnt < 256; ++cnt)

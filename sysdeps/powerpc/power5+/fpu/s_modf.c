@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Free Software Foundation, Inc.
+/* Copyright (C) 2013-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -36,12 +36,12 @@ __modf (double x, double *iptr)
   if (x >= 0.0)
     {
       *iptr = __floor (x);
-      return (x - *iptr);
+      return __copysign (x - *iptr, x);
     }
   else
     {
       *iptr = __ceil (x);
-      return (x - *iptr);
+      return __copysign (x - *iptr, x);
     }
 }
 weak_alias (__modf, modf)

@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Mark Kettenis <kettenis@phys.uva.nl>, 1997.
 
@@ -227,7 +227,7 @@ _nss_hesiod_initgroups_dyn (const char *user, gid_t group, long int *start,
 	  if (status == NSS_STATUS_SUCCESS
 	      && !internal_gid_in_list (groups, group, *start))
 	    {
-	      if (__builtin_expect (*start == *size, 0))
+	      if (__glibc_unlikely (*start == *size))
 		{
 		  /* Need a bigger buffer.  */
 		  gid_t *newgroups;

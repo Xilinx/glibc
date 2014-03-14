@@ -259,6 +259,7 @@ width       210
 END LC_PAPER
 
 LC_MEASUREMENT
+% metric
 measurement 1
 END LC_MEASUREMENT
 
@@ -289,8 +290,10 @@ country_ab2 "<U0044><U005A>"
 country_ab3 "<U0044><U005A><U0041>"
 country_num 12
 %country_isbn ""
-%country_car ""
-lang_name "<U0074><U0061><U006D><U0061><U007A><U0069><U0067><U0068><U0074>"
+% DZ
+country_car  "<U0044><U005A>"
+% ⵜⴰⵎⴰⵣⵉⵖⵜ
+lang_name "<U2D5C><U2D30><U2D4E><U2D30><U2D49><U2D56><U2D5C>"
 %lang_ab
 lang_term "<U0062><U0065><U0072>"
 lang_lib "<U0062><U0065><U0072>"

@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -31,7 +31,7 @@ raise (sig)
      fork function temporarily invalidated the PID field.  Adjust for
      that.  */
   pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
-  if (__builtin_expect (pid < 0, 0))
+  if (__glibc_unlikely (pid < 0))
     pid = -pid;
 
   return INLINE_SYSCALL (tgkill, 3, pid, THREAD_GETMEM (THREAD_SELF, tid),

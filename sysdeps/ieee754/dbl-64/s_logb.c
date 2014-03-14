@@ -25,12 +25,12 @@ __logb (double x)
   int32_t lx, ix, rix;
 
   EXTRACT_WORDS (ix, lx, x);
-  ix &= 0x7fffffff;		/* high |x| */
+  ix &= 0x7fffffff;             /* high |x| */
   if ((ix | lx) == 0)
     return -1.0 / fabs (x);
   if (ix >= 0x7ff00000)
     return x * x;
-  if (__builtin_expect ((rix = ix >> 20) == 0, 0))
+  if (__glibc_unlikely ((rix = ix >> 20) == 0))
     {
       /* POSIX specifies that denormal number is treated as
          though it were normalized.  */

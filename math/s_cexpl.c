@@ -1,5 +1,5 @@
 /* Return value of complex exponential function for long double complex value.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -30,16 +30,16 @@ __cexpl (__complex__ long double x)
   int rcls = fpclassify (__real__ x);
   int icls = fpclassify (__imag__ x);
 
-  if (__builtin_expect (rcls >= FP_ZERO, 1))
+  if (__glibc_likely (rcls >= FP_ZERO))
     {
       /* Real part is finite.  */
-      if (__builtin_expect (icls >= FP_ZERO, 1))
+      if (__glibc_likely (icls >= FP_ZERO))
 	{
 	  /* Imaginary part is finite.  */
 	  const int t = (int) ((LDBL_MAX_EXP - 1) * M_LN2l);
 	  long double sinix, cosix;
 
-	  if (__builtin_expect (icls != FP_SUBNORMAL, 1))
+	  if (__glibc_likely (icls != FP_SUBNORMAL))
 	    {
 	      __sincosl (__imag__ x, &sinix, &cosix);
 	    }
@@ -97,10 +97,10 @@ __cexpl (__complex__ long double x)
 	  feraiseexcept (FE_INVALID);
 	}
     }
-  else if (__builtin_expect (rcls == FP_INFINITE, 1))
+  else if (__glibc_likely (rcls == FP_INFINITE))
     {
       /* Real part is infinite.  */
-      if (__builtin_expect (icls >= FP_ZERO, 1))
+      if (__glibc_likely (icls >= FP_ZERO))
 	{
 	  /* Imaginary part is finite.  */
 	  long double value = signbit (__real__ x) ? 0.0 : HUGE_VALL;
@@ -115,7 +115,7 @@ __cexpl (__complex__ long double x)
 	    {
 	      long double sinix, cosix;
 
-	      if (__builtin_expect (icls != FP_SUBNORMAL, 1))
+	      if (__glibc_likely (icls != FP_SUBNORMAL))
 	        {
 		  __sincosl (__imag__ x, &sinix, &cosix);
 	        }
@@ -145,12 +145,18 @@ __cexpl (__complex__ long double x)
     }
   else
     {
-      /* If the real part is NaN the result is NaN + iNaN.  */
+      /* If the real part is NaN the result is NaN + iNaN unless the
+	 imaginary part is zero.  */
       __real__ retval = __nanl ("");
-      __imag__ retval = __nanl ("");
+      if (icls == FP_ZERO)
+	__imag__ retval = __imag__ x;
+      else
+	{
+	  __imag__ retval = __nanl ("");
 
-      if (rcls != FP_NAN || icls != FP_NAN)
-	feraiseexcept (FE_INVALID);
+	  if (rcls != FP_NAN || icls != FP_NAN)
+	    feraiseexcept (FE_INVALID);
+	}
     }
 
   return retval;

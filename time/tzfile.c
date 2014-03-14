@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -114,6 +114,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   int was_using_tzfile = __use_tzfile;
   int trans_width = 4;
   size_t tzspec_len;
+  char *new = NULL;
 
   if (sizeof (time_t) != 4 && sizeof (time_t) != 8)
     abort ();
@@ -145,22 +146,12 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   if (*file != '/')
     {
       const char *tzdir;
-      unsigned int len, tzdir_len;
-      char *new, *tmp;
 
       tzdir = getenv ("TZDIR");
       if (tzdir == NULL || *tzdir == '\0')
-	{
-	  tzdir = default_tzdir;
-	  tzdir_len = sizeof (default_tzdir) - 1;
-	}
-      else
-	tzdir_len = strlen (tzdir);
-      len = strlen (file) + 1;
-      new = (char *) __alloca (tzdir_len + 1 + len);
-      tmp = __mempcpy (new, tzdir, tzdir_len);
-      *tmp++ = '/';
-      memcpy (tmp, file, len);
+	tzdir = default_tzdir;
+      if (__asprintf (&new, "%s/%s", tzdir, file) == -1)
+	goto ret_free_transitions;
       file = new;
     }
 
@@ -170,11 +161,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
       && stat64 (file, &st) == 0
       && tzfile_ino == st.st_ino && tzfile_dev == st.st_dev
       && tzfile_mtime == st.st_mtime)
-    {
-      /* Nothing to do.  */
-      __use_tzfile = 1;
-      return;
-    }
+    goto done;  /* Nothing to do.  */
 
   /* Note the file is opened with cancellation in the I/O functions
      disabled and if available FD_CLOEXEC set.  */
@@ -245,7 +232,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
 			> (SIZE_MAX - total_size) / sizeof (struct ttinfo), 0))
     goto lose;
   total_size += num_types * sizeof (struct ttinfo);
-  if (__builtin_expect (chars > SIZE_MAX - total_size, 0))
+  if (__glibc_unlikely (chars > SIZE_MAX - total_size))
     goto lose;
   total_size += chars;
   if (__builtin_expect (__alignof__ (struct leap) - 1
@@ -274,16 +261,16 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
 			    || tzspec_len < num_leaps * 12, 0))
 	goto lose;
       tzspec_len -= num_leaps * 12;
-      if (__builtin_expect (tzspec_len < num_isstd, 0))
+      if (__glibc_unlikely (tzspec_len < num_isstd))
 	goto lose;
       tzspec_len -= num_isstd;
-      if (__builtin_expect (tzspec_len == 0 || tzspec_len - 1 < num_isgmt, 0))
+      if (__glibc_unlikely (tzspec_len == 0 || tzspec_len - 1 < num_isgmt))
 	goto lose;
       tzspec_len -= num_isgmt + 1;
-      if (__builtin_expect (SIZE_MAX - total_size < tzspec_len, 0))
+      if (__glibc_unlikely (SIZE_MAX - total_size < tzspec_len))
 	goto lose;
     }
-  if (__builtin_expect (SIZE_MAX - total_size - tzspec_len < extra, 0))
+  if (__glibc_unlikely (SIZE_MAX - total_size - tzspec_len < extra))
     goto lose;
 
   /* Allocate enough memory including the extra block requested by the
@@ -323,7 +310,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   /* Check for bogus indices in the data file, so we can hereafter
      safely use type_idxs[T] as indices into `types' and never crash.  */
   for (i = 0; i < num_transitions; ++i)
-    if (__builtin_expect (type_idxs[i] >= num_types, 0))
+    if (__glibc_unlikely (type_idxs[i] >= num_types))
       goto lose;
 
   if ((BYTE_ORDER != BIG_ENDIAN && (sizeof (time_t) == 4 || trans_width == 4))
@@ -354,18 +341,18 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
 			    0))
 	goto lose;
       c = getc_unlocked (f);
-      if (__builtin_expect ((unsigned int) c > 1u, 0))
+      if (__glibc_unlikely ((unsigned int) c > 1u))
 	goto lose;
       types[i].isdst = c;
       c = getc_unlocked (f);
-      if (__builtin_expect ((size_t) c > chars, 0))
+      if (__glibc_unlikely ((size_t) c > chars))
 	/* Bogus index in data file.  */
 	goto lose;
       types[i].idx = c;
       types[i].offset = (long int) decode (x);
     }
 
-  if (__builtin_expect (fread_unlocked (zone_names, 1, chars, f) != chars, 0))
+  if (__glibc_unlikely (fread_unlocked (zone_names, 1, chars, f) != chars))
     goto lose;
 
   for (i = 0; i < num_leaps; ++i)
@@ -379,7 +366,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
       else
 	leaps[i].transition = (time_t) decode64 (x);
 
-      if (__builtin_expect (fread_unlocked (x, 1, 4, f) != 4, 0))
+      if (__glibc_unlikely (fread_unlocked (x, 1, 4, f) != 4))
 	goto lose;
       leaps[i].change = (long int) decode (x);
     }
@@ -387,7 +374,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   for (i = 0; i < num_isstd; ++i)
     {
       int c = getc_unlocked (f);
-      if (__builtin_expect (c == EOF, 0))
+      if (__glibc_unlikely (c == EOF))
 	goto lose;
       types[i].isstd = c != 0;
     }
@@ -397,7 +384,7 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   for (i = 0; i < num_isgmt; ++i)
     {
       int c = getc_unlocked (f);
-      if (__builtin_expect (c == EOF, 0))
+      if (__glibc_unlikely (c == EOF))
 	goto lose;
       types[i].isgmt = c != 0;
     }
@@ -527,12 +514,15 @@ __tzfile_read (const char *file, size_t extra, char **extrap)
   __daylight = rule_stdoff != rule_dstoff;
   __timezone = -rule_stdoff;
 
+ done:
   __use_tzfile = 1;
+  free (new);
   return;
 
  lose:
   fclose (f);
  ret_free_transitions:
+  free (new);
   free ((void *) transitions);
   transitions = NULL;
 }
@@ -637,7 +627,7 @@ __tzfile_compute (time_t timer, int use_localtime,
       __tzname[0] = NULL;
       __tzname[1] = NULL;
 
-      if (__builtin_expect (num_transitions == 0 || timer < transitions[0], 0))
+      if (__glibc_unlikely (num_transitions == 0 || timer < transitions[0]))
 	{
 	  /* TIMER is before any transition (or there are no transitions).
 	     Choose the first non-DST type
@@ -667,9 +657,9 @@ __tzfile_compute (time_t timer, int use_localtime,
 		  ++j;
 	    }
 	}
-      else if (__builtin_expect (timer >= transitions[num_transitions - 1], 0))
+      else if (__glibc_unlikely (timer >= transitions[num_transitions - 1]))
 	{
-	  if (__builtin_expect (tzspec == NULL, 0))
+	  if (__glibc_unlikely (tzspec == NULL))
 	    {
 	    use_last:
 	      i = num_transitions;
@@ -681,7 +671,7 @@ __tzfile_compute (time_t timer, int use_localtime,
 
 	  /* Convert to broken down structure.  If this fails do not
 	     use the string.  */
-	  if (__builtin_expect (! __offtime (&timer, 0, tp), 0))
+	  if (__glibc_unlikely (! __offtime (&timer, 0, tp)))
 	    goto use_last;
 
 	  /* Use the rules from the TZ string to compute the change.  */
@@ -690,7 +680,7 @@ __tzfile_compute (time_t timer, int use_localtime,
 	  /* If tzspec comes from posixrules loaded by __tzfile_default,
 	     override the STD and DST zone names with the ones user
 	     requested in TZ envvar.  */
-	  if (__builtin_expect (zone_names == (char *) &leaps[num_leaps], 0))
+	  if (__glibc_unlikely (zone_names == (char *) &leaps[num_leaps]))
 	    {
 	      assert (num_types == 2);
 	      __tzname[0] = __tzstring (zone_names);
@@ -772,7 +762,7 @@ __tzfile_compute (time_t timer, int use_localtime,
 	      ++j;
 	    }
 
-	  if (__builtin_expect (__tzname[0] == NULL, 0))
+	  if (__glibc_unlikely (__tzname[0] == NULL))
 	    __tzname[0] = __tzname[1];
 
 	  i = type_idxs[i - 1];

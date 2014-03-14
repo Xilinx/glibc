@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 
 subdir := po
 
+include ../Makeconfig
+
 # Add names of the languages with broken .po files here.
 BROKEN_LINGUAS =
 
@@ -36,10 +38,6 @@ endif
 # Text domain name to install under; must match ../locale/SYS_libc.c string.
 domainname = libc
 
-all: # Make this the default target; it will be defined in Rules.
-
-include ../Makeconfig
-
 # Pattern for where message catalog object for language % gets installed.
 mo-installed = $(inst_msgcatdir)/%/LC_MESSAGES/$(domainname).mo
 
@@ -50,7 +48,7 @@ install-others = $(LINGUAS:%=$(mo-installed))
 include ../Rules
 
 # Generate the translation template from all the source files.
-libc.pot: header.pot libc.pot.files
+libc.pot: pot.header libc.pot.files
 	@rm -f $@.new
 	set `date -R`; disp="$$6"; \
 	sed -e 's/VERSION/$(version)/' \

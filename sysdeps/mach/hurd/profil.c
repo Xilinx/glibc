@@ -1,5 +1,5 @@
 /* Low-level statistical profiling support function.  Mach/Hurd version.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -216,7 +216,7 @@ fork_profil_parent (void)
 }
 text_set_element (_hurd_fork_parent_hook, fork_profil_parent);
 
-/* In the childs, unlock the interlock, and start a profiling thread up
+/* In the child, unlock the interlock, and start a profiling thread up
    if necessary. */
 static void
 fork_profil_child (void)

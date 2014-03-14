@@ -1,5 +1,5 @@
 /* Hash table for TLS descriptors.
-   Copyright (C) 2005-2013 Free Software Foundation, Inc.
+   Copyright (C) 2005-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Alexandre Oliva  <aoliva@redhat.com>
 
@@ -102,6 +102,12 @@ _dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset)
   test.tlsinfo.ti_module = map->l_tls_modid;
   test.tlsinfo.ti_offset = ti_offset;
   entry = htab_find_slot (ht, &test, 1, hash_tlsdesc, eq_tlsdesc);
+  if (! entry)
+    {
+      __rtld_lock_unlock_recursive (GL(dl_load_lock));
+      return 0;
+    }
+
   if (*entry)
     {
       td = *entry;

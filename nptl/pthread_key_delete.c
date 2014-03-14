@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -27,7 +27,7 @@ pthread_key_delete (key)
 {
   int result = EINVAL;
 
-  if (__builtin_expect (key < PTHREAD_KEYS_MAX, 1))
+  if (__glibc_likely (key < PTHREAD_KEYS_MAX))
     {
       unsigned int seq = __pthread_keys[key].seq;
 

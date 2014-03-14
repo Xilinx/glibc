@@ -40,7 +40,7 @@ category  "ga_IE:2000";LC_PAPER
 category  "ga_IE:2000";LC_NAME
 category  "ga_IE:2000";LC_ADDRESS
 category  "ga_IE:2000";LC_TELEPHONE
-
+category  "ga_IE:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -140,8 +140,8 @@ int_prefix     "<U0033><U0035><U0033>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -158,4 +158,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0049><U0045>"
 country_ab3 "<U0049><U0052><U004C>"
 country_num 372
+% IRL
+country_car    "<U0049><U0052><U004C>"
+% Gaeilge
+lang_name    "<U0047><U0061><U0065><U0069><U006C><U0067><U0065>"
+% ga
+lang_ab      "<U0067><U0061>"
+% gle
+lang_term    "<U0067><U006C><U0065>"
+% gle
+lang_lib    "<U0067><U006C><U0065>"
 END LC_ADDRESS

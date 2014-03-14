@@ -1,5 +1,5 @@
 /* longjmp for PowerPC.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
+#include <stap-probe.h>
 #define _ASM
 #ifdef __NO_VMX__
 # include <novmxsetjmp.h>
@@ -24,7 +25,13 @@
 # include <jmpbuf-offsets.h>
 #endif
 
-ENTRY (__longjmp)
+#if defined __SPE__ || (defined __NO_FPRS__ && !defined _SOFT_FLOAT)
+# define LOAD_GP(N)	evldd r##N,((JB_FPRS+((N)-14)*2)*4)(r3)
+#else
+# define LOAD_GP(N)	lwz r##N,((JB_GPRS+(N)-14)*4)(r3)
+#endif
+
+ENTRY (__longjmp_symbol)
 
 #if defined PTR_DEMANGLE || defined CHECK_SP
 	lwz r24,(JB_GPR1*4)(r3)
@@ -39,33 +46,37 @@ ENTRY (__longjmp)
 	lwz r1,(JB_GPR1*4)(r3)
 #endif
 	lwz r0,(JB_LR*4)(r3)
-	lwz r14,((JB_GPRS+0)*4)(r3)
-	lwz r15,((JB_GPRS+1)*4)(r3)
-	lwz r16,((JB_GPRS+2)*4)(r3)
-	lwz r17,((JB_GPRS+3)*4)(r3)
-	lwz r18,((JB_GPRS+4)*4)(r3)
-	lwz r19,((JB_GPRS+5)*4)(r3)
-	lwz r20,((JB_GPRS+6)*4)(r3)
+	LOAD_GP (14)
+	LOAD_GP (15)
+	LOAD_GP (16)
+	LOAD_GP (17)
+	LOAD_GP (18)
+	LOAD_GP (19)
+	LOAD_GP (20)
 #ifdef PTR_DEMANGLE
 # ifndef CHECK_SP
 	PTR_DEMANGLE3 (r1, r24, r25)
 # endif
 	PTR_DEMANGLE2 (r0, r25)
 #endif
+	/* longjmp/longjmp_target probe expects longjmp first argument (4@3),
+	   second argument (-4@4), and target address (4@0), respectively.  */
+	LIBC_PROBE (longjmp, 3, 4@3, -4@4, 4@0)
 	mtlr r0
-	lwz r21,((JB_GPRS+7)*4)(r3)
-	lwz r22,((JB_GPRS+8)*4)(r3)
-	lwz r0,(JB_CR*4)(r3)
-	lwz r23,((JB_GPRS+9)*4)(r3)
-	lwz r24,((JB_GPRS+10)*4)(r3)
-	lwz r25,((JB_GPRS+11)*4)(r3)
-	mtcrf 0xFF,r0
-	lwz r26,((JB_GPRS+12)*4)(r3)
-	lwz r27,((JB_GPRS+13)*4)(r3)
-	lwz r28,((JB_GPRS+14)*4)(r3)
-	lwz r29,((JB_GPRS+15)*4)(r3)
-	lwz r30,((JB_GPRS+16)*4)(r3)
-	lwz r31,((JB_GPRS+17)*4)(r3)
+	LOAD_GP (21)
+	LOAD_GP (22)
+	lwz r5,(JB_CR*4)(r3)
+	LOAD_GP (23)
+	LOAD_GP (24)
+	LOAD_GP (25)
+	mtcrf 0xFF,r5
+	LOAD_GP (26)
+	LOAD_GP (27)
+	LOAD_GP (28)
+	LOAD_GP (29)
+	LOAD_GP (30)
+	LOAD_GP (31)
+	LIBC_PROBE (longjmp_target, 3, 4@3, -4@4, 4@0)
 	mr r3,r4
 	blr
-END (__longjmp)
+END (__longjmp_symbol)

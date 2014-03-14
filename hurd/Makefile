@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -17,11 +17,7 @@
 
 subdir := hurd
 
-all:
-
-# Some things below (but before including Rules) use configuration variables.
 include ../Makeconfig
-
 
 headers = hurd.h $(interface-headers) \
 	  $(addprefix hurd/,fd.h id.h port.h signal.h sigpreempt.h ioctl.h\
@@ -71,7 +67,7 @@ inlines = $(inline-headers:%.h=%-inlines)
 routines += hurdmalloc
 
 # Binary compatibility for libc.so.0.2[GLIBC_2.0].
-ifeq ($(versioning),yes)
+ifeq ($(build-shared),yes)
 routines += compat-20
 endif
 

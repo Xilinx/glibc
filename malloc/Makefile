@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,12 +20,14 @@
 #
 subdir	:= malloc
 
-all:
+include ../Makeconfig
 
 dist-headers := malloc.h
 headers := $(dist-headers) obstack.h mcheck.h
 tests := mallocbug tst-malloc tst-valloc tst-calloc tst-obstack \
-	 tst-mallocstate tst-mcheck tst-mallocfork tst-trim1 tst-malloc-usable
+	 tst-mallocstate tst-mcheck tst-mallocfork tst-trim1 \
+	 tst-malloc-usable tst-realloc tst-posix_memalign \
+	 tst-pvalloc tst-memalign
 test-srcs = tst-mtrace
 
 routines = malloc morecore mcheck mtrace obstack
@@ -46,14 +48,12 @@ extra-objs = mcheck-init.o libmcheck.a
 # Include the cleanup handler.
 aux := set-freeres thread-freeres
 
-include ../Makeconfig
-
 CPPFLAGS-memusagestat = -DNOT_IN_libc
 
 # The Perl script to analyze the output of the mtrace functions.
 ifneq ($(PERL),no)
 install-bin-script = mtrace
-generated = mtrace
+generated += mtrace
 
 # The Perl script will print addresses and to do this nicely we must know
 # whether we are on a 32 or 64 bit machine.
@@ -76,7 +76,7 @@ install-bin-script += memusage
 generated += memusagestat memusage
 extra-objs += memusagestat.o
 
-# The configure.in check for libgd and its headers did not use $SYSINCLUDES.
+# The configure.ac check for libgd and its headers did not use $SYSINCLUDES.
 # The directory specified by --with-headers usually contains only the basic
 # kernel interface headers, not something like libgd.  So the simplest thing
 # is to presume that the standard system headers will be ok for this file.
@@ -91,6 +91,14 @@ do-memusagestat: $(objpfx)memusagestat
 memusagestat-modules = memusagestat
 $(objpfx)memusagestat: $(memusagestat-modules:%=$(objpfx)%.o)
 	$(LINK.o) -o $@ $^ $(libgd-LDFLAGS) -lgd -lpng -lz -lm
+
+ifeq ($(run-built-tests),yes)
+ifeq (yes,$(build-shared))
+ifneq ($(PERL),no)
+tests-special += $(objpfx)tst-mtrace.out
+endif
+endif
+endif
 
 include ../Rules
 
@@ -107,9 +115,9 @@ lib: $(objpfx)libmcheck.a
 ifeq ($(run-built-tests),yes)
 ifeq (yes,$(build-shared))
 ifneq ($(PERL),no)
-tests: $(objpfx)tst-mtrace.out
 $(objpfx)tst-mtrace.out: tst-mtrace.sh $(objpfx)tst-mtrace
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'; \
+	$(evaluate-test)
 endif
 endif
 endif
@@ -117,7 +125,6 @@ endif
 tst-mcheck-ENV = MALLOC_CHECK_=3
 tst-malloc-usable-ENV = MALLOC_CHECK_=3
 
-CPPFLAGS-malloc.c += -DPER_THREAD
 # Uncomment this for test releases.  For public releases it is too expensive.
 #CPPFLAGS-malloc.o += -DMALLOC_DEBUG=1
 

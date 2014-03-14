@@ -1,5 +1,5 @@
 /* Cache handling for host lookup.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
 
@@ -71,7 +71,7 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
     char strdata[0];
   } *dataset = NULL;
 
-  if (__builtin_expect (debug_level > 0, 0))
+  if (__glibc_unlikely (debug_level > 0))
     {
       if (he == NULL)
 	dbg_log (_("Haven't found \"%s\" in group cache!"), (char *) key);
@@ -80,17 +80,16 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
     }
 
   static service_user *group_database;
-  service_user *nip = NULL;
+  service_user *nip;
   int no_more;
 
-  if (group_database != NULL)
-    {
-      nip = group_database;
-      no_more = 0;
-    }
-  else
+  if (group_database == NULL)
     no_more = __nss_database_lookup ("group", NULL,
-				     "compat [NOTFOUND=return] files", &nip);
+				     "compat [NOTFOUND=return] files",
+				     &group_database);
+  else
+    no_more = 0;
+  nip = group_database;
 
  /* We always use sysconf even if NGROUPS_MAX is defined.  That way, the
      limit can be raised in the kernel configuration without having to
@@ -113,7 +112,7 @@ addinitgroupsX (struct database_dyn *db, int fd, request_header *req,
      mempool_alloc.  */
   // XXX This really should use alloca.  need to change the backends.
   gid_t *groups = (gid_t *) malloc (size * sizeof (gid_t));
-  if (__builtin_expect (groups == NULL, 0))
+  if (__glibc_unlikely (groups == NULL))
     /* No more memory.  */
     goto out;
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,8 +22,7 @@
 /* Make the block special device PATH available to the system for swapping.
    This call is restricted to the super-user.  */
 int
-swapon (path)
-     const char *path;
+swapon (const char *path, int flags)
 {
   __set_errno (ENOSYS);
   return -1;

@@ -1,5 +1,5 @@
 /* Return error detail for failing <dlfcn.h> functions.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -63,7 +63,7 @@ __dlerror (void)
   struct dl_action_result *result;
 
 # ifdef SHARED
-  if (__builtin_expect (_dlfcn_hook != NULL, 0))
+  if (__glibc_unlikely (_dlfcn_hook != NULL))
     return _dlfcn_hook->dlerror ();
 # endif
 

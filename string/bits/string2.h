@@ -1,5 +1,5 @@
 /* Machine-independant string function optimizations.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -1167,7 +1167,7 @@ __strtok_r_1c (char *__s, char __sep, char **__nextp)
   *__nextp = __s;
   return __result;
 }
-# if defined __USE_POSIX || defined __USE_MISC
+# ifdef __USE_POSIX
 #  define strtok_r(s, sep, nextp) __strtok_r (s, sep, nextp)
 # endif
 #endif
@@ -1258,7 +1258,7 @@ __strsep_3c (char **__s, char __reject1, char __reject2, char __reject3)
     }
   return __retval;
 }
-# ifdef __USE_BSD
+# ifdef __USE_MISC
 #  define strsep(s, reject) __strsep (s, reject)
 # endif
 #endif
@@ -1287,7 +1287,7 @@ extern char *__strdup (const char *__string) __THROW __attribute_malloc__;
 			  __retval; }))					      \
 		  : __strdup (s)))
 
-#  if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#  if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
 #   define strdup(s) __strdup (s)
 #  endif
 # endif

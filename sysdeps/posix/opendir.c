@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -110,7 +110,7 @@ __opendirat (int dfd, const char *name)
 	 performed on, say, a tape device might have undesirable effects.  */
       if (__builtin_expect (__xstat64 (_STAT_VER, name, &statbuf), 0) < 0)
 	return NULL;
-      if (__builtin_expect (! S_ISDIR (statbuf.st_mode), 0))
+      if (__glibc_unlikely (! S_ISDIR (statbuf.st_mode)))
 	{
 	  __set_errno (ENOTDIR);
 	  return NULL;
@@ -139,7 +139,7 @@ __opendirat (int dfd, const char *name)
 	 the `stat' call.  */
       if (__builtin_expect (__fxstat64 (_STAT_VER, fd, &statbuf), 0) < 0)
 	goto lose;
-      if (__builtin_expect (! S_ISDIR (statbuf.st_mode), 0))
+      if (__glibc_unlikely (! S_ISDIR (statbuf.st_mode)))
 	{
 	  __set_errno (ENOTDIR);
 	lose:
@@ -231,6 +231,7 @@ __alloc_dir (int fd, bool close_fd, int flags, const struct stat64 *statp)
   dirp->size = 0;
   dirp->offset = 0;
   dirp->filepos = 0;
+  dirp->errcode = 0;
 
   return dirp;
 }

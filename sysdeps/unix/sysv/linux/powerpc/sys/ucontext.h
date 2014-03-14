@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -97,7 +97,7 @@ typedef struct _libc_vrstate
 } vrregset_t  __attribute__((__aligned__(16)));
 
 typedef struct {
-	unsigned long	__unused[4];
+	unsigned long	__glibc_reserved[4];
 	int		signal;
 	int		__pad0;
 	unsigned long	handler;

@@ -27,15 +27,16 @@ long double
 __logbl (long double x)
 {
   int64_t hx, rhx;
-  int64_t lx __attribute__ ((unused));
+  double xhi;
 
-  GET_LDOUBLE_WORDS64 (hx, lx, x);
+  xhi = ldbl_high (x);
+  EXTRACT_WORDS64 (hx, xhi);
   hx &= 0x7fffffffffffffffLL;	/* high |x| */
   if (hx == 0)
     return -1.0 / fabs (x);
   if (hx >= 0x7ff0000000000000LL)
     return x * x;
-  if (__builtin_expect ((rhx = hx >> 52) == 0, 0))
+  if (__glibc_unlikely ((rhx = hx >> 52) == 0))
     {
       /* POSIX specifies that denormal number is treated as
          though it were normalized.  */
@@ -43,5 +44,6 @@ __logbl (long double x)
     }
   return (long double) (rhx - 1023);
 }
-
+#ifndef __logbl
 long_double_symbol (libm, __logbl, logbl);
+#endif

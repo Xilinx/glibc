@@ -51,7 +51,7 @@ category  "da_DK:2000";LC_PAPER
 category  "da_DK:2000";LC_NAME
 category  "da_DK:2000";LC_ADDRESS
 category  "da_DK:2000";LC_TELEPHONE
-
+category  "da_DK:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -234,8 +234,8 @@ int_select     "<U0030><U0030>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -252,4 +252,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0044><U004B>"
 country_ab3 "<U0044><U004E><U004B>"
 country_num 208
+% DK
+country_car    "<U0044><U004B>"
+% dansk
+lang_name    "<U0064><U0061><U006E><U0073><U006B>"
+% da
+lang_ab      "<U0064><U0061>"
+% dan
+lang_term    "<U0064><U0061><U006E>"
+% dan
+lang_lib    "<U0064><U0061><U006E>"
 END LC_ADDRESS

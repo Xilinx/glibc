@@ -1,5 +1,5 @@
 /* Compute positive difference, sparc 32-bit.
-   Copyright (C) 2013 Free Software Foundation, Inc.
+   Copyright (C) 2013-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller <davem@davemloft.net>.
 
@@ -30,7 +30,8 @@ ENTRY(__fdim)
 	fbug	1f
 	 st	%g0, [%sp + 76]
 	ldd	[%sp + 72], %f0
-	fnegd	%f0, %f2
+	fnegs	%f0, %f2
+	fmovs	%f1, %f3
 1:	retl
 	 fsubd	%f0, %f2, %f0
 END(__fdim)

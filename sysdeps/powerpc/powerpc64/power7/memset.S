@@ -1,5 +1,5 @@
 /* Optimized memset implementation for PowerPC64/POWER7.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -32,8 +32,8 @@ L(_memset):
 	mr	10,3
 
 	/* Replicate byte to word.  */
-	rlwimi	4,4,8,16,23
-	rlwimi	4,4,16,0,15
+	insrdi	4,4,8,48
+	insrdi	4,4,16,32
 	ble	cr6,L(small)	/* If length <= 8, use short copy code.  */
 
 	neg	0,3
@@ -321,7 +321,7 @@ L(medium):
 	clrldi	0,0,62
 	beq	L(medium_aligned)
 
-	/* Force 4-bytes alignment for SRC.  */
+	/* Force 4-bytes alignment for DST.  */
 	mtocrf	0x01,0
 	subf	5,0,5
 1:	/* Copy 1 byte.  */
@@ -383,6 +383,7 @@ L(small):
 END_GEN_TB (memset,TB_TOCLESS)
 libc_hidden_builtin_def (memset)
 
+#ifndef NO_BZERO_IMPL
 /* Copied from bzero.S to prevent the linker from inserting a stub
    between bzero and memset.  */
 ENTRY (__bzero)
@@ -393,3 +394,4 @@ ENTRY (__bzero)
 END_GEN_TB (__bzero,TB_TOCLESS)
 
 weak_alias (__bzero, bzero)
+#endif

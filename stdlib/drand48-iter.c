@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, August 1995.
 
@@ -35,7 +35,7 @@ __drand48_iterate (xsubi, buffer)
   uint64_t result;
 
   /* Initialize buffer, if not yet done.  */
-  if (__builtin_expect (!buffer->__init, 0))
+  if (__glibc_unlikely (!buffer->__init))
     {
       buffer->__a = 0x5deece66dull;
       buffer->__c = 0xb;

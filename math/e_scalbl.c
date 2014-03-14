@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -40,9 +40,9 @@ invalid_fn (long double x, long double fn)
 long double
 __ieee754_scalbl (long double x, long double fn)
 {
-  if (__builtin_expect (__isnanl (x), 0))
+  if (__glibc_unlikely (__isnanl (x)))
     return x * fn;
-  if (__builtin_expect (!__finitel (fn), 0))
+  if (__glibc_unlikely (!__finitel (fn)))
     {
       if (__isnanl (fn) || fn > 0.0L)
 	return x * fn;
@@ -50,7 +50,7 @@ __ieee754_scalbl (long double x, long double fn)
 	return x;
       return x / -fn;
     }
-  if (__builtin_expect ((long double) (int) fn != fn, 0))
+  if (__glibc_unlikely ((long double) (int) fn != fn))
     return invalid_fn (x, fn);
 
   return __scalbnl (x, (int) fn);

@@ -1,5 +1,5 @@
 /* Implementation of the locale program according to POSIX 9945-2.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1995.
 
@@ -295,7 +295,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 
@@ -895,7 +895,7 @@ show_info (const char *name)
 	      printf ("%s=", item->name);
 
 	    if (val != NULL)
-	      printf ("%d", *val == '\177' ? -1 : *val);
+	      printf ("%d", *val == '\377' ? -1 : *val);
 	    putchar ('\n');
 	  }
 	  break;
@@ -925,6 +925,24 @@ show_info (const char *name)
 	      printf ("%s=", item->name);
 
 	    printf ("%d\n", val.word);
+	  }
+	  break;
+	case wordarray:
+	  {
+	    int first = 1;
+	    union { unsigned int *wordarray; char *string; } val;
+	    int cnt;
+
+	    val.string = nl_langinfo (item->item_id);
+	    if (show_keyword_name)
+	      printf ("%s=", item->name);
+
+	    for (cnt = 0; cnt < item->max; ++cnt)
+	      {
+		printf ("%s%d", first ? "" : ";", val.wordarray[cnt]);
+		first = 0;
+	      }
+	    putchar ('\n');
 	  }
 	  break;
 	case wstring:

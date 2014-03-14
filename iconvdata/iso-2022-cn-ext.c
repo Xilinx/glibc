@@ -1,5 +1,5 @@
 /* Conversion module for ISO-2022-CN-EXT.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 2000.
 
@@ -137,7 +137,7 @@ enum
 	{								      \
 	  /* We are not in the initial state.  To switch back we have	      \
 	     to emit `SI'.  */						      \
-	  if (__builtin_expect (outbuf == outend, 0))			      \
+	  if (__glibc_unlikely (outbuf == outend))			      \
 	    /* We don't have enough room in the output buffer.  */	      \
 	    status = __GCONV_FULL_OUTPUT;				      \
 	  else								      \

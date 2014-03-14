@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -75,7 +75,7 @@ futimesat (fd, file, tvp)
   else if (fd != AT_FDCWD && file[0] != '/')
     {
       size_t filelen = strlen (file);
-      if (__builtin_expect (filelen == 0, 0))
+      if (__glibc_unlikely (filelen == 0))
 	{
 	  __set_errno (ENOENT);
 	  return -1;
@@ -100,7 +100,7 @@ futimesat (fd, file, tvp)
 
 # ifdef __NR_utimes
   result = INTERNAL_SYSCALL (utimes, err, 2, file, tvp);
-  if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
+  if (__glibc_likely (!INTERNAL_SYSCALL_ERROR_P (result, err)))
     return result;
 
 #  ifndef __ASSUME_UTIMES
@@ -126,7 +126,7 @@ futimesat (fd, file, tvp)
     times = NULL;
 
   result = INTERNAL_SYSCALL (utime, err, 2, file, times);
-  if (__builtin_expect (!INTERNAL_SYSCALL_ERROR_P (result, err), 1))
+  if (__glibc_likely (!INTERNAL_SYSCALL_ERROR_P (result, err)))
     return result;
 
  fail:

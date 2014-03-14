@@ -1,10 +1,10 @@
-@c This is for making the `INSTALL' file for the distribution.
-@c Makeinfo ignores it when processing the file from the include.
-@setfilename INSTALL
 @include macros.texi
 @include pkgvers.texi
 
+@ifclear plain
 @node Installation, Maintenance, Library Summary, Top
+@end ifclear
+
 @c %MENU% How to install the GNU C Library
 @appendix Installing @theglibc{}
 
@@ -21,6 +21,7 @@ to activate them, and they will be compiled into the library.
 You will need recent versions of several GNU tools: definitely GCC and
 GNU Make, and possibly others.  @xref{Tools for Compilation}, below.
 
+@ifclear plain
 @menu
 * Configuring and compiling::   How to compile and test GNU libc.
 * Running make install::        How to install it once you've got it
@@ -29,6 +30,7 @@ GNU Make, and possibly others.  @xref{Tools for Compilation}, below.
 * Linux::                       Specific advice for GNU/Linux systems.
 * Reporting Bugs::              So they'll get fixed.
 @end menu
+@end ifclear
 
 @node Configuring and compiling
 @appendixsec Configuring and compiling @theglibc{}
@@ -138,11 +140,6 @@ linker.
 Don't build libraries with profiling information.  You may want to use
 this option if you don't plan to do profiling.
 
-@item --disable-versioning
-Don't compile the shared libraries with symbol version information.
-Doing this will make the resulting library incompatible with old
-binaries, so it's not recommended.
-
 @item --enable-static-nss
 Compile static versions of the NSS (Name Service Switch) libraries.
 This is not recommended because it defeats the purpose of NSS; a program
@@ -160,6 +157,23 @@ By default, dynamic tests are linked to run with the installed C library.
 This option hardcodes the newly built C library path in dynamic tests
 so that they can be invoked directly.
 
+@item --enable-lock-elision=yes
+Enable lock elision for pthread mutexes by default.
+
+@pindex pt_chown
+@findex grantpt
+@item --enable-pt_chown
+The file @file{pt_chown} is a helper binary for @code{grantpt}
+(@pxref{Allocation, Pseudo-Terminals}) that is installed setuid root to
+fix up pseudo-terminal ownership.  It is not built by default because
+systems using the Linux kernel are commonly built with the @code{devpts}
+filesystem enabled and mounted at @file{/dev/pts}, which manages
+pseudo-terminal ownership automatically.  By using
+@samp{--enable-pt_chown}, you may build @file{pt_chown} and install it
+setuid and owned by @code{root}.  The use of @file{pt_chown} introduces
+additional security risks to the system and you should enable it only if
+you understand and accept those risks.
+
 @item --build=@var{build-system}
 @itemx --host=@var{host-system}
 These options are for cross-compiling.  If you specify both options and
@@ -171,7 +185,7 @@ the compiler and/or binutils.
 
 If you only specify @samp{--host}, @code{configure} will prepare for a
 native compile but use what you specify instead of guessing what your
-system is. This is most useful to change the CPU submodel.  For example,
+system is.  This is most useful to change the CPU submodel.  For example,
 if @code{configure} guesses your machine as @code{i686-pc-linux-gnu} but
 you want to compile a library for 586es, give
 @samp{--host=i586-pc-linux-gnu} or just @samp{--host=i586-linux} and add
@@ -220,6 +234,12 @@ Before reporting bugs make sure there is no problem with your system.
 The tests (and later installation) use some pre-existing files of the
 system such as @file{/etc/passwd}, @file{/etc/nsswitch.conf} and others.
 These files must all contain correct and sensible content.
+
+Normally, @code{make check} will run all the tests before reporting
+all problems found and exiting with error status if any problems
+occurred.  You can specify @samp{stop-on-test-failure=y} when running
+@code{make check} to make the test run stop and exit with an error
+status immediately when a failure occurs.
 
 To format the @cite{GNU C Library Reference Manual} for printing, type
 @w{@code{make dvi}}.  You need a working @TeX{} installation to do
@@ -308,14 +328,11 @@ can dramatically improve performance with NIS+, and may help with DNS as
 well.
 
 One auxiliary program, @file{/usr/libexec/pt_chown}, is installed setuid
-@code{root}.  This program is invoked by the @code{grantpt} function; it
-sets the permissions on a pseudoterminal so it can be used by the
-calling process.  This means programs like @code{xterm} and
-@code{screen} do not have to be setuid to get a pty.  (There may be
-other reasons why they need privileges.)  If you are using a
-Linux kernel with the @code{devptsfs} or @code{devfs} filesystems
-providing pty slaves, you don't need this program; otherwise you do.
-The source for @file{pt_chown} is in @file{login/programs/pt_chown.c}.
+@code{root} if the @samp{--enable-pt_chown} configuration option is used.
+This program is invoked by the @code{grantpt} function; it sets the
+permissions on a pseudoterminal so it can be used by the calling process.
+If you are using a Linux kernel with the @code{devpts} filesystem enabled
+and mounted at @file{/dev/pts}, you don't need this program.
 
 After installation you might want to configure the timezone and locale
 installation of your system.  @Theglibc{} comes with a locale
@@ -353,9 +370,9 @@ recommend GNU @code{make} version 3.79.  All earlier versions have severe
 bugs or lack features.
 
 @item
-GCC 4.3 or newer, GCC 4.6 recommended
+GCC 4.4 or newer, GCC 4.6 recommended
 
-GCC 4.3 or higher is required; as of this writing, GCC 4.6 is the
+GCC 4.4 or higher is required; as of this writing, GCC 4.6 is the
 compiler we advise to use to build @theglibc{}.
 
 You can use whatever compiler you like to compile programs that use
@@ -404,7 +421,7 @@ should definitely upgrade @code{sed}.
 @end itemize
 
 @noindent
-If you change any of the @file{configure.in} files you will also need
+If you change any of the @file{configure.ac} files you will also need
 
 @itemize @bullet
 @item

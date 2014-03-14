@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -193,7 +193,7 @@
 # define INLINE_SYSCALL(name, nr, args...) \
   ({									      \
     unsigned long int resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))	      \
+    if (__glibc_unlikely (INTERNAL_SYSCALL_ERROR_P (resultvar, )))	      \
       {									      \
 	__set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));		      \
 	resultvar = (unsigned long int) -1;				      \
@@ -207,7 +207,7 @@
 # define INLINE_SYSCALL_TYPES(name, nr, args...) \
   ({									      \
     unsigned long int resultvar = INTERNAL_SYSCALL_TYPES (name, , nr, args);  \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))	      \
+    if (__glibc_unlikely (INTERNAL_SYSCALL_ERROR_P (resultvar, )))	      \
       {									      \
 	__set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));		      \
 	resultvar = (unsigned long int) -1;				      \

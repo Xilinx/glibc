@@ -1,5 +1,5 @@
 /* roundf  function.  PowerPC64 version.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,10 +19,12 @@
 #include <sysdep.h>
 
 	.section	".toc","aw"
+	.p2align 3
 .LC0:	/* 2**23 */
-	.tc FD_4b000000_0[TC],0x4b00000000000000
+	.long 0x4b000000
 .LC1:	/* 0.5 */
-	.tc FD_3f000000_0[TC],0x3f00000000000000
+	.long 0x3f000000
+
 	.section	".text"
 
 /* float [fp1] roundf  (float x [fp1])

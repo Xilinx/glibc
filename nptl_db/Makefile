@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -18,6 +18,8 @@
 # Makefile for NPTL debug library subdirectory of GNU C Library.
 
 subdir          := nptl_db
+
+include ../Makeconfig
 
 nptl_db-version = 1.0
 
@@ -49,11 +51,13 @@ libthread_db-inhibit-o = $(filter-out .os,$(object-suffixes))
 # The ps_* callback functions are not defined.
 libthread_db.so-no-z-defs = yes
 
+tests-special += $(objpfx)db-symbols.out
+
 include ../Rules
 
-tests: $(objpfx)db-symbols.out
 $(objpfx)db-symbols.out: $(objpfx)db-symbols.v.i \
 			 $(common-objpfx)nptl/libpthread.so
-	LC_ALL=C $(READELF) -W -s $(filter %.so,$^) | $(AWK) -f $< > $@
+	LC_ALL=C $(READELF) -W -s $(filter %.so,$^) | $(AWK) -f $< > $@; \
+	$(evaluate-test)
 
 $(objpfx)db-symbols.v.i: db-symbols.awk

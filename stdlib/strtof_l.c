@@ -1,5 +1,5 @@
 /* Convert string representing a number to float value, using given locale.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -37,10 +37,9 @@ extern unsigned long long int ____strtoull_l_internal (const char *, char **,
 #define SET_MANTISSA(flt, mant) \
   do { union ieee754_float u;						      \
        u.f = (flt);							      \
-       if ((mant & 0x7fffff) == 0)					      \
-	 mant = 0x400000;						      \
-       u.ieee.mantissa = (mant) & 0x7fffff;				      \
-       (flt) = u.f;							      \
+       u.ieee_nan.mantissa = (mant);					      \
+       if (u.ieee.mantissa != 0)					      \
+	 (flt) = u.f;							      \
   } while (0)
 
 #include "strtod_l.c"

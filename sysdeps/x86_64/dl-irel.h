@@ -1,6 +1,6 @@
 /* Machine-dependent ELF indirect relocation inline functions.
    x86-64 version.
-   Copyright (C) 2009-2013 Free Software Foundation, Inc.
+   Copyright (C) 2009-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ elf_irela (const ElfW(Rela) *reloc)
   ElfW(Addr) *const reloc_addr = (void *) reloc->r_offset;
   const unsigned long int r_type = ELFW(R_TYPE) (reloc->r_info);
 
-  if (__builtin_expect (r_type == R_X86_64_IRELATIVE, 1))
+  if (__glibc_likely (r_type == R_X86_64_IRELATIVE))
     {
       ElfW(Addr) value = elf_ifunc_invoke(reloc->r_addend);
       *reloc_addr = value;

@@ -782,6 +782,8 @@ __ieee754_lgammal_r (long double x, int *signgamp)
 	*signgamp = -1;
       else
 	*signgamp = 1;
+      if (q < 0x1p-120L)
+	return -__logl (q);
       z = q - p;
       if (z > 0.5L)
 	{
@@ -789,8 +791,6 @@ __ieee754_lgammal_r (long double x, int *signgamp)
 	  z = p - q;
 	}
       z = q * __sinl (PIL * z);
-      if (z == 0.0L)
-	return (*signgamp * huge * huge);
       w = __ieee754_lgammal_r (q, &i);
       z = __logl (PIL / z) - w;
       return (z);
@@ -805,7 +805,9 @@ __ieee754_lgammal_r (long double x, int *signgamp)
 	{
 	case 0:
 	  /* log gamma (x + 1) = log(x) + log gamma(x) */
-	  if (x <= 0.125)
+	  if (x < 0x1p-120L)
+	    return -__logl (x);
+	  else if (x <= 0.125)
 	    {
 	      p = x * neval (x, RN1, NRN1) / deval (x, RD1, NRD1);
 	    }

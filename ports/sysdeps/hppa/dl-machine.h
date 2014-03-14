@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  PA-RISC version.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    Contributed by David Huggins-Daines <dhd@debian.org>
    This file is part of the GNU C Library.
 
@@ -490,8 +490,12 @@ asm (									\
 #define ELF_MACHINE_NO_REL 1
 
 /* Return the address of the entry point. */
-#define ELF_MACHINE_START_ADDRESS(map, start) \
-  DL_STATIC_FUNCTION_ADDRESS (map, start)
+#define ELF_MACHINE_START_ADDRESS(map, start)			\
+({								\
+	ElfW(Addr) addr;					\
+	DL_DT_FUNCTION_ADDRESS(map, start, static, addr)	\
+	addr;							\
+})
 
 /* We define an initialization functions.  This is called very early in
  *    _dl_sysdep_start.  */

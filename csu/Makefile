@@ -1,5 +1,5 @@
 # Makefile for csu code for GNU C library.
-# Copyright (C) 1995-2013 Free Software Foundation, Inc.
+# Copyright (C) 1995-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@
 
 subdir := csu
 
+include ../Makeconfig
+
 routines = init-first libc-start $(libc-init) sysdep version check_fds \
 	   libc-tls elf-init dso_handle
 aux	 = errno
@@ -37,15 +39,11 @@ omit-deps = $(patsubst %.o,%,$(start-installed-name) g$(start-installed-name) \
 			     b$(start-installed-name) $(csu-dummies) \
 			     S$(start-installed-name))
 install-lib = $(start-installed-name) g$(start-installed-name) $(csu-dummies)
-generated = version-info.h
-before-compile = $(objpfx)version-info.h
+generated += version-info.h
+before-compile += $(objpfx)version-info.h
 
 tests := tst-empty tst-atomic tst-atomic-long
 tests-static := tst-empty
-
-all: # Make this the default target; it will be defined in Rules.
-
-include ../Makeconfig
 
 ifeq (yes,$(build-shared))
 extra-objs += S$(start-installed-name)

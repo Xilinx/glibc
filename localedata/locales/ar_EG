@@ -28,6 +28,7 @@ category  "ar_EG:2000";LC_PAPER
 category  "ar_EG:2000";LC_NAME
 category  "ar_EG:2000";LC_ADDRESS
 category  "ar_EG:2000";LC_TELEPHONE
+category  "ar_EG:2000";LC_MEASUREMENT
 
 END LC_IDENTIFICATION
 
@@ -192,7 +193,15 @@ postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
 country_ab2 "<U0045><U0047>"
 country_ab3 "<U0045><U0047><U0059>"
 country_num 818
-
+% ET
+country_car    "<U0045><U0054>"
+lang_name    "<U0627><U0644><U0639><U0631><U0628><U064A><U0629>"
+% ar
+lang_ab      "<U0061><U0072>"
+% ara
+lang_term    "<U0061><U0072><U0061>"
+% ara
+lang_lib    "<U0061><U0072><U0061>"
 END LC_ADDRESS
 
 
@@ -207,8 +216,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-% This is the ISO_IEC TR14652 Locale definition for the
-%
+% metric
 measurement 1
-
 END LC_MEASUREMENT

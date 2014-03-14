@@ -1,5 +1,5 @@
 /* Internal macros for atomic operations for GNU C Library.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -375,7 +375,7 @@
      do									      \
        {								      \
 	 __atg11_oldval = *__atg11_memp;				      \
-	 if (__builtin_expect (__atg11_oldval <= 0, 0))			      \
+	 if (__glibc_unlikely (__atg11_oldval <= 0))			      \
 	   break;							      \
        }								      \
      while (__builtin_expect						      \

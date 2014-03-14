@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -71,7 +71,7 @@ struct utsname
 #endif
   };
 
-#ifdef __USE_SVID
+#ifdef __USE_MISC
 /* Note that SVID assumes all members have the same size.  */
 # define SYS_NMLN  _UTSNAME_LENGTH
 #endif

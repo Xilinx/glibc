@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ typedef struct
     /* When to change.  */
     enum { J0, J1, M } type;	/* Interpretation of:  */
     unsigned short int m, n, d;	/* Month, week, day.  */
-    unsigned int secs;		/* Time of day.  */
+    int secs;			/* Time of day.  */
 
     long int offset;		/* Seconds east of GMT (west if < 0).  */
 
@@ -184,16 +184,16 @@ __tzset_parse_tz (tz)
     {
       /* Check for the quoted version.  */
       char *wp = tzbuf;
-      if (__builtin_expect (*tz++ != '<', 0))
+      if (__glibc_unlikely (*tz++ != '<'))
 	goto out;
 
       while (isalnum (*tz) || *tz == '+' || *tz == '-')
 	*wp++ = *tz++;
-      if (__builtin_expect (*tz++ != '>' || wp - tzbuf < 3, 0))
+      if (__glibc_unlikely (*tz++ != '>' || wp - tzbuf < 3))
 	goto out;
       *wp = '\0';
     }
-  else if (__builtin_expect (consumed < 3, 0))
+  else if (__glibc_unlikely (consumed < 3))
     goto out;
   else
     tz += consumed;
@@ -232,19 +232,19 @@ __tzset_parse_tz (tz)
 	  /* Check for the quoted version.  */
 	  char *wp = tzbuf;
 	  const char *rp = tz;
-	  if (__builtin_expect (*rp++ != '<', 0))
+	  if (__glibc_unlikely (*rp++ != '<'))
 	    /* Punt on name, set up the offsets.  */
 	    goto done_names;
 
 	  while (isalnum (*rp) || *rp == '+' || *rp == '-')
 	    *wp++ = *rp++;
-	  if (__builtin_expect (*rp++ != '>' || wp - tzbuf < 3, 0))
+	  if (__glibc_unlikely (*rp++ != '>' || wp - tzbuf < 3))
 	    /* Punt on name, set up the offsets.  */
 	    goto done_names;
 	  *wp = '\0';
 	  tz = rp;
 	}
-      else if (__builtin_expect (consumed < 3, 0))
+      else if (__glibc_unlikely (consumed < 3))
 	/* Punt on name, set up the offsets.  */
 	goto done_names;
       else
@@ -362,9 +362,12 @@ __tzset_parse_tz (tz)
       else if (*tz == '/')
 	{
 	  /* Get the time of day of the change.  */
+	  int negative;
 	  ++tz;
 	  if (*tz == '\0')
 	    goto out;
+	  negative = *tz == '-';
+	  tz += negative;
 	  consumed = 0;
 	  switch (sscanf (tz, "%hu%n:%hu%n:%hu%n",
 			  &hh, &consumed, &mm, &consumed, &ss, &consumed))
@@ -379,7 +382,7 @@ __tzset_parse_tz (tz)
 	      break;
 	    }
 	  tz += consumed;
-	  tzr->secs = (hh * 60 * 60) + (mm * 60) + ss;
+	  tzr->secs = (negative ? -1 : 1) * ((hh * 60 * 60) + (mm * 60) + ss);
 	}
       else
 	/* Default to 2:00 AM.  */

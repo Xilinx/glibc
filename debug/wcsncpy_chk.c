@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
 
@@ -23,7 +23,7 @@
 wchar_t *
 __wcsncpy_chk (wchar_t *dest, const wchar_t *src, size_t n, size_t destlen)
 {
-  if (__builtin_expect (destlen < n, 0))
+  if (__glibc_unlikely (destlen < n))
     __chk_fail ();
 
   /* This function is not often enough used to justify not using a

@@ -1,5 +1,5 @@
 /* Conversion loop frame work.
-   Copyright (C) 1998-2013 Free Software Foundation, Inc.
+   Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -38,7 +38,7 @@
      BODY		this is supposed to expand to the body of the loop.
 			The user must provide this.
 
-     EXTRA_LOOP_DECLS	extra arguments passed from converion loop call.
+     EXTRA_LOOP_DECLS	extra arguments passed from conversion loop call.
 
      INIT_PARAMS	code to define and initialize variables from params.
      UPDATE_PARAMS	code to store result in params.
@@ -241,7 +241,7 @@
     /* If any of them recognized the input continue with the loop.  */	      \
     if (result != __GCONV_ILLEGAL_INPUT)				      \
       {									      \
-	if (__builtin_expect (result == __GCONV_FULL_OUTPUT, 0))	      \
+	if (__glibc_unlikely (result == __GCONV_FULL_OUTPUT))		      \
 	  break;							      \
 									      \
 	continue;							      \
@@ -442,7 +442,7 @@ SINGLE(LOOPFCT) (struct __gconv_step *step,
      bytes from the state and at least one more, or the character is still
      incomplete, or we have some other error (like illegal input character,
      no space in output buffer).  */
-  if (__builtin_expect (inptr != bytebuf, 1))
+  if (__glibc_likely (inptr != bytebuf))
     {
       /* We found a new character.  */
       assert (inptr - bytebuf > (state->__count & 7));

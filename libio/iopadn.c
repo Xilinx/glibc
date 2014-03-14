@@ -1,4 +1,4 @@
-/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ _IO_padn (fp, pad, count)
       w = _IO_sputn (fp, padptr, PADSIZE);
       written += w;
       if (w != PADSIZE)
-	return w == EOF ? w : written;
+	return written;
     }
 
   if (i > 0)

@@ -1,3 +1,103 @@
+2014-02-28  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/hppa/nptl/tls.h (TLS_TCB_AT_TP): New macro.
+
+2014-03-05  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/hppa/fpu/libm-test-ulps: Remove individual test ulps.
+
+2014-03-04  Carlos O'Donell  <carlos@redhat.com>
+
+	* ports/sysdeps/hppa/fpu/libm-test-ulps: Remove fma ulps.
+
+	* ports/sysdeps/hppa/fpu/libm-test-ulps: Regenerate again.
+
+	* ports/sysdeps/hppa/fpu/libm-test-ulps: Regenerate.
+
+2014-02-20  Joseph Myers  <joseph@codesourcery.com>
+
+	[BZ #16611]
+	* sysdeps/unix/sysv/linux/hppa/kernel-features.h
+	[__LINUX_KERNEL_VERSION >= 0x030100] (__ASSUME_SENDMMSG_SYSCALL):
+	Define.
+
+	[BZ #16610]
+	* sysdeps/unix/sysv/linux/hppa/kernel-features.h
+	[__LINUX_KERNEL_VERSION >= 0x020622] (__ASSUME_RECVMMSG_SYSCALL):
+	Define.
+
+	[BZ #16609]
+	* sysdeps/unix/sysv/linux/hppa/kernel-features.h
+	[__LINUX_KERNEL_VERSION >= 0x020622] (__ASSUME_ACCEPT4_SYSCALL):
+	Define.
+
+2014-02-12  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/hppa/bits/mman.h [__USE_BSD]: Change
+	condition to [__USE_MISC].
+
+2014-02-10  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/hppa/umount.c: Move to
+	sysdeps/unix/sysv/linux/mips/mips64/umount.c and #include that
+	file.
+
+2014-02-03  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/hppa/fpu/libm-test-ulps: Regenerate.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/hppa/fpu/fegetround.c (fegetround): Use libm_hidden_def.
+
+2013-11-26  Ondřej Bílka  <neleai@seznam.cz>
+	* sysdeps/unix/sysv/linux/hppa/bits/ipc.h: Use __glibc_reserved instead __unused.
+	* sysdeps/unix/sysv/linux/hppa/bits/msq.h: Likewise.
+	* sysdeps/unix/sysv/linux/hppa/bits/sem.h: Likewise.
+	* sysdeps/unix/sysv/linux/hppa/bits/shm.h: Likewise.
+	* sysdeps/unix/sysv/linux/hppa/kernel_stat.h: Likewise.
+
+2013-11-21  Guy Martin  <gmsoft@tuxicoman.be>
+
+	* sysdeps/hppa/dl-lookupcfg.h: Remove obsolete
+	DL_DT_INIT_ADDRESS() and DL_DT_FINI_ADDRESS() macro and implement
+	DL_CALL_DT_INIT() as well as DL_CALL_DT_FINI().
+	Define DL_DT_FUNCTION_ADDRESS().
+	* sysdeps/hppa/dl-machine.h: Update ELF_MACHINE_START_ADDRESS()
+	to use DL_DT_FUNCTION_ADDRESS().
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/hppa/configure.in: Moved to ...
+	* sysdeps/hppa/configure.ac: ... here.
+	* sysdeps/hppa/configure: Regenerated.
+
+2013-09-11  Andreas Schwab  <schwab@suse.de>
+
+	* sysdeps/unix/sysv/linux/hppa/bits/fcntl.h (__O_TMPFILE): Define.
+
+2013-09-02  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/unix/sysv/linux/hppa/syscalls.list (fanotify_mark): New
+	entry.
+	* sysdeps/unix/sysv/linux/hppa/Versions (libc): Add GLIBC_2.19 and
+	fanotify_mark.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/unix/sysv/linux/hppa/clone.S: Fix typos.
+	* sysdeps/unix/sysv/linux/hppa/nptl/pthread.h: Likewise.
+
+2013-08-21   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/hppa/dl-lookupcfg.h: Fix typos.
+	* sysdeps/hppa/fpu/fraiseexcpt.c: Likewise.
+	* sysdeps/unix/sysv/linux/hppa/sysdep.h: Likewise.
+
+2013-07-23  Carlos O'Donell  <carlos@redhat.com>
+
+	* sysdeps/hppa/fpu/libm-test-ulps: Regenerate.
+
 2013-06-05  Joseph Myers  <joseph@codesourcery.com>
 
 	* sysdeps/hppa/configure.in: Remove trailing whitespace.

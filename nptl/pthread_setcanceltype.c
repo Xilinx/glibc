@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -55,7 +55,7 @@ __pthread_setcanceltype (type, oldtype)
 	 atomically since other bits could be modified as well.  */
       int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling, newval,
 					      oldval);
-      if (__builtin_expect (curval == oldval, 1))
+      if (__glibc_likely (curval == oldval))
 	{
 	  if (CANCEL_ENABLED_AND_CANCELED_AND_ASYNCHRONOUS (newval))
 	    {

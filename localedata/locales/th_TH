@@ -68,7 +68,7 @@ category  "th_TH:2000";LC_PAPER
 category  "th_TH:2000";LC_NAME
 category  "th_TH:2000";LC_ADDRESS
 category  "th_TH:2000";LC_TELEPHONE
-
+category  "th_TH:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -943,8 +943,8 @@ int_prefix     "<U0036><U0036>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -969,8 +969,8 @@ country_name  "<U0E44><U0E17><U0E22>"
 country_ab2   "<U0054><U0048>"
 country_ab3   "<U0054><U0048><U0041>"
 %country_num   "<U0037><U0036><U0034>"
-%FIXME
-%country_car   ""
+% T
+country_car    "<U0054>"
 %FIXME
 %country_isbn  ""
 lang_name     "<U0E44><U0E17><U0E22>"

@@ -1,5 +1,5 @@
 /* Round double to integer away from zero.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -32,7 +32,7 @@ __round (double x)
 
   EXTRACT_WORDS64 (i0, x);
   j0 = ((i0 >> 52) & 0x7ff) - 0x3ff;
-  if (__builtin_expect (j0 < 52, 1))
+  if (__glibc_likely (j0 < 52))
     {
       if (j0 < 0)
 	{

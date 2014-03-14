@@ -1,4 +1,4 @@
-# Copyright (C) 1992-2013 Free Software Foundation, Inc.
+# Copyright (C) 1992-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,13 +19,9 @@
 
 subdir := manual
 
-# Allow override
-INSTALL_INFO = install-info
+include ../Makeconfig
 
 .PHONY: dvi pdf info html
-
-# Get glibc's configuration info.
-include ../Makeconfig
 
 dvi: $(objpfx)libc.dvi
 pdf: $(objpfx)libc.pdf
@@ -41,8 +37,8 @@ chapters = $(addsuffix .texi, \
 		       intro errno memory ctype string charset locale	\
 		       message search pattern io stdio llio filesys	\
 		       pipe socket terminal syslog math arith time	\
-		       resource setjmp signal startup process job nss	\
-		       users sysinfo conf crypt debug threads)
+		       resource setjmp signal startup process ipc job	\
+		       nss users sysinfo conf crypt debug threads probes)
 add-chapters = $(wildcard $(foreach d, $(add-ons), ../$d/$d.texi))
 appendices = lang.texi header.texi install.texi maint.texi platform.texi \
 	     contrib.texi
@@ -88,6 +84,7 @@ $(objpfx)libc/index.html: $(addprefix $(objpfx),$(libc-texi-generated))
 $(objpfx)summary.texi: $(objpfx)stamp-summary ;
 $(objpfx)stamp-summary: summary.awk $(filter-out $(objpfx)summary.texi, \
 					$(texis-path))
+	-$(SHELL) ./check-safety.sh $(filter-out $(objpfx)%, $(texis-path))
 	$(AWK) -f $^ | sort -t'' -df -k 1,1 | tr '\014' '\012' \
 		> $(objpfx)summary-tmp
 	$(move-if-change) $(objpfx)summary-tmp $(objpfx)summary.texi
@@ -157,19 +154,19 @@ $(objpfx)%.pdf: %.texinfo
 
 # Distribution.
 minimal-dist = summary.awk texis.awk tsort.awk libc-texinfo.sh libc.texinfo \
-	       libm-err.texi stamp-libm-err				    \
+	       libm-err.texi stamp-libm-err check-safety.sh		    \
 	       $(filter-out summary.texi, $(nonexamples))		    \
 	       $(patsubst %.c.texi,examples/%.c, $(examples))
 
 indices = cp fn pg tp vr ky
-generated-dirs := libc
-generated = libc.dvi libc.pdf libc.tmp libc.info*			    \
-	stubs								    \
-	texis summary.texi stamp-summary *.c.texi			    \
-	$(foreach index,$(indices),libc.$(index) libc.$(index)s)	    \
-	libc.log libc.aux libc.toc					    \
-	$(libc-texi-generated)						    \
-	stamp-libm-err stamp-version
+generated-dirs += libc
+generated += libc.dvi libc.pdf libc.tmp libc.info*			      \
+	     stubs							      \
+	     texis summary.texi stamp-summary *.c.texi			      \
+	     $(foreach index,$(indices),libc.$(index) libc.$(index)s)	      \
+	     libc.log libc.aux libc.toc					      \
+	     $(libc-texi-generated)					      \
+	     stamp-libm-err stamp-version
 
 include ../Rules
 

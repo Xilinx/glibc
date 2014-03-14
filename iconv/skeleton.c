@@ -1,5 +1,5 @@
 /* Skeleton for a conversion module.
-   Copyright (C) 1998-2013 Free Software Foundation, Inc.
+   Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -410,7 +410,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
   /* If the function is called with no input this means we have to reset
      to the initial state.  The possibly partly converted input is
      dropped.  */
-  if (__builtin_expect (do_flush, 0))
+  if (__glibc_unlikely (do_flush))
     {
       /* This should never happen during error handling.  */
       assert (outbufstart == NULL);
@@ -461,7 +461,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 
 		      if (result != __GCONV_EMPTY_INPUT)
 			{
-			  if (__builtin_expect (outerr != outbuf, 0))
+			  if (__glibc_unlikely (outerr != outbuf))
 			    {
 			      /* We have a problem.  Undo the conversion.  */
 			      outbuf = outstart;
@@ -514,7 +514,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
       size_t *lirreversiblep = irreversible ? &lirreversible : NULL;
 
       /* The following assumes that encodings, which have a variable length
-	 what might unalign a buffer even though it is a aligned in the
+	 what might unalign a buffer even though it is an aligned in the
 	 beginning, either don't have the minimal number of bytes as a divisor
 	 of the maximum length or have a minimum length of 1.  This is true
 	 for all known and supported encodings.
@@ -604,7 +604,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 	  SAVE_RESET_STATE (1);
 #endif
 
-	  if (__builtin_expect (!unaligned, 1))
+	  if (__glibc_likely (!unaligned))
 	    {
 	      if (FROM_DIRECTION)
 		/* Run the conversion loop.  */
@@ -635,7 +635,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 
 	  /* If we were called as part of an error handling module we
 	     don't do anything else here.  */
-	  if (__builtin_expect (outbufstart != NULL, 0))
+	  if (__glibc_unlikely (outbufstart != NULL))
 	    {
 	      *outbufstart = outbuf;
 	      return status;
@@ -653,20 +653,20 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 
 	  /* If this is the last step leave the loop, there is nothing
 	     we can do.  */
-	  if (__builtin_expect (data->__flags & __GCONV_IS_LAST, 0))
+	  if (__glibc_unlikely (data->__flags & __GCONV_IS_LAST))
 	    {
 	      /* Store information about how many bytes are available.  */
 	      data->__outbuf = outbuf;
 
 	      /* Remember how many non-identical characters we
-		 converted in a irreversible way.  */
+		 converted in an irreversible way.  */
 	      *irreversible += lirreversible;
 
 	      break;
 	    }
 
 	  /* Write out all output which was produced.  */
-	  if (__builtin_expect (outbuf > outstart, 1))
+	  if (__glibc_likely (outbuf > outstart))
 	    {
 	      const unsigned char *outerr = data->__outbuf;
 	      int result;
@@ -677,7 +677,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 
 	      if (result != __GCONV_EMPTY_INPUT)
 		{
-		  if (__builtin_expect (outerr != outbuf, 0))
+		  if (__glibc_unlikely (outerr != outbuf))
 		    {
 #ifdef RESET_INPUT_BUFFER
 		      RESET_INPUT_BUFFER;
@@ -695,7 +695,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 		      SAVE_RESET_STATE (0);
 # endif
 
-		      if (__builtin_expect (!unaligned, 1))
+		      if (__glibc_likely (!unaligned))
 			{
 			  if (FROM_DIRECTION)
 			    /* Run the conversion loop.  */
@@ -738,7 +738,7 @@ FUNCTION_NAME (struct __gconv_step *step, struct __gconv_step_data *data,
 
 		      /* If we haven't consumed a single byte decrement
 			 the invocation counter.  */
-		      if (__builtin_expect (outbuf == outstart, 0))
+		      if (__glibc_unlikely (outbuf == outstart))
 			--data->__invocation_counter;
 #endif	/* reset input buffer */
 		    }

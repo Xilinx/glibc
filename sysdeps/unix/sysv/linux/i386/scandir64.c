@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ __old_scandir64 (dir, namelist, select, cmp)
 	  /* Ignore errors from select or readdir */
 	  __set_errno (0);
 
-	  if (__builtin_expect (c.cnt == vsize, 0))
+	  if (__glibc_unlikely (c.cnt == vsize))
 	    {
 	      struct __old_dirent64 **new;
 	      if (vsize == 0)

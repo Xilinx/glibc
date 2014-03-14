@@ -189,7 +189,8 @@ copy "en_ZA"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "en_ZA"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -232,7 +233,7 @@ country_post "<U005A><U0041>"
 
 % UN Geneve 1949:68 Distinguishing signs of vehicles in international traffic
 % http://www.unece.org/trans/conventn/disting-signs-5-2001.pdf
-% "ZA"
+% ZA
 country_car   "<U005A><U0041>"
 
 % FIXME define the following correctly
@@ -243,9 +244,12 @@ lang_name "<U0053><U0069><U0053><U0077><U0061><U0074><U0069>"
 
 % ISO 639 two and three letter language names
 % see http://www.loc.gov/standards/iso639-2/englangn.html
-% "ss", ssw"
+% ss
 lang_ab   "<U0073><U0073>"
+% ssw
 lang_term "<U0073><U0073><U0077>"
+% ssw
+lang_lib "<U0073><U0073><U0077>"
 
 % Representation of postal addresses (minus the addressee's name) in South
 % Africa. (Ignored for now)

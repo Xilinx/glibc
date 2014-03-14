@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -88,7 +88,7 @@ mbrtoc16 (char16_t *pc16, const char *s, size_t n, mbstate_t *ps)
   /* Do a normal conversion.  */
   inbuf = (const unsigned char *) s;
   endbuf = inbuf + n;
-  if (__builtin_expect (endbuf < inbuf, 0))
+  if (__glibc_unlikely (endbuf < inbuf))
     {
       endbuf = (const unsigned char *) ~(uintptr_t) 0;
       if (endbuf == inbuf)

@@ -1,4 +1,4 @@
-# Copyright (C) 1994-2013 Free Software Foundation, Inc.
+# Copyright (C) 1994-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 #
 subdir	:= resolv
 
+include ../Makeconfig
+
 headers	:= resolv.h \
 	   netdb.h bits/netdb.h \
 	   arpa/nameser.h arpa/nameser_compat.h \
@@ -31,9 +33,7 @@ routines := herror inet_addr inet_ntop inet_pton nsap_addr res_init \
 tests = tst-aton tst-leaks tst-inet_ntop
 xtests = tst-leaks2
 
-generate := mtrace-tst-leaks tst-leaks.mtrace tst-leaks2.mtrace
-
-include ../Makeconfig
+generate := mtrace-tst-leaks.out tst-leaks.mtrace tst-leaks2.mtrace
 
 extra-libs := libresolv libnss_dns
 ifeq ($(have-thread-library),yes)
@@ -64,8 +64,15 @@ ifeq (yesyes,$(build-shared)$(have-thread-library))
 tests: $(objpfx)ga_test
 endif
 
-generated := mtrace-tst-leaks tst-leaks.mtrace \
-	     mtrace-tst-leaks2 tst-leaks2.mtrace
+ifeq ($(run-built-tests),yes)
+ifneq (no,$(PERL))
+tests-special += $(objpfx)mtrace-tst-leaks.out
+xtests-special += $(objpfx)mtrace-tst-leaks2.out
+endif
+endif
+
+generated += mtrace-tst-leaks.out tst-leaks.mtrace \
+	     mtrace-tst-leaks2.out tst-leaks2.mtrace
 
 include ../Rules
 
@@ -93,19 +100,11 @@ $(objpfx)ga_test: $(objpfx)libanl.so $(shared-thread-library)
 
 $(objpfx)tst-leaks: $(objpfx)libresolv.so
 tst-leaks-ENV = MALLOC_TRACE=$(objpfx)tst-leaks.mtrace
-$(objpfx)mtrace-tst-leaks: $(objpfx)tst-leaks.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@
-ifeq ($(run-built-tests),yes)
-ifneq (no,$(PERL))
-tests: $(objpfx)mtrace-tst-leaks
-endif
-endif
+$(objpfx)mtrace-tst-leaks.out: $(objpfx)tst-leaks.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks.mtrace > $@; \
+	$(evaluate-test)
 
 tst-leaks2-ENV = MALLOC_TRACE=$(objpfx)tst-leaks2.mtrace
-$(objpfx)mtrace-tst-leaks2: $(objpfx)tst-leaks2.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks2.mtrace > $@
-ifeq ($(run-built-tests),yes)
-ifneq (no,$(PERL))
-xtests: $(objpfx)mtrace-tst-leaks2
-endif
-endif
+$(objpfx)mtrace-tst-leaks2.out: $(objpfx)tst-leaks2.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks2.mtrace > $@; \
+	$(evaluate-test)

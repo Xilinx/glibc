@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -90,13 +90,13 @@
   do {									      \
     if (width > 0)							      \
       {									      \
-	unsigned int d = _IO_padn (s, (Padchar), width);		      \
-	if (__glibc_unlikely (d == EOF))				      \
+	_IO_ssize_t written = _IO_padn (s, (Padchar), width);		      \
+	if (__glibc_unlikely (written != width))			      \
 	  {								      \
 	    done = -1;							      \
 	    goto all_done;						      \
 	  }								      \
-	done_add (d);							      \
+	done_add (written);						      \
       }									      \
   } while (0)
 # define PUTC(C, F)	_IO_putc_unlocked (C, F)
@@ -119,13 +119,13 @@
   do {									      \
     if (width > 0)							      \
       {									      \
-	unsigned int d = _IO_wpadn (s, (Padchar), width);		      \
-	if (__glibc_unlikely (d == EOF))				      \
+	_IO_ssize_t written = _IO_wpadn (s, (Padchar), width);		      \
+	if (__glibc_unlikely (written != width))			      \
 	  {								      \
 	    done = -1;							      \
 	    goto all_done;						      \
 	  }								      \
-	done_add (d);							      \
+	done_add (written);						      \
       }									      \
   } while (0)
 # define PUTC(C, F)	_IO_putwc_unlocked (C, F)
@@ -1067,7 +1067,13 @@ vfprintf (FILE *s, const CHAR_T *format, va_list ap)
 	    /* Allocate dynamically an array which definitely is long	      \
 	       enough for the wide character version.  Each byte in the	      \
 	       multi-byte string can produce at most one wide character.  */  \
-	    if (__libc_use_alloca (len * sizeof (wchar_t)))		      \
+	    if (__glibc_unlikely (len > SIZE_MAX / sizeof (wchar_t)))	      \
+	      {								      \
+		__set_errno (EOVERFLOW);				      \
+		done = -1;						      \
+		goto all_done;						      \
+	      }								      \
+	    else if (__libc_use_alloca (len * sizeof (wchar_t)))	      \
 	      string = (CHAR_T *) alloca (len * sizeof (wchar_t));	      \
 	    else if ((string = (CHAR_T *) malloc (len * sizeof (wchar_t)))    \
 		     == NULL)						      \

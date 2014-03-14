@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2009.
 
@@ -22,7 +22,7 @@
 #include "lowlevellock.h"
 
 #ifdef IS_IN_libpthread
-# if defined SHARED && defined DO_VERSIONING && !defined NO_HIDDEN
+# if defined SHARED && !defined NO_HIDDEN
 #  define __pthread_unwind __GI___pthread_unwind
 # endif
 #else

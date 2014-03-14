@@ -150,6 +150,7 @@ copy "fr_FR"
 END LC_PAPER
 
 LC_MEASUREMENT
+% metric
 measurement 1
 END LC_MEASUREMENT
 
@@ -160,7 +161,24 @@ END LC_NAME
 
 LC_ADDRESS
 % FIXME
-copy "fr_FR"
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U0046><U0052>"
+country_ab3 "<U0046><U0052><U0041>"
+country_num 250
+% F
+country_car    "<U0046>"
+% Brezhoneg
+lang_name    "<U0042><U0072><U0065><U007A><U0068><U006F><U006E><U0065><U0067>"
+% br
+lang_ab      "<U0062><U0072>"
+% bre
+lang_term    "<U0062><U0072><U0065>"
+% bre
+lang_lib    "<U0062><U0072><U0065>"
 END LC_ADDRESS
 
 LC_TELEPHONE

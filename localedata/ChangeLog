@@ -1,3 +1,1141 @@
+2014-03-07  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (LOCALES): Move definition above include of Rules.
+	(LOCALE_SRCS): Likewise.
+	(CHARMAPS): Likewise.
+	(CTYPE_FILES): Likewise.
+	(tests-special): Add locale files.
+	($(addprefix $(objpfx),$(CTYPE_FILES))): Use $(evaluate-test).
+
+	* Makefile (generated): Rename tests to end with .out.
+	(tests-special): Likewise.
+	($(objpfx)mtrace-tst-leaks): Likewise.
+
+2014-03-06  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile (tests): Change dependencies to ....
+	(tests-special): ... additions to this variable.
+
+2014-02-28  Roland McGrath  <roland@hack.frob.com>
+
+	* Makefile (generated, generated-dirs): Use += rather than =.
+
+2014-02-26  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile: Include Makeconfig immediately after defining subdir.
+	(all): Remove target.
+
+2014-02-21  Joseph Myers  <joseph@codesourcery.com>
+
+	* Makefile ($(objpfx)sort-test.out): Use $(evaluate-test).
+	($(objpfx)tst-fmon.out): Likewise.
+	($(objpfx)tst-numeric.out): Likewise.
+	($(objpfx)tst-locale.out): Likewise.
+	($(objpfx)tst-rpmatch.out): Likewise.
+	($(objpfx)tst-trans.out): Likewise.
+	($(objpfx)tst-mbswcs.out): Likewise.
+	($(objpfx)tst-ctype.out): Likewise.
+	($(objpfx)tst-wctype.out): Likewise.
+	($(objpfx)tst-langinfo.out): Likewise.
+	($(objpfx)mtrace-tst-leaks): Likewise.
+
+2013-12-26  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/sa_IN: Add lang_name.
+	* locales/sat_IN: Likewise.
+	* locales/sc_IT: Likewise.
+	* locales/se_NO: Likewise.
+	* locales/si_LK: Likewise.
+	* locales/sl_SI: Likewise.
+	* locales/sq_AL: Likewise.
+	* locales/sq_MK: Likewise.
+	* locales/sv_FI: Likewise.
+	* locales/sv_SE: Likewise.
+	* locales/szl_PL: Likewise.
+
+2013-12-20  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/oc_FR: Add lang_name.
+	* locales/or_IN: Likewise.
+	* locales/pa_IN: Likewise.
+	* locales/pa_PK: Likewise.
+	* locales/pap_AW: Likewise.
+	* locales/pap_CW: Likewise.
+	* locales/pl_PL: Likewise.
+	* locales/pt_BR: Likewise.
+	* locales/pt_PT: Likewise.
+	* locales/quz_PE: Likewise.
+
+2013-12-12  Toke Høiland-Jørgensen <toke@toke.dk>
+
+	[BZ #15593]
+	* locales/translit_neutral: Add entries for U00D8 and U00F8.
+
+2013-12-12  Marko Myllynen  <myllynen@redhat.com>
+
+	* locales/fi_FI: Fix Charset comment.
+	* locales/fi_FI@euro: Likewise.
+
+2013-12-01  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/mag_IN: Add lang_name.
+	* locales/mai_IN: Likewise.
+	* locales/mg_MG: Likewise.
+	* locales/mi_NZ: Likewise.
+	* locales/mk_MK: Likewise.
+	* locales/ml_IN: Likewise.
+	* locales/mn_MN: Likewise.
+	* locales/mni_IN: Likewise.
+	* locales/mr_IN: Likewise.
+	* locales/ms_MY: Likewise.
+	* locales/mt_MT: Likewise.
+	* locales/nb_NO: Likewise.
+	* locales/ne_NP: Likewise.
+	* locales/nhn_MX: Likewise.
+	* locales/nl_AW: Likewise.
+	* locales/nl_BE: Likewise.
+	* locales/nl_NL: Likewise.
+	* locales/nn_NO: Likewise.
+
+2013-11-26  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ka_GE: Add lang_name.
+	* locales/kl_GL: Likewise.
+	* locales/kn_IN: Likewise.
+	* locales/ko_KR: Likewise.
+	* locales/kok_IN: Likewise.
+	* locales/ks_IN: Likewise.
+	* locales/ks_IN@devanagari: Likewise.
+	* locales/kw_GB: Likewise.
+	* locales/ky_KG: Likewise.
+	* locales/lg_UG: Likewise.
+	* locales/li_BE: Likewise.
+	* locales/li_NL: Likewise.
+	* locales/lij_IT: Likewise.
+	* locales/lt_LT: Likewise.
+	* locales/lv_LV: Likewise.
+
+2013-11-25  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ga_IE: Add lang_name.
+	* locales/gl_ES: Likewise.
+	* locales/gu_IN: Likewise.
+	* locales/gv_GB: Likewise.
+	* locales/hi_IN: Likewise.
+	* locales/hne_IN: Likewise.
+	* locales/hr_HR: Likewise.
+	* locales/hu_HU: Likewise.
+	* locales/id_ID: Likewise.
+	* locales/ik_CA: Likewise.
+	* locales/is_IS: Likewise.
+	* locales/it_CH: Likewise.
+	* locales/it_IT: Likewise.
+	* locales/ja_JP: Likewise.
+
+2013-11-24  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/bs_BA: Add lang_name.
+	* locales/ca_AD: Likewise.
+	* locales/ca_ES: Likewise.
+	* locales/ca_FR: Likewise.
+	* locales/ca_IT: Likewise.
+	* locales/crh_UA: Likewise.
+	* locales/csb_PL: Likewise.
+	* locales/cv_RU: Likewise.
+	* locales/da_DK: Likewise.
+	* locales/doi_IN: Likewise.
+	* locales/dv_MV: Likewise.
+	* locales/el_CY: Likewise.
+	* locales/el_GR: Likewise.
+	* locales/el_GR@euro: Likewise.
+	* locales/eu_ES: Likewise.
+	* locales/fi_FI: Likewise.
+	* locales/fil_PH: Likewise.
+	* locales/fo_FO: Likewise.
+	* locales/fur_IT: Likewise.
+	* locales/fy_DE: Likewise.
+	* locales/fy_NL: Likewise.
+
+2013-11-23  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/be_BY: Add lang_name.
+	* locales/be_BY@latin: Likewise.
+	* locales/ber_DZ: Likewise.
+	* locales/ber_MA: Likewise.
+	* locales/bg_BG: Likewise.
+	* locales/bho_IN: Likewise.
+	* locales/bn_BD: Likewise.
+	* locales/bn_IN: Likewise.
+	* locales/br_FR: Likewise.
+
+2013-11-23  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/an_ES: Add lang_name.
+	* locales/anp_IN: Likewise.
+	* locales/as_IN: Likewise.
+	* locales/ast_ES: Likewise.
+	* locales/ayc_PE: Likewise.
+	* locales/az_AZ: Likewise.
+
+2013-11-22  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/de_AT: Add lang_name to German, English, Spanish, French locales.
+	* locales/de_BE: Likewise.
+	* locales/de_CH: Likewise.
+	* locales/de_DE: Likewise.
+	* locales/de_LU: Likewise.
+	* locales/en_AG: Likewise.
+	* locales/en_AU: Likewise.
+	* locales/en_BW: Likewise.
+	* locales/en_CA: Likewise.
+	* locales/en_DK: Likewise.
+	* locales/en_GB: Likewise.
+	* locales/en_HK: Likewise.
+	* locales/en_IE: Likewise.
+	* locales/en_IN: Likewise.
+	* locales/en_NZ: Likewise.
+	* locales/en_PH: Likewise.
+	* locales/en_SG: Likewise.
+	* locales/en_US: Likewise.
+	* locales/en_ZM: Likewise.
+	* locales/en_ZW: Likewise.
+	* locales/es_AR: Likewise.
+	* locales/es_BO: Likewise.
+	* locales/es_CL: Likewise.
+	* locales/es_CO: Likewise.
+	* locales/es_CR: Likewise.
+	* locales/es_CU: Likewise.
+	* locales/es_DO: Likewise.
+	* locales/es_EC: Likewise.
+	* locales/es_ES: Likewise.
+	* locales/es_GT: Likewise.
+	* locales/es_HN: Likewise.
+	* locales/es_MX: Likewise.
+	* locales/es_NI: Likewise.
+	* locales/es_PA: Likewise.
+	* locales/es_PE: Likewise.
+	* locales/es_PR: Likewise.
+	* locales/es_PY: Likewise.
+	* locales/es_SV: Likewise.
+	* locales/es_US: Likewise.
+	* locales/es_UY: Likewise.
+	* locales/es_VE: Likewise.
+	* locales/fr_BE: Likewise.
+	* locales/fr_CA: Likewise.
+	* locales/fr_CH: Likewise.
+	* locales/fr_FR: Likewise.
+	* locales/fr_LU: Likewise.
+
+2013-11-21  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ar_AE: Add lang_name to Arabic locales.
+	* locales/ar_BH: Likewise.
+	* locales/ar_DZ: Likewise.
+	* locales/ar_EG: Likewise.
+	* locales/ar_IN: Likewise.
+	* locales/ar_IQ: Likewise.
+	* locales/ar_JO: Likewise.
+	* locales/ar_KW: Likewise.
+	* locales/ar_LB: Likewise.
+	* locales/ar_LY: Likewise.
+	* locales/ar_MA: Likewise.
+	* locales/ar_OM: Likewise.
+	* locales/ar_QA: Likewise.
+	* locales/ar_SA: Likewise.
+	* locales/ar_SD: Likewise.
+	* locales/ar_SS: Likewise.
+	* locales/ar_SY: Likewise.
+	* locales/ar_TN: Likewise.
+	* locales/ar_YE: Likewise.
+
+2013-11-20  Siddhesh Poyarekar  <siddhesh@redhat.com>
+
+	[BZ #15601]
+	* locales/or_IN: Rename Oriya to Odia.
+
+2013-11-18  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #16144]
+	* locales/tk_TM: Duplicated abday value for tk_TM.
+
+2013-11-18  Ondřej Bílka  <neleai@seznam.cz>
+
+	* tests-mbwc/tst_mbrtowc.c (tst_mbrtowc): Remove unused t_ini variable.
+
+2013-11-17  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #16146]
+	* locales/wae_CH: Correct wae_CH to UTF-8 encoding.
+
+2013-11-15  Arun Kumar Pyasi <arun@chitwanix.com>
+
+	[BZ #16172]
+	* locales/the_NP: New locale for the_NP.
+	* SUPPORTED: Add the_NP.
+
+2013-11-14  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #16143]
+	* locales/pap_AN: pap_* locales have duplicated LC_NUMERIC section.
+	* locales/pap_AW: Likewise.
+	* locales/pap_CW: Likewise.
+
+2013-11-08  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #16103]
+	* locales/aa_DJ: LC_MEASUREMENT review and standardization
+	* locales/aa_ER: Likewise.
+	* locales/aa_ER@saaho: Likewise.
+	* locales/aa_ET: Likewise.
+	* locales/af_ZA: Likewise.
+	* locales/ak_GH: Likewise.
+	* locales/am_ET: Likewise.
+	* locales/an_ES: Likewise.
+	* locales/anp_IN: Likewise.
+	* locales/ar_AE: Likewise.
+	* locales/ar_BH: Likewise.
+	* locales/ar_DZ: Likewise.
+	* locales/ar_EG: Likewise.
+	* locales/ar_IN: Likewise.
+	* locales/ar_IQ: Likewise.
+	* locales/ar_JO: Likewise.
+	* locales/ar_KW: Likewise.
+	* locales/ar_LB: Likewise.
+	* locales/ar_LY: Likewise.
+	* locales/ar_MA: Likewise.
+	* locales/ar_OM: Likewise.
+	* locales/ar_QA: Likewise.
+	* locales/ar_SA: Likewise.
+	* locales/ar_SD: Likewise.
+	* locales/ar_SS: Likewise.
+	* locales/ar_SY: Likewise.
+	* locales/ar_TN: Likewise.
+	* locales/ar_YE: Likewise.
+	* locales/as_IN: Likewise.
+	* locales/ast_ES: Likewise.
+	* locales/ayc_PE: Likewise.
+	* locales/az_AZ: Likewise.
+	* locales/be_BY: Likewise.
+	* locales/be_BY@latin: Likewise.
+	* locales/bem_ZM: Likewise.
+	* locales/ber_DZ: Likewise.
+	* locales/ber_MA: Likewise.
+	* locales/bg_BG: Likewise.
+	* locales/bho_IN: Likewise.
+	* locales/bn_BD: Likewise.
+	* locales/bn_IN: Likewise.
+	* locales/bo_CN: Likewise.
+	* locales/bo_IN: Likewise.
+	* locales/br_FR: Likewise.
+	* locales/br_FR@euro: Likewise.
+	* locales/brx_IN: Likewise.
+	* locales/bs_BA: Likewise.
+	* locales/byn_ER: Likewise.
+	* locales/ca_AD: Likewise.
+	* locales/ca_ES: Likewise.
+	* locales/ca_ES@euro: Likewise.
+	* locales/ca_FR: Likewise.
+	* locales/ca_IT: Likewise.
+	* locales/cmn_TW: Likewise.
+	* locales/crh_UA: Likewise.
+	* locales/cs_CZ: Likewise.
+	* locales/csb_PL: Likewise.
+	* locales/cv_RU: Likewise.
+	* locales/cy_GB: Likewise.
+	* locales/da_DK: Likewise.
+	* locales/de_AT: Likewise.
+	* locales/de_AT@euro: Likewise.
+	* locales/de_BE: Likewise.
+	* locales/de_BE@euro: Likewise.
+	* locales/de_CH: Likewise.
+	* locales/de_DE: Likewise.
+	* locales/de_DE@euro: Likewise.
+	* locales/de_LU: Likewise.
+	* locales/de_LU@euro: Likewise.
+	* locales/doi_IN: Likewise.
+	* locales/dv_MV: Likewise.
+	* locales/dz_BT: Likewise.
+	* locales/el_CY: Likewise.
+	* locales/el_GR: Likewise.
+	* locales/el_GR@euro: Likewise.
+	* locales/en_AG: Likewise.
+	* locales/en_AU: Likewise.
+	* locales/en_BW: Likewise.
+	* locales/en_CA: Likewise.
+	* locales/en_DK: Likewise.
+	* locales/en_GB: Likewise.
+	* locales/en_HK: Likewise.
+	* locales/en_IE: Likewise.
+	* locales/en_IE@euro: Likewise.
+	* locales/en_IN: Likewise.
+	* locales/en_NG: Likewise.
+	* locales/en_NZ: Likewise.
+	* locales/en_PH: Likewise.
+	* locales/en_SG: Likewise.
+	* locales/en_US: Likewise.
+	* locales/en_ZA: Likewise.
+	* locales/en_ZM: Likewise.
+	* locales/en_ZW: Likewise.
+	* locales/es_AR: Likewise.
+	* locales/es_BO: Likewise.
+	* locales/es_CL: Likewise.
+	* locales/es_CO: Likewise.
+	* locales/es_CR: Likewise.
+	* locales/es_CU: Likewise.
+	* locales/es_DO: Likewise.
+	* locales/es_EC: Likewise.
+	* locales/es_ES: Likewise.
+	* locales/es_ES@euro: Likewise.
+	* locales/es_GT: Likewise.
+	* locales/es_HN: Likewise.
+	* locales/es_MX: Likewise.
+	* locales/es_NI: Likewise.
+	* locales/es_PA: Likewise.
+	* locales/es_PE: Likewise.
+	* locales/es_PR: Likewise.
+	* locales/es_PY: Likewise.
+	* locales/es_SV: Likewise.
+	* locales/es_US: Likewise.
+	* locales/es_UY: Likewise.
+	* locales/es_VE: Likewise.
+	* locales/et_EE: Likewise.
+	* locales/eu_ES: Likewise.
+	* locales/eu_ES@euro: Likewise.
+	* locales/fa_IR: Likewise.
+	* locales/ff_SN: Likewise.
+	* locales/fi_FI: Likewise.
+	* locales/fi_FI@euro: Likewise.
+	* locales/fil_PH: Likewise.
+	* locales/fo_FO: Likewise.
+	* locales/fr_BE: Likewise.
+	* locales/fr_BE@euro: Likewise.
+	* locales/fr_CA: Likewise.
+	* locales/fr_CH: Likewise.
+	* locales/fr_FR: Likewise.
+	* locales/fr_FR@euro: Likewise.
+	* locales/fr_LU: Likewise.
+	* locales/fr_LU@euro: Likewise.
+	* locales/fur_IT: Likewise.
+	* locales/fy_DE: Likewise.
+	* locales/fy_NL: Likewise.
+	* locales/ga_IE: Likewise.
+	* locales/ga_IE@euro: Likewise.
+	* locales/gd_GB: Likewise.
+	* locales/gez_ER: Likewise.
+	* locales/gez_ER@abegede: Likewise.
+	* locales/gez_ET: Likewise.
+	* locales/gez_ET@abegede: Likewise.
+	* locales/gl_ES: Likewise.
+	* locales/gl_ES@euro: Likewise.
+	* locales/gu_IN: Likewise.
+	* locales/gv_GB: Likewise.
+	* locales/ha_NG: Likewise.
+	* locales/hak_TW: Likewise.
+	* locales/he_IL: Likewise.
+	* locales/hi_IN: Likewise.
+	* locales/hne_IN: Likewise.
+	* locales/hr_HR: Likewise.
+	* locales/hsb_DE: Likewise.
+	* locales/hu_HU: Likewise.
+	* locales/hy_AM: Likewise.
+	* locales/ia_FR: Likewise.
+	* locales/id_ID: Likewise.
+	* locales/ig_NG: Likewise.
+	* locales/ik_CA: Likewise.
+	* locales/is_IS: Likewise.
+	* locales/it_CH: Likewise.
+	* locales/it_IT: Likewise.
+	* locales/it_IT@euro: Likewise.
+	* locales/iu_CA: Likewise.
+	* locales/ja_JP: Likewise.
+	* locales/ka_GE: Likewise.
+	* locales/kk_KZ: Likewise.
+	* locales/kl_GL: Likewise.
+	* locales/km_KH: Likewise.
+	* locales/kn_IN: Likewise.
+	* locales/ko_KR: Likewise.
+	* locales/kok_IN: Likewise.
+	* locales/ks_IN: Likewise.
+	* locales/ks_IN@devanagari: Likewise.
+	* locales/ku_TR: Likewise.
+	* locales/kw_GB: Likewise.
+	* locales/ky_KG: Likewise.
+	* locales/lb_LU: Likewise.
+	* locales/lg_UG: Likewise.
+	* locales/li_BE: Likewise.
+	* locales/li_NL: Likewise.
+	* locales/lij_IT: Likewise.
+	* locales/lo_LA: Likewise.
+	* locales/lt_LT: Likewise.
+	* locales/lv_LV: Likewise.
+	* locales/lzh_TW: Likewise.
+	* locales/mag_IN: Likewise.
+	* locales/mai_IN: Likewise.
+	* locales/mg_MG: Likewise.
+	* locales/mhr_RU: Likewise.
+	* locales/mi_NZ: Likewise.
+	* locales/mk_MK: Likewise.
+	* locales/ml_IN: Likewise.
+	* locales/mn_MN: Likewise.
+	* locales/mni_IN: Likewise.
+	* locales/mr_IN: Likewise.
+	* locales/ms_MY: Likewise.
+	* locales/mt_MT: Likewise.
+	* locales/my_MM: Likewise.
+	* locales/nan_TW: Likewise.
+	* locales/nan_TW@latin: Likewise.
+	* locales/nb_NO: Likewise.
+	* locales/nds_DE: Likewise.
+	* locales/nds_NL: Likewise.
+	* locales/ne_NP: Likewise.
+	* locales/nhn_MX: Likewise.
+	* locales/niu_NU: Likewise.
+	* locales/niu_NZ: Likewise.
+	* locales/nl_AW: Likewise.
+	* locales/nl_BE: Likewise.
+	* locales/nl_BE@euro: Likewise.
+	* locales/nl_NL: Likewise.
+	* locales/nl_NL@euro: Likewise.
+	* locales/nn_NO: Likewise.
+	* locales/nr_ZA: Likewise.
+	* locales/nso_ZA: Likewise.
+	* locales/oc_FR: Likewise.
+	* locales/om_ET: Likewise.
+	* locales/om_KE: Likewise.
+	* locales/or_IN: Likewise.
+	* locales/os_RU: Likewise.
+	* locales/pa_IN: Likewise.
+	* locales/pa_PK: Likewise.
+	* locales/pap_AN: Likewise.
+	* locales/pap_AW: Likewise.
+	* locales/pap_CW: Likewise.
+	* locales/pl_PL: Likewise.
+	* locales/ps_AF: Likewise.
+	* locales/pt_BR: Likewise.
+	* locales/pt_PT: Likewise.
+	* locales/pt_PT@euro: Likewise.
+	* locales/quz_PE: Likewise.
+	* locales/ro_RO: Likewise.
+	* locales/ru_RU: Likewise.
+	* locales/ru_UA: Likewise.
+	* locales/rw_RW: Likewise.
+	* locales/sa_IN: Likewise.
+	* locales/sat_IN: Likewise.
+	* locales/sc_IT: Likewise.
+	* locales/sd_IN: Likewise.
+	* locales/sd_IN@devanagari: Likewise.
+	* locales/se_NO: Likewise.
+	* locales/shs_CA: Likewise.
+	* locales/si_LK: Likewise.
+	* locales/sid_ET: Likewise.
+	* locales/sk_SK: Likewise.
+	* locales/sl_SI: Likewise.
+	* locales/so_DJ: Likewise.
+	* locales/so_ET: Likewise.
+	* locales/so_KE: Likewise.
+	* locales/so_SO: Likewise.
+	* locales/sq_AL: Likewise.
+	* locales/sq_MK: Likewise.
+	* locales/sr_ME: Likewise.
+	* locales/sr_RS: Likewise.
+	* locales/sr_RS@latin: Likewise.
+	* locales/ss_ZA: Likewise.
+	* locales/st_ZA: Likewise.
+	* locales/sv_FI: Likewise.
+	* locales/sv_FI@euro: Likewise.
+	* locales/sv_SE: Likewise.
+	* locales/sw_KE: Likewise.
+	* locales/sw_TZ: Likewise.
+	* locales/szl_PL: Likewise.
+	* locales/ta_IN: Likewise.
+	* locales/ta_LK: Likewise.
+	* locales/te_IN: Likewise.
+	* locales/tg_TJ: Likewise.
+	* locales/th_TH: Likewise.
+	* locales/ti_ER: Likewise.
+	* locales/ti_ET: Likewise.
+	* locales/tig_ER: Likewise.
+	* locales/tk_TM: Likewise.
+	* locales/tl_PH: Likewise.
+	* locales/tn_ZA: Likewise.
+	* locales/tr_CY: Likewise.
+	* locales/tr_TR: Likewise.
+	* locales/ts_ZA: Likewise.
+	* locales/tt_RU: Likewise.
+	* locales/tt_RU@iqtelif: Likewise.
+	* locales/ug_CN: Likewise.
+	* locales/uk_UA: Likewise.
+	* locales/unm_US: Likewise.
+	* locales/ur_IN: Likewise.
+	* locales/ur_PK: Likewise.
+	* locales/uz_UZ: Likewise.
+	* locales/uz_UZ@cyrillic: Likewise.
+	* locales/ve_ZA: Likewise.
+	* locales/vi_VN: Likewise.
+	* locales/wa_BE: Likewise.
+	* locales/wa_BE@euro: Likewise.
+	* locales/wae_CH: Likewise.
+	* locales/wal_ET: Likewise.
+	* locales/wo_SN: Likewise.
+	* locales/xh_ZA: Likewise.
+	* locales/yi_US: Likewise.
+	* locales/yo_NG: Likewise.
+	* locales/yue_HK: Likewise.
+	* locales/zh_CN: Likewise.
+	* locales/zh_HK: Likewise.
+	* locales/zh_SG: Likewise.
+	* locales/zh_TW: Likewise.
+	* locales/zu_ZA: Likewise.
+
+2013-11-04  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/unm_US: Adjust language-code fields of LC_ADDRESS.
+	* locales/wal_ET: Likewise.
+
+2013-11-03  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/quz_PE: Adjust language-code fields of LC_ADDRESS.
+	* locales/szl_PL: Likewise.
+	* locales/ta_IN: Likewise.
+	* locales/ta_LK: Likewise.
+	* locales/te_IN: Likewise.
+	* locales/tg_TJ: Likewise.
+	* locales/tl_PH: Likewise.
+	* locales/tn_ZA: Likewise.
+	* locales/tr_CY: Likewise.
+	* locales/tr_TR: Likewise.
+	* locales/ts_ZA: Likewise.
+	* locales/tt_RU: Likewise.
+	* locales/tt_RU@iqtelif: Likewise.
+	* locales/ug_CN: Likewise.
+	* locales/ur_IN: Likewise.
+	* locales/ur_PK: Likewise.
+	* locales/uz_UZ: Likewise.
+	* locales/uz_UZ@cyrillic: Likewise.
+	* locales/ve_ZA: Likewise.
+	* locales/vi_VN: Likewise.
+	* locales/wa_BE: Likewise.
+	* locales/wal_ET: Likewise.
+	* locales/wo_SN: Likewise.
+	* locales/xh_ZA: Likewise.
+	* locales/yi_US: Likewise.
+	* locales/yue_HK: Likewise.
+	* locales/zh_HK: Likewise.
+	* locales/zh_SG: Likewise.
+
+2013-11-03  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/pa_IN: Adjust language-code fields of LC_ADDRESS.
+	* locales/pa_PK: Likewise.
+	* locales/pl_PL: Likewise.
+	* locales/ps_AF: Likewise.
+	* locales/pt_BR: Likewise.
+	* locales/pt_PT: Likewise.
+	* locales/ru_RU: Likewise.
+	* locales/ru_UA: Likewise.
+	* locales/sa_IN: Likewise.
+	* locales/sat_IN: Likewise.
+	* locales/sc_IT: Likewise.
+	* locales/sd_IN: Likewise.
+	* locales/sd_IN@devanagari: Likewise.
+	* locales/se_NO: Likewise.
+	* locales/si_LK: Likewise.
+	* locales/sk_SK: Likewise.
+	* locales/sl_SI: Likewise.
+	* locales/sq_AL: Likewise.
+	* locales/sq_MK: Likewise.
+	* locales/ss_ZA: Likewise.
+	* locales/st_ZA: Likewise.
+	* locales/sv_SE: Likewise.
+	* locales/sw_KE: Likewise.
+	* locales/sw_TZ: Likewise.
+
+2013-11-01  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/nb_NO: Adjust language-code fields of LC_ADDRESS.
+	* locales/ne_NP: Likewise.
+	* locales/nhn_MX: Likewise.
+	* locales/niu_NU: Likewise.
+	* locales/niu_NZ: Likewise.
+	* locales/nl_AW: Likewise.
+	* locales/nl_BE: Likewise.
+	* locales/nn_NO: Likewise.
+	* locales/nr_ZA: Likewise.
+	* locales/oc_FR: Likewise.
+	* locales/or_IN: Likewise.
+	* locales/os_RU: Likewise.
+
+2013-10-31  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/mag_IN: Adjust language-code fields of LC_ADDRESS.
+	* locales/mai_IN: Likewise.
+	* locales/mg_MG: Likewise.
+	* locales/mhr_RU: Likewise.
+	* locales/mi_NZ: Likewise.
+	* locales/ml_IN: Likewise.
+	* locales/mni_IN: Likewise.
+	* locales/mr_IN: Likewise.
+	* locales/ms_MY: Likewise.
+	* locales/mt_MT: Likewise.
+
+2013-10-29  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ #16078]
+	* locales/anp_IN: New locale for anp_IN.
+	* SUPPORTED: Add anp_IN.
+
+2013-10-24  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ja_JP: Adjust language-code fields of LC_ADDRESS.
+	* locales/ka_GE: Likewise.
+	* locales/kk_KZ: Likewise.
+	* locales/kl_GL: Likewise.
+	* locales/kn_IN: Likewise.
+	* locales/ko_KR: Likewise.
+	* locales/kok_IN: Likewise.
+	* locales/ks_IN: Likewise.
+	* locales/ku_TR: Likewise.
+	* locales/kw_GB: Likewise.
+	* locales/ky_KG: Likewise.
+	* locales/lg_UG: Likewise.
+	* locales/lij_IT: Likewise.
+	* locales/lt_LT: Likewise.
+	* locales/lv_LV: Likewise.
+
+2013-10-13  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/he_IL: Adjust language-code fields of LC_ADDRESS.
+	* locales/hi_IN: Likewise.
+	* locales/hne_IN: Likewise.
+	* locales/hr_HR: Likewise.
+	* locales/hsb_DE: Likewise.
+	* locales/ht_HT: Likewise.
+	* locales/hu_HU: Likewise.
+	* locales/hy_AM: Likewise.
+	* locales/ia_FR: Likewise.
+	* locales/id_ID: Likewise.
+	* locales/ig_NG: Likewise.
+	* locales/ik_CA: Likewise.
+	* locales/is_IS: Likewise.
+	* locales/it_CH: Likewise.
+	* locales/it_IT: Likewise.
+	* locales/iu_CA: Likewise.
+
+2013-10-05  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ff_SN: Adjust language-code fields of LC_ADDRESS.
+	* locales/fil_PH: Likewise.
+	* locales/fo_FO: Likewise.
+	* locales/fr_BE: Likewise.
+	* locales/fr_CA: Likewise.
+	* locales/fr_CH: Likewise.
+	* locales/fr_FR: Likewise.
+	* locales/fr_LU: Likewise.
+	* locales/fur_IT: Likewise.
+	* locales/fy_DE: Likewise.
+	* locales/fy_NL: Likewise.
+	* locales/ga_IE: Likewise.
+	* locales/gez_ER: Likewise.
+	* locales/gez_ET: Likewise.
+	* locales/gl_ES: Likewise.
+	* locales/gu_IN: Likewise.
+	* locales/gv_GB: Likewise.
+
+2013-10-04  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/pap_AN: Copy / modify pap_AN into pap_AW and pap_CW.
+	* locales/pap_AW: Likewise.
+	* locales/pap_CW: Likewise.
+	* SUPPORTED: Add ar_SS, pap_AW, pap_CW.
+
+2013-10-04  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ar_SD: Split ar_SD into ar_SD and ar_SS
+	* locales/ar_SS: Likewise.
+
+2013-09-25  Michael Bauer  <fios@akerbeltz.org>
+
+	[BZ #15400]
+	* locales/gd_GB: Version 1.2 of gd_GB locale.
+
+2013-09-23  Wei-Lun Chao  <bluebat@member.fsf.org>
+
+	[BZ #15609]
+	* locales/cmn_TW: New locale for cmn_TW.
+	* SUPPORTED: Add cmn_TW.
+
+2013-09-23  Wei-Lun Chao  <bluebat@member.fsf.org>
+
+	[BZ #15608]
+	* locales/hak_TW: New locale for hak_TW.
+	* SUPPORTED: Add hak_TW.
+
+2013-09-23  Wei-Lun Chao  <bluebat@member.fsf.org>
+
+	[BZ #15608]
+	* locales/lzh_TW: New locale for lzh_TW.
+	* SUPPORTED: Add lzh_TW.
+
+2013-09-23  Wei-Lun Chao  <bluebat@member.fsf.org>
+
+	[BZ #15608]
+	* locales/nan_TW: New locale for nan_TW.
+	* SUPPORTED: Add nan_TW.
+
+2013-09-15  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/as_IN: Adjust language-code fields of LC_ADDRESS.
+	* locales/ast_ES: Likewise.
+	* locales/ayc_PE: Likewise.
+	* locales/az_AZ: Likewise.
+	* locales/be_BY: Likewise.
+	* locales/bem_ZM: Likewise.
+	* locales/bg_BG: Likewise.
+	* locales/bho_IN: Likewise.
+	* locales/bn_BD: Likewise.
+	* locales/bn_IN: Likewise.
+	* locales/bo_CN: Likewise.
+	* locales/bo_IN: Likewise.
+	* locales/br_FR: Likewise.
+	* locales/brx_IN: Likewise.
+	* locales/bs_BA: Likewise.
+	* locales/ca_AD: Likewise.
+	* locales/ca_ES: Likewise.
+	* locales/ca_FR: Likewise.
+	* locales/ca_IT: Likewise.
+	* locales/crh_UA: Likewise.
+	* locales/csb_PL: Likewise.
+	* locales/cv_RU: Likewise.
+	* locales/da_DK: Likewise.
+	* locales/de_AT: Likewise.
+	* locales/de_BE: Likewise.
+	* locales/de_CH: Likewise.
+	* locales/de_DE: Likewise.
+	* locales/de_LU: Likewise.
+	* locales/doi_IN: Likewise.
+	* locales/dv_MV: Likewise.
+	* locales/dz_BT: Likewise.
+	* locales/el_CY: Likewise.
+	* locales/el_GR: Likewise.
+	* locales/en_AG: Likewise.
+	* locales/en_AU: Likewise.
+	* locales/en_BW: Likewise.
+	* locales/en_CA: Likewise.
+	* locales/en_DK: Likewise.
+	* locales/en_GB: Likewise.
+	* locales/en_HK: Likewise.
+	* locales/en_IE: Likewise.
+	* locales/en_IN: Likewise.
+	* locales/en_NG: Likewise.
+	* locales/en_NZ: Likewise.
+	* locales/en_PH: Likewise.
+	* locales/en_SG: Likewise.
+	* locales/en_US: Likewise.
+	* locales/en_ZA: Likewise.
+	* locales/en_ZM: Likewise.
+	* locales/en_ZW: Likewise.
+	* locales/es_AR: Likewise.
+	* locales/es_BO: Likewise.
+	* locales/es_CL: Likewise.
+	* locales/es_CO: Likewise.
+	* locales/es_CR: Likewise.
+	* locales/es_CU: Likewise.
+	* locales/es_DO: Likewise.
+	* locales/es_EC: Likewise.
+	* locales/es_ES: Likewise.
+	* locales/es_GT: Likewise.
+	* locales/es_HN: Likewise.
+	* locales/es_MX: Likewise.
+	* locales/es_NI: Likewise.
+	* locales/es_PA: Likewise.
+	* locales/es_PE: Likewise.
+	* locales/es_PR: Likewise.
+	* locales/es_PY: Likewise.
+	* locales/es_SV: Likewise.
+	* locales/es_US: Likewise.
+	* locales/es_UY: Likewise.
+	* locales/es_VE: Likewise.
+	* locales/eu_ES: Likewise.
+
+2013-09-21  Chris Leonard  <cjl@sugarlabs.org>
+
+	[BZ#15919]
+	* locales/ak_GH: New locale for ak_GH.
+	* SUPPORTED: Add ak_GH.
+
+2013-09-15  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/aa_DJ: Adjust language-code fields of LC_ADDRESS.
+	* locales/aa_ER: Likewise.
+	* locales/aa_ET: Likewise.
+	* locales/af_ZA: Likewise.
+	* locales/am_ET: Likewise.
+	* locales/ar_AE: Likewise.
+	* locales/ar_BH: Likewise.
+	* locales/ar_DZ: Likewise.
+	* locales/ar_EG: Likewise.
+	* locales/ar_IN: Likewise.
+	* locales/ar_IQ: Likewise.
+	* locales/ar_JO: Likewise.
+	* locales/ar_KW: Likewise.
+	* locales/ar_LB: Likewise.
+	* locales/ar_LY: Likewise.
+	* locales/ar_MA: Likewise.
+	* locales/ar_OM: Likewise.
+	* locales/ar_QA: Likewise.
+	* locales/ar_SA: Likewise.
+	* locales/ar_SD: Likewise.
+	* locales/ar_SY: Likewise.
+	* locales/ar_TN: Likewise.
+	* locales/ar_YE: Likewise.
+
+2013-09-15  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/aa_ER: Add country_car field to LC_ADDRESS.
+	* locales/as_IN: Likewise.
+	* locales/ast_ES: Likewise.
+	* locales/ayc_PE: Likewise.
+	* locales/bem_ZM: Likewise.
+	* locales/ber_DZ: Likewise.
+	* locales/ber_MA: Likewise.
+	* locales/bho_IN: Likewise.
+	* locales/bo_IN: Likewise.
+	* locales/brx_IN: Likewise.
+	* locales/byn_ER: Likewise.
+	* locales/ca_AD: Likewise.
+	* locales/ca_FR: Likewise.
+	* locales/ca_IT: Likewise.
+	* locales/crh_UA: Likewise.
+	* locales/cv_RU: Likewise.
+	* locales/doi_IN: Likewise.
+	* locales/dz_BT: Likewise.
+	* locales/el_CY: Likewise.
+	* locales/en_US: Likewise.
+	* locales/en_ZM: Likewise.
+	* locales/es_CU: Likewise.
+	* locales/ff_SN: Likewise.
+	* locales/fil_PH: Likewise.
+	* locales/gd_GB: Likewise.
+	* locales/hne_IN: Likewise.
+	* locales/ht_HT: Likewise.
+	* locales/kl_GL: Likewise.
+	* locales/kok_IN: Likewise.
+	* locales/ks_IN: Likewise.
+	* locales/lij_IT: Likewise.
+	* locales/mag_IN: Likewise.
+	* locales/mai_IN: Likewise.
+	* locales/mg_MG: Likewise.
+	* locales/mhr_RU: Likewise.
+	* locales/mni_IN: Likewise.
+	* locales/my_MM: Likewise.
+	* locales/nhn_MX: Likewise.
+	* locales/niu_NZ: Likewise.
+	* locales/or_IN: Likewise.
+	* locales/os_RU: Likewise.
+	* locales/pa_PK: Likewise.
+	* locales/quz_PE: Likewise.
+	* locales/rw_RW: Likewise.
+	* locales/sat_IN: Likewise.
+	* locales/sc_IT: Likewise.
+	* locales/sd_IN: Likewise.
+	* locales/sd_IN@devanagari: Likewise.
+	* locales/shs_CA: Likewise.
+	* locales/si_LK: Likewise.
+	* locales/sid_ET: Likewise.
+	* locales/sq_MK: Likewise.
+	* locales/sw_KE: Likewise.
+	* locales/sw_TZ: Likewise.
+	* locales/szl_PL: Likewise.
+	* locales/ta_LK: Likewise.
+	* locales/ti_ER: Likewise.
+	* locales/tig_ER: Likewise.
+	* locales/tl_PH: Likewise.
+	* locales/ts_ZA: Likewise.
+	* locales/unm_US: Likewise.
+	* locales/ur_IN: Likewise.
+	* locales/wa_BE: Likewise.
+	* locales/yi_US: Likewise.
+
+2013-09-06  Chris Leonard  <cjl@sugarlabs,.org>
+
+	* locales/nr_ZA: Deduplicate country_car.
+	* locales/nso_ZA: Likewise.
+	* locales/ss_ZA: Likewise.
+	* locales/tn_ZA: Likewise.
+	* locales/ve_ZA: Likewise.
+	* locales/tk_TM: Comment reformat.
+
+2013-09-04  Chris Leonard  <cjl@sugarlabs,.org>
+
+	[BZ #15923]
+
+	* locales/ar_SD: Update iso-1427.def and related occurrences.
+	* locales/az_AZ: Likewise.
+	* locales/dv_MV: Likewise.
+	* locales/es_VE: Likewise.
+
+2013-09-04  Jakub Bogusz  <qboosh@pld-linux.org>
+
+	* locales/am_ET: Add country_car field to LC_ADDRESS.
+	* locales/an_ES: Likewise.
+	* locales/ar_AE: Likewise.
+	* locales/ar_BH: Likewise.
+	* locales/ar_DZ: Likewise.
+	* locales/ar_EG: Likewise.
+	* locales/ar_IN: Likewise.
+	* locales/ar_IQ: Likewise.
+	* locales/ar_JO: Likewise.
+	* locales/ar_KW: Likewise.
+	* locales/ar_LB: Likewise.
+	* locales/ar_LY: Likewise.
+	* locales/ar_MA: Likewise.
+	* locales/ar_QA: Likewise.
+	* locales/ar_SA: Likewise.
+	* locales/ar_SD: Likewise.
+	* locales/ar_SY: Likewise.
+	* locales/ar_TN: Likewise.
+	* locales/az_AZ: Likewise.
+	* locales/be_BY: Likewise.
+	* locales/bn_BD: Likewise.
+	* locales/bn_IN: Likewise.
+	* locales/br_FR: Likewise.
+	* locales/bs_BA: Likewise.
+	* locales/ca_ES: Likewise.
+	* locales/csb_PL: Likewise.
+	* locales/da_DK: Likewise.
+	* locales/de_AT: Likewise.
+	* locales/de_BE: Likewise.
+	* locales/de_CH: Likewise.
+	* locales/de_LU: Likewise.
+	* locales/el_GR: Likewise.
+	* locales/en_AU: Likewise.
+	* locales/en_BW: Likewise.
+	* locales/en_CA: Likewise.
+	* locales/en_DK: Likewise.
+	* locales/en_GB: Likewise.
+	* locales/en_HK: Likewise.
+	* locales/en_IE: Likewise.
+	* locales/en_IN: Likewise.
+	* locales/en_NZ: Likewise.
+	* locales/en_PH: Likewise.
+	* locales/en_SG: Likewise.
+	* locales/en_ZW: Likewise.
+	* locales/es_AR: Likewise.
+	* locales/es_BO: Likewise.
+	* locales/es_CL: Likewise.
+	* locales/es_CO: Likewise.
+	* locales/es_DO: Likewise.
+	* locales/es_EC: Likewise.
+	* locales/es_ES: Likewise.
+	* locales/es_GT: Likewise.
+	* locales/es_MX: Likewise.
+	* locales/es_NI: Likewise.
+	* locales/es_PA: Likewise.
+	* locales/es_PE: Likewise.
+	* locales/es_PY: Likewise.
+	* locales/es_SV: Likewise.
+	* locales/es_UY: Likewise.
+	* locales/es_VE: Likewise.
+	* locales/eu_ES: Likewise.
+	* locales/fo_FO: Likewise.
+	* locales/fr_BE: Likewise.
+	* locales/fr_CA: Likewise.
+	* locales/fr_CH: Likewise.
+	* locales/fr_FR: Likewise.
+	* locales/fr_LU: Likewise.
+	* locales/fur_IT: Likewise.
+	* locales/fy_DE: Likewise.
+	* locales/ga_IE: Likewise.
+	* locales/gez_ER: Likewise.
+	* locales/gez_ET: Likewise.
+	* locales/gl_ES: Likewise.
+	* locales/gu_IN: Likewise.
+	* locales/gv_GB: Likewise.
+	* locales/he_IL: Likewise.
+	* locales/hi_IN: Likewise.
+	* locales/hr_HR: Likewise.
+	* locales/hu_HU: Likewise.
+	* locales/id_ID: Likewise.
+	* locales/ik_CA: Likewise.
+	* locales/is_IS: Likewise.
+	* locales/it_CH: Likewise.
+	* locales/it_IT: Likewise.
+	* locales/iu_CA: Likewise.
+	* locales/ja_JP: Likewise.
+	* locales/ka_GE: Likewise.
+	* locales/kk_KZ: Likewise.
+	* locales/kn_IN: Likewise.
+	* locales/ko_KR: Likewise.
+	* locales/ku_TR: Likewise.
+	* locales/kw_GB: Likewise.
+	* locales/ky_KG: Likewise.
+	* locales/lg_UG: Likewise.
+	* locales/lt_LT: Likewise.
+	* locales/lv_LV: Likewise.
+	* locales/mi_NZ: Likewise.
+	* locales/ml_IN: Likewise.
+	* locales/mr_IN: Likewise.
+	* locales/ms_MY: Likewise.
+	* locales/mt_MT: Likewise.
+	* locales/nb_NO: Likewise.
+	* locales/ne_NP: Likewise.
+	* locales/nl_BE: Likewise.
+	* locales/nn_NO: Likewise.
+	* locales/nr_ZA: Likewise.
+	* locales/nso_ZA: Likewise.
+	* locales/om_ET: Likewise.
+	* locales/om_KE: Likewise.
+	* locales/pa_IN: Likewise.
+	* locales/pl_PL: Likewise.
+	* locales/pt_BR: Likewise.
+	* locales/pt_PT: Likewise.
+	* locales/ru_RU: Likewise.
+	* locales/ru_UA: Likewise.
+	* locales/sa_IN: Likewise.
+	* locales/se_NO: Likewise.
+	* locales/sk_SK: Likewise.
+	* locales/sl_SI: Likewise.
+	* locales/so_ET: Likewise.
+	* locales/so_KE: Likewise.
+	* locales/so_SO: Likewise.
+	* locales/sq_AL: Likewise.
+	* locales/ss_ZA: Likewise.
+	* locales/sv_SE: Likewise.
+	* locales/ta_IN: Likewise.
+	* locales/te_IN: Likewise.
+	* locales/tg_TJ: Likewise.
+	* locales/th_TH: Likewise.
+	* locales/ti_ET: Likewise.
+	* locales/tl_PH: Likewise.
+	* locales/tn_ZA: Likewise.
+	* locales/ts_ZA: Likewise.
+	* locales/tt_RU: Likewise.
+	* locales/tt_RU@iqtelif: Likewise.
+	* locales/ur_PK: Likewise.
+	* locales/uz_UZ: Likewise.
+	* locales/ve_ZA: Likewise.
+	* locales/vi_VN: Likewise.
+	* locales/wal_ET: Likewise.
+	* locales/wo_SN: Likewise.
+	* locales/zh_SG: Likewise.
+
+2013-09-03  Chris Leonard  <cjl@sugarlabs.org>
+
+	* locales/ayc_PE: Add FSF statement to ayc_PE locale.
+
+	[BZ#15886]
+	* locales/ht_HT: 1.1 revision of ht_HT locale.
+
+	[BZ#15887]
+	* locales/quz_PE: New locale for quz_PE.
+	* SUPPORTED: Add quz_PE.
+
+2013-08-30   Ondřej Bílka  <neleai@seznam.cz>
+
+	* tests-mbwc/dat_wcsncat.c: Fix typos.
+	* tests/test6.c: Likewise.
+	* tst-digits.c: Likewise.
+
 2013-06-13  Johan Heikkila  <johan.heikkila@gmail.com>
 
 	[BZ#15432]
@@ -354,7 +1492,7 @@
 
 2012-04-12  Mike Frysinger  <vapier@gentoo.org>
 
-        [BZ #3768]
+	[BZ #3768]
 	* locales/en_GB (LC_TIME): Set am_pm and t_fmt_ampm fields.
 	* locales/cy_GB (LC_TIME): Likewise.  Also copy date_fmt from en_GB.
 

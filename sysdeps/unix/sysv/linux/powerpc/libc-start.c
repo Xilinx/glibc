@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ __libc_start_main (int argc, char **argv,
       char **temp;
       /* ...in which case, we have argc as the top thing on the
          stack, followed by argv (NULL-terminated), envp (likewise),
-         and the auxilary vector.  */
+         and the auxiliary vector.  */
       /* 32/64-bit agnostic load from stack */
       argc = *(long int *) stack_on_entry;
       argv = stack_on_entry + 1;

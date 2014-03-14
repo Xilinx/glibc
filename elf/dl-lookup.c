@@ -1,5 +1,5 @@
 /* Look up a symbol in the loaded objects.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -30,6 +30,12 @@
 #include <atomic.h>
 
 #include <assert.h>
+
+/* Return nonzero if check_match should consider SYM to fail to match a
+   symbol reference for some machine-specific reason.  */
+#ifndef ELF_MACHINE_SYM_NO_MATCH
+# define ELF_MACHINE_SYM_NO_MATCH(sym) 0
+#endif
 
 #define VERSTAG(tag)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (tag))
 
@@ -67,6 +73,118 @@ struct sym_val
 #else
 # define bump_num_relocations() ((void) 0)
 #endif
+
+/* Utility function for do_lookup_x. The caller is called with undef_name,
+   ref, version, flags and type_class, and those are passed as the first
+   five arguments. The caller then computes sym, symidx, strtab, and map
+   and passes them as the next four arguments. Lastly the caller passes in
+   versioned_sym and num_versions which are modified by check_match during
+   the checking process.  */
+static const ElfW(Sym) *
+check_match (const char *const undef_name,
+	     const ElfW(Sym) *const ref,
+	     const struct r_found_version *const version,
+	     const int flags,
+	     const int type_class,
+	     const ElfW(Sym) *const sym,
+	     const Elf_Symndx symidx,
+	     const char *const strtab,
+	     const struct link_map *const map,
+	     const ElfW(Sym) **const versioned_sym,
+	     int *const num_versions)
+{
+  unsigned int stt = ELFW(ST_TYPE) (sym->st_info);
+  assert (ELF_RTYPE_CLASS_PLT == 1);
+  if (__builtin_expect ((sym->st_value == 0 /* No value.  */
+			 && stt != STT_TLS)
+			|| ELF_MACHINE_SYM_NO_MATCH (sym)
+			|| (type_class & (sym->st_shndx == SHN_UNDEF)),
+			0))
+    return NULL;
+
+  /* Ignore all but STT_NOTYPE, STT_OBJECT, STT_FUNC,
+     STT_COMMON, STT_TLS, and STT_GNU_IFUNC since these are no
+     code/data definitions.  */
+#define ALLOWED_STT \
+  ((1 << STT_NOTYPE) | (1 << STT_OBJECT) | (1 << STT_FUNC) \
+   | (1 << STT_COMMON) | (1 << STT_TLS) | (1 << STT_GNU_IFUNC))
+  if (__glibc_unlikely (((1 << stt) & ALLOWED_STT) == 0))
+    return NULL;
+
+  if (sym != ref && strcmp (strtab + sym->st_name, undef_name))
+    /* Not the symbol we are looking for.  */
+    return NULL;
+
+  const ElfW(Half) *verstab = map->l_versyms;
+  if (version != NULL)
+    {
+      if (__glibc_unlikely (verstab == NULL))
+	{
+	  /* We need a versioned symbol but haven't found any.  If
+	     this is the object which is referenced in the verneed
+	     entry it is a bug in the library since a symbol must
+	     not simply disappear.
+
+	     It would also be a bug in the object since it means that
+	     the list of required versions is incomplete and so the
+	     tests in dl-version.c haven't found a problem.*/
+	  assert (version->filename == NULL
+		  || ! _dl_name_match_p (version->filename, map));
+
+	  /* Otherwise we accept the symbol.  */
+	}
+      else
+	{
+	  /* We can match the version information or use the
+	     default one if it is not hidden.  */
+	  ElfW(Half) ndx = verstab[symidx] & 0x7fff;
+	  if ((map->l_versions[ndx].hash != version->hash
+	       || strcmp (map->l_versions[ndx].name, version->name))
+	      && (version->hidden || map->l_versions[ndx].hash
+		  || (verstab[symidx] & 0x8000)))
+	    /* It's not the version we want.  */
+	    return NULL;
+	}
+    }
+  else
+    {
+      /* No specific version is selected.  There are two ways we
+	 can got here:
+
+	 - a binary which does not include versioning information
+	 is loaded
+
+	 - dlsym() instead of dlvsym() is used to get a symbol which
+	 might exist in more than one form
+
+	 If the library does not provide symbol version information
+	 there is no problem at all: we simply use the symbol if it
+	 is defined.
+
+	 These two lookups need to be handled differently if the
+	 library defines versions.  In the case of the old
+	 unversioned application the oldest (default) version
+	 should be used.  In case of a dlsym() call the latest and
+	 public interface should be returned.  */
+      if (verstab != NULL)
+	{
+	  if ((verstab[symidx] & 0x7fff)
+	      >= ((flags & DL_LOOKUP_RETURN_NEWEST) ? 2 : 3))
+	    {
+	      /* Don't accept hidden symbols.  */
+	      if ((verstab[symidx] & 0x8000) == 0
+		  && (*num_versions)++ == 0)
+		/* No version so far.  */
+		*versioned_sym = sym;
+
+	      return NULL;
+	    }
+	}
+    }
+
+  /* There cannot be another entry for this symbol so stop here.  */
+  return sym;
+}
 
 
 /* Inner part of the lookup functions.  We return a value > 0 if we
@@ -110,7 +228,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	continue;
 
       /* Print some debugging info if wanted.  */
-      if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_SYMBOLS, 0))
+      if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_SYMBOLS))
 	_dl_debug_printf ("symbol=%s;  lookup in file=%s [%lu]\n",
 			  undef_name, DSO_FILENAME (map->l_name),
 			  map->l_ns);
@@ -123,107 +241,9 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
       const ElfW(Sym) *symtab = (const void *) D_PTR (map, l_info[DT_SYMTAB]);
       const char *strtab = (const void *) D_PTR (map, l_info[DT_STRTAB]);
 
-
-      /* Nested routine to check whether the symbol matches.  */
-      const ElfW(Sym) *
-      __attribute_noinline__
-      check_match (const ElfW(Sym) *sym)
-      {
-	unsigned int stt = ELFW(ST_TYPE) (sym->st_info);
-	assert (ELF_RTYPE_CLASS_PLT == 1);
-	if (__builtin_expect ((sym->st_value == 0 /* No value.  */
-			       && stt != STT_TLS)
-			      || (type_class & (sym->st_shndx == SHN_UNDEF)),
-			      0))
-	  return NULL;
-
-	/* Ignore all but STT_NOTYPE, STT_OBJECT, STT_FUNC,
-	   STT_COMMON, STT_TLS, and STT_GNU_IFUNC since these are no
-	   code/data definitions.  */
-#define ALLOWED_STT \
-	((1 << STT_NOTYPE) | (1 << STT_OBJECT) | (1 << STT_FUNC) \
-	 | (1 << STT_COMMON) | (1 << STT_TLS) | (1 << STT_GNU_IFUNC))
-	if (__builtin_expect (((1 << stt) & ALLOWED_STT) == 0, 0))
-	  return NULL;
-
-	if (sym != ref && strcmp (strtab + sym->st_name, undef_name))
-	  /* Not the symbol we are looking for.  */
-	  return NULL;
-
-	const ElfW(Half) *verstab = map->l_versyms;
-	if (version != NULL)
-	  {
-	    if (__builtin_expect (verstab == NULL, 0))
-	      {
-		/* We need a versioned symbol but haven't found any.  If
-		   this is the object which is referenced in the verneed
-		   entry it is a bug in the library since a symbol must
-		   not simply disappear.
-
-		   It would also be a bug in the object since it means that
-		   the list of required versions is incomplete and so the
-		   tests in dl-version.c haven't found a problem.*/
-		assert (version->filename == NULL
-			|| ! _dl_name_match_p (version->filename, map));
-
-		/* Otherwise we accept the symbol.  */
-	      }
-	    else
-	      {
-		/* We can match the version information or use the
-		   default one if it is not hidden.  */
-		ElfW(Half) ndx = verstab[symidx] & 0x7fff;
-		if ((map->l_versions[ndx].hash != version->hash
-		     || strcmp (map->l_versions[ndx].name, version->name))
-		    && (version->hidden || map->l_versions[ndx].hash
-			|| (verstab[symidx] & 0x8000)))
-		  /* It's not the version we want.  */
-		  return NULL;
-	      }
-	  }
-	else
-	  {
-	    /* No specific version is selected.  There are two ways we
-	       can got here:
-
-	       - a binary which does not include versioning information
-	       is loaded
-
-	       - dlsym() instead of dlvsym() is used to get a symbol which
-	       might exist in more than one form
-
-	       If the library does not provide symbol version information
-	       there is no problem at all: we simply use the symbol if it
-	       is defined.
-
-	       These two lookups need to be handled differently if the
-	       library defines versions.  In the case of the old
-	       unversioned application the oldest (default) version
-	       should be used.  In case of a dlsym() call the latest and
-	       public interface should be returned.  */
-	    if (verstab != NULL)
-	      {
-		if ((verstab[symidx] & 0x7fff)
-		    >= ((flags & DL_LOOKUP_RETURN_NEWEST) ? 2 : 3))
-		  {
-		    /* Don't accept hidden symbols.  */
-		    if ((verstab[symidx] & 0x8000) == 0
-			&& num_versions++ == 0)
-		      /* No version so far.  */
-		      versioned_sym = sym;
-
-		    return NULL;
-		  }
-	      }
-	  }
-
-	/* There cannot be another entry for this symbol so stop here.  */
-	return sym;
-      }
-
       const ElfW(Sym) *sym;
       const ElfW(Addr) *bitmask = map->l_gnu_bitmask;
-      if (__builtin_expect (bitmask != NULL, 1))
+      if (__glibc_likely (bitmask != NULL))
 	{
 	  ElfW(Addr) bitmask_word
 	    = bitmask[(new_hash / __ELF_NATIVE_CLASS)
@@ -246,7 +266,10 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 		    if (((*hasharr ^ new_hash) >> 1) == 0)
 		      {
 			symidx = hasharr - map->l_gnu_chain_zero;
-			sym = check_match (&symtab[symidx]);
+			sym = check_match (undef_name, ref, version, flags,
+					   type_class, &symtab[symidx], symidx,
+					   strtab, map, &versioned_sym,
+					   &num_versions);
 			if (sym != NULL)
 			  goto found_it;
 		      }
@@ -268,7 +291,10 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	       symidx != STN_UNDEF;
 	       symidx = map->l_chain[symidx])
 	    {
-	      sym = check_match (&symtab[symidx]);
+	      sym = check_match (undef_name, ref, version, flags,
+				 type_class, &symtab[symidx], symidx,
+				 strtab, map, &versioned_sym,
+				 &num_versions);
 	      if (sym != NULL)
 		goto found_it;
 	    }
@@ -287,7 +313,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 	    {
 	    case STB_WEAK:
 	      /* Weak definition.  Use this value if we don't find another.  */
-	      if (__builtin_expect (GLRO(dl_dynamic_weak), 0))
+	      if (__glibc_unlikely (GLRO(dl_dynamic_weak)))
 		{
 		  if (! result->s)
 		    {
@@ -412,7 +438,7 @@ do_lookup_x (const char *undef_name, uint_fast32_t new_hash,
 		     LD_TRACE_PRELINKING in _dl_debug_bindings.  Don't
 		     allocate anything and don't enter anything into the
 		     hash table.  */
-		  if (__builtin_expect (tab->size, 0))
+		  if (__glibc_unlikely (tab->size))
 		    {
 		      assert (GLRO(dl_debug_mask) & DL_DEBUG_PRELINK);
 		      __rtld_lock_unlock_recursive (tab->lock);
@@ -530,7 +556,7 @@ add_dependency (struct link_map *undef_map, struct link_map *map, int flags)
   unsigned long long serial = map->l_serial;
 
   /* Make sure nobody can unload the object while we are at it.  */
-  if (__builtin_expect (flags & DL_LOOKUP_GSCOPE_LOCK, 0))
+  if (__glibc_unlikely (flags & DL_LOOKUP_GSCOPE_LOCK))
     {
       /* We can't just call __rtld_lock_lock_recursive (GL(dl_load_lock))
 	 here, that can result in ABBA deadlock.  */
@@ -617,7 +643,7 @@ add_dependency (struct link_map *undef_map, struct link_map *map, int flags)
 	}
 
       /* Add the reference now.  */
-      if (__builtin_expect (l_reldepsact >= undef_map->l_reldepsmax, 0))
+      if (__glibc_unlikely (l_reldepsact >= undef_map->l_reldepsmax))
 	{
 	  /* Allocate more memory for the dependency list.  Since this
 	     can never happen during the startup phase we can use
@@ -663,7 +689,7 @@ add_dependency (struct link_map *undef_map, struct link_map *map, int flags)
 	}
 
       /* Display information if we are debugging.  */
-      if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_FILES, 0))
+      if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_FILES))
 	_dl_debug_printf ("\
 \nfile=%s [%lu];  needed by %s [%lu] (relocation dependency)\n\n",
 			  DSO_FILENAME (map->l_name),
@@ -679,7 +705,7 @@ add_dependency (struct link_map *undef_map, struct link_map *map, int flags)
   /* Release the lock.  */
   __rtld_lock_unlock_recursive (GL(dl_load_lock));
 
-  if (__builtin_expect (flags & DL_LOOKUP_GSCOPE_LOCK, 0))
+  if (__glibc_unlikely (flags & DL_LOOKUP_GSCOPE_LOCK))
     THREAD_GSCOPE_SET_FLAG ();
 
   return result;
@@ -726,7 +752,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 	     == 0);
 
   size_t i = 0;
-  if (__builtin_expect (skip_map != NULL, 0))
+  if (__glibc_unlikely (skip_map != NULL))
     /* Search the relevant loaded objects for a definition.  */
     while ((*scope)->r_list[i] != skip_map)
       ++i;
@@ -746,7 +772,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 	     contain the needed symbol.  This code is never reached
 	     for unversioned lookups.  */
 	  assert (version != NULL);
-	  const char *reference_name = undef_map ? undef_map->l_name : NULL;
+	  const char *reference_name = undef_map ? undef_map->l_name : "";
 
 	  /* XXX We cannot translate the message.  */
 	  _dl_signal_cerror (0, DSO_FILENAME (reference_name),
@@ -763,7 +789,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 	}
     }
 
-  if (__builtin_expect (current_value.s == NULL, 0))
+  if (__glibc_unlikely (current_value.s == NULL))
     {
       if ((*ref == NULL || ELFW(ST_BIND) ((*ref)->st_info) != STB_WEAK)
 	  && skip_map == NULL
@@ -787,7 +813,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 
   int protected = (*ref
 		   && ELFW(ST_VISIBILITY) ((*ref)->st_other) == STV_PROTECTED);
-  if (__builtin_expect (protected != 0, 0))
+  if (__glibc_unlikely (protected != 0))
     {
       /* It is very tricky.  We need to figure out what value to
 	 return for the protected symbol.  */
@@ -835,7 +861,7 @@ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
 				  version, type_class, flags, skip_map);
 
   /* The object is used.  */
-  if (__builtin_expect (current_value.m->l_used == 0, 0))
+  if (__glibc_unlikely (current_value.m->l_used == 0))
     current_value.m->l_used = 1;
 
   if (__builtin_expect (GLRO(dl_debug_mask)

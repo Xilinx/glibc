@@ -1,5 +1,5 @@
 /* Initialization code run first thing by the ELF startup code.  Common version
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 
 #include <ldsodefs.h>
 
-/* Set nonzero if we have to be prepared for more then one libc being
+/* Set nonzero if we have to be prepared for more than one libc being
    used in the process.  Safe assumption if initializer never runs.  */
 int __libc_multiple_libcs attribute_hidden = 1;
 
@@ -61,11 +61,8 @@ _init (int argc, char **argv, char **envp)
   if (!__libc_multiple_libcs)
     {
       /* Set the FPU control word to the proper default value if the
-	 kernel would use a different value.  (In a static program we
-	 don't have this information.)  */
-#ifdef SHARED
+	 kernel would use a different value.  */
       if (__fpu_control != GLRO(dl_fpu_control))
-#endif
 	__setfpucw (__fpu_control);
     }
 

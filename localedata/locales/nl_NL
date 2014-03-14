@@ -42,7 +42,7 @@ category  "nl_NL:2000";LC_PAPER
 category  "nl_NL:2000";LC_NAME
 category  "nl_NL:2000";LC_ADDRESS
 category  "nl_NL:2000";LC_TELEPHONE
-
+category  "nl_NL:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -143,8 +143,8 @@ int_prefix     "<U0033><U0031>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -162,7 +162,8 @@ country_ab2 "<U004E><U004C>"
 country_ab3 "<U004E><U004C><U0044>"
 country_num 528
 country_car "<U004E><U004C>"
-lang_name "<U0064><U0075><U0074><U0063><U0068>"
+% Nederlands
+lang_name    "<U004E><U0065><U0064><U0065><U0072><U006C><U0061><U006E><U0064><U0073>"
 lang_ab "<U006E><U006C>"
 lang_term "<U006E><U006C><U0064>"
 lang_lib "<U0064><U0075><U0074>"

@@ -504,6 +504,14 @@ sequence points.  Communication protocols often require this.
 @comment wchar.h
 @comment ISO
 @deftypefun int mbsinit (const mbstate_t *@var{ps})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+@c ps is dereferenced once, unguarded.  This would call for @mtsrace:ps,
+@c but since a single word-sized field is (atomically) accessed, any
+@c race here would be harmless.  Other functions that take an optional
+@c mbstate_t* argument named ps are marked with @mtasurace:<func>/!ps,
+@c to indicate that the function uses a static buffer if ps is NULL.
+@c These could also have been marked with @mtsrace:ps, but we'll omit
+@c that for brevity, for it's somewhat redundant with the @mtasurace.
 The @code{mbsinit} function determines whether the state object pointed
 to by @var{ps} is in the initial state.  If @var{ps} is a null pointer or
 the object is in the initial state the return value is nonzero.  Otherwise
@@ -559,6 +567,14 @@ that is beyond the range @math{0} to @math{127}.
 @comment wchar.h
 @comment ISO
 @deftypefun wint_t btowc (int @var{c})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
+@c Calls btowc_fct or __fct; reads from locale, and from the
+@c get_gconv_fcts result multiple times.  get_gconv_fcts calls
+@c __wcsmbs_load_conv to initialize the ctype if it's null.
+@c wcsmbs_load_conv takes a non-recursive wrlock before allocating
+@c memory for the fcts structure, initializing it, and then storing it
+@c in the locale object.  The initialization involves dlopening and a
+@c lot more.
 The @code{btowc} function (``byte to wide character'') converts a valid
 single byte character @var{c} in the initial shift state into the wide
 character equivalent using the conversion rules from the currently
@@ -615,6 +631,7 @@ There is also a function for the conversion in the other direction.
 @comment wchar.h
 @comment ISO
 @deftypefun int wctob (wint_t @var{c})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{wctob} function (``wide character to byte'') takes as the
 parameter a valid wide character.  If the multibyte representation for
 this character in the initial state is exactly one byte long, the return
@@ -634,6 +651,7 @@ and they also do not require it to be in the initial state.
 @comment wchar.h
 @comment ISO
 @deftypefun size_t mbrtowc (wchar_t *restrict @var{pwc}, const char *restrict @var{s}, size_t @var{n}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:mbrtowc/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 @cindex stateful
 The @code{mbrtowc} function (``multibyte restartable to wide
 character'') converts the next multibyte character in the string pointed
@@ -728,6 +746,7 @@ function that does part of the work.
 @comment wchar.h
 @comment ISO
 @deftypefun size_t mbrlen (const char *restrict @var{s}, size_t @var{n}, mbstate_t *@var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:mbrlen/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{mbrlen} function (``multibyte restartable length'') computes
 the number of at most @var{n} bytes starting at @var{s}, which form the
 next valid and complete multibyte character.
@@ -786,7 +805,7 @@ mbslen (const char *s)
 This function simply calls @code{mbrlen} for each multibyte character
 in the string and counts the number of function calls.  Please note that
 we here use @code{MB_LEN_MAX} as the size argument in the @code{mbrlen}
-call.  This is acceptable since a) this value is larger then the length of
+call.  This is acceptable since a) this value is larger than the length of
 the longest multibyte character sequence and b) we know that the string
 @var{s} ends with a NUL byte, which cannot be part of any other multibyte
 character sequence but the one representing the NUL wide character.
@@ -811,6 +830,50 @@ doing the work twice.
 @comment wchar.h
 @comment ISO
 @deftypefun size_t wcrtomb (char *restrict @var{s}, wchar_t @var{wc}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:wcrtomb/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
+@c wcrtomb uses a static, non-thread-local unguarded state variable when
+@c PS is NULL.  When a state is passed in, and it's not used
+@c concurrently in other threads, this function behaves safely as long
+@c as gconv modules don't bring MT safety issues of their own.
+@c Attempting to load gconv modules or to build conversion chains in
+@c signal handlers may encounter gconv databases or caches in a
+@c partially-updated state, and asynchronous cancellation may leave them
+@c in such states, besides leaking the lock that guards them.
+@c get_gconv_fcts ok
+@c    wcsmbs_load_conv ok
+@c      norm_add_slashes ok
+@c      wcsmbs_getfct ok
+@c        gconv_find_transform ok
+@c          gconv_read_conf (libc_once)
+@c          gconv_lookup_cache ok
+@c            find_module_idx ok
+@c            find_module ok
+@c              gconv_find_shlib (ok)
+@c              ->init_fct (assumed ok)
+@c            gconv_get_builtin_trans ok
+@c            gconv_release_step ok
+@c          do_lookup_alias ok
+@c          find_derivation ok
+@c            derivation_lookup ok
+@c            increment_counter ok
+@c              gconv_find_shlib ok
+@c              step->init_fct (assumed ok)
+@c            gen_steps ok
+@c              gconv_find_shlib ok
+@c                dlopen (presumed ok)
+@c                dlsym (presumed ok)
+@c              step->init_fct (assumed ok)
+@c              step->end_fct (assumed ok)
+@c              gconv_get_builtin_trans ok
+@c              gconv_release_step ok
+@c            add_derivation ok
+@c      gconv_close_transform ok
+@c        gconv_release_step ok
+@c          step->end_fct (assumed ok)
+@c          gconv_release_shlib ok
+@c            dlclose (presumed ok)
+@c        gconv_release_cache ok
+@c  ->tomb->__fct (assumed ok)
 The @code{wcrtomb} function (``wide character restartable to
 multibyte'') converts a single wide character into a multibyte string
 corresponding to that wide character.
@@ -955,8 +1018,9 @@ extensions that can help in some important situations.
 @comment wchar.h
 @comment ISO
 @deftypefun size_t mbsrtowcs (wchar_t *restrict @var{dst}, const char **restrict @var{src}, size_t @var{len}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:mbsrtowcs/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{mbsrtowcs} function (``multibyte string restartable to wide
-character string'') converts an NUL-terminated multibyte character
+character string'') converts a NUL-terminated multibyte character
 string at @code{*@var{src}} into an equivalent wide character string,
 including the NUL wide character at the end.  The conversion is started
 using the state information from the object pointed to by @var{ps} or
@@ -1039,6 +1103,7 @@ length and passing this length to the function.
 @comment wchar.h
 @comment ISO
 @deftypefun size_t wcsrtombs (char *restrict @var{dst}, const wchar_t **restrict @var{src}, size_t @var{len}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:wcsrtombs/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{wcsrtombs} function (``wide character string restartable to
 multibyte string'') converts the NUL-terminated wide character string at
 @code{*@var{src}} into an equivalent multibyte character string and
@@ -1084,6 +1149,7 @@ array size (the @var{len} parameter).
 @comment wchar.h
 @comment GNU
 @deftypefun size_t mbsnrtowcs (wchar_t *restrict @var{dst}, const char **restrict @var{src}, size_t @var{nmc}, size_t @var{len}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:mbsnrtowcs/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{mbsnrtowcs} function is very similar to the @code{mbsrtowcs}
 function.  All the parameters are the same except for @var{nmc}, which is
 new.  The return value is the same as for @code{mbsrtowcs}.
@@ -1136,6 +1202,7 @@ of the given buffer, there is no problem with altering the state.
 @comment wchar.h
 @comment GNU
 @deftypefun size_t wcsnrtombs (char *restrict @var{dst}, const wchar_t **restrict @var{src}, size_t @var{nwc}, size_t @var{len}, mbstate_t *restrict @var{ps})
+@safety{@prelim{}@mtunsafe{@mtasurace{:wcsnrtombs/!ps}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{wcsnrtombs} function implements the conversion from wide
 character strings to multibyte character strings.  It is similar to
 @code{wcsrtombs} but, just like @code{mbsnrtowcs}, it takes an extra
@@ -1280,6 +1347,7 @@ conversion functions.}
 @comment stdlib.h
 @comment ISO
 @deftypefun int mbtowc (wchar_t *restrict @var{result}, const char *restrict @var{string}, size_t @var{size})
+@safety{@prelim{}@mtunsafe{@mtasurace{}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{mbtowc} (``multibyte to wide character'') function when called
 with non-null @var{string} converts the first multibyte character
 beginning at @var{string} to its corresponding wide character code.  It
@@ -1314,6 +1382,7 @@ shift state.  @xref{Shift State}.
 @comment stdlib.h
 @comment ISO
 @deftypefun int wctomb (char *@var{string}, wchar_t @var{wchar})
+@safety{@prelim{}@mtunsafe{@mtasurace{}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{wctomb} (``wide character to multibyte'') function converts
 the wide character code @var{wchar} to its corresponding multibyte
 character sequence, and stores the result in bytes starting at
@@ -1353,6 +1422,7 @@ terms of @code{mbtowc}.
 @comment stdlib.h
 @comment ISO
 @deftypefun int mblen (const char *@var{string}, size_t @var{size})
+@safety{@prelim{}@mtunsafe{@mtasurace{}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{mblen} function with a non-null @var{string} argument returns
 the number of bytes that make up the multibyte character beginning at
 @var{string}, never examining more than @var{size} bytes.  (The idea is
@@ -1391,6 +1461,9 @@ suffer from the same problems as their reentrant counterparts from
 @comment stdlib.h
 @comment ISO
 @deftypefun size_t mbstowcs (wchar_t *@var{wstring}, const char *@var{string}, size_t @var{size})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
+@c Odd...  Although this was supposed to be non-reentrant, the internal
+@c state is not a static buffer, but an automatic variable.
 The @code{mbstowcs} (``multibyte string to wide character string'')
 function converts the null-terminated string of multibyte characters
 @var{string} to an array of wide character codes, storing not more than
@@ -1431,6 +1504,7 @@ mbstowcs_alloc (const char *string)
 @comment stdlib.h
 @comment ISO
 @deftypefun size_t wcstombs (char *@var{string}, const wchar_t *@var{wstring}, size_t @var{size})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
 The @code{wcstombs} (``wide character string to multibyte string'')
 function converts the null-terminated wide character array @var{wstring}
 into a string containing multibyte characters, storing not more than
@@ -1618,6 +1692,16 @@ The first step is the function to create a handle.
 @comment iconv.h
 @comment XPG2
 @deftypefun iconv_t iconv_open (const char *@var{tocode}, const char *@var{fromcode})
+@safety{@prelim{}@mtsafe{@mtslocale{}}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{} @acsfd{}}}
+@c Calls malloc if tocode and/or fromcode are too big for alloca.  Calls
+@c strip and upstr on both, then gconv_open.  strip and upstr call
+@c isalnum_l and toupper_l with the C locale.  gconv_open may MT-safely
+@c tokenize toset, replace unspecified codesets with the current locale
+@c (possibly two different accesses), and finally it calls
+@c gconv_find_transform and initializes the gconv_t result with all the
+@c steps in the conversion sequence, running each one's initializer,
+@c destructing and releasing them all if anything fails.
+
 The @code{iconv_open} function has to be used before starting a
 conversion.  The two parameters this function takes determine the
 source and destination character set for the conversion, and if the
@@ -1625,7 +1709,7 @@ implementation has the possibility to perform such a conversion, the
 function returns a handle.
 
 If the wanted conversion is not available, the @code{iconv_open} function
-returns @code{(iconv_t) -1}. In this case the global variable
+returns @code{(iconv_t) -1}.  In this case the global variable
 @code{errno} can have the following values:
 
 @table @code
@@ -1682,6 +1766,12 @@ conversion is not needed anymore.
 @comment iconv.h
 @comment XPG2
 @deftypefun int iconv_close (iconv_t @var{cd})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asucorrupt{} @ascuheap{} @asulock{} @ascudlopen{}}@acunsafe{@acucorrupt{} @aculock{} @acsmem{}}}
+@c Calls gconv_close to destruct and release each of the conversion
+@c steps, release the gconv_t object, then call gconv_close_transform.
+@c Access to the gconv_t object is not guarded, but calling iconv_close
+@c concurrently with any other use is undefined.
+
 The @code{iconv_close} function frees all resources associated with the
 handle @var{cd}, which must have been returned by a successful call to
 the @code{iconv_open} function.
@@ -1708,6 +1798,10 @@ even file to file can be implemented on top of it.
 @comment iconv.h
 @comment XPG2
 @deftypefun size_t iconv (iconv_t @var{cd}, char **@var{inbuf}, size_t *@var{inbytesleft}, char **@var{outbuf}, size_t *@var{outbytesleft})
+@safety{@prelim{}@mtsafe{@mtsrace{:cd}}@assafe{}@acunsafe{@acucorrupt{}}}
+@c Without guarding access to the iconv_t object pointed to by cd, call
+@c the conversion function to convert inbuf or flush the internal
+@c conversion state.
 @cindex stateful
 The @code{iconv} function converts the text in the input buffer
 according to the rules associated with the descriptor @var{cd} and
@@ -1744,7 +1838,7 @@ implementation chosen for @theglibc{} as it is described below.
 Therefore an @code{iconv} call to reset the state should always be
 performed if some protocol requires this for the output text.
 
-The conversion stops for one of three reasons. The first is that all
+The conversion stops for one of three reasons.  The first is that all
 characters from the input buffer are converted.  This actually can mean
 two things: either all bytes from the input buffer are consumed or
 there are some bytes at the end of the buffer that possibly can form a
@@ -2039,7 +2133,7 @@ will succeed, but how to find @math{@cal{B}}?
 
 Unfortunately, the answer is: there is no general solution.  On some
 systems guessing might help.  On those systems most character sets can
-convert to and from UTF-8 encoded @w{ISO 10646} or Unicode text. Beside
+convert to and from UTF-8 encoded @w{ISO 10646} or Unicode text.  Beside
 this only some very system-specific methods can help.  Since the
 conversion functions come from loadable modules and these modules must
 be stored somewhere in the filesystem, one @emph{could} try to find them
@@ -2239,7 +2333,7 @@ identical.
 
 So far this section has described how modules are located and considered
 to be used.  What remains to be described is the interface of the modules
-so that one can write new ones. This section describes the interface as
+so that one can write new ones.  This section describes the interface as
 it is in use in January 1999.  The interface will change a bit in the
 future but, with luck, only in an upwardly compatible way.
 
@@ -2485,7 +2579,7 @@ destination character sets, respectively.  If the characters all have the
 same size, the minimum and maximum values are the same.
 
 @item __stateful
-This element must be initialized to an nonzero value if the source
+This element must be initialized to a nonzero value if the source
 character set is stateful.  Otherwise it must be zero.
 @end table
 
@@ -2824,7 +2918,7 @@ gconv (struct __gconv_step *step, struct __gconv_step_data *data,
           /* @r{Run the conversion loop.  @code{status} is set}
              @r{appropriately afterwards.}  */
 
-          /* @r{If this is the last step, leave the loop. There is}
+          /* @r{If this is the last step, leave the loop.  There is}
              @r{nothing we can do.}  */
           if (data->__is_last)
             @{

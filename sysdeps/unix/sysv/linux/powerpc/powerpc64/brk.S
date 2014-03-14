@@ -1,5 +1,5 @@
 /* brk system call for Linux.  PowerPC64 version.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,9 +28,9 @@
 ENTRY (__brk)
 	CALL_MCOUNT 1
 
-	std	r3,48(r1)
+	std	r3,-8(r1)
 	DO_CALL(SYS_ify(brk))
-	ld	r6,48(r1)
+	ld	r6,-8(r1)
 	ld	r5,.LC__curbrk@toc(r2)
 	std     r3,0(r5)
 	cmpld   r6,r3

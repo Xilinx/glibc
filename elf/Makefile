@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2013 Free Software Foundation, Inc.
+# Copyright (C) 1995-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -55,11 +55,11 @@ routines += unwind-dw2-fde-glibc
 shared-only-routines += unwind-dw2-fde-glibc
 endif
 
-before-compile  = $(objpfx)trusted-dirs.h
-generated	:= trusted-dirs.h trusted-dirs.st for-renamed/renamed.so
-generated-dirs	:= for-renamed
+before-compile  += $(objpfx)trusted-dirs.h
+generated	+= trusted-dirs.h trusted-dirs.st for-renamed/renamed.so
+generated-dirs	+= for-renamed
 
-ifeq ($(versioning),yes)
+ifeq ($(build-shared),yes)
 ld-map		= $(common-objpfx)ld.map
 endif
 
@@ -93,7 +93,7 @@ pldd-modules := xmalloc
 # To find xmalloc.c and xstrdup.c
 vpath %.c ../locale/programs
 
-ifeq ($(have-ksh)$(build-shared),yesyes)
+ifeq ($(build-shared),yes)
 extra-objs += sotruss-lib.os sotruss-lib.so
 install-others += $(inst_auditdir)/sotruss-lib.so
 install-bin-script += sotruss
@@ -104,8 +104,8 @@ $(objpfx)sotruss-lib.so: $(objpfx)sotruss-lib.os
 $(objpfx)sotruss-lib.so: $(common-objpfx)libc.so $(objpfx)ld.so \
 	$(common-objpfx)libc_nonshared.a
 
-$(objpfx)sotruss: sotruss.ksh $(common-objpfx)config.make
-	sed -e 's%@KSH@%$(KSH)%g' \
+$(objpfx)sotruss: sotruss.sh $(common-objpfx)config.make
+	sed -e 's%@BASH@%$(BASH)%g' \
 	    -e 's%@VERSION@%$(version)%g' \
 	    -e 's%@TEXTDOMAINDIR@%$(msgcatdir)%g' \
 	    -e 's%@PREFIX@%$(prefix)%g' \
@@ -119,9 +119,11 @@ $(inst_auditdir)/sotruss-lib.so: $(objpfx)sotruss-lib.so $(+force)
 endif
 
 tests = tst-tls1 tst-tls2 tst-tls9 tst-leaks1 \
-	tst-array1 tst-array2 tst-array3 tst-array4 tst-array5
+	tst-array1 tst-array2 tst-array3 tst-array4 tst-array5 \
+	tst-auxv
 tests-static = tst-tls1-static tst-tls2-static tst-stackguard1-static \
-	       tst-leaks1-static tst-array1-static tst-array5-static
+	       tst-leaks1-static tst-array1-static tst-array5-static \
+	       tst-ptrguard1-static
 ifeq (yes,$(build-shared))
 tests-static += tst-tls9-static
 tst-tls9-static-ENV = \
@@ -142,10 +144,11 @@ tests += loadtest restest1 preloadtest loadfail multiload origtest resolvfail \
 	 tst-dlmodcount tst-dlopenrpath tst-deep1 \
 	 tst-dlmopen1 tst-dlmopen2 tst-dlmopen3 \
 	 unload3 unload4 unload5 unload6 unload7 unload8 tst-global1 order2 \
-	 tst-audit1 tst-audit2 tst-audit8 \
+	 tst-audit1 tst-audit2 tst-audit8 tst-audit9 \
 	 tst-stackguard1 tst-addr1 tst-thrlock \
 	 tst-unique1 tst-unique2 tst-unique3 tst-unique4 \
-	 tst-initorder tst-initorder2 tst-relsort1 tst-null-argv
+	 tst-initorder tst-initorder2 tst-relsort1 tst-null-argv \
+	 tst-ptrguard1
 #	 reldep9
 test-srcs = tst-pathopt
 selinux-enabled := $(shell cat /selinux/enforce 2> /dev/null)
@@ -154,8 +157,8 @@ tests-execstack-yes = tst-execstack tst-execstack-needed tst-execstack-prog
 endif
 endif
 ifeq ($(run-built-tests),yes)
-tests: $(objpfx)tst-leaks1-mem $(objpfx)tst-leaks1-static-mem \
-       $(objpfx)noload-mem
+tests-special += $(objpfx)tst-leaks1-mem.out \
+		 $(objpfx)tst-leaks1-static-mem.out $(objpfx)noload-mem.out
 endif
 tlsmod17a-suffixes = 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
 tlsmod18a-suffixes = 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
@@ -200,6 +203,7 @@ modules-names = testobj1 testobj2 testobj3 testobj4 testobj5 testobj6 \
 		order2mod1 order2mod2 order2mod3 order2mod4 \
 		tst-unique1mod1 tst-unique1mod2 \
 		tst-unique2mod1 tst-unique2mod2 \
+		tst-auditmod9a tst-auditmod9b \
 		tst-unique3lib tst-unique3lib2 \
 		tst-unique4lib \
 		tst-initordera1 tst-initorderb1 \
@@ -211,8 +215,8 @@ modules-names = testobj1 testobj2 testobj3 testobj4 testobj5 testobj6 \
 		tst-array5dep tst-null-argv-lib
 ifeq (yesyes,$(have-fpie)$(build-shared))
 modules-names += tst-piemod1
-tests += tst-pie1
-tests-pie += tst-pie1
+tests += tst-pie1 tst-pie2
+tests-pie += tst-pie1 tst-pie2
 endif
 modules-execstack-yes = tst-execstack-mod
 extra-test-objs += $(addsuffix .os,$(strip $(modules-names)))
@@ -249,11 +253,30 @@ modules-names += ifuncmod1 ifuncmod3 ifuncmod5 ifuncmod6
 endif
 endif
 
+ifeq (yes,$(build-shared))
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)tst-pathopt.out $(objpfx)tst-rtld-load-self.out
+endif
+tests-special += $(objpfx)check-textrel.out $(objpfx)check-execstack.out \
+		 $(objpfx)check-localplt.out
+endif
+
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)order-cmp.out $(objpfx)tst-array1-cmp.out \
+		 $(objpfx)tst-array1-static-cmp.out \
+		 $(objpfx)tst-array2-cmp.out $(objpfx)tst-array3-cmp.out \
+		 $(objpfx)tst-array4-cmp.out $(objpfx)tst-array5-cmp.out \
+		 $(objpfx)tst-array5-static-cmp.out $(objpfx)order2-cmp.out \
+		 $(objpfx)tst-initorder-cmp.out \
+		 $(objpfx)tst-initorder2-cmp.out $(objpfx)tst-unused-dep.out \
+		 $(objpfx)tst-unused-dep-cmp.out
+endif
+
+check-abi: $(objpfx)check-abi-ld.out
+tests-special += $(objpfx)check-abi-ld.out
+update-abi: update-abi-ld
 
 include ../Rules
-
-check-abi: check-abi-ld
-update-abi: update-abi-ld
 
 ifeq (yes,$(build-shared))
 # Make sure these things are built in the `make lib' pass so they can be used
@@ -374,27 +397,20 @@ ldso_install: $(inst_rtlddir)/$(rtld-installed-name)
 endif
 
 
-common-ldd-rewrite = -e 's%@RTLD@%$(rtlddir)/$(rtld-installed-name)%g' \
-		     -e 's%@VERSION@%$(version)%g' \
-		     -e 's|@PKGVERSION@|$(PKGVERSION)|g' \
-		     -e 's|@REPORT_BUGS_TO@|$(REPORT_BUGS_TO)|g'
-sh-ldd-rewrite = $(common-ldd-rewrite) -e 's%@BASH@%/bin/sh%g;s/\$$"/"/g'
-bash-ldd-rewrite = $(common-ldd-rewrite) -e 's%@BASH@%$(BASH)%g' \
-		   -e 's%@TEXTDOMAINDIR@%$(msgcatdir)%g'
-
-ifneq ($(have-bash2),yes)
-ldd-shell = sh
-else
-ldd-shell = bash
-endif
+ldd-rewrite = -e 's%@RTLD@%$(rtlddir)/$(rtld-installed-name)%g' \
+	      -e 's%@VERSION@%$(version)%g' \
+	      -e 's|@PKGVERSION@|$(PKGVERSION)|g' \
+	      -e 's|@REPORT_BUGS_TO@|$(REPORT_BUGS_TO)|g' \
+	      -e 's%@BASH@%$(BASH)%g' \
+	      -e 's%@TEXTDOMAINDIR@%$(msgcatdir)%g'
 
 ifeq ($(ldd-rewrite-script),no)
 define gen-ldd
-LC_ALL=C sed $($(ldd-shell)-ldd-rewrite) < $< > $@.new
+LC_ALL=C sed $(ldd-rewrite) < $< > $@.new
 endef
 else
 define gen-ldd
-LC_ALL=C sed $($(ldd-shell)-ldd-rewrite) < $< \
+LC_ALL=C sed $(ldd-rewrite) < $< \
 | LC_ALL=C sed -f $(patsubst $(..)/%,/%,$(..)$(ldd-rewrite-script)) > $@.new
 endef
 endif
@@ -425,12 +441,6 @@ CPPFLAGS-.os += $(if $(filter $(@F),$(patsubst %,%.os,$(all-rtld-routines))),\
 
 test-modules = $(addprefix $(objpfx),$(addsuffix .so,$(strip $(modules-names))))
 generated += $(addsuffix .so,$(strip $(modules-names)))
-
-ifeq (yes,$(build-shared))
-ifeq ($(run-built-tests),yes)
-tests: $(objpfx)tst-pathopt.out $(objpfx)tst-rtld-load-self.out
-endif
-endif
 
 $(objpfx)testobj1.so: $(libdl)
 $(objpfx)testobj1_1.so: $(objpfx)testobj1.so $(libdl)
@@ -557,6 +567,8 @@ unload4mod1.so-no-z-defs = yes
 ifuncmod1.so-no-z-defs = yes
 ifuncmod5.so-no-z-defs = yes
 ifuncmod6.so-no-z-defs = yes
+tst-auditmod9a.so-no-z-defs = yes
+tst-auditmod9b.so-no-z-defs = yes
 
 ifeq ($(build-shared),yes)
 # Build all the modules even when not actually running test programs.
@@ -634,10 +646,9 @@ $(objpfx)circlemod2a.so: $(objpfx)circlemod3a.so
 
 $(objpfx)order: $(addprefix $(objpfx),dep4.so dep3.so dep2.so dep1.so)
 
-$(objpfx)order.out: $(objpfx)order
-	$(test-program-prefix) \
-	  $(objpfx)order > $@
-	(echo "0123456789" | cmp $@ -) > /dev/null
+$(objpfx)order-cmp.out: $(objpfx)order.out
+	(echo "0123456789" | cmp $< -) > $@; \
+	$(evaluate-test)
 
 $(objpfx)vismain: $(addprefix $(objpfx),vismod1.so vismod2.so)
 $(objpfx)vismain.out: $(addprefix $(objpfx),vismod3.so)
@@ -647,8 +658,9 @@ $(objpfx)noload: $(objpfx)testobj1.so $(common-objpfx)dlfcn/libdl.so
 LDFLAGS-noload = -rdynamic $(no-as-needed)
 $(objpfx)noload.out: $(objpfx)testobj5.so
 
-$(objpfx)noload-mem: $(objpfx)noload.out
-	$(common-objpfx)malloc/mtrace $(objpfx)noload.mtrace > $@
+$(objpfx)noload-mem.out: $(objpfx)noload.out
+	$(common-objpfx)malloc/mtrace $(objpfx)noload.mtrace > $@; \
+	$(evaluate-test)
 noload-ENV = MALLOC_TRACE=$(objpfx)noload.mtrace
 
 LDFLAGS-nodelete = -rdynamic
@@ -700,10 +712,12 @@ $(objpfx)lateglobal.out: $(objpfx)ltglobmod1.so $(objpfx)ltglobmod2.so
 $(objpfx)tst-pathopt: $(libdl)
 $(objpfx)tst-pathopt.out: tst-pathopt.sh $(objpfx)tst-pathopt \
 			  $(objpfx)pathoptobj.so
-	$(SHELL) $< $(common-objpfx) '$(test-wrapper-env)'
+	$(SHELL) $< $(common-objpfx) '$(test-wrapper-env)'; \
+	$(evaluate-test)
 
 $(objpfx)tst-rtld-load-self.out: tst-rtld-load-self.sh $(objpfx)ld.so
-	$(SHELL) $^ '$(test-wrapper)' '$(test-wrapper-env)' > $@
+	$(SHELL) $^ '$(test-wrapper)' '$(test-wrapper-env)' > $@; \
+	$(evaluate-test)
 
 $(objpfx)initfirst: $(libdl)
 $(objpfx)initfirst.out: $(objpfx)firstobj.so
@@ -845,46 +859,46 @@ endif
 LDFLAGS-tst-array2 = $(no-as-needed)
 LDFLAGS-tst-array5 = $(no-as-needed)
 
-$(objpfx)tst-array1.out: tst-array1.exp $(objpfx)tst-array1
-	$(test-program-cmd) > $@
-	cmp $@ tst-array1.exp > /dev/null
+$(objpfx)tst-array1-cmp.out: tst-array1.exp $(objpfx)tst-array1.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
-$(objpfx)tst-array1-static.out: tst-array1.exp $(objpfx)tst-array1-static
-	$(test-program-cmd) > $@
-	cmp $@ tst-array1.exp > /dev/null
+$(objpfx)tst-array1-static-cmp.out: tst-array1.exp \
+				    $(objpfx)tst-array1-static.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-array2: $(objpfx)tst-array2dep.so
-$(objpfx)tst-array2.out: tst-array2.exp $(objpfx)tst-array2
-	$(test-program-cmd) > $@
-	cmp $@ tst-array2.exp > /dev/null
+$(objpfx)tst-array2-cmp.out: tst-array2.exp $(objpfx)tst-array2.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
-$(objpfx)tst-array3.out: tst-array1.exp $(objpfx)tst-array3
-	$(test-program-cmd) > $@
-	cmp $@ tst-array1.exp > /dev/null
+$(objpfx)tst-array3-cmp.out: tst-array1.exp $(objpfx)tst-array3.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-array4: $(libdl)
-$(objpfx)tst-array4.out: tst-array4.exp $(objpfx)tst-array4 \
-			 $(objpfx)tst-array2dep.so
-	$(test-program-cmd) > $@
-	cmp $@ tst-array4.exp > /dev/null
+$(objpfx)tst-array4.out: $(objpfx)tst-array2dep.so
+$(objpfx)tst-array4-cmp.out: tst-array4.exp $(objpfx)tst-array4.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-array5: $(objpfx)tst-array5dep.so
-$(objpfx)tst-array5.out: tst-array5.exp $(objpfx)tst-array5
-	$(test-program-cmd) > $@
-	cmp $@ tst-array5.exp > /dev/null
+$(objpfx)tst-array5-cmp.out: tst-array5.exp $(objpfx)tst-array5.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
-$(objpfx)tst-array5-static.out: tst-array5-static.exp \
-				$(objpfx)tst-array5-static
-	$(test-program-cmd) > $@
-	cmp $@ tst-array5-static.exp > /dev/null
+$(objpfx)tst-array5-static-cmp.out: tst-array5-static.exp \
+				$(objpfx)tst-array5-static.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 CFLAGS-tst-pie1.c += $(pie-ccflag)
+CFLAGS-tst-pie2.c += $(pie-ccflag)
 
 $(objpfx)tst-pie1: $(objpfx)tst-piemod1.so
 
 ifeq (yes,$(build-shared))
-tests: $(objpfx)check-textrel.out $(objpfx)check-execstack.out
-
 all-built-dso := $(common-objpfx)libc.so \
 		 $(filter-out $(common-objpfx)linkobj/libc.so, \
 			      $(sort $(wildcard $(addprefix $(common-objpfx), \
@@ -900,7 +914,8 @@ common-generated += $(all-built-dso:$(common-objpfx)%=%.dyn)
 
 $(objpfx)check-textrel.out: $(..)scripts/check-textrel.awk \
 			    $(all-built-dso:=.dyn)
-	LC_ALL=C $(AWK) -f $^ > $@
+	LC_ALL=C $(AWK) -f $^ > $@; \
+	$(evaluate-test)
 generated += check-textrel.out
 
 $(objpfx)execstack-default: $(first-word $(wildcard $(sysdirs:%=%/stackinfo.h)))
@@ -927,7 +942,8 @@ common-generated += $(all-built-dso:$(common-objpfx)%=%.phdr)
 $(objpfx)check-execstack.out: $(..)scripts/check-execstack.awk \
 			      $(objpfx)execstack-default \
 			      $(all-built-dso:=.phdr)
-	LC_ALL=C $(AWK) -f $^ > $@
+	LC_ALL=C $(AWK) -f $^ > $@; \
+	$(evaluate-test)
 generated += check-execstack.out
 
 $(objpfx)tst-dlmodcount: $(libdl)
@@ -939,8 +955,6 @@ $(all-built-dso:=.jmprel): %.jmprel: % Makefile
 	test -s $@T
 	mv -f $@T $@
 common-generated += $(all-built-dso:$(common-objpfx)%=%.jmprel)
-
-tests: $(objpfx)check-localplt.out
 
 localplt-built-dso := $(addprefix $(common-objpfx),\
 				  libc.so \
@@ -962,7 +976,8 @@ $(objpfx)check-localplt.out: $(..)scripts/check-localplt.awk \
 			     localplt.data
 	LC_ALL=C $(AWK) -f $(filter-out $< %localplt.data,$^) | \
 	  LC_ALL=C $(AWK) -f $< $(filter %localplt.data,$^) - \
-	  > $@
+	  > $@; \
+	$(evaluate-test)
 endif
 
 $(objpfx)tst-dlopenrpathmod.so: $(libdl)
@@ -993,6 +1008,10 @@ tst-audit1-ENV = LD_AUDIT=$(objpfx)tst-auditmod1.so
 $(objpfx)tst-audit2.out: $(objpfx)tst-auditmod1.so
 tst-audit2-ENV = LD_AUDIT=$(objpfx)tst-auditmod1.so
 
+$(objpfx)tst-audit9: $(libdl)
+$(objpfx)tst-audit9.out: $(objpfx)tst-auditmod9a.so $(objpfx)tst-auditmod9b.so
+tst-audit9-ENV = LD_AUDIT=$(objpfx)tst-auditmod9a.so
+
 $(objpfx)tst-audit8: $(common-objpfx)math/libm.so
 $(objpfx)tst-audit8.out: $(objpfx)tst-auditmod1.so
 tst-audit8-ENV = LD_AUDIT=$(objpfx)tst-auditmod1.so
@@ -1001,11 +1020,10 @@ $(objpfx)tst-global1: $(libdl)
 $(objpfx)tst-global1.out: $(objpfx)testobj6.so $(objpfx)testobj2.so
 
 $(objpfx)order2: $(libdl)
-$(objpfx)order2.out: $(objpfx)order2 $(objpfx)order2mod1.so \
-		     $(objpfx)order2mod2.so
-	$(test-program-prefix) \
-	  $(objpfx)order2 > $@
-	(echo "12345" | cmp $@ -) > /dev/null
+$(objpfx)order2.out: $(objpfx)order2mod1.so $(objpfx)order2mod2.so
+$(objpfx)order2-cmp.out: $(objpfx)order2.out
+	(echo "12345" | cmp $< -) > $@; \
+	$(evaluate-test)
 $(objpfx)order2mod1.so: $(objpfx)order2mod4.so
 $(objpfx)order2mod4.so: $(objpfx)order2mod3.so
 $(objpfx)order2mod2.so: $(objpfx)order2mod3.so
@@ -1016,13 +1034,21 @@ LDFLAGS-order2mod2.so = $(no-as-needed)
 tst-stackguard1-ARGS = --command "$(host-test-program-cmd) --child"
 tst-stackguard1-static-ARGS = --command "$(objpfx)tst-stackguard1-static --child"
 
+tst-ptrguard1-ARGS = --command "$(host-test-program-cmd) --child"
+# When built statically, the pointer guard interface uses
+# __pointer_chk_guard_local.
+CFLAGS-tst-ptrguard1-static.c = -DPTRGUARD_LOCAL
+tst-ptrguard1-static-ARGS = --command "$(objpfx)tst-ptrguard1-static --child"
+
 $(objpfx)tst-leaks1: $(libdl)
-$(objpfx)tst-leaks1-mem: $(objpfx)tst-leaks1.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks1.mtrace > $@
+$(objpfx)tst-leaks1-mem.out: $(objpfx)tst-leaks1.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks1.mtrace > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-leaks1-static: $(common-objpfx)dlfcn/libdl.a
-$(objpfx)tst-leaks1-static-mem: $(objpfx)tst-leaks1-static.out
-	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks1-static.mtrace > $@
+$(objpfx)tst-leaks1-static-mem.out: $(objpfx)tst-leaks1-static.out
+	$(common-objpfx)malloc/mtrace $(objpfx)tst-leaks1-static.mtrace > $@; \
+	$(evaluate-test)
 
 tst-leaks1-ENV = MALLOC_TRACE=$(objpfx)tst-leaks1.mtrace
 tst-leaks1-static-ENV = MALLOC_TRACE=$(objpfx)tst-leaks1-static.mtrace
@@ -1095,10 +1121,9 @@ $(objpfx)tst-unique3.out: $(objpfx)tst-unique3lib2.so
 
 $(objpfx)tst-unique4: $(objpfx)tst-unique4lib.so
 
-$(objpfx)tst-initorder.out: $(objpfx)tst-initorder
-	$(test-program-prefix) \
-	  $< > $@
-	cmp $@ tst-initorder.exp > /dev/null
+$(objpfx)tst-initorder-cmp.out: tst-initorder.exp $(objpfx)tst-initorder.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-initorder2: $(objpfx)tst-initorder2a.so $(objpfx)tst-initorder2d.so $(objpfx)tst-initorder2c.so
 $(objpfx)tst-initorder2a.so: $(objpfx)tst-initorder2b.so
@@ -1115,20 +1140,15 @@ endef
 object-suffixes-left := a b c d
 include $(o-iterator)
 
-$(objpfx)tst-initorder2.out: $(objpfx)tst-initorder2
-	$(test-program-prefix) \
-	  $< > $@
-	cmp $@ tst-initorder2.exp > /dev/null
+$(objpfx)tst-initorder2-cmp.out: tst-initorder2.exp $(objpfx)tst-initorder2.out
+	cmp $^ > $@; \
+	$(evaluate-test)
 
 $(objpfx)tst-relsort1: $(libdl)
 $(objpfx)tst-relsort1mod1.so: $(libm) $(objpfx)tst-relsort1mod2.so
 $(objpfx)tst-relsort1mod2.so: $(libm)
 $(objpfx)tst-relsort1.out: $(objpfx)tst-relsort1mod1.so \
 			   $(objpfx)tst-relsort1mod2.so
-
-ifeq ($(run-built-tests),yes)
-tests: $(objpfx)tst-unused-dep.out
-endif
 
 $(objpfx)tst-unused-dep.out: $(objpfx)testobj1.so
 	$(test-wrapper-env) \
@@ -1137,5 +1157,9 @@ $(objpfx)tst-unused-dep.out: $(objpfx)testobj1.so
 	LD_PRELOAD= \
 	$(elf-objpfx)${rtld-installed-name} \
 	  --library-path $(rpath-link)$(patsubst %,:%,$(sysdep-library-path)) \
-	  $< > $@
-	cmp $@ /dev/null > /dev/null
+	  $< > $@; \
+	$(evaluate-test)
+
+$(objpfx)tst-unused-dep-cmp.out: $(objpfx)tst-unused-dep.out
+	cmp $< /dev/null > $@; \
+	$(evaluate-test)

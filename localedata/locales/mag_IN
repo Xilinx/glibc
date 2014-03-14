@@ -29,7 +29,7 @@ category  "mag_IN:2012";LC_PAPER
 category  "mag_IN:2012";LC_NAME
 category  "mag_IN:2012";LC_ADDRESS
 category  "mag_IN:2012";LC_TELEPHONE
-
+category  "mag_IN:2012";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -154,7 +154,21 @@ END LC_NAME
 
 
 LC_ADDRESS
-copy "hi_IN"
+
+postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
+<U0025><U0062><U0025><U0065><U0025><U0072>"
+
+country_ab2 "<U0049><U004E>"
+country_ab3 "<U0049><U004E><U0044>"
+country_num 356
+% IND
+country_car    "<U0049><U004E><U0044>"
+% मगही
+lang_name    "<U092E><U0917><U0939><U0940>"
+% mag
+lang_term    "<U006D><U0061><U0067>"
+% mag
+lang_lib    "<U006D><U0061><U0067>"
 END LC_ADDRESS
 
 
@@ -164,5 +178,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

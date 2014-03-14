@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -25,7 +25,7 @@ long double
 __powl (long double x, long double y)
 {
   long double z = __ieee754_powl (x, y);
-  if (__builtin_expect (!__finitel (z), 0))
+  if (__glibc_unlikely (!__finitel (z)))
     {
       if (_LIB_VERSION != _IEEE_)
 	{

@@ -38,7 +38,7 @@ category  "pa_PK:2000";LC_PAPER
 category  "pa_PK:2000";LC_NAME
 category  "pa_PK:2000";LC_ADDRESS
 category  "pa_PK:2000";LC_TELEPHONE
-
+category  "pa_PK:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -158,7 +158,8 @@ copy "ur_PK"
 END LC_PAPER
 
 LC_MEASUREMENT
-copy "ur_PK"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -177,6 +178,15 @@ postal_fmt    "<U0025><U0061><U0025><U004E><U0025><U0066><U0025><U004E>/
 country_ab2 "<U0050><U004B>"
 country_ab3 "<U0050><U0041><U004B>"
 country_num 586
+% PK
+country_car    "<U0050><U004B>"
+lang_name    "<U067E><U0646><U062C><U0627><U0628><U06CC>"
+% pa
+lang_ab      "<U0070><U0061>"
+% pan
+lang_term    "<U0070><U0061><U006E>"
+% pan
+lang_lib    "<U0070><U0061><U006E>"
 END LC_ADDRESS
 
 LC_TELEPHONE

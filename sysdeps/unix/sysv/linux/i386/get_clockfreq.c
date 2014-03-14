@@ -1,5 +1,5 @@
 /* Get frequency of the system processor.  i386/Linux version.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ __get_clockfreq (void)
     return result;
 
   fd = __open ("/proc/cpuinfo", O_RDONLY);
-  if (__builtin_expect (fd != -1, 1))
+  if (__glibc_likely (fd != -1))
     {
       /* XXX AFAIK the /proc filesystem can generate "files" only up
          to a size of 4096 bytes.  */
@@ -52,7 +52,7 @@ __get_clockfreq (void)
 	{
 	  char *mhz = memmem (buf, n, "cpu MHz", 7);
 
-	  if (__builtin_expect (mhz != NULL, 1))
+	  if (__glibc_likely (mhz != NULL))
 	    {
 	      char *endp = buf + n;
 	      int seen_decpoint = 0;

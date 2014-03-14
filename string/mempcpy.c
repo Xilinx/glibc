@@ -1,7 +1,7 @@
 /* Copy memory to memory until the specified number of bytes
    has been copied, return pointer to following byte.
    Overlap is NOT handled correctly.
-   Copyright (C) 1991-2013 Free Software Foundation, Inc.
+   Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Torbjorn Granlund (tege@sics.se).
 
@@ -24,8 +24,12 @@
 #undef mempcpy
 #undef __mempcpy
 
+#ifndef MEMPCPY
+# define MEMPCPY __mempcpy
+#endif
+
 void *
-__mempcpy (void *dest, const void *src, size_t len)
+MEMPCPY (void *dest, const void *src, size_t len)
 {
   return memcpy (dest, src, len) + len;
 }

@@ -1,2 +1,0 @@
-aarch64.*-.*-linux.*	DEFAULT			GLIBC_2.17
-aarch64.*-.*-linux.*	ld=ld-linux-aarch64.so.1

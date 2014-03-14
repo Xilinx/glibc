@@ -55,7 +55,7 @@ category  "sk_SK:2000";LC_PAPER
 category  "sk_SK:2000";LC_NAME
 category  "sk_SK:2000";LC_ADDRESS
 category  "sk_SK:2000";LC_TELEPHONE
-
+category  "sk_SK:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -206,8 +206,8 @@ int_prefix     "<U0034><U0032><U0031>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -224,4 +224,12 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0053><U004B>"
 country_ab3 "<U0053><U0056><U004B>"
 country_num 703
+% SK
+country_car    "<U0053><U004B>"
+% sk
+lang_ab      "<U0073><U006B>"
+% slk
+lang_term    "<U0073><U006C><U006B>"
+% slo
+lang_lib    "<U0073><U006C><U006F>"
 END LC_ADDRESS

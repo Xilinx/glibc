@@ -1,5 +1,5 @@
 /* Optimized strcasecmp implementation for PowerPC64.
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,7 +32,11 @@
 #endif
 
 ENTRY (__STRCMP)
+#ifndef USE_IN_EXTENDED_LOCALE_MODEL
 	CALL_MCOUNT 2
+#else
+	CALL_MCOUNT 3
+#endif
 
 #define rRTN	r3	/* Return value */
 #define rSTR1	r5	/* 1st string */

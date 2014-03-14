@@ -44,7 +44,7 @@ category  "es_PY:2000";LC_PAPER
 category  "es_PY:2000";LC_NAME
 category  "es_PY:2000";LC_ADDRESS
 category  "es_PY:2000";LC_TELEPHONE
-
+category  "es_PY:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -135,8 +135,8 @@ int_prefix     "<U0035><U0039><U0035>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -153,4 +153,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2   "<U0050><U0059>"
 country_ab3   "<U0050><U0052><U0059>"
 country_num   600
+% PY
+country_car    "<U0050><U0059>"
+% Español
+lang_name     "<U0045><U0073><U0070><U0061><U00F1><U006F><U006C>"
+% es
+lang_ab      "<U0065><U0073>"
+% spa
+lang_term    "<U0073><U0070><U0061>"
+% spa
+lang_lib    "<U0073><U0070><U0061>"
 END LC_ADDRESS

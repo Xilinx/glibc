@@ -1,5 +1,5 @@
 /* ID for functions called via socketcall system call.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 /* Define unique numbers for the operations permitted on socket.  Linux
    uses a single system call for all these functions.  The relevant code
    file is /usr/include/linux/net.h.
-   We cannot use a enum here because the values are used in assembler
+   We cannot use an enum here because the values are used in assembler
    code.  */
 
 #define SOCKOP_socket		1

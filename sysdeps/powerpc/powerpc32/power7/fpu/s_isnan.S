@@ -1,5 +1,5 @@
 /* isnan().  PowerPC32/POWER7 version.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    Contributed by Luis Machado <luisgpm@br.ibm.com>.
    This file is part of the GNU C Library.
 
@@ -53,8 +53,8 @@ ENTRY (__isnan)
 	stwu	r1,-16(r1)    /* Allocate stack space.  */
 	stfd	fp1,8(r1)     /* Transfer FP to GPR's.  */
 	ori	2,2,0	      /* Force a new dispatch group.  */
-	lwz     r4,8(r1)      /* Load the upper half of the FP value.  */
-	lwz     r5,12(r1)     /* Load the lower half of the FP value.  */
+	lwz     r4,8+HIWORD(r1) /* Load the upper half of the FP value.  */
+	lwz     r5,8+LOWORD(r1) /* Load the lower half of the FP value.  */
 	addi	r1,r1,16      /* Reset the stack pointer.  */
 	lis     r0,0x7ff0     /* Load the upper portion for an INF/NaN.  */
 	clrlwi  r4,r4,1	      /* r4 = abs(r4).  */

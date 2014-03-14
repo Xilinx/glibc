@@ -1,5 +1,5 @@
 /* Generic conversion to and from ANSI_X3.110-1983.
-   Copyright (C) 1998-2013 Free Software Foundation, Inc.
+   Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -567,7 +567,7 @@ static const char from_ucs4[][2] =
     /* Now test for a possible second byte and write this if possible.  */    \
     if (cp[1] != '\0')							      \
       {									      \
-	if (__builtin_expect (outptr >= outend, 0))	 		      \
+	if (__glibc_unlikely (outptr >= outend))			      \
 	  {								      \
 	    /* The result does not fit into the buffer.  */		      \
 	    --outptr;							      \

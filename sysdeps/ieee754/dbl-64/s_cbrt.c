@@ -1,5 +1,5 @@
 /* Compute cubic root of double value.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Dirk Alboth <dirka@uni-paderborn.de> and
    Ulrich Drepper <drepper@cygnus.com>, 1997.
@@ -51,16 +51,17 @@ __cbrt (double x)
   if (xe == 0 && fpclassify (x) <= FP_ZERO)
     return x + x;
 
- u = (0.354895765043919860
-      + ((1.50819193781584896
-	 + ((-2.11499494167371287
-	    + ((2.44693122563534430
-	       + ((-1.83469277483613086
-		  + (0.784932344976639262 - 0.145263899385486377 * xm) * xm)
+  u = (0.354895765043919860
+       + ((1.50819193781584896
+	   + ((-2.11499494167371287
+	       + ((2.44693122563534430
+		   + ((-1.83469277483613086
+		       + (0.784932344976639262 - 0.145263899385486377 * xm)
+	                  * xm)
+		      * xm))
 		  * xm))
-	       * xm))
-	    * xm))
-	 * xm));
+	      * xm))
+	  * xm));
 
   t2 = u * u * u;
 

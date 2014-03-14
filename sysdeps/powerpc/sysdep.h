@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  * Powerpc Feature masks for the Aux Vector Hardware Capabilities (AT_HWCAP).
  * This entry is copied to _dl_hwcap or rtld_global._dl_hwcap during startup.
  */
-#define _SYS_AUXV_H 1
+#define _SYSDEPS_SYSDEP_H 1
 #include <bits/hwcap.h>
 
 #define PPC_FEATURE_970 (PPC_FEATURE_POWER4 + PPC_FEATURE_HAS_ALTIVEC)
@@ -144,6 +144,21 @@
 
 #define VRSAVE	256
 
+/* The 32-bit words of a 64-bit dword are at these offsets in memory.  */
+#if defined __LITTLE_ENDIAN__ || defined _LITTLE_ENDIAN
+# define LOWORD 0
+# define HIWORD 4
+#else
+# define LOWORD 4
+# define HIWORD 0
+#endif
+
+/* The high 16-bit word of a 64-bit dword is at this offset in memory.  */
+#if defined __LITTLE_ENDIAN__ || defined _LITTLE_ENDIAN
+# define HISHORT 6
+#else
+# define HISHORT 0
+#endif
 
 /* This seems to always be the case on PPC.  */
 #define ALIGNARG(log2) log2

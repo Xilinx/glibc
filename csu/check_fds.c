@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ check_one_fd (int fd, int mode)
 
       /* Something is wrong with this descriptor, it's probably not
 	 opened.  Open /dev/null so that the SUID program we are
-	 about to start does not accidently use this descriptor.  */
+	 about to start does not accidentally use this descriptor.  */
       int nullfd = open_not_cancel (name, mode, 0);
 
       /* We are very paranoid here.  With all means we try to ensure

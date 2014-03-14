@@ -1,5 +1,5 @@
 /* Find the length of STRING, but scan at most MAXLEN characters.
-   Copyright (C) 1991-2013 Free Software Foundation, Inc.
+   Copyright (C) 1991-2014 Free Software Foundation, Inc.
    Contributed by Jakub Jelinek <jakub@redhat.com>.
 
    Based on strlen written by Torbjorn Granlund (tege@sics.se),
@@ -40,7 +40,7 @@ __strnlen (const char *str, size_t maxlen)
   if (maxlen == 0)
     return 0;
 
-  if (__builtin_expect (end_ptr < str, 0))
+  if (__glibc_unlikely (end_ptr < str))
     end_ptr = (const char *) ~0UL;
 
   /* Handle the first few characters by reading one character at a time.

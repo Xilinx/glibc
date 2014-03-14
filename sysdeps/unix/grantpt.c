@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Zack Weinberg <zack@rabi.phys.columbia.edu>, 1998.
 
@@ -108,7 +108,7 @@ grantpt (int fd)
   char *buf = _buf;
   struct stat64 st;
 
-  if (__builtin_expect (pts_name (fd, &buf, sizeof (_buf), &st), 0))
+  if (__glibc_unlikely (pts_name (fd, &buf, sizeof (_buf), &st)))
     {
       int save_errno = errno;
 
@@ -136,7 +136,7 @@ grantpt (int fd)
     }
 
   static int tty_gid = -1;
-  if (__builtin_expect (tty_gid == -1, 0))
+  if (__glibc_unlikely (tty_gid == -1))
     {
       char *grtmpbuf;
       struct group grbuf;
@@ -173,9 +173,10 @@ grantpt (int fd)
   retval = 0;
   goto cleanup;
 
-  /* We have to use the helper program.  */
+  /* We have to use the helper program if it is available.  */
  helper:;
 
+#ifdef HAVE_PT_CHOWN
   pid_t pid = __fork ();
   if (pid == -1)
     goto cleanup;
@@ -190,9 +191,9 @@ grantpt (int fd)
 	if (__dup2 (fd, PTY_FILENO) < 0)
 	  _exit (FAIL_EBADF);
 
-#ifdef CLOSE_ALL_FDS
+# ifdef CLOSE_ALL_FDS
       CLOSE_ALL_FDS ();
-#endif
+# endif
 
       execle (_PATH_PT_CHOWN, basename (_PATH_PT_CHOWN), NULL, NULL);
       _exit (FAIL_EXEC);
@@ -231,6 +232,7 @@ grantpt (int fd)
 	    assert(! "getpt: internal error: invalid exit code from pt_chown");
 	  }
     }
+#endif
 
  cleanup:
   if (buf != _buf)

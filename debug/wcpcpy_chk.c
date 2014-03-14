@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1996.
 
@@ -33,7 +33,7 @@ __wcpcpy_chk (wchar_t *dest, const wchar_t *src, size_t destlen)
 
   do
     {
-      if (__builtin_expect (destlen-- == 0, 0))
+      if (__glibc_unlikely (destlen-- == 0))
 	__chk_fail ();
       c = wcp[off];
       *++wcp = c;

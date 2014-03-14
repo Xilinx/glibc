@@ -1,5 +1,5 @@
 /* Optimized 32-bit memset implementation for POWER6.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ L(_memset):
 	ble-	cr1, L(small)
 /* Align to word boundary.  */
 	cmplwi	cr5, rLEN, 31
-	rlwimi	rCHR, rCHR, 8, 16, 23 /* Replicate byte to halfword.  */
+	insrdi	rCHR, rCHR, 8, 48	/* Replicate byte to halfword.  */
 	beq+	L(aligned)
 	mtcrf	0x01, rMEMP0
 	subfic	rALIGN, rALIGN, 4
@@ -64,7 +64,7 @@ L(g0):
 /* Handle the case of size < 31.  */
 L(aligned):
 	mtcrf	0x01, rLEN
-	rlwimi	rCHR, rCHR, 16, 0, 15 /* Replicate halfword to word.  */
+	insrdi	rCHR, rCHR, 16, 32	/* Replicate halfword to word.  */
 	ble	cr5, L(medium)
 /* Align to 32-byte boundary.  */
 	andi.	rALIGN, rMEMP, 0x1C
@@ -101,7 +101,7 @@ L(nondcbz):
    boundary may not be at cache line (128-byte) boundary.  */
 L(nzloopstart):
 /* memset in 32-byte chunks until we get to a cache line boundary.
-   If rLEN is less then the distance to the next cache-line boundary use
+   If rLEN is less than the distance to the next cache-line boundary use
    cacheAligned1 code to finish the tail.  */
 	cmplwi	cr1,rLEN,128
 
@@ -306,7 +306,7 @@ L(nzCacheAligned256):
    block zero instruction. */
 L(zloopstart):
 /* memset in 32-byte chunks until we get to a cache line boundary.
-   If rLEN is less then the distance to the next cache-line boundary use
+   If rLEN is less than the distance to the next cache-line boundary use
    cacheAligned1 code to finish the tail.  */
 	cmplwi	cr1,rLEN,128
 	beq	L(medium)

@@ -42,7 +42,7 @@ category  "el_GR:2000";LC_PAPER
 category  "el_GR:2000";LC_NAME
 category  "el_GR:2000";LC_ADDRESS
 category  "el_GR:2000";LC_TELEPHONE
-
+category  "el_GR:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -158,8 +158,8 @@ int_select     "<U0030><U0030>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -176,4 +176,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0047><U0052>"
 country_ab3 "<U0047><U0052><U0043>"
 country_num 300
+% GR
+country_car    "<U0047><U0052>"
+% ελληνικά
+lang_name    "<U03B5><U03BB><U03BB><U03B7><U03BD><U03B9><U03BA><U03AC>"
+% el
+lang_ab      "<U0065><U006C>"
+% ell
+lang_term    "<U0065><U006C><U006C>"
+% gre
+lang_lib    "<U0067><U0072><U0065>"
 END LC_ADDRESS

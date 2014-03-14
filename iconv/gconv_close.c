@@ -1,5 +1,5 @@
 /* Release any resource associated with given conversion descriptor.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -45,7 +45,7 @@ __gconv_close (__gconv_t cd)
 	  struct __gconv_trans_data *curp = transp;
 	  transp = transp->__next;
 
-	  if (__builtin_expect (curp->__trans_end_fct != NULL, 0))
+	  if (__glibc_unlikely (curp->__trans_end_fct != NULL))
 	    curp->__trans_end_fct (curp->__data);
 
 	  free (curp);

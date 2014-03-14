@@ -1,4 +1,4 @@
-/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2008-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2008.
 
@@ -24,6 +24,14 @@
 #include <sys/syscall.h>
 #include <kernel-features.h>
 
+/* Do not use the accept4 syscall on socketcall architectures unless
+   it was added at the same time as the socketcall support or can be
+   assumed to be present.  */
+#if defined __ASSUME_SOCKETCALL \
+    && !defined __ASSUME_ACCEPT4_SYSCALL_WITH_SOCKETCALL \
+    && !defined __ASSUME_ACCEPT4_SYSCALL
+# undef __NR_accept4
+#endif
 
 #ifdef __NR_accept4
 int
@@ -42,7 +50,7 @@ accept4 (int fd, __SOCKADDR_ARG addr, socklen_t *addr_len, int flags)
   return result;
 }
 #elif defined __NR_socketcall
-# ifndef __ASSUME_ACCEPT4
+# ifndef __ASSUME_ACCEPT4_SOCKETCALL
 extern int __internal_accept4 (int fd, __SOCKADDR_ARG addr,
 			       socklen_t *addr_len, int flags)
      attribute_hidden;
@@ -52,7 +60,7 @@ static int have_accept4;
 int
 accept4 (int fd, __SOCKADDR_ARG addr, socklen_t *addr_len, int flags)
 {
-  if (__builtin_expect (have_accept4 >= 0, 1))
+  if (__glibc_likely (have_accept4 >= 0))
     {
       int ret = __internal_accept4 (fd, addr, addr_len, flags);
       /* The kernel returns -EINVAL for unknown socket operations.
@@ -83,7 +91,8 @@ accept4 (int fd, __SOCKADDR_ARG addr, socklen_t *addr_len, int flags)
   return -1;
 }
 # else
-/* When __ASSUME_ACCEPT4 accept4 is defined in internal_accept4.S.  */
+/* When __ASSUME_ACCEPT4_SOCKETCALL accept4 is defined in
+   internal_accept4.S.  */
 # endif
 #else
 int

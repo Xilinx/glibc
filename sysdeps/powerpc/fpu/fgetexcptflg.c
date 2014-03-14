@@ -1,5 +1,5 @@
 /* Store current representation for exceptions.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ __fegetexceptflag (fexcept_t *flagp, int excepts)
   u.fenv = fegetenv_register ();
 
   /* Return (all of) it.  */
-  *flagp = u.l[1] & excepts & FE_ALL_EXCEPT;
+  *flagp = u.l & excepts & FE_ALL_EXCEPT;
 
   /* Success.  */
   return 0;

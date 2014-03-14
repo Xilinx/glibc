@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2013 Free Software Foundation, Inc.
+# Copyright (C) 1998-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Sub-makefile for debug portion of the library.
 #
 subdir	:= debug
+
+include ../Makeconfig
 
 headers	:= execinfo.h
 
@@ -90,6 +92,8 @@ CFLAGS-tst-longjmp_chk.c = -fexceptions -fasynchronous-unwind-tables
 CPPFLAGS-tst-longjmp_chk.c = -D_FORTIFY_SOURCE=1
 CFLAGS-tst-longjmp_chk2.c = -fexceptions -fasynchronous-unwind-tables
 CPPFLAGS-tst-longjmp_chk2.c = -D_FORTIFY_SOURCE=1
+CFLAGS-tst-longjmp_chk3.c = -fexceptions -fasynchronous-unwind-tables
+CPPFLAGS-tst-longjmp_chk3.c = -D_FORTIFY_SOURCE=1
 
 # We know these tests have problems with format strings, this is what
 # we are testing.  Disable that warning.
@@ -130,16 +134,18 @@ CFLAGS-tst-backtrace2.c += -funwind-tables
 CFLAGS-tst-backtrace3.c += -funwind-tables
 CFLAGS-tst-backtrace4.c += -funwind-tables
 CFLAGS-tst-backtrace5.c += -funwind-tables
+CFLAGS-tst-backtrace6.c += -funwind-tables
 LDFLAGS-tst-backtrace2 = -rdynamic
 LDFLAGS-tst-backtrace3 = -rdynamic
 LDFLAGS-tst-backtrace4 = -rdynamic
 LDFLAGS-tst-backtrace5 = -rdynamic
+LDFLAGS-tst-backtrace6 = -rdynamic
 
 tests = backtrace-tst tst-longjmp_chk tst-chk1 tst-chk2 tst-chk3 \
 	tst-lfschk1 tst-lfschk2 tst-lfschk3 test-strcpy_chk test-stpcpy_chk \
 	tst-chk4 tst-chk5 tst-chk6 tst-lfschk4 tst-lfschk5 tst-lfschk6 \
 	tst-longjmp_chk2 tst-backtrace2 tst-backtrace3 tst-backtrace4 \
-	tst-backtrace5
+	tst-backtrace5 tst-backtrace6
 
 tests-ifunc := $(stpcpy_chk strcpy_chk:%=test-%-ifunc)
 tests += $(tests-ifunc)
@@ -157,12 +163,10 @@ others = pcprofiledump
 install-bin = pcprofiledump
 install-bin-script = xtrace
 
-include ../Makeconfig
-
 ifeq ($(build-shared),yes)
 install-bin-script += catchsegv
 endif
-generated = catchsegv xtrace
+generated += catchsegv xtrace
 
 include ../Rules
 

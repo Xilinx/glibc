@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.org>, 1999.
 
@@ -23,7 +23,7 @@
 wchar_t *
 __wmempcpy_chk (wchar_t *s1, const wchar_t *s2, size_t n, size_t ns1)
 {
-  if (__builtin_expect (ns1 < n, 0))
+  if (__glibc_unlikely (ns1 < n))
     __chk_fail ();
   return (wchar_t *) __mempcpy ((char *) s1, (char *) s2,
 				n * sizeof (wchar_t));

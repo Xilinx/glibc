@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2013 Free Software Foundation, Inc.
+# Copyright (C) 1998-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ endif
 nscd-modules += selinux
 selinux-LIBS := -lselinux $(libaudit) $(libcap)
 
-# The configure.in check for libselinux and its headers did not use
+# The configure.ac check for libselinux and its headers did not use
 # $SYSINCLUDES.  The directory specified by --with-headers usually
 # contains only the basic kernel interface headers, not something like
 # libselinux.  So the simplest thing is to presume that the standard

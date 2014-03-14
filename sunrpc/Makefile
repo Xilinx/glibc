@@ -1,4 +1,4 @@
-# Copyright (C) 1994-2013 Free Software Foundation, Inc.
+# Copyright (C) 1994-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Sub-makefile for sunrpc portion of the library.
 #
 subdir	:= sunrpc
+
+include ../Makeconfig
 
 # The code in this subdirectory is taken from Sun's RPCSRC-4.0
 # distribution with some additional changes from the TI-RPC package
@@ -54,17 +56,15 @@ headers-not-in-tirpc = $(addprefix rpc/,key_prot.h rpc_des.h) \
 		       $(rpcsvc:%=rpcsvc/%) rpcsvc/bootparam.h
 headers = rpc/netdb.h
 install-others = $(inst_sysconfdir)/rpc
-generated = $(rpcsvc:%.x=rpcsvc/%.h) $(rpcsvc:%.x=x%.c) $(rpcsvc:%.x=x%.stmp) \
-	    $(rpcsvc:%.x=rpcsvc/%.stmp) rpcgen
-generated-dirs := rpcsvc
-
-include ../Makeconfig
+generated += $(rpcsvc:%.x=rpcsvc/%.h) $(rpcsvc:%.x=x%.c) $(rpcsvc:%.x=x%.stmp) \
+	     $(rpcsvc:%.x=rpcsvc/%.stmp) rpcgen
+generated-dirs += rpcsvc
 
 ifeq ($(link-obsolete-rpc),yes)
 headers += $(headers-in-tirpc) $(headers-not-in-tirpc)
 endif
 
-ifeq ($(versioning),yes)
+ifeq ($(build-shared),yes)
 need-export-routines := auth_des auth_unix clnt_gen clnt_perr clnt_tcp \
 			clnt_udp get_myaddr key_call netname pm_getport \
 			rpc_thread svc svc_tcp svc_udp xcrypt xdr_array xdr \
@@ -93,8 +93,6 @@ rpcgen-objs = rpc_main.o rpc_hout.o rpc_cout.o rpc_parse.o \
 	      rpc_tblout.o rpc_sample.o
 extra-objs = $(rpcgen-objs) $(addprefix cross-,$(rpcgen-objs))
 others += rpcgen
-
-all: # Make this the default target; it will be defined in Rules.
 
 tests = tst-xdrmem tst-xdrmem2
 xtests := tst-getmyaddr

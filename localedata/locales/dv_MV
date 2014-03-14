@@ -38,7 +38,7 @@ category  "dv_MV:2006";LC_PAPER
 category  "dv_MV:2006";LC_NAME
 category  "dv_MV:2006";LC_ADDRESS
 category  "dv_MV:2006";LC_TELEPHONE
-
+category  "dv_MV:2006";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -55,7 +55,7 @@ copy "en_DK"
 END LC_COLLATE
 
 LC_MONETARY
-% it is meant to be MVR, could you see if it is correct please
+% MVR
 int_curr_symbol "<U004D><U0056><U0052><U0020>"
 currency_symbol "<U0783><U002E>"
 mon_decimal_point "<U002E>"
@@ -163,7 +163,8 @@ int_prefix     "<U0039><U0036><U0030>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -177,4 +178,13 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 <U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
 <U004E><U0025><U0025><U007A><U0020><U0025><U0054><U0025>/
 <U004E><U0025><U0063><U0025><U004E>"
+% lang_name FIXME
+% Cannot represent Dhivehi in Thaana script
+% http://en.wikipedia.org/wiki/Maldivian_language
+% dv
+lang_ab      "<U0064><U0076>"
+% div
+lang_term    "<U0064><U0069><U0076>"
+% div
+lang_lib    "<U0064><U0069><U0076>"
 END LC_ADDRESS

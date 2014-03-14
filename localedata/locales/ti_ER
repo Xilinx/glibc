@@ -50,7 +50,7 @@ END LC_IDENTIFICATION
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Ethiopic Specifc Data:
+%  Ethiopic Specific Data:
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -65,16 +65,13 @@ END LC_CTYPE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Eritrea Specifc Data:
+%  Eritrea Specific Data:
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 LC_MEASUREMENT
-%
-% This is the ISO_IEC TR14652 Locale definition for the LC_MEASUREMENT category.
-%
+% metric
 measurement 1
-%
 END LC_MEASUREMENT
 
 
@@ -150,7 +147,8 @@ country_post  "<U0045><U0052><U0049>"
 country_ab2   "<U0045><U0052>"
 country_ab3   "<U0045><U0052><U0049>"
 country_num   232
-% country_car   unknown
+% ER
+country_car  "<U0045><U0052>"
 % country_isbn  unknown, Need ISO 2108
 lang_name     "<U1275><U130D><U122D><U129B>"
 lang_ab       "<U0074><U0069>"

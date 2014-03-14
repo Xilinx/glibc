@@ -1,6 +1,6 @@
 /* Convert characters in input buffer using conversion descriptor to
    output buffer.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -36,7 +36,7 @@ iconv (iconv_t cd, char **inbuf, size_t *inbytesleft, char **outbuf,
   size_t irreversible;
   int result;
 
-  if (__builtin_expect (inbuf == NULL || *inbuf == NULL, 0))
+  if (__glibc_unlikely (inbuf == NULL || *inbuf == NULL))
     {
       if (outbuf == NULL || *outbuf == NULL)
 	result = __gconv (gcd, NULL, NULL, NULL, NULL, &irreversible);

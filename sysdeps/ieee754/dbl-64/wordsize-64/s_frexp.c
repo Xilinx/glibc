@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -39,11 +39,11 @@ __frexp (double x, int *eptr)
   int32_t ex = 0x7ff & (ix >> 52);
   int e = 0;
 
-  if (__builtin_expect (ex != 0x7ff && x != 0.0, 1))
+  if (__glibc_likely (ex != 0x7ff && x != 0.0))
     {
       /* Not zero and finite.  */
       e = ex - 1022;
-      if (__builtin_expect (ex == 0, 0))
+      if (__glibc_unlikely (ex == 0))
 	{
 	  /* Subnormal.  */
 	  x *= 0x1p54;

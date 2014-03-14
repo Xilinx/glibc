@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2013 Free Software Foundation, Inc.
+# Copyright (C) 2003-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 
 subdir	:= libidn
 
+include ../Makeconfig
+
 routines = idn-stub
 
 extra-libs		= libcidn
@@ -26,9 +28,6 @@ extra-libs-others	= $(extra-libs)
 
 libcidn-routines := punycode toutf8 nfkc stringprep rfc3454 profiles idna \
 		    iconvme
-
-
-include $(..)Makeconfig
 
 libcidn-inhibit-o = $(filter-out .os,$(object-suffixes))
 

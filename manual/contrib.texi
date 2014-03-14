@@ -12,7 +12,8 @@ order.
 @itemize @bullet
 
 @item
-Ryan S. Arnold for his improvements for Linux on PowerPC.
+Ryan S. Arnold for his improvements for Linux on PowerPC and his direction
+as FSF Project Steward for @theglibc{}.
 
 @item
 Miles Bader for writing the @code{argp} argument-parsing package, and the
@@ -27,6 +28,10 @@ Petr Baudis for bug fixes and testing.
 @item
 Stephen R. van den Berg for contributing a highly-optimized
 @code{strstr} function.
+
+@item
+Ondrej Bilka for contributing optimized string routines for x64 and various
+fixes.
 
 @item
 Eric Blake for adding O(n) implementations of @code{memmem},
@@ -81,6 +86,9 @@ Paul Eggert for the @code{mktime} function and for his direction as
 part of @theglibc{} steering committee.
 
 @item
+Steve Ellcey for various fixes.
+
+@item
 Tulio Magno Quites Machado Filho for adding a new class of installed
 headers for low-level platform-specific functionality and one such for
 PowerPC.
@@ -115,6 +123,9 @@ Richard Henderson for the port to Linux on Alpha
 (@code{alpha-@var{anything}-linux}).
 
 @item
+David Holsgrove for the port to Linux on MicroBlaze.
+
+@item
 Daniel Jacobowitz for various fixes and enhancements.
 
 @item
@@ -145,6 +156,9 @@ Mark Kettenis for implementing the @code{utmpx} interface and an utmp
 daemon, and for a Hesiod NSS module.
 
 @item
+Andi Kleen for implementing pthreads lock elision with TSX.
+
+@item
 Kazumoto Kojima for the port of the Mach and Hurd code to the MIPS
 architecture (@code{mips-@var{anything}-gnu}) and for his work on the
 SH architecture.
@@ -166,6 +180,9 @@ functions @code{malloc}, @code{realloc} and @code{free} and related
 code.
 
 @item
+Chris Leonard for various fixes and enhancements to localedata.
+
+@item
 Hongjiu Lu for providing the support for a Linux 32-bit runtime
 environment under x86-64 (x32), for porting to Linux on IA64, for
 improved string functions, a framework for testing IFUNC
@@ -184,7 +201,11 @@ Greg McGary for adding runtime support for bounds checking.
 @item
 Roland McGrath for writing most of @theglibc{} originally, for his
 work on the Hurd port, his direction as part of @theglibc{} steering
-committee, and for many bug fixes and reviewing of contributions.
+committee and as FSF Project Steward for @theglibc{}, and for many bug
+fixes and reviewing of contributions.
+
+@item
+Allan McRae for various fixes.
 
 @item
 Jason Merrill for the port to the Sequent Symmetry running Dynix
@@ -219,17 +240,25 @@ implementations for PowerPC.
 Joseph S. Myers for numerous bug fixes for the libm functions, for
 his maintainership of the ARM and MIPS architectures, improving
 cross-compilation and cross-testing of @theglibc{}, expanded
-coverage of conformtest, and merging the ports/ subdirectory
-into the @glibcadj{} main repository.
+coverage of conformtest, merging the ports/ subdirectory
+into the @glibcadj{} main repository and his direction as FSF Project
+Steward for @theglibc{}.
 
 @item
-Carlos O'Donell for his maintainership of the HPPA architecture and
-maintaining @theglibc{} web pages.
+Will Newton for contributing some optimized string functions and pointer
+encryption support for ARM and various fixes.
+
+@item
+Carlos O'Donell for his maintainership of the HPPA architecture, for
+maintaining @theglibc{} web pages and wiki, for his direction as FSF
+Project Steward for @theglibc{} and various bug fixes.
 
 @item
 Alexandre Oliva for adding TLS descriptors for LD and GD on x86 and
 x86-64, for the am33 port, for completing the MIPS n64/n32/o32 multilib
-port, and for various fixes.
+port, for thread-safety, async-signal safety and async-cancellation
+safety documentation in the manual, for his direction as FSF Project
+Maintainer and for various fixes.
 
 @item
 Paul Pluzhnikov for various fixes.
@@ -238,7 +267,8 @@ Paul Pluzhnikov for various fixes.
 Marek Polacek for various fixes.
 
 @item
-Siddhesh Poyarekar for various fixes.
+Siddhesh Poyarekar for various fixes and an implementation of a
+framework for performance benchmarking of functions.
 
 @item
 Tom Quinn for contributing the startup code to support SunOS shared

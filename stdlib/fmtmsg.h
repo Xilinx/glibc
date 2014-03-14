@@ -1,5 +1,5 @@
 /* Message display handling.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -95,7 +95,7 @@ extern int fmtmsg (long int __classification, const char *__label,
 		   int __severity, const char *__text,
 		   const char *__action, const char *__tag);
 
-#ifdef __USE_SVID
+#ifdef __USE_MISC
 /* Add or remove severity level.  */
 extern int addseverity (int __severity, const char *__string) __THROW;
 #endif

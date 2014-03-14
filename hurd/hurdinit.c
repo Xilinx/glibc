@@ -1,4 +1,4 @@
-/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ int __libc_argc;
 error_t
 _hurd_ports_use (int which, error_t (*operate) (mach_port_t))
 {
-  if (__builtin_expect (_hurd_ports == NULL, 0))
+  if (__glibc_unlikely (_hurd_ports == NULL))
     /* This means that _hurd_init has not been called yet, which is
        normally only the case in the bootstrap filesystem, and there
        only in the early phases of booting.  */

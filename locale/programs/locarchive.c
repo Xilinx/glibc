@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -37,12 +37,16 @@
 #include <stdint.h>
 #include <sys/mman.h>
 #include <sys/param.h>
+#include <sys/shm.h>
 #include <sys/stat.h>
 
+#include <libc-internal.h>
+#include <libc-mmap.h>
 #include "../../crypt/md5.h"
 #include "../localeinfo.h"
 #include "../locarchive.h"
 #include "localedef.h"
+#include "locfile.h"
 
 /* Define the hash function.  We define the function as static inline.
    We must change the name so as not to conflict with simple-hash.h.  */
@@ -71,6 +75,13 @@ static const char *locnames[] =
 #define INITIAL_NUM_SUMS	2000
 
 
+/* Get and set values (possibly endian-swapped) in structures mapped
+   from or written directly to locale archives.  */
+#define GET(FIELD)	maybe_swap_uint32 (FIELD)
+#define SET(FIELD, VALUE)	((FIELD) = maybe_swap_uint32 (VALUE))
+#define INC(FIELD, INCREMENT)	SET (FIELD, GET (FIELD) + (INCREMENT))
+
+
 /* Size of the reserved address space area.  */
 #define RESERVE_MMAP_SIZE	512 * 1024 * 1024
 
@@ -79,21 +90,29 @@ static const char *locnames[] =
    mapping affects the address selection.  So do this mapping from the
    actual file, even though it's only a dummy to reserve address space.  */
 static void *
-prepare_address_space (int fd, size_t total, size_t *reserved, int *xflags)
+prepare_address_space (int fd, size_t total, size_t *reserved, int *xflags,
+		       void **mmap_base, size_t *mmap_len)
 {
   if (total < RESERVE_MMAP_SIZE)
     {
       void *p = mmap64 (NULL, RESERVE_MMAP_SIZE, PROT_NONE, MAP_SHARED, fd, 0);
       if (p != MAP_FAILED)
-        {
-          *reserved = RESERVE_MMAP_SIZE;
-          *xflags = MAP_FIXED;
-          return p;
-        }
+	{
+	  void *aligned_p = PTR_ALIGN_UP (p, MAP_FIXED_ALIGNMENT);
+	  size_t align_adjust = aligned_p - p;
+	  *mmap_base = p;
+	  *mmap_len = RESERVE_MMAP_SIZE;
+	  assert (align_adjust < RESERVE_MMAP_SIZE);
+	  *reserved = RESERVE_MMAP_SIZE - align_adjust;
+	  *xflags = MAP_FIXED;
+	  return aligned_p;
+	}
     }
 
   *reserved = total;
   *xflags = 0;
+  *mmap_base = NULL;
+  *mmap_len = 0;
   return NULL;
 }
 
@@ -114,27 +133,31 @@ create_archive (const char *archivefname, struct locarhandle *ah)
     error (EXIT_FAILURE, errno, _("cannot create temporary file: %s"), fname);
 
   /* Create the initial content of the archive.  */
-  head.magic = AR_MAGIC;
-  head.serial = 0;
-  head.namehash_offset = sizeof (struct locarhead);
-  head.namehash_used = 0;
-  head.namehash_size = next_prime (INITIAL_NUM_NAMES);
+  SET (head.magic, AR_MAGIC);
+  SET (head.serial, 0);
+  SET (head.namehash_offset, sizeof (struct locarhead));
+  SET (head.namehash_used, 0);
+  SET (head.namehash_size, next_prime (INITIAL_NUM_NAMES));
 
-  head.string_offset = (head.namehash_offset
-			+ head.namehash_size * sizeof (struct namehashent));
-  head.string_used = 0;
-  head.string_size = INITIAL_SIZE_STRINGS;
+  SET (head.string_offset,
+       (GET (head.namehash_offset)
+	+ GET (head.namehash_size) * sizeof (struct namehashent)));
+  SET (head.string_used, 0);
+  SET (head.string_size, INITIAL_SIZE_STRINGS);
 
-  head.locrectab_offset = head.string_offset + head.string_size;
-  head.locrectab_used = 0;
-  head.locrectab_size = INITIAL_NUM_LOCREC;
+  SET (head.locrectab_offset,
+       GET (head.string_offset) + GET (head.string_size));
+  SET (head.locrectab_used, 0);
+  SET (head.locrectab_size, INITIAL_NUM_LOCREC);
 
-  head.sumhash_offset = (head.locrectab_offset
-			 + head.locrectab_size * sizeof (struct locrecent));
-  head.sumhash_used = 0;
-  head.sumhash_size = next_prime (INITIAL_NUM_SUMS);
+  SET (head.sumhash_offset,
+       (GET (head.locrectab_offset)
+	+ GET (head.locrectab_size) * sizeof (struct locrecent)));
+  SET (head.sumhash_used, 0);
+  SET (head.sumhash_size, next_prime (INITIAL_NUM_SUMS));
 
-  total = head.sumhash_offset + head.sumhash_size * sizeof (struct sumhashent);
+  total = (GET (head.sumhash_offset)
+	   + GET (head.sumhash_size) * sizeof (struct sumhashent));
 
   /* Write out the header and create room for the other data structures.  */
   if (TEMP_FAILURE_RETRY (write (fd, &head, sizeof (head))) != sizeof (head))
@@ -151,9 +174,11 @@ create_archive (const char *archivefname, struct locarhandle *ah)
       error (EXIT_FAILURE, errval, _("cannot resize archive file"));
     }
 
-  size_t reserved;
+  size_t reserved, mmap_len;
   int xflags;
-  void *p = prepare_address_space (fd, total, &reserved, &xflags);
+  void *mmap_base;
+  void *p = prepare_address_space (fd, total, &reserved, &xflags, &mmap_base,
+				   &mmap_len);
 
   /* Map the header and all the administration data structures.  */
   p = mmap64 (p, total, PROT_READ | PROT_WRITE, MAP_SHARED | xflags, fd, 0);
@@ -198,7 +223,10 @@ create_archive (const char *archivefname, struct locarhandle *ah)
 	     _("cannot change mode of new locale archive"));
     }
 
+  ah->fname = NULL;
   ah->fd = fd;
+  ah->mmap_base = mmap_base;
+  ah->mmap_len = mmap_len;
   ah->addr = p;
   ah->mmaped = total;
   ah->reserved = reserved;
@@ -225,10 +253,10 @@ oldlocrecentcmp (const void *a, const void *b)
   for (cnt = 0; cnt < __LC_LAST; ++cnt)
     if (cnt != LC_ALL)
       {
-	if (la->record[cnt].offset < start_a)
-	  start_a = la->record[cnt].offset;
-	if (la->record[cnt].offset + la->record[cnt].len > end_a)
-	  end_a = la->record[cnt].offset + la->record[cnt].len;
+	if (GET (la->record[cnt].offset) < start_a)
+	  start_a = GET (la->record[cnt].offset);
+	if (GET (la->record[cnt].offset) + GET (la->record[cnt].len) > end_a)
+	  end_a = GET (la->record[cnt].offset) + GET (la->record[cnt].len);
       }
   assert (start_a != (uint32_t)-1);
   assert (end_a != 0);
@@ -236,10 +264,10 @@ oldlocrecentcmp (const void *a, const void *b)
   for (cnt = 0; cnt < __LC_LAST; ++cnt)
     if (cnt != LC_ALL)
       {
-	if (lb->record[cnt].offset < start_b)
-	  start_b = lb->record[cnt].offset;
-	if (lb->record[cnt].offset + lb->record[cnt].len > end_b)
-	  end_b = lb->record[cnt].offset + lb->record[cnt].len;
+	if (GET (lb->record[cnt].offset) < start_b)
+	  start_b = GET (lb->record[cnt].offset);
+	if (GET (lb->record[cnt].offset) + GET (lb->record[cnt].len) > end_b)
+	  end_b = GET (lb->record[cnt].offset) + GET (lb->record[cnt].len);
       }
   assert (start_b != (uint32_t)-1);
   assert (end_b != 0);
@@ -271,8 +299,7 @@ file_data_available_p (struct locarhandle *ah, uint32_t offset, uint32_t size)
   if (st.st_size > ah->reserved)
     return false;
 
-  const size_t pagesz = getpagesize ();
-  size_t start = ah->mmaped & ~(pagesz - 1);
+  size_t start = ALIGN_DOWN (ah->mmaped, MAP_FIXED_ALIGNMENT);
   void *p = mmap64 (ah->addr + start, st.st_size - start,
 		    PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED,
 		    ah->fd, start);
@@ -332,10 +359,15 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
 		       MAP_SHARED | MAP_FIXED, ah->fd, 0);
   else
     {
-      munmap (ah->addr, ah->reserved);
+      if (ah->mmap_base)
+	munmap (ah->mmap_base, ah->mmap_len);
+      else
+	munmap (ah->addr, ah->reserved);
       ah->addr = mmap64 (NULL, st.st_size, PROT_READ | PROT_WRITE,
 			 MAP_SHARED, ah->fd, 0);
       ah->reserved = st.st_size;
+      ah->mmap_base = NULL;
+      ah->mmap_len = 0;
       head = ah->addr;
     }
   if (ah->addr == MAP_FAILED)
@@ -352,38 +384,42 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
 
   /* Create the new archive header.  The sizes of the various tables
      should be double from what is currently used.  */
-  newhead.namehash_size = MAX (next_prime (2 * newhead.namehash_used),
-			       newhead.namehash_size);
+  SET (newhead.namehash_size,
+       MAX (next_prime (2 * GET (newhead.namehash_used)),
+	    GET (newhead.namehash_size)));
   if (verbose)
     printf ("name: size: %u, used: %d, new: size: %u\n",
-	    head->namehash_size, head->namehash_used, newhead.namehash_size);
+	    GET (head->namehash_size),
+	    GET (head->namehash_used), GET (newhead.namehash_size));
 
-  newhead.string_offset = (newhead.namehash_offset
-			   + (newhead.namehash_size
-			      * sizeof (struct namehashent)));
+  SET (newhead.string_offset, (GET (newhead.namehash_offset)
+			       + (GET (newhead.namehash_size)
+				  * sizeof (struct namehashent))));
   /* Keep the string table size aligned to 4 bytes, so that
      all the struct { uint32_t } types following are happy.  */
-  newhead.string_size = MAX ((2 * newhead.string_used + 3) & -4,
-			     newhead.string_size);
+  SET (newhead.string_size, MAX ((2 * GET (newhead.string_used) + 3) & -4,
+				 GET (newhead.string_size)));
 
-  newhead.locrectab_offset = newhead.string_offset + newhead.string_size;
-  newhead.locrectab_size = MAX (2 * newhead.locrectab_used,
-				newhead.locrectab_size);
+  SET (newhead.locrectab_offset,
+       GET (newhead.string_offset) + GET (newhead.string_size));
+  SET (newhead.locrectab_size, MAX (2 * GET (newhead.locrectab_used),
+				    GET (newhead.locrectab_size)));
 
-  newhead.sumhash_offset = (newhead.locrectab_offset
-			    + (newhead.locrectab_size
-			       * sizeof (struct locrecent)));
-  newhead.sumhash_size = MAX (next_prime (2 * newhead.sumhash_used),
-			      newhead.sumhash_size);
+  SET (newhead.sumhash_offset, (GET (newhead.locrectab_offset)
+				+ (GET (newhead.locrectab_size)
+				   * sizeof (struct locrecent))));
+  SET (newhead.sumhash_size,
+       MAX (next_prime (2 * GET (newhead.sumhash_used)),
+	    GET (newhead.sumhash_size)));
 
-  total = (newhead.sumhash_offset
-	   + newhead.sumhash_size * sizeof (struct sumhashent));
+  total = (GET (newhead.sumhash_offset)
+	   + GET (newhead.sumhash_size) * sizeof (struct sumhashent));
 
   /* The new file is empty now.  */
-  newhead.namehash_used = 0;
-  newhead.string_used = 0;
-  newhead.locrectab_used = 0;
-  newhead.sumhash_used = 0;
+  SET (newhead.namehash_used, 0);
+  SET (newhead.string_used, 0);
+  SET (newhead.locrectab_used, 0);
+  SET (newhead.sumhash_used, 0);
 
   /* Write out the header and create room for the other data structures.  */
   if (TEMP_FAILURE_RETRY (write (fd, &newhead, sizeof (newhead)))
@@ -401,9 +437,11 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
       error (EXIT_FAILURE, errval, _("cannot resize archive file"));
     }
 
-  size_t reserved;
+  size_t reserved, mmap_len;
   int xflags;
-  void *p = prepare_address_space (fd, total, &reserved, &xflags);
+  void *mmap_base;
+  void *p = prepare_address_space (fd, total, &reserved, &xflags, &mmap_base,
+				   &mmap_len);
 
   /* Map the header and all the administration data structures.  */
   p = mmap64 (p, total, PROT_READ | PROT_WRITE, MAP_SHARED | xflags, fd, 0);
@@ -423,6 +461,8 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
     }
 
   new_ah.mmaped = total;
+  new_ah.mmap_base = mmap_base;
+  new_ah.mmap_len = mmap_len;
   new_ah.addr = p;
   new_ah.fd = fd;
   new_ah.reserved = reserved;
@@ -430,17 +470,17 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
   /* Walk through the hash name hash table to find out what data is
      still referenced and transfer it into the new file.  */
   oldnamehashtab = (struct namehashent *) ((char *) ah->addr
-					   + head->namehash_offset);
+					   + GET (head->namehash_offset));
 
   /* Sort the old locrec table in order of data position.  */
-  struct oldlocrecent oldlocrecarray[head->namehash_size];
-  for (cnt = 0, loccnt = 0; cnt < head->namehash_size; ++cnt)
-    if (oldnamehashtab[cnt].locrec_offset != 0)
+  struct oldlocrecent oldlocrecarray[GET (head->namehash_size)];
+  for (cnt = 0, loccnt = 0; cnt < GET (head->namehash_size); ++cnt)
+    if (GET (oldnamehashtab[cnt].locrec_offset) != 0)
       {
 	oldlocrecarray[loccnt].cnt = cnt;
 	oldlocrecarray[loccnt++].locrec
 	  = (struct locrecent *) ((char *) ah->addr
-				  + oldnamehashtab[cnt].locrec_offset);
+				  + GET (oldnamehashtab[cnt].locrec_offset));
       }
   qsort (oldlocrecarray, loccnt, sizeof (struct oldlocrecent),
 	 oldlocrecentcmp);
@@ -456,9 +496,9 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
       for (idx = 0; idx < __LC_LAST; ++idx)
 	if (idx != LC_ALL)
 	  {
-	    old_data[idx].size = oldlocrec->record[idx].len;
+	    old_data[idx].size = GET (oldlocrec->record[idx].len);
 	    old_data[idx].addr
-	      = ((char *) ah->addr + oldlocrec->record[idx].offset);
+	      = ((char *) ah->addr + GET (oldlocrec->record[idx].offset));
 
 	    __md5_buffer (old_data[idx].addr, old_data[idx].size,
 			  old_data[idx].sum);
@@ -468,20 +508,23 @@ enlarge_archive (struct locarhandle *ah, const struct locarhead *head)
 	{
 	  const char *oldname
 	    = ((char *) ah->addr
-	       + oldnamehashtab[oldlocrecarray[cnt - 1].cnt].name_offset);
+	       + GET (oldnamehashtab[oldlocrecarray[cnt
+						    - 1].cnt].name_offset));
 
-	  add_alias (&new_ah,
-		     ((char *) ah->addr
-		      + oldnamehashtab[oldlocrecarray[cnt].cnt].name_offset),
-		     0, oldname, &last_locrec_offset);
+	  add_alias
+	    (&new_ah,
+	     ((char *) ah->addr
+	      + GET (oldnamehashtab[oldlocrecarray[cnt].cnt].name_offset)),
+	     0, oldname, &last_locrec_offset);
 	  continue;
 	}
 
       last_locrec_offset =
-	add_locale (&new_ah,
-		    ((char *) ah->addr
-		     + oldnamehashtab[oldlocrecarray[cnt].cnt].name_offset),
-		    old_data, 0);
+	add_locale
+	(&new_ah,
+	 ((char *) ah->addr
+	  + GET (oldnamehashtab[oldlocrecarray[cnt].cnt].name_offset)),
+	 old_data, 0);
       if (last_locrec_offset == 0)
 	error (EXIT_FAILURE, 0, _("cannot extend locale archive file"));
     }
@@ -520,11 +563,17 @@ open_archive (struct locarhandle *ah, bool readonly)
   struct locarhead head;
   int retry = 0;
   size_t prefix_len = output_prefix ? strlen (output_prefix) : 0;
-  char archivefname[prefix_len + sizeof (ARCHIVE_NAME)];
+  char default_fname[prefix_len + sizeof (ARCHIVE_NAME)];
+  const char *archivefname = ah->fname;
 
-  if (output_prefix)
-    memcpy (archivefname, output_prefix, prefix_len);
-  strcpy (archivefname + prefix_len, ARCHIVE_NAME);
+  /* If ah has a non-NULL fname open that otherwise open the default.  */
+  if (archivefname == NULL)
+    {
+      archivefname = default_fname;
+      if (output_prefix)
+        memcpy (default_fname, output_prefix, prefix_len);
+      strcpy (default_fname + prefix_len, ARCHIVE_NAME);
+    }
 
   while (1)
     {
@@ -532,8 +581,11 @@ open_archive (struct locarhandle *ah, bool readonly)
       fd = open64 (archivefname, readonly ? O_RDONLY : O_RDWR);
       if (fd == -1)
 	{
-	  /* Maybe the file does not yet exist.  */
-	  if (errno == ENOENT)
+	  /* Maybe the file does not yet exist? If we are opening
+	     the default locale archive we ignore the failure and
+	     list an empty archive, otherwise we print an error
+	     and exit.  */
+	  if (errno == ENOENT && archivefname == default_fname)
 	    {
 	      if (readonly)
 		{
@@ -606,9 +658,11 @@ open_archive (struct locarhandle *ah, bool readonly)
   ah->fd = fd;
   ah->mmaped = st.st_size;
 
-  size_t reserved;
+  size_t reserved, mmap_len;
   int xflags;
-  void *p = prepare_address_space (fd, st.st_size, &reserved, &xflags);
+  void *mmap_base;
+  void *p = prepare_address_space (fd, st.st_size, &reserved, &xflags,
+				   &mmap_base, &mmap_len);
 
   /* Map the entire file.  We might need to compare the category data
      in the file with the newly added data.  */
@@ -620,6 +674,8 @@ open_archive (struct locarhandle *ah, bool readonly)
       error (EXIT_FAILURE, errno, _("cannot map archive header"));
     }
   ah->reserved = reserved;
+  ah->mmap_base = mmap_base;
+  ah->mmap_len = mmap_len;
 }
 
 
@@ -628,7 +684,10 @@ close_archive (struct locarhandle *ah)
 {
   if (ah->fd != -1)
     {
-      munmap (ah->addr, ah->reserved);
+      if (ah->mmap_base)
+	munmap (ah->mmap_base, ah->mmap_len);
+      else
+	munmap (ah->addr, ah->reserved);
       close (ah->fd);
     }
 }
@@ -642,26 +701,28 @@ insert_name (struct locarhandle *ah,
 {
   const struct locarhead *const head = ah->addr;
   struct namehashent *namehashtab
-    = (struct namehashent *) ((char *) ah->addr + head->namehash_offset);
+    = (struct namehashent *) ((char *) ah->addr
+			      + GET (head->namehash_offset));
   unsigned int insert_idx, idx, incr;
 
   /* Hash value of the locale name.  */
   uint32_t hval = archive_hashval (name, name_len);
 
   insert_idx = -1;
-  idx = hval % head->namehash_size;
-  incr = 1 + hval % (head->namehash_size - 2);
+  idx = hval % GET (head->namehash_size);
+  incr = 1 + hval % (GET (head->namehash_size) - 2);
 
   /* If the name_offset field is zero this means this is a
      deleted entry and therefore no entry can be found.  */
-  while (namehashtab[idx].name_offset != 0)
+  while (GET (namehashtab[idx].name_offset) != 0)
     {
-      if (namehashtab[idx].hashval == hval
-	  && strcmp (name,
-		     (char *) ah->addr + namehashtab[idx].name_offset) == 0)
+      if (GET (namehashtab[idx].hashval) == hval
+	  && (strcmp (name,
+		      (char *) ah->addr + GET (namehashtab[idx].name_offset))
+	      == 0))
 	{
 	  /* Found the entry.  */
-	  if (namehashtab[idx].locrec_offset != 0 && ! replace)
+	  if (GET (namehashtab[idx].locrec_offset) != 0 && ! replace)
 	    {
 	      if (! be_quiet)
 		error (0, 0, _("locale '%s' already exists"), name);
@@ -671,26 +732,27 @@ insert_name (struct locarhandle *ah,
 	  break;
 	}
 
-      if (namehashtab[idx].hashval == hval && ! be_quiet)
+      if (GET (namehashtab[idx].hashval) == hval && ! be_quiet)
 	{
 	  error (0, 0, "hash collision (%u) %s, %s",
-		 hval, name, (char *) ah->addr + namehashtab[idx].name_offset);
+		 hval, name,
+		 (char *) ah->addr + GET (namehashtab[idx].name_offset));
 	}
 
       /* Remember the first place we can insert the new entry.  */
-      if (namehashtab[idx].locrec_offset == 0 && insert_idx == -1)
+      if (GET (namehashtab[idx].locrec_offset) == 0 && insert_idx == -1)
 	insert_idx = idx;
 
       idx += incr;
-      if (idx >= head->namehash_size)
-	idx -= head->namehash_size;
+      if (idx >= GET (head->namehash_size))
+	idx -= GET (head->namehash_size);
     }
 
   /* Add as early as possible.  */
   if (insert_idx != -1)
     idx = insert_idx;
 
-  namehashtab[idx].hashval = hval; /* no-op if replacing an old entry.  */
+  SET (namehashtab[idx].hashval, hval); /* no-op if replacing an old entry.  */
   return &namehashtab[idx];
 }
 
@@ -706,12 +768,13 @@ add_alias (struct locarhandle *ah, const char *alias, bool replace,
   if (namehashent == NULL && ! replace)
     return;
 
-  if (namehashent->name_offset == 0)
+  if (GET (namehashent->name_offset) == 0)
     {
       /* We are adding a new hash entry for this alias.
 	 Determine whether we have to resize the file.  */
-      if (head->string_used + name_len + 1 > head->string_size
-	  || 100 * head->namehash_used > 75 * head->namehash_size)
+      if (GET (head->string_used) + name_len + 1 > GET (head->string_size)
+	  || (100 * GET (head->namehash_used)
+	      > 75 * GET (head->namehash_size)))
 	{
 	  /* The current archive is not large enough.  */
 	  enlarge_archive (ah, head);
@@ -719,9 +782,9 @@ add_alias (struct locarhandle *ah, const char *alias, bool replace,
 	  /* The locrecent might have moved, so we have to look up
 	     the old name afresh.  */
 	  namehashent = insert_name (ah, oldname, strlen (oldname), true);
-	  assert (namehashent->name_offset != 0);
-	  assert (namehashent->locrec_offset != 0);
-	  *locrec_offset_p = namehashent->locrec_offset;
+	  assert (GET (namehashent->name_offset) != 0);
+	  assert (GET (namehashent->locrec_offset) != 0);
+	  *locrec_offset_p = GET (namehashent->locrec_offset);
 
 	  /* Tail call to try the whole thing again.  */
 	  add_alias (ah, alias, replace, oldname, locrec_offset_p);
@@ -729,26 +792,27 @@ add_alias (struct locarhandle *ah, const char *alias, bool replace,
 	}
 
       /* Add the name string.  */
-      memcpy (ah->addr + head->string_offset + head->string_used,
+      memcpy (ah->addr + GET (head->string_offset) + GET (head->string_used),
 	      alias, name_len + 1);
-      namehashent->name_offset = head->string_offset + head->string_used;
-      head->string_used += name_len + 1;
+      SET (namehashent->name_offset,
+	   GET (head->string_offset) + GET (head->string_used));
+      INC (head->string_used, name_len + 1);
 
-      ++head->namehash_used;
+      INC (head->namehash_used, 1);
     }
 
-  if (namehashent->locrec_offset != 0)
+  if (GET (namehashent->locrec_offset) != 0)
     {
       /* Replacing an existing entry.
 	 Mark that we are no longer using the old locrecent.  */
       struct locrecent *locrecent
 	= (struct locrecent *) ((char *) ah->addr
-				+ namehashent->locrec_offset);
-      --locrecent->refs;
+				+ GET (namehashent->locrec_offset));
+      INC (locrecent->refs, -1);
     }
 
   /* Point this entry at the locrecent installed for the main name.  */
-  namehashent->locrec_offset = locrec_offset;
+  SET (namehashent->locrec_offset, locrec_offset);
 }
 
 static int			/* qsort comparator used below */
@@ -784,12 +848,17 @@ add_locale (struct locarhandle *ah,
   off64_t lastoffset;
   char *ptr;
   struct locale_category_data *size_order[__LC_LAST];
-  const size_t pagesz = getpagesize ();
+  /* Page size alignment is a minor optimization for locality; use a
+     common value here rather than making the localedef output depend
+     on the page size of the system on which localedef is run.  See
+     <https://sourceware.org/glibc/wiki/Development_Todo/Master#Locale_archive_alignment>
+     for more discussion.  */
+  const size_t pagesz = 4096;
   int small_mask;
 
   head = ah->addr;
   sumhashtab = (struct sumhashent *) ((char *) ah->addr
-				      + head->sumhash_offset);
+				      + GET (head->sumhash_offset));
 
   memset (file_offsets, 0, sizeof (file_offsets));
 
@@ -847,10 +916,10 @@ add_locale (struct locarhandle *ah,
 	   table.  */
 	hval = archive_hashval (data[cnt].sum, 16);
 
-	idx = hval % head->sumhash_size;
-	incr = 1 + hval % (head->sumhash_size - 2);
+	idx = hval % GET (head->sumhash_size);
+	incr = 1 + hval % (GET (head->sumhash_size) - 2);
 
-	while (sumhashtab[idx].file_offset != 0)
+	while (GET (sumhashtab[idx].file_offset) != 0)
 	  {
 	    if (memcmp (data[cnt].sum, sumhashtab[idx].sum, 16) == 0)
 	      {
@@ -860,40 +929,42 @@ add_locale (struct locarhandle *ah,
 		   Unfortunately the sumhashent record does not include
 		   the size of the stored data.  So we have to search for
 		   it.  */
-		locrecent = (struct locrecent *) ((char *) ah->addr
-						  + head->locrectab_offset);
+		locrecent
+		  = (struct locrecent *) ((char *) ah->addr
+					  + GET (head->locrectab_offset));
 		size_t iloc;
-		for (iloc = 0; iloc < head->locrectab_used; ++iloc)
-		  if (locrecent[iloc].refs != 0
-		      && (locrecent[iloc].record[cnt].offset
-			  == sumhashtab[idx].file_offset))
+		for (iloc = 0; iloc < GET (head->locrectab_used); ++iloc)
+		  if (GET (locrecent[iloc].refs) != 0
+		      && (GET (locrecent[iloc].record[cnt].offset)
+			  == GET (sumhashtab[idx].file_offset)))
 		    break;
 
-		if (iloc != head->locrectab_used
-		    && data[cnt].size == locrecent[iloc].record[cnt].len
+		if (iloc != GET (head->locrectab_used)
+		    && data[cnt].size == GET (locrecent[iloc].record[cnt].len)
 		    /* We have to compare the content.  Either we can
 		       have the data mmaped or we have to read from
 		       the file.  */
-		    && (file_data_available_p (ah, sumhashtab[idx].file_offset,
-					       data[cnt].size)
+		    && (file_data_available_p
+			(ah, GET (sumhashtab[idx].file_offset),
+			 data[cnt].size)
 			? memcmp (data[cnt].addr,
 				  (char *) ah->addr
-				  + sumhashtab[idx].file_offset,
+				  + GET (sumhashtab[idx].file_offset),
 				  data[cnt].size) == 0
 			: compare_from_file (ah, data[cnt].addr,
-					     sumhashtab[idx].file_offset,
+					     GET (sumhashtab[idx].file_offset),
 					     data[cnt].size) == 0))
 		  {
 		    /* Found it.  */
-		    file_offsets[cnt] = sumhashtab[idx].file_offset;
+		    file_offsets[cnt] = GET (sumhashtab[idx].file_offset);
 		    --num_new_offsets;
 		    break;
 		  }
 	      }
 
 	    idx += incr;
-	    if (idx >= head->sumhash_size)
-	      idx -= head->sumhash_size;
+	    if (idx >= GET (head->sumhash_size))
+	      idx -= GET (head->sumhash_size);
 	  }
       }
 
@@ -903,11 +974,14 @@ add_locale (struct locarhandle *ah,
     return 0;
 
   /* Determine whether we have to resize the file.  */
-  if (100 * (head->sumhash_used + num_new_offsets) > 75 * head->sumhash_size
-      || (namehashent->locrec_offset == 0
-	  && (head->locrectab_used == head->locrectab_size
-	      || head->string_used + name_len + 1 > head->string_size
-	      || 100 * head->namehash_used > 75 * head->namehash_size)))
+  if ((100 * (GET (head->sumhash_used) + num_new_offsets)
+       > 75 * GET (head->sumhash_size))
+      || (GET (namehashent->locrec_offset) == 0
+	  && (GET (head->locrectab_used) == GET (head->locrectab_size)
+	      || (GET (head->string_used) + name_len + 1
+		  > GET (head->string_size))
+	      || (100 * GET (head->namehash_used)
+		  > 75 * GET (head->namehash_size)))))
     {
       /* The current archive is not large enough.  */
       enlarge_archive (ah, head);
@@ -970,20 +1044,20 @@ add_locale (struct locarhandle *ah,
 	/* Add the hash value to the hash table.  */
 	md5hval = archive_hashval (data[cnt].sum, 16);
 
-	idx = md5hval % head->sumhash_size;
-	incr = 1 + md5hval % (head->sumhash_size - 2);
+	idx = md5hval % GET (head->sumhash_size);
+	incr = 1 + md5hval % (GET (head->sumhash_size) - 2);
 
-	while (sumhashtab[idx].file_offset != 0)
+	while (GET (sumhashtab[idx].file_offset) != 0)
 	  {
 	    idx += incr;
-	    if (idx >= head->sumhash_size)
-	      idx -= head->sumhash_size;
+	    if (idx >= GET (head->sumhash_size))
+	      idx -= GET (head->sumhash_size);
 	  }
 
 	memcpy (sumhashtab[idx].sum, data[cnt].sum, 16);
-	sumhashtab[idx].file_offset = file_offsets[cnt];
+	SET (sumhashtab[idx].file_offset, file_offsets[cnt]);
 
-	++head->sumhash_used;
+	INC (head->sumhash_used, 1);
       }
 
   lastoffset = file_offsets[LC_ALL];
@@ -994,25 +1068,28 @@ add_locale (struct locarhandle *ah,
 	lastoffset += (data[cnt].size + 15) & -16;
       }
 
-  if (namehashent->name_offset == 0)
+  if (GET (namehashent->name_offset) == 0)
     {
       /* Add the name string.  */
-      memcpy ((char *) ah->addr + head->string_offset + head->string_used,
+      memcpy ((char *) ah->addr + GET (head->string_offset)
+	      + GET (head->string_used),
 	      name, name_len + 1);
-      namehashent->name_offset = head->string_offset + head->string_used;
-      head->string_used += name_len + 1;
-      ++head->namehash_used;
+      SET (namehashent->name_offset,
+	   GET (head->string_offset) + GET (head->string_used));
+      INC (head->string_used, name_len + 1);
+      INC (head->namehash_used, 1);
     }
 
-  if (namehashent->locrec_offset == 0)
+  if (GET (namehashent->locrec_offset == 0))
     {
       /* Allocate a name location record.  */
-      namehashent->locrec_offset = (head->locrectab_offset
-				    + (head->locrectab_used++
-				       * sizeof (struct locrecent)));
+      SET (namehashent->locrec_offset, (GET (head->locrectab_offset)
+					+ (GET (head->locrectab_used)
+					   * sizeof (struct locrecent))));
+      INC (head->locrectab_used, 1);
       locrecent = (struct locrecent *) ((char *) ah->addr
-					+ namehashent->locrec_offset);
-      locrecent->refs = 1;
+					+ GET (namehashent->locrec_offset));
+      SET (locrecent->refs, 1);
     }
   else
     {
@@ -1020,27 +1097,29 @@ add_locale (struct locarhandle *ah,
 	 we still need a new one.  If not, reuse the old one.  */
 
       locrecent = (struct locrecent *) ((char *) ah->addr
-					+ namehashent->locrec_offset);
-      if (locrecent->refs > 1)
+					+ GET (namehashent->locrec_offset));
+      if (GET (locrecent->refs) > 1)
 	{
-	  --locrecent->refs;
-	  namehashent->locrec_offset = (head->locrectab_offset
-					+ (head->locrectab_used++
-					   * sizeof (struct locrecent)));
-	  locrecent = (struct locrecent *) ((char *) ah->addr
-					    + namehashent->locrec_offset);
-	  locrecent->refs = 1;
+	  INC (locrecent->refs, -1);
+	  SET (namehashent->locrec_offset, (GET (head->locrectab_offset)
+					    + (GET (head->locrectab_used)
+					       * sizeof (struct locrecent))));
+	  INC (head->locrectab_used, 1);
+	  locrecent
+	    = (struct locrecent *) ((char *) ah->addr
+				    + GET (namehashent->locrec_offset));
+	  SET (locrecent->refs, 1);
 	}
     }
 
   /* Fill in the table with the locations of the locale data.  */
   for (cnt = 0; cnt < __LC_LAST; ++cnt)
     {
-      locrecent->record[cnt].offset = file_offsets[cnt];
-      locrecent->record[cnt].len = data[cnt].size;
+      SET (locrecent->record[cnt].offset, file_offsets[cnt]);
+      SET (locrecent->record[cnt].len, data[cnt].size);
     }
 
-  return namehashent->locrec_offset;
+  return GET (namehashent->locrec_offset);
 }
 
 
@@ -1099,7 +1178,8 @@ add_locale_to_archive (ah, name, data, replace)
 	unsigned int strindex[0];
       } *filedata = data[LC_CTYPE].addr;
       codeset = (char *) filedata
-	+ filedata->strindex[_NL_ITEM_INDEX (_NL_CTYPE_CODESET_NAME)];
+	+ maybe_swap_uint32 (filedata->strindex[_NL_ITEM_INDEX
+						(_NL_CTYPE_CODESET_NAME)]);
       char *normalized_codeset_name = NULL;
 
       normalized_codeset = _nl_normalize_codeset (codeset, strlen (codeset));
@@ -1259,6 +1339,7 @@ add_locales_to_archive (nlist, list, replace)
 
   /* Open the archive.  This call never returns if we cannot
      successfully open the archive.  */
+  ah.fname = NULL;
   open_archive (&ah, false);
 
   while (nlist-- > 0)
@@ -1458,11 +1539,12 @@ delete_locales_from_archive (nlist, list)
 
   /* Open the archive.  This call never returns if we cannot
      successfully open the archive.  */
+  ah.fname = NULL;
   open_archive (&ah, false);
 
   head = ah.addr;
   namehashtab = (struct namehashent *) ((char *) ah.addr
-					+ head->namehash_offset);
+					+ GET (head->namehash_offset));
 
   while (nlist-- > 0)
     {
@@ -1474,30 +1556,31 @@ delete_locales_from_archive (nlist, list)
       /* Search for this locale in the archive.  */
       hval = archive_hashval (locname, strlen (locname));
 
-      idx = hval % head->namehash_size;
-      incr = 1 + hval % (head->namehash_size - 2);
+      idx = hval % GET (head->namehash_size);
+      incr = 1 + hval % (GET (head->namehash_size) - 2);
 
       /* If the name_offset field is zero this means this is no
 	 deleted entry and therefore no entry can be found.  */
-      while (namehashtab[idx].name_offset != 0)
+      while (GET (namehashtab[idx].name_offset) != 0)
 	{
-	  if (namehashtab[idx].hashval == hval
+	  if (GET (namehashtab[idx].hashval) == hval
 	      && (strcmp (locname,
-			  (char *) ah.addr + namehashtab[idx].name_offset)
+			  ((char *) ah.addr
+			   + GET (namehashtab[idx].name_offset)))
 		  == 0))
 	    {
 	      /* Found the entry.  Now mark it as removed by zero-ing
 		 the reference to the locale record.  */
-	      namehashtab[idx].locrec_offset = 0;
+	      SET (namehashtab[idx].locrec_offset, 0);
 	      break;
 	    }
 
 	  idx += incr;
-	  if (idx >= head->namehash_size)
-	    idx -= head->namehash_size;
+	  if (idx >= GET (head->namehash_size))
+	    idx -= GET (head->namehash_size);
 	}
 
-      if (namehashtab[idx].name_offset == 0 && ! be_quiet)
+      if (GET (namehashtab[idx].name_offset) == 0 && ! be_quiet)
 	error (0, 0, _("locale \"%s\" not in archive"), locname);
     }
 
@@ -1546,7 +1629,7 @@ dataentcmp (const void *a, const void *b)
 
 
 void
-show_archive_content (int verbose)
+show_archive_content (const char *fname, int verbose)
 {
   struct locarhandle ah;
   struct locarhead *head;
@@ -1556,21 +1639,22 @@ show_archive_content (int verbose)
 
   /* Open the archive.  This call never returns if we cannot
      successfully open the archive.  */
+  ah.fname = fname;
   open_archive (&ah, true);
 
   head = ah.addr;
 
-  names = (struct nameent *) xmalloc (head->namehash_used
+  names = (struct nameent *) xmalloc (GET (head->namehash_used)
 				      * sizeof (struct nameent));
 
   namehashtab = (struct namehashent *) ((char *) ah.addr
-					+ head->namehash_offset);
-  for (cnt = used = 0; cnt < head->namehash_size; ++cnt)
-    if (namehashtab[cnt].locrec_offset != 0)
+					+ GET (head->namehash_offset));
+  for (cnt = used = 0; cnt < GET (head->namehash_size); ++cnt)
+    if (GET (namehashtab[cnt].locrec_offset) != 0)
       {
-	assert (used < head->namehash_used);
-	names[used].name = ah.addr + namehashtab[cnt].name_offset;
-	names[used++].locrec_offset = namehashtab[cnt].locrec_offset;
+	assert (used < GET (head->namehash_used));
+	names[used].name = ah.addr + GET (namehashtab[cnt].name_offset);
+	names[used++].locrec_offset = GET (namehashtab[cnt].locrec_offset);
       }
 
   /* Sort the names.  */
@@ -1582,17 +1666,17 @@ show_archive_content (int verbose)
       struct sumhashent *sumhashtab;
       int sumused;
 
-      files = (struct dataent *) xmalloc (head->sumhash_used
+      files = (struct dataent *) xmalloc (GET (head->sumhash_used)
 					  * sizeof (struct dataent));
 
       sumhashtab = (struct sumhashent *) ((char *) ah.addr
-					  + head->sumhash_offset);
-      for (cnt = sumused = 0; cnt < head->sumhash_size; ++cnt)
-	if (sumhashtab[cnt].file_offset != 0)
+					  + GET (head->sumhash_offset));
+      for (cnt = sumused = 0; cnt < GET (head->sumhash_size); ++cnt)
+	if (GET (sumhashtab[cnt].file_offset) != 0)
 	  {
-	    assert (sumused < head->sumhash_used);
+	    assert (sumused < GET (head->sumhash_used));
 	    files[sumused].sum = (const unsigned char *) sumhashtab[cnt].sum;
-	    files[sumused].file_offset = sumhashtab[cnt].file_offset;
+	    files[sumused].file_offset = GET (sumhashtab[cnt].file_offset);
 	    files[sumused++].nlink = 0;
 	  }
 
@@ -1608,18 +1692,19 @@ show_archive_content (int verbose)
 	  locrec = (struct locrecent *) ((char *) ah.addr
 					 + names[cnt].locrec_offset);
 	  for (idx = 0; idx < __LC_LAST; ++idx)
-	    if (locrec->record[LC_ALL].offset != 0
+	    if (GET (locrec->record[LC_ALL].offset) != 0
 		? (idx == LC_ALL
-		   || (locrec->record[idx].offset
-		       < locrec->record[LC_ALL].offset)
-		   || (locrec->record[idx].offset + locrec->record[idx].len
-		       > (locrec->record[LC_ALL].offset
-			  + locrec->record[LC_ALL].len)))
+		   || (GET (locrec->record[idx].offset)
+		       < GET (locrec->record[LC_ALL].offset))
+		   || ((GET (locrec->record[idx].offset)
+			+ GET (locrec->record[idx].len))
+		       > (GET (locrec->record[LC_ALL].offset)
+			  + GET (locrec->record[LC_ALL].len))))
 		: idx != LC_ALL)
 	      {
 		struct dataent *data, dataent;
 
-		dataent.file_offset = locrec->record[idx].offset;
+		dataent.file_offset = GET (locrec->record[idx].offset);
 		data = (struct dataent *) bsearch (&dataent, files, sumused,
 						   sizeof (struct dataent),
 						   dataentcmp);
@@ -1641,21 +1726,24 @@ show_archive_content (int verbose)
 	      {
 		struct dataent *data, dataent;
 
-		dataent.file_offset = locrec->record[idx].offset;
-		if (locrec->record[LC_ALL].offset != 0
-		    && dataent.file_offset >= locrec->record[LC_ALL].offset
-		    && (dataent.file_offset + locrec->record[idx].len
-			<= (locrec->record[LC_ALL].offset
-			    + locrec->record[LC_ALL].len)))
-		  dataent.file_offset = locrec->record[LC_ALL].offset;
+		dataent.file_offset = GET (locrec->record[idx].offset);
+		if (GET (locrec->record[LC_ALL].offset) != 0
+		    && (dataent.file_offset
+			>= GET (locrec->record[LC_ALL].offset))
+		    && (dataent.file_offset + GET (locrec->record[idx].len)
+			<= (GET (locrec->record[LC_ALL].offset)
+			    + GET (locrec->record[LC_ALL].len))))
+		  dataent.file_offset = GET (locrec->record[LC_ALL].offset);
 
 		data = (struct dataent *) bsearch (&dataent, files, sumused,
 						   sizeof (struct dataent),
 						   dataentcmp);
 		printf ("%6d %7x %3d%c ",
-			locrec->record[idx].len, locrec->record[idx].offset,
+			GET (locrec->record[idx].len),
+			GET (locrec->record[idx].offset),
 			data->nlink,
-			dataent.file_offset == locrec->record[LC_ALL].offset
+			(dataent.file_offset
+			 == GET (locrec->record[LC_ALL].offset))
 			? '+' : ' ');
 		for (i = 0; i < 16; i += 4)
 		    printf ("%02x%02x%02x%02x",

@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -28,7 +28,7 @@ double
 __exp10 (double x)
 {
   double z = __ieee754_exp10 (x);
-  if (__builtin_expect (!__finite (z), 0)
+  if (__builtin_expect (!__finite (z) || z == 0, 0)
       && __finite (x) && _LIB_VERSION != _IEEE_)
     /* exp10 overflow (46) if x > 0, underflow (47) if x < 0.  */
     return __kernel_standard (x, x, 46 + !!__signbit (x));

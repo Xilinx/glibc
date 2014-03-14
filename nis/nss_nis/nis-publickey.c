@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1996.
 
@@ -25,7 +25,7 @@
 #include <rpcsvc/yp.h>
 #include <rpcsvc/ypclnt.h>
 #include <rpc/key_prot.h>
-extern int xdecrypt (char *, char *);
+#include <rpc/des_crypt.h>
 
 #include "nss-nis.h"
 
@@ -56,7 +56,7 @@ _nss_nis_getpublickey (const char *netname, char *pkey, int *errnop)
   int yperr = yp_match (domain, "publickey.byname", netname, strlen (netname),
 			&result, &len);
 
-  if (__builtin_expect (yperr != YPERR_SUCCESS, 0))
+  if (__glibc_unlikely (yperr != YPERR_SUCCESS))
     {
       enum nss_status retval = yperr2nss (yperr);
 
@@ -102,7 +102,7 @@ _nss_nis_getsecretkey (const char *netname, char *skey, char *passwd,
   int yperr = yp_match (domain, "publickey.byname", netname, strlen (netname),
 			&result, &len);
 
-  if (__builtin_expect (yperr != YPERR_SUCCESS, 0))
+  if (__glibc_unlikely (yperr != YPERR_SUCCESS))
     {
       enum nss_status retval = yperr2nss (yperr);
 

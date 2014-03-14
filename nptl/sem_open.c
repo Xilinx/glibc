@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -61,7 +61,8 @@ __where_is_shmfs (void)
 
   /* The canonical place is /dev/shm.  This is at least what the
      documentation tells everybody to do.  */
-  if (__statfs (defaultmount, &f) == 0 && f.f_type == SHMFS_SUPER_MAGIC)
+  if (__statfs (defaultmount, &f) == 0 && (f.f_type == SHMFS_SUPER_MAGIC
+					   || f.f_type == RAMFS_MAGIC))
     {
       /* It is in the normal place.  */
       mountpoint.dir = (char *) defaultdir;
@@ -73,10 +74,10 @@ __where_is_shmfs (void)
   /* OK, do it the hard way.  Look through the /proc/mounts file and if
      this does not exist through /etc/fstab to find the mount point.  */
   fp = __setmntent ("/proc/mounts", "r");
-  if (__builtin_expect (fp == NULL, 0))
+  if (__glibc_unlikely (fp == NULL))
     {
       fp = __setmntent (_PATH_MNTTAB, "r");
-      if (__builtin_expect (fp == NULL, 0))
+      if (__glibc_unlikely (fp == NULL))
 	/* There is nothing we can do.  Blind guesses are not helpful.  */
 	return;
     }
@@ -95,7 +96,8 @@ __where_is_shmfs (void)
 	/* First make sure this really is the correct entry.  At least
 	   some versions of the kernel give wrong information because
 	   of the implicit mount of the shmfs for SysV IPC.  */
-	if (__statfs (mp->mnt_dir, &f) != 0 || f.f_type != SHMFS_SUPER_MAGIC)
+	if (__statfs (mp->mnt_dir, &f) != 0 || (f.f_type != SHMFS_SUPER_MAGIC
+						&& f.f_type != RAMFS_MAGIC))
 	  continue;
 
 	namelen = strlen (mp->mnt_dir);

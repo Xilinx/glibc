@@ -1,5 +1,5 @@
 /* Handle loading and unloading shared objects for internal libc purposes.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Zack Weinberg <zack@rabi.columbia.edu>, 1999.
 
@@ -158,7 +158,7 @@ __libc_dlopen_mode (const char *name, int mode)
   args.caller_dlopen = RETURN_ADDRESS (0);
 
 #ifdef SHARED
-  if (__builtin_expect (_dl_open_hook != NULL, 0))
+  if (__glibc_unlikely (_dl_open_hook != NULL))
     return _dl_open_hook->dlopen_mode (name, mode);
   return (dlerror_run (do_dlopen, &args) ? NULL : (void *) args.map);
 #else
@@ -204,7 +204,7 @@ __libc_dlsym (void *map, const char *name)
   args.name = name;
 
 #ifdef SHARED
-  if (__builtin_expect (_dl_open_hook != NULL, 0))
+  if (__glibc_unlikely (_dl_open_hook != NULL))
     return _dl_open_hook->dlsym (map, name);
 #endif
   return (dlerror_run (do_dlsym, &args) ? NULL
@@ -216,7 +216,7 @@ int
 __libc_dlclose (void *map)
 {
 #ifdef SHARED
-  if (__builtin_expect (_dl_open_hook != NULL, 0))
+  if (__glibc_unlikely (_dl_open_hook != NULL))
     return _dl_open_hook->dlclose (map);
 #endif
   return dlerror_run (do_dlclose, map);
@@ -286,6 +286,7 @@ libc_freeres_fn (free_mem)
 	  /* Free the initfini dependency list.  */
 	  if (l->l_free_initfini)
 	    free (l->l_initfini);
+	  l->l_initfini = NULL;
 	}
 
       if (__builtin_expect (GL(dl_ns)[ns]._ns_global_scope_alloc, 0) != 0

@@ -288,6 +288,17 @@ constants are declared in the header file @file{unistd.h}.
 @comment unistd.h
 @comment POSIX.1
 @deftypefun {long int} sysconf (int @var{parameter})
+@safety{@prelim{}@mtsafe{@mtsenv{}}@asunsafe{@asulock{} @ascuheap{}}@acunsafe{@aculock{} @acsmem{} @acsfd{}}}
+@c Some parts of the implementation open /proc and /sys files and dirs
+@c to collect system details, using fd and stream I/O depending on the
+@c case.  _SC_TZNAME_MAX calls __tzname_max, that (while holding a lock)
+@c calls tzset_internal, that calls getenv if it's called the first
+@c time; there are free and strdup calls in there too.  The returned max
+@c value may change over time for TZNAME_MAX, depending on selected
+@c timezones; NPROCS, NPROCS_CONF, PHYS_PAGES, AVPHYS_PAGES,
+@c NGROUPS_MAX, SIGQUEUE_MAX, depending on variable values read from
+@c /proc at each call, and from rlimit-obtained values CHILD_MAX,
+@c OPEN_MAX, ARG_MAX, SIGQUEUE_MAX.
 This function is used to inquire about runtime system parameters.  The
 @var{parameter} argument should be one of the @samp{_SC_} symbols listed
 below.
@@ -1149,6 +1160,9 @@ typed ahead as input.  @xref{I/O Queues}.
 @deftypevr Macro int NAME_MAX
 The uniform system limit (if any) for the length of a file name component, not
 including the terminating null character.
+
+@strong{Portability Note:} On some systems, @theglibc{} defines
+@code{NAME_MAX}, but does not actually enforce this limit.
 @end deftypevr
 
 @comment limits.h
@@ -1157,6 +1171,9 @@ including the terminating null character.
 The uniform system limit (if any) for the length of an entire file name (that
 is, the argument given to system calls such as @code{open}), including the
 terminating null character.
+
+@strong{Portability Note:} @Theglibc{} does not enforce this limit
+even if @code{PATH_MAX} is defined.
 @end deftypevr
 
 @cindex limits, pipe buffer size
@@ -1342,6 +1359,11 @@ argument are declared in the header file @file{unistd.h}.
 @comment unistd.h
 @comment POSIX.1
 @deftypefun {long int} pathconf (const char *@var{filename}, int @var{parameter})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{} @ascuheap{}}@acunsafe{@aculock{} @acsfd{} @acsmem{}}}
+@c When __statfs_link_max finds an ext* filesystem, it may read
+@c /proc/mounts or similar as a mntent stream.
+@c __statfs_chown_restricted may read from
+@c /proc/sys/fs/xfs/restrict_chown as a file descriptor.
 This function is used to inquire about the limits that apply to
 the file named @var{filename}.
 
@@ -1369,6 +1391,8 @@ support the @var{parameter} for the specific file.
 @comment unistd.h
 @comment POSIX.1
 @deftypefun {long int} fpathconf (int @var{filedes}, int @var{parameter})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{} @ascuheap{}}@acunsafe{@aculock{} @acsfd{} @acsmem{}}}
+@c Same caveats as pathconf.
 This is just like @code{pathconf} except that an open file descriptor
 is used to specify the file for which information is requested, instead
 of a file name.
@@ -1475,6 +1499,9 @@ Inquire about the value of @code{POSIX_REC_MIN_XFER_SIZE}.
 @item _PC_REC_XFER_ALIGN
 Inquire about the value of @code{POSIX_REC_XFER_ALIGN}.
 @end table
+
+@strong{Portability Note:} On some systems, @theglibc{} does not
+enforce @code{_PC_NAME_MAX} or @code{_PC_PATH_MAX} limits.
 
 @node Utility Limits
 @section Utility Program Capacity Limits
@@ -1615,6 +1642,7 @@ system with the function @code{confstr}:
 @comment unistd.h
 @comment POSIX.2
 @deftypefun size_t confstr (int @var{parameter}, char *@var{buf}, size_t @var{len})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
 This function reads the value of a string-valued system parameter,
 storing the string into @var{len} bytes of memory space starting at
 @var{buf}.  The @var{parameter} argument should be one of the

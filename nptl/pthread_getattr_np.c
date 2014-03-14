@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -57,7 +57,7 @@ pthread_getattr_np (thread_id, attr)
   iattr->guardsize = thread->reported_guardsize;
 
   /* The sizes are subject to alignment.  */
-  if (__builtin_expect (thread->stackblock != NULL, 1))
+  if (__glibc_likely (thread->stackblock != NULL))
     {
       iattr->stacksize = thread->stackblock_size;
       iattr->stackaddr = (char *) thread->stackblock + iattr->stacksize;

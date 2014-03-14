@@ -1,5 +1,5 @@
 /* Optimized strcpy implementation for PowerPC64.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,25 +22,38 @@
 
 /* char * [r3] strcpy (char *dest [r3], const char *src [r4])  */
 
-EALIGN (strcpy, 4, 0)
+#ifdef USE_AS_STPCPY
+# define FUNC_NAME __stpcpy
+#else
+# define FUNC_NAME strcpy
+#endif
+
+EALIGN (FUNC_NAME, 4, 0)
 	CALL_MCOUNT 2
 
 #define rTMP	r0
-#define rRTN	r3	/* incoming DEST arg preserved as result */
-#define rSRC	r4	/* pointer to previous word in src */
-#define rDEST	r5	/* pointer to previous word in dest */
+#ifdef USE_AS_STPCPY
+#define rRTN    r3      /* pointer to previous word/doubleword in dest */
+#else
+#define rRTN    r12     /* pointer to previous word/doubleword in dest */
+#endif
+#define rSRC	r4	/* pointer to previous word/doubleword in src */
 #define rWORD	r6	/* current word from src */
-#define rFEFE	r7	/* constant 0xfefefefefefefeff (-0x0101010101010101) */
-#define r7F7F	r8	/* constant 0x7f7f7f7f7f7f7f7f */
-#define rNEG	r9	/* ~(word in s1 | 0x7f7f7f7f7f7f7f7f) */
+#define rFEFE	r7	/* constant 0xfefefeff | 0xfefefefefefefeff */
+#define r7F7F	r8	/* constant 0x7f7f7f7f | 0x7f7f7f7f7f7f7f7f */
+#define rNEG	r9	/* ~(word in s1 | r7F7F) */
 #define rALT	r10	/* alternate word from src */
 
-	dcbt	0,rSRC
+#ifndef USE_AS_STPCPY
+/* Save the dst pointer to use as return value.  */
+	mr      rRTN, r3
+#endif
 	or	rTMP, rSRC, rRTN
 	clrldi.	rTMP, rTMP, 61
-	addi	rDEST, rRTN, -8
-	dcbtst	0,rRTN
-	bne	L(unaligned)
+	bne	L(check_word_alignment)
+
+/* For doubleword aligned memory, operate using doubleword load and stores.  */
+	addi	rRTN, rRTN, -8
 
 	lis	rFEFE, -0x101
 	lis	r7F7F, 0x7f7f
@@ -53,13 +66,13 @@ EALIGN (strcpy, 4, 0)
 	b	L(g2)
 
 L(g0):	ldu	rALT, 8(rSRC)
-	stdu	rWORD, 8(rDEST)
+	stdu	rWORD, 8(rRTN)
 	add	rTMP, rFEFE, rALT
 	nor	rNEG, r7F7F, rALT
 	and.	rTMP, rTMP, rNEG
 	bne-	L(g1)
 	ldu	rWORD, 8(rSRC)
-	stdu	rALT, 8(rDEST)
+	stdu	rALT, 8(rRTN)
 L(g2):	add	rTMP, rFEFE, rWORD
 	nor	rNEG, r7F7F, rWORD
 	and.	rTMP, rTMP, rNEG
@@ -68,28 +81,110 @@ L(g2):	add	rTMP, rFEFE, rWORD
 	mr	rALT, rWORD
 /* We've hit the end of the string.  Do the rest byte-by-byte.  */
 L(g1):
-	extrdi.	rTMP, rALT, 8, 0
-	stb	rTMP, 8(rDEST)
-	beqlr-
-	extrdi.	rTMP, rALT, 8, 8
-	stb	rTMP, 9(rDEST)
-	beqlr-
-	extrdi.	rTMP, rALT, 8, 16
-	stb	rTMP, 10(rDEST)
-	beqlr-
-	extrdi.	rTMP, rALT, 8, 24
-	stb	rTMP, 11(rDEST)
-	beqlr-
-	extrdi.	rTMP, rALT, 8, 32
-	stb	rTMP, 12(rDEST)
-	beqlr-
-	extrdi.	rTMP, rALT, 8, 40
-	stb	rTMP, 13(rDEST)
+#ifdef __LITTLE_ENDIAN__
+	extrdi.	rTMP, rALT, 8, 56
+	stbu	rALT, 8(rRTN)
 	beqlr-
 	extrdi.	rTMP, rALT, 8, 48
-	stb	rTMP, 14(rDEST)
+	stbu	rTMP, 1(rRTN)
 	beqlr-
-	stb	rALT, 15(rDEST)
+	extrdi.	rTMP, rALT, 8, 40
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 32
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 24
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 16
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 8
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi	rTMP, rALT, 8, 0
+	stbu	rTMP, 1(rRTN)
+#else
+	extrdi.	rTMP, rALT, 8, 0
+	stbu	rTMP, 8(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 8
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 16
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 24
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 32
+	stbu	rTMP, 1(rRTN)
+	beqlr
+	extrdi.	rTMP, rALT, 8, 40
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	extrdi.	rTMP, rALT, 8, 48
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	stbu	rALT, 1(rRTN)
+#endif
+	blr
+
+L(check_word_alignment):
+	clrldi. rTMP, rTMP, 62
+	bne     L(unaligned)
+
+/* For word aligned memory, operate using word load and stores.  */
+	addi	rRTN, rRTN, -4
+
+	lis	rFEFE, -0x101
+	lis	r7F7F, 0x7f7f
+	lwz	rWORD, 0(rSRC)
+	addi	rFEFE, rFEFE, -0x101
+	addi	r7F7F, r7F7F, 0x7f7f
+	b	L(g5)
+
+L(g3):	lwzu	rALT, 4(rSRC)
+	stwu	rWORD, 4(rRTN)
+	add	rTMP, rFEFE, rALT
+	nor	rNEG, r7F7F, rALT
+	and.	rTMP, rTMP, rNEG
+	bne-	L(g4)
+	lwzu	rWORD, 4(rSRC)
+	stwu	rALT, 4(rRTN)
+L(g5):	add	rTMP, rFEFE, rWORD
+	nor	rNEG, r7F7F, rWORD
+	and.	rTMP, rTMP, rNEG
+	beq+	L(g3)
+
+	mr	rALT, rWORD
+/* We've hit the end of the string.  Do the rest byte-by-byte.  */
+L(g4):
+#ifdef __LITTLE_ENDIAN__
+	rlwinm.	rTMP, rALT, 0, 24, 31
+	stbu	rALT, 4(rRTN)
+	beqlr-
+	rlwinm.	rTMP, rALT, 24, 24, 31
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	rlwinm.	rTMP, rALT, 16, 24, 31
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	rlwinm	rTMP, rALT, 8, 24, 31
+	stbu	rTMP, 1(rRTN)
+#else
+	rlwinm.	rTMP, rALT, 8, 24, 31
+	stbu	rTMP, 4(rRTN)
+	beqlr-
+	rlwinm.	rTMP, rALT, 16, 24, 31
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	rlwinm.	rTMP, rALT, 24, 24, 31
+	stbu	rTMP, 1(rRTN)
+	beqlr-
+	stbu	rALT, 1(rRTN)
+#endif
 	blr
 
 /* Oh well.  In this case, we just do a byte-by-byte copy.  */
@@ -97,23 +192,25 @@ L(g1):
 	nop
 L(unaligned):
 	lbz	rWORD, 0(rSRC)
-	addi	rDEST, rRTN, -1
+	addi	rRTN, rRTN, -1
 	cmpwi	rWORD, 0
 	beq-	L(u2)
 
 L(u0):	lbzu	rALT, 1(rSRC)
-	stbu	rWORD, 1(rDEST)
+	stbu	rWORD, 1(rRTN)
 	cmpwi	rALT, 0
 	beq-	L(u1)
 	nop		/* Let 601 load start of loop.  */
 	lbzu	rWORD, 1(rSRC)
-	stbu	rALT, 1(rDEST)
+	stbu	rALT, 1(rRTN)
 	cmpwi	rWORD, 0
 	bne+	L(u0)
-L(u2):	stb	rWORD, 1(rDEST)
+L(u2):	stbu	rWORD, 1(rRTN)
 	blr
-L(u1):	stb	rALT, 1(rDEST)
+L(u1):	stbu	rALT, 1(rRTN)
 	blr
+END (FUNC_NAME)
 
-END (strcpy)
+#ifndef USE_AS_STPCPY
 libc_hidden_builtin_def (strcpy)
+#endif

@@ -1,5 +1,5 @@
 /* Raise given exceptions.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -31,7 +31,7 @@ __feraiseexcept (int excepts)
   /* First: invalid exception.  */
   if ((FE_INVALID & excepts) != 0)
     {
-      /* One example of a invalid operation is 0.0 / 0.0.  */
+      /* One example of an invalid operation is 0.0 / 0.0.  */
       double d;
       __asm__ __volatile__ ("fldz; fdiv %%st, %%st(0); fwait" : "=t" (d));
       (void) &d;

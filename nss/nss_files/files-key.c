@@ -1,5 +1,5 @@
 /* Public key file parser in nss_files module.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,12 +21,10 @@
 #include <string.h>
 #include <netdb.h>
 #include <rpc/key_prot.h>
+#include <rpc/des_crypt.h>
 #include "nsswitch.h"
 
 #define DATAFILE "/etc/publickey"
-
-/* Prototype for function in xcyrpt.c.  */
-extern int xdecrypt (char *, char *);
 
 
 static enum nss_status

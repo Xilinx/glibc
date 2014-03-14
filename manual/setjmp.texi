@@ -107,6 +107,10 @@ identify a specific place to return to.
 @comment setjmp.h
 @comment ISO
 @deftypefn Macro int setjmp (jmp_buf @var{state})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+@c _setjmp ok
+@c  __sigsetjmp(!savemask) ok
+@c   __sigjmp_save(!savemask) ok, does not call sigprocmask
 When called normally, @code{setjmp} stores information about the
 execution state of the program in @var{state} and returns zero.  If
 @code{longjmp} is later used to perform a non-local exit to this
@@ -116,6 +120,20 @@ execution state of the program in @var{state} and returns zero.  If
 @comment setjmp.h
 @comment ISO
 @deftypefun void longjmp (jmp_buf @var{state}, int @var{value})
+@safety{@prelim{}@mtsafe{}@asunsafe{@ascuplugin{} @asucorrupt{} @asulock{/hurd}}@acunsafe{@acucorrupt{} @aculock{/hurd}}}
+@c __libc_siglongjmp @ascuplugin @asucorrupt @asulock/hurd @acucorrupt @aculock/hurd
+@c  _longjmp_unwind @ascuplugin @asucorrupt @acucorrupt
+@c   __pthread_cleanup_upto @ascuplugin @asucorrupt @acucorrupt
+@c     plugins may be unsafe themselves, but even if they weren't, this
+@c     function isn't robust WRT async signals and cancellation:
+@c     cleanups aren't taken off the stack right away, only after all
+@c     cleanups have been run.  This means that async-cancelling
+@c     longjmp, or interrupting longjmp with an async signal handler
+@c     that calls longjmp may run the same cleanups multiple times.
+@c    _JMPBUF_UNWINDS_ADJ ok
+@c    *cleanup_buf->__routine @ascuplugin
+@c  sigprocmask(SIG_SETMASK) dup @asulock/hurd @aculock/hurd
+@c  __longjmp ok
 This function restores current execution to the state saved in
 @var{state}, and continues execution from the call to @code{setjmp} that
 established that return point.  Returning from @code{setjmp} by means of
@@ -141,7 +159,7 @@ As the test expression of a selection or iteration
 statement (such as @samp{if}, @samp{switch}, or @samp{while}).
 
 @item
-As one operand of a equality or comparison operator that appears as the
+As one operand of an equality or comparison operator that appears as the
 test expression of a selection or iteration statement.  The other
 operand must be an integer constant expression.
 
@@ -199,6 +217,11 @@ information about the set of blocked signals.
 @comment setjmp.h
 @comment POSIX.1
 @deftypefun int sigsetjmp (sigjmp_buf @var{state}, int @var{savesigs})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{/hurd}}@acunsafe{@aculock{/hurd}}}
+@c sigsetjmp @asulock/hurd @aculock/hurd
+@c  __sigsetjmp(savemask) @asulock/hurd @aculock/hurd
+@c   __sigjmp_save(savemask) @asulock/hurd @aculock/hurd
+@c    sigprocmask(SIG_BLOCK probe) dup @asulock/hurd @aculock/hurd
 This is similar to @code{setjmp}.  If @var{savesigs} is nonzero, the set
 of blocked signals is saved in @var{state} and will be restored if a
 @code{siglongjmp} is later performed with this @var{state}.
@@ -207,6 +230,8 @@ of blocked signals is saved in @var{state} and will be restored if a
 @comment setjmp.h
 @comment POSIX.1
 @deftypefun void siglongjmp (sigjmp_buf @var{state}, int @var{value})
+@safety{@prelim{}@mtsafe{}@asunsafe{@ascuplugin{} @asucorrupt{} @asulock{/hurd}}@acunsafe{@acucorrupt{} @aculock{/hurd}}}
+@c Alias to longjmp.
 This is similar to @code{longjmp} except for the type of its @var{state}
 argument.  If the @code{sigsetjmp} call that set this @var{state} used a
 nonzero @var{savesigs} flag, @code{siglongjmp} also restores the set of
@@ -237,7 +262,7 @@ declared respectively in the @file{ucontext.h} header file.
 @comment SVID
 @deftp {Data Type} ucontext_t
 
-The @code{ucontext_t} type is defined as a structure with as least the
+The @code{ucontext_t} type is defined as a structure with at least the
 following elements:
 
 @table @code
@@ -267,6 +292,10 @@ and modification happens through one of the following functions:
 @comment ucontext.h
 @comment SVID
 @deftypefun int getcontext (ucontext_t *@var{ucp})
+@safety{@prelim{}@mtsafe{@mtsrace{:ucp}}@assafe{}@acsafe{}}
+@c Linux-only implementations in assembly, including sigprocmask
+@c syscall.  A few cases call the sigprocmask function, but that's safe
+@c too.  The ppc case is implemented in terms of a swapcontext syscall.
 The @code{getcontext} function initializes the variable pointed to by
 @var{ucp} with the context of the calling thread.  The context contains
 the content of the registers, the signal mask, and the current stack.
@@ -278,25 +307,26 @@ The function returns @code{0} if successful.  Otherwise it returns
 @end deftypefun
 
 The @code{getcontext} function is similar to @code{setjmp} but it does
-not provide an indication of whether the function returns for the first
-time or whether the initialized context was used and the execution is
-resumed at just that point.  If this is necessary the user has to take
-determine this herself.  This must be done carefully since the context
-contains registers which might contain register variables.  This is a
-good situation to define variables with @code{volatile}.
+not provide an indication of whether @code{getcontext} is returning for
+the first time or whether an initialized context has just been restored.
+If this is necessary the user has to determine this herself.  This must
+be done carefully since the context contains registers which might contain
+register variables.  This is a good situation to define variables with
+@code{volatile}.
 
 Once the context variable is initialized it can be used as is or it can
-be modified.  The latter is normally done to implement co-routines or
-similar constructs.  The @code{makecontext} function is what has to be
-used to do that.
+be modified using the @code{makecontext} function.  The latter is normally
+done when implementing co-routines or similar constructs.
 
 @comment ucontext.h
 @comment SVID
 @deftypefun void makecontext (ucontext_t *@var{ucp}, void (*@var{func}) (void), int @var{argc}, @dots{})
+@safety{@prelim{}@mtsafe{@mtsrace{:ucp}}@assafe{}@acsafe{}}
+@c Linux-only implementations mostly in assembly, nothing unsafe.
 
-The @var{ucp} parameter passed to the @code{makecontext} shall be
+The @var{ucp} parameter passed to @code{makecontext} shall be
 initialized by a call to @code{getcontext}.  The context will be
-modified to in a way so that if the context is resumed it will start by
+modified in a way such that if the context is resumed it will start by
 calling the function @code{func} which gets @var{argc} integer arguments
 passed.  The integer arguments which are to be passed should follow the
 @var{argc} parameter in the call to @code{makecontext}.
@@ -316,7 +346,7 @@ information about the exact use.
 While allocating the memory for the stack one has to be careful.  Most
 modern processors keep track of whether a certain memory region is
 allowed to contain code which is executed or not.  Data segments and
-heap memory is normally not tagged to allow this.  The result is that
+heap memory are normally not tagged to allow this.  The result is that
 programs would fail.  Examples for such code include the calling
 sequences the GNU C compiler generates for calls to nested functions.
 Safe ways to allocate stacks correctly include using memory on the
@@ -332,13 +362,22 @@ the @code{uc_stack} element to point to the base of the memory region
 allocated for the stack and the size of the memory region is stored in
 @code{ss_size}.  There are implements out there which require
 @code{ss_sp} to be set to the value the stack pointer will have (which
-can depending on the direction the stack grows be different).  This
+can, depending on the direction the stack grows, be different).  This
 difference makes the @code{makecontext} function hard to use and it
 requires detection of the platform at compile time.
 
 @comment ucontext.h
 @comment SVID
 @deftypefun int setcontext (const ucontext_t *@var{ucp})
+@safety{@prelim{}@mtsafe{@mtsrace{:ucp}}@asunsafe{@asucorrupt{}}@acunsafe{@acucorrupt{}}}
+@c Linux-only implementations mostly in assembly.  Some ports use
+@c sigreturn or swapcontext syscalls; others restore the signal mask
+@c first and then proceed restore other registers in userland, which
+@c leaves a window for cancellation or async signals with misaligned or
+@c otherwise corrupt stack.  ??? Switching to a different stack, or even
+@c to an earlier state on the same stack, may conflict with pthread
+@c cleanups.  This is not quite MT-Unsafe, it's a different kind of
+@c safety issue.
 
 The @code{setcontext} function restores the context described by
 @var{ucp}.  The context is not modified and can be reused as often as
@@ -372,6 +411,10 @@ there are situations where the current context has to be preserved.
 @comment ucontext.h
 @comment SVID
 @deftypefun int swapcontext (ucontext_t *restrict @var{oucp}, const ucontext_t *restrict @var{ucp})
+@safety{@prelim{}@mtsafe{@mtsrace{:oucp} @mtsrace{:ucp}}@asunsafe{@asucorrupt{}}@acunsafe{@acucorrupt{}}}
+@c Linux-only implementations mostly in assembly.  Some ports call or
+@c inline getcontext and/or setcontext, adjusting the saved context in
+@c between, so we inherit the potential issues of both.
 
 The @code{swapcontext} function is similar to @code{setcontext} but
 instead of just replacing the current context the latter is first saved
@@ -385,15 +428,15 @@ installed and execution continues as described in this context.
 If @code{swapcontext} succeeds the function does not return unless the
 context @var{oucp} is used without prior modification by
 @code{makecontext}.  The return value in this case is @code{0}.  If the
-function fails it returns @code{-1} and set @var{errno} accordingly.
+function fails it returns @code{-1} and sets @var{errno} accordingly.
 @end deftypefun
 
 @heading Example for SVID Context Handling
 
 The easiest way to use the context handling functions is as a
 replacement for @code{setjmp} and @code{longjmp}.  The context contains
-on most platforms more information which might lead to less surprises
-but this also means using these functions is more expensive (beside
+on most platforms more information which may lead to fewer surprises
+but this also means using these functions is more expensive (besides
 being less portable).
 
 @smallexample
@@ -444,7 +487,7 @@ different context.  It is not allowed to do the context switching from
 the signal handler directly since neither @code{setcontext} nor
 @code{swapcontext} are functions which can be called from a signal
 handler.  But setting a variable in the signal handler and checking it
-in the body of the functions which are executed.  Since
+in the body of the functions which are executed is OK.  Since
 @code{swapcontext} is saving the current context it is possible to have
 multiple different scheduling points in the code.  Execution will always
 resume where it was left.

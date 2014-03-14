@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <string.h>
 
 #include <sysdep.h>
 #include <sys/syscall.h>
@@ -42,9 +43,8 @@ __mmap64 (void *addr, size_t len, int prot, int flags, int fd, off64_t offset)
 #if MMAP2_PAGE_SHIFT == -1
   if (page_shift == 0)
     {
-      int page_size = getpagesize ();
-      while ((1 << ++page_shift) != page_size)
-	;
+      int page_size = __getpagesize ();
+      page_shift = __ffs (page_size) - 1;
     }
 #endif
   if (offset & ((1 << page_shift) - 1))
@@ -56,7 +56,7 @@ __mmap64 (void *addr, size_t len, int prot, int flags, int fd, off64_t offset)
   result = (void *)
     INLINE_SYSCALL (mmap2, 6, addr,
 		    len, prot, flags, fd,
-		    (off_t) (offset >> MMAP2_PAGE_SHIFT));
+		    (off_t) (offset >> page_shift));
   return result;
 }
 weak_alias (__mmap64, mmap64)

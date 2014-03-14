@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -37,9 +37,9 @@ ntp_gettimex (struct ntptimeval *ntv)
   ntv->maxerror = tntx.maxerror;
   ntv->esterror = tntx.esterror;
   ntv->tai = tntx.tai;
-  ntv->__unused1 = 0;
-  ntv->__unused2 = 0;
-  ntv->__unused3 = 0;
-  ntv->__unused4 = 0;
+  ntv->__glibc_reserved1 = 0;
+  ntv->__glibc_reserved2 = 0;
+  ntv->__glibc_reserved3 = 0;
+  ntv->__glibc_reserved4 = 0;
   return result;
 }

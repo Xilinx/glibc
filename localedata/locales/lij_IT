@@ -27,7 +27,7 @@ category  "lij_IT:2000";LC_PAPER
 category  "lij_IT:2000";LC_NAME
 category  "lij_IT:2000";LC_ADDRESS
 category  "lij_IT:2000";LC_TELEPHONE
-
+category  "lij_IT:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 %
 LC_COLLATE
@@ -111,8 +111,8 @@ int_prefix     "<U0033><U0039>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -129,4 +129,12 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0049><U0054>"
 country_ab3 "<U0049><U0054><U0041>"
 country_num 380
+% I
+country_car    "<U0049>"
+% Lìgure
+lang_name    "<U004C><U00EC><U0067><U0075><U0072><U0065>"
+% lij
+lang_term    "<U006C><U0069><U006A>"
+% lij
+lang_lib    "<U006C><U0069><U006A>"
 END LC_ADDRESS

@@ -1,6 +1,6 @@
 /* Machine-dependent software floating-point definitions.
    Sparc64 userland (_Q_* and _Qp_*) version.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@cygnus.com),
 		  Jakub Jelinek (jj@ultra.linux.cz) and
@@ -92,6 +92,8 @@ do {								\
 #define FP_EX_UNDERFLOW		(1 << 2)
 #define FP_EX_DIVZERO		(1 << 1)
 #define FP_EX_INEXACT		(1 << 0)
+
+#define _FP_TININESS_AFTER_ROUNDING 0
 
 #define _FP_DECL_EX \
   fpu_control_t _fcw __attribute__ ((unused)) = (FP_RND_NEAREST << 30)

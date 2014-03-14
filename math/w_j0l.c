@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -49,8 +49,11 @@ __y0l (long double x)
 	  return __kernel_standard_l (x, x, 209);
 	}
       else if (x == 0.0L)
-	/* d = -one/(x-x) */
-	return __kernel_standard_l (x, x, 208);
+	{
+	  /* d = -one/(x-x) */
+	  feraiseexcept (FE_DIVBYZERO);
+	  return __kernel_standard_l (x, x, 208);
+	}
       else if (_LIB_VERSION != _POSIX_)
 	/* y0(x>X_TLOSS) */
 	return __kernel_standard_l (x, x, 235);

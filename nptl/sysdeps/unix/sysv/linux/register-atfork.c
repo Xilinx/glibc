@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -127,7 +127,7 @@ libc_freeres_fn (free_mem)
   /* No more fork handlers.  */
   __fork_handlers = NULL;
 
-  /* Free eventually alloated memory blocks for the object pool.  */
+  /* Free eventually allocated memory blocks for the object pool.  */
   struct fork_handler_pool *runp = fork_handler_pool.next;
 
   memset (&fork_handler_pool, '\0', sizeof (fork_handler_pool));

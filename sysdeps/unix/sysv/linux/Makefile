@@ -38,7 +38,7 @@ sysdep_headers += sys/mount.h sys/acct.h sys/sysctl.h \
 		  bits/socket_type.h bits/syscall.h bits/sysctl.h \
 		  bits/mman-linux.h
 
-tests += tst-clone
+tests += tst-clone tst-fanotify
 
 # Generate the list of SYS_* macros for the system calls (__NR_* macros).
 
@@ -50,6 +50,13 @@ tests += tst-clone
 # be the condition for those options to use in a C #if condition.
 # abi-includes may be defined to a list of headers to include
 # in the generated header, if the default does not suffice.
+#
+# The generated header is compiled with `-ffreestanding' to avoid any
+# circular dependencies against the installed implementation headers.
+# Such a dependency would require the implementation header to be
+# installed before the generated header could be built (See bug 15711).
+# In current practice the generated header dependencies do not include
+# any of the implementation headers removed by the use of `-ffreestanding'.
 
 $(objpfx)bits/syscall%h $(objpfx)bits/syscall%d: ../sysdeps/unix/sysv/linux/sys/syscall.h
 	$(make-target-directory)
@@ -64,7 +71,7 @@ $(objpfx)bits/syscall%h $(objpfx)bits/syscall%d: ../sysdeps/unix/sysv/linux/sys/
 	 echo ''; \
 	 $(if $(abi-variants), \
 	 $(foreach v,$(abi-variants),\
-	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
+	 $(CC) -ffreestanding -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
 	       -x c $(sysincludes) $< $(abi-$(v)-options) \
 	       -D_LIBC -dM | \
 	 sed -n 's@^#define __NR_\([^ ]*\) .*$$@#define SYS_\1 __NR_\1@p' | \
@@ -75,7 +82,7 @@ $(objpfx)bits/syscall%h $(objpfx)bits/syscall%d: ../sysdeps/unix/sysv/linux/sys/
 	 $(if $(abi-$(v)-condition),echo '#endif';) \
 	 rm -f $(@:.d=.h).new$(v); \
 	 ), \
-	 $(CC) -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
+	 $(CC) -ffreestanding -E -MD -MP -MF $(@:.h=.d)-t$(v) -MT '$(@:.d=.h) $(@:.h=.d)' \
 	       -x c $(sysincludes) $< \
 	       -D_LIBC -dM | \
 	 sed -n 's@^#define __NR_\([^ ]*\) .*$$@#define SYS_\1 __NR_\1@p' | \
@@ -113,7 +120,7 @@ ifeq ($(subdir),socket)
 sysdep_headers += net/if_ppp.h net/ppp-comp.h \
 		  net/ppp_defs.h net/if_arp.h net/route.h net/ethernet.h \
 		  net/if_slip.h net/if_packet.h net/if_shaper.h
-sysdep_routines += cmsg_nxthdr sa_len
+sysdep_routines += cmsg_nxthdr
 endif
 
 ifeq ($(subdir),sunrpc)

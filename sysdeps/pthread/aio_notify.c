@@ -1,5 +1,5 @@
 /* Notify initiator of AIO request.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -57,7 +57,7 @@ __aio_notify_only (struct sigevent *sigev)
   int result = 0;
 
   /* Send the signal to notify about finished processing of the request.  */
-  if (__builtin_expect (sigev->sigev_notify == SIGEV_THREAD, 0))
+  if (__glibc_unlikely (sigev->sigev_notify == SIGEV_THREAD))
     {
       /* We have to start a thread.  */
       pthread_t tid;
@@ -157,7 +157,7 @@ __aio_notify (struct requestlist *req)
 #endif
 	}
       else
-	/* This is part of a asynchronous `lio_listio' operation.  If
+	/* This is part of an asynchronous `lio_listio' operation.  If
 	   this request is the last one, send the signal.  */
 	if (--*waitlist->counterp == 0)
 	  {

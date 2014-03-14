@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -633,7 +633,7 @@ get_clockfreq (void)
     return result;
 
   fd = open ("/proc/cpuinfo", O_RDONLY);
-  if (__builtin_expect (fd != -1, 1))
+  if (__glibc_likely (fd != -1))
     {
       /* XXX AFAIK the /proc filesystem can generate "files" only up
          to a size of 4096 bytes.  */
@@ -645,7 +645,7 @@ get_clockfreq (void)
 	{
 	  char *mhz = memmem (buf, n, "cpu MHz", 7);
 
-	  if (__builtin_expect (mhz != NULL, 1))
+	  if (__glibc_likely (mhz != NULL))
 	    {
 	      char *endp = buf + n;
 	      int seen_decpoint = 0;

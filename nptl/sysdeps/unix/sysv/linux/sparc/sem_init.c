@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -32,7 +32,7 @@ __new_sem_init (sem, pshared, value)
      unsigned int value;
 {
   /* Parameter sanity check.  */
-  if (__builtin_expect (value > SEM_VALUE_MAX, 0))
+  if (__glibc_unlikely (value > SEM_VALUE_MAX))
     {
       __set_errno (EINVAL);
       return -1;
@@ -66,7 +66,7 @@ __old_sem_init (sem, pshared, value)
      unsigned int value;
 {
   /* Parameter sanity check.  */
-  if (__builtin_expect (value > SEM_VALUE_MAX, 0))
+  if (__glibc_unlikely (value > SEM_VALUE_MAX))
     {
       __set_errno (EINVAL);
       return -1;

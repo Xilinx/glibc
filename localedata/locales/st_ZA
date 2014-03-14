@@ -186,7 +186,8 @@ copy "en_ZA"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "en_ZA"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -240,9 +241,12 @@ country_car   "<U005A><U0041>"
 
 % ISO 639 two and three letter language names
 % see http://www.loc.gov/standards/iso639-2/englangn.html
-% "st", "sot"
+% st
 lang_ab   "<U0073><U0074>"
+% sot
 lang_term "<U0073><U006F><U0074>"
+% sot
+lang_lib "<U0073><U006F><U0074>"
 
 % Representation of postal addresses (minus the addressee's name) in South
 % Africa. (Ignored for now)

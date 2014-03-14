@@ -1,5 +1,5 @@
 /* Compute 2^x.
-   Copyright (C) 2012-2013 Free Software Foundation, Inc.
+   Copyright (C) 2012-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 long double
 __ieee754_exp2l (long double x)
 {
-  if (__builtin_expect (isless (x, (long double) LDBL_MAX_EXP), 1))
+  if (__glibc_likely (isless (x, (long double) LDBL_MAX_EXP)))
     {
       if (__builtin_expect (isgreaterequal (x, (long double) (LDBL_MIN_EXP
 							      - LDBL_MANT_DIG

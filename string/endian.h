@@ -1,4 +1,4 @@
-/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 # define __FLOAT_WORD_ORDER __BYTE_ORDER
 #endif
 
-#ifdef	__USE_BSD
+#ifdef	__USE_MISC
 # define LITTLE_ENDIAN	__LITTLE_ENDIAN
 # define BIG_ENDIAN	__BIG_ENDIAN
 # define PDP_ENDIAN	__PDP_ENDIAN
@@ -55,7 +55,7 @@
 #endif
 
 
-#if defined __USE_BSD && !defined __ASSEMBLER__
+#if defined __USE_MISC && !defined __ASSEMBLER__
 /* Conversion interfaces.  */
 # include <bits/byteswap.h>
 

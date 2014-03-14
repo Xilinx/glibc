@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ __strcpy_chk (dest, src, destlen)
 
   do
     {
-      if (__builtin_expect (destlen-- == 0, 0))
+      if (__glibc_unlikely (destlen-- == 0))
         __chk_fail ();
       c = *s;
       *(s++ + off) = c;

@@ -211,7 +211,8 @@ int_prefix     "<U0032><U0033><U0034>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "en_DK"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -274,10 +275,12 @@ country_isbn  978
 % ISO 639 language abbreviations:
 % 639-1 2 letter, 639-2 3 letter terminology
 % http://www.loc.gov/standards/iso639-2/englagn.html
-% "en", "eng"
-lang_ab       "<U0065><U006E>"
-lang_term     "<U0065><U006E><U0067>"
-lang_lib      "<U0065><U006E><U0067>"
+% en
+lang_ab      "<U0065><U006E>"
+% eng
+lang_term    "<U0065><U006E><U0067>"
+% eng
+lang_lib    "<U0065><U006E><U0067>"
 
 % ISO 3166 country number and 2 and 3 letter abreviations
 % http://www.unicode.org/onlinedat/countries.html

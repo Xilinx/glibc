@@ -1,4 +1,4 @@
-/* Copyright (C) 1992-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -111,61 +111,6 @@ union ieee754_double
 #define IEEE754_DOUBLE_BIAS	0x3ff /* Added to exponent.  */
 
 
-union ieee854_long_double
-  {
-    long double d;
-
-    /* This is the IEEE 854 quad-precision format.  */
-    struct
-      {
-#if	__BYTE_ORDER == __BIG_ENDIAN
-	unsigned int negative:1;
-	unsigned int exponent:15;
-	/* Together these comprise the mantissa.  */
-	unsigned int mantissa0:16;
-	unsigned int mantissa1:32;
-	unsigned int mantissa2:32;
-	unsigned int mantissa3:32;
-#endif				/* Big endian.  */
-#if	__BYTE_ORDER == __LITTLE_ENDIAN
-	/* Together these comprise the mantissa.  */
-	unsigned int mantissa3:32;
-	unsigned int mantissa2:32;
-	unsigned int mantissa1:32;
-	unsigned int mantissa0:16;
-	unsigned int exponent:15;
-	unsigned int negative:1;
-#endif				/* Little endian.  */
-      } ieee;
-
-    /* This format makes it easier to see if a NaN is a signalling NaN.  */
-    struct
-      {
-#if	__BYTE_ORDER == __BIG_ENDIAN
-	unsigned int negative:1;
-	unsigned int exponent:15;
-	unsigned int quiet_nan:1;
-	/* Together these comprise the mantissa.  */
-	unsigned int mantissa0:15;
-	unsigned int mantissa1:32;
-	unsigned int mantissa2:32;
-	unsigned int mantissa3:32;
-#else
-	/* Together these comprise the mantissa.  */
-	unsigned int mantissa3:32;
-	unsigned int mantissa2:32;
-	unsigned int mantissa1:32;
-	unsigned int mantissa0:15;
-	unsigned int quiet_nan:1;
-	unsigned int exponent:15;
-	unsigned int negative:1;
-#endif
-      } ieee_nan;
-  };
-
-#define IEEE854_LONG_DOUBLE_BIAS 0x3fff /* Added to exponent.  */
-
-
 /* IBM extended format for long double.
 
    Each long double is made up of two IEEE doubles.  The value of the
@@ -179,29 +124,9 @@ union ieee854_long_double
 
 union ibm_extended_long_double
   {
-    long double d;
-    double dd[2];
-
-    /* This is the IBM extended format long double.  */
-    struct
-      { /* Big endian.  There is no other.  */
-
-	unsigned int negative:1;
-	unsigned int exponent:11;
-	/* Together Mantissa0-3 comprise the mantissa.  */
-	unsigned int mantissa0:20;
-	unsigned int mantissa1:32;
-
-	unsigned int negative2:1;
-	unsigned int exponent2:11;
-	/* There is an implied 1 here?  */
-	/* Together these comprise the mantissa.  */
-	unsigned int mantissa2:20;
-	unsigned int mantissa3:32;
-      } ieee;
+    long double ld;
+    union ieee754_double d[2];
    };
-
-#define IBM_EXTENDED_LONG_DOUBLE_BIAS 0x3ff /* Added to exponent.  */
 
 __END_DECLS
 

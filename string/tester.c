@@ -1,5 +1,5 @@
 /* Tester for string functions.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -704,7 +704,7 @@ test_memrchr (void)
      more than 128 byte chunks: */
   {
     char buf[128 + sizeof(long)];
-    long align, len, i, pos;
+    long align, len, i, pos, n = 9;
 
     for (align = 0; align < (long) sizeof(long); ++align) {
       for (len = 0; len < (long) (sizeof(buf) - align); ++len) {
@@ -715,9 +715,9 @@ test_memrchr (void)
 #if 0
 	  printf("align %d, len %d, pos %d\n", align, len, pos);
 #endif
-	  check(memrchr(buf + align, 'x', len) == buf + align + pos, 9);
+	  check(memrchr(buf + align, 'x', len) == buf + align + pos, n++);
 	  check(memrchr(buf + align + pos + 1, 'x', len - (pos + 1)) == NULL,
-		10);
+		n++);
 	  buf[align + pos] = '-';
 	}
       }

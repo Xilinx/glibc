@@ -1,5 +1,5 @@
 /* Access to the auxiliary vector.
-   Copyright (C) 2012-2013 Free Software Foundation, Inc.
+   Copyright (C) 2012-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,9 +27,9 @@ __BEGIN_DECLS
 
 /* Return the value associated with an Elf*_auxv_t type from the auxv list
    passed to the program on startup.  If TYPE was not present in the auxv
-   list, returns zero.  */
+   list, returns zero and sets errno to ENOENT.  */
 extern unsigned long int getauxval (unsigned long int __type)
-  __THROW __attribute_const__;
+  __THROW;
 
 __END_DECLS
 

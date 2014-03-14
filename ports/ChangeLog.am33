@@ -1,3 +1,27 @@
+2014-02-08  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/am33: Remove.
+	* sysdeps/unix/am33: Likewise.
+	* sysdeps/unix/sysv/linux/am33: Likewise.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/am33/fpu/fegetround.c (fegetround): Use libm_hidden_def.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/unix/sysv/linux/am33/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/am33/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/am33/configure: Regenerated.
+
+2013-08-29   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/unix/sysv/linux/am33/bits/fcntl.h: Fix typos.
+
+2013-08-21   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/am33/fpu/fraiseexcpt.c: Fix typos.
+
 2013-06-05  Joseph Myers  <joseph@codesourcery.com>
 
 	* sysdeps/am33/elf/start.S: Remove trailing whitespace.

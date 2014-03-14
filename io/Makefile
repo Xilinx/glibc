@@ -1,4 +1,4 @@
-# Copyright (C) 1992-2013 Free Software Foundation, Inc.
+# Copyright (C) 1992-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Sub-makefile for I/O portion of the library.
 #
 subdir	:= io
+
+include ../Makeconfig
 
 headers := sys/stat.h bits/stat.h sys/statfs.h bits/statfs.h sys/vfs.h \
 	   sys/statvfs.h bits/statvfs.h fcntl.h sys/fcntl.h bits/fcntl.h \
@@ -71,6 +73,10 @@ tests		:= test-utime test-stat test-stat2 test-lfs tst-getcwd \
 		   tst-mknodat tst-mkfifoat tst-ttyname_r bug-ftw5 \
 		   tst-posix_fallocate
 
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)ftwtest.out
+endif
+
 include ../Rules
 
 CFLAGS-open.c = -fexceptions -fasynchronous-unwind-tables
@@ -101,8 +107,7 @@ test-stat2-ARGS = Makefile . $(objpfx)test-stat2
 tst-statvfs-ARGS = $(objpfx)tst-statvfs tst-statvfs.c /tmp
 
 ifeq ($(run-built-tests),yes)
-tests: $(objpfx)ftwtest.out
-
 $(objpfx)ftwtest.out: ftwtest-sh $(objpfx)ftwtest
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)' > $@; \
+	$(evaluate-test)
 endif

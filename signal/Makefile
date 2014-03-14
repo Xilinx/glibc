@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Makefile for signal routines.
 #
 subdir	:= signal
+
+include ../Makeconfig
 
 headers	:= signal.h sys/signal.h bits/signum.h bits/sigcontext.h \
 	   bits/sigaction.h bits/sigset.h bits/siginfo.h bits/sigstack.h \

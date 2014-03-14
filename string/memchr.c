@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Based on strlen implementation by Torbjorn Granlund (tege@sics.se),
    with help from Dan Sahlin (dan@sics.se) and
@@ -51,9 +51,13 @@
 #undef memchr
 #undef __memchr
 
+#ifndef MEMCHR
+# define MEMCHR __memchr
+#endif
+
 /* Search no more than N bytes of S for C.  */
 __ptr_t
-__memchr (s, c_in, n)
+MEMCHR (s, c_in, n)
      const __ptr_t s;
      int c_in;
      size_t n;

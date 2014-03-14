@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
    This file is part of the GNU C Library.
 
@@ -182,7 +182,7 @@
 #define INLINE_SYSCALL(name, nr, args...)				      \
   ({									      \
     unsigned int _ret = INTERNAL_SYSCALL (name, , nr, args);		      \
-    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_ret, ), 0))	      \
+    if (__glibc_unlikely (INTERNAL_SYSCALL_ERROR_P (_ret, )))		      \
      {									      \
        __set_errno (INTERNAL_SYSCALL_ERRNO (_ret, ));			      \
        _ret = 0xffffffff;						      \

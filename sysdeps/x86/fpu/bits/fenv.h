@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -75,18 +75,18 @@ typedef unsigned short int fexcept_t;
 typedef struct
   {
     unsigned short int __control_word;
-    unsigned short int __unused1;
+    unsigned short int __glibc_reserved1;
     unsigned short int __status_word;
-    unsigned short int __unused2;
+    unsigned short int __glibc_reserved2;
     unsigned short int __tags;
-    unsigned short int __unused3;
+    unsigned short int __glibc_reserved3;
     unsigned int __eip;
     unsigned short int __cs_selector;
     unsigned int __opcode:11;
-    unsigned int __unused4:5;
+    unsigned int __glibc_reserved4:5;
     unsigned int __data_offset;
     unsigned short int __data_selector;
-    unsigned short int __unused5;
+    unsigned short int __glibc_reserved5;
 #ifdef __x86_64__
     unsigned int __mxcsr;
 #endif
@@ -115,7 +115,7 @@ __NTH (feraiseexcept (int __excepts))
     {
       if ((FE_INVALID & __excepts) != 0)
 	{
-	  /* One example of a invalid operation is 0.0 / 0.0.  */
+	  /* One example of an invalid operation is 0.0 / 0.0.  */
 	  float __f = 0.0;
 
 # ifdef __SSE_MATH__

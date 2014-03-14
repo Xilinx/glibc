@@ -1,5 +1,5 @@
 /* Optimized memcpy implementation for CELL BE PowerPC.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ EALIGN (memcpy, 5, 0)
 
 .Lbigcopy:
 	neg	r8,r3		/* LS 3 bits = # bytes to 8-byte dest bdry  */
-	clrldi  r8,r8,64-4	/* aling to 16byte boundary  */
+	clrldi  r8,r8,64-4	/* align to 16byte boundary  */
 	sub     r7,r4,r3
 	cmpldi	cr0,r8,0
 	beq+	.Ldst_aligned

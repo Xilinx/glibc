@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -505,9 +505,9 @@ __pthread_cond_timedwait:
 #endif
 	call	__lll_unlock_wake
 	jmp	11b
-	cfi_adjust_cfa_offset(-FRAME_SIZE)
 
 #ifndef __ASSUME_FUTEX_CLOCK_REALTIME
+	cfi_adjust_cfa_offset(-FRAME_SIZE)
 .Lreltmo:
 	/* Get internal lock.  */
 	movl	$1, %edx
@@ -742,7 +742,6 @@ __pthread_cond_timedwait:
 # endif
 	call	__lll_lock_wait
 	jmp	106b
-	cfi_adjust_cfa_offset(-FRAME_SIZE)
 #endif
 
 	.size	__pthread_cond_timedwait, .-__pthread_cond_timedwait

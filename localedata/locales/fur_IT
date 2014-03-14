@@ -35,7 +35,7 @@ category  "fur_IT:2000";LC_PAPER
 category  "fur_IT:2000";LC_NAME
 category  "fur_IT:2000";LC_ADDRESS
 category  "fur_IT:2000";LC_TELEPHONE
-
+category  "fur_IT:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -124,7 +124,8 @@ copy  "it_IT"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy  "it_IT"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -132,5 +133,18 @@ copy  "it_IT"
 END LC_NAME
 
 LC_ADDRESS
-copy  "it_IT"
+postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
+<U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0073>/
+<U0020><U0025><U0068><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
+<U004E><U0025><U007A><U0020><U0025><U0054><U0025>/
+<U004E><U0025><U0063><U0025><U004E>"
+country_ab2 "<U0049><U0054>"
+country_ab3 "<U0049><U0054><U0041>"
+country_num 380
+% I
+country_car    "<U0049>"
+% Furlan
+lang_name    "<U0046><U0075><U0072><U006C><U0061><U006E>"
+% fur
+lang_term    "<U0066><U0075><U0072>"
 END LC_ADDRESS

@@ -1,4 +1,4 @@
-/* Copyright (C) 1994-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1994-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <string.h>
 
-/* lockf.c defines lockf64 as an lias if __OFF_T_MATCHES_OFF64_T.  */
+/* lockf.c defines lockf64 as an alias if __OFF_T_MATCHES_OFF64_T.  */
 #ifndef __OFF_T_MATCHES_OFF64_T
 
 /* lockf is a simplified interface to fcntl's locking facilities.  */

@@ -1,5 +1,5 @@
 /* Test and measure memcpy functions.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Jakub Jelinek <jakub@redhat.com>, 1999.
 
@@ -63,8 +63,8 @@ do_one_test (impl_t *impl, char *dst, const char *src,
 
   if (memcmp (dst, src, len) != 0)
     {
-      error (0, 0, "Wrong result in function %s dst \"%s\" src \"%s\"",
-	     impl->name, dst, src);
+      error (0, 0, "Wrong result in function %s dst %p \"%.*s\" src %p \"%.*s\" len %zu",
+	     impl->name, dst, (int) len, dst, src, (int) len, src, len);
       ret = 1;
       return;
     }

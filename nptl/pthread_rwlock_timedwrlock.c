@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Martin Schwidefsky <schwidefsky@de.ibm.com>, 2003.
 
@@ -69,7 +69,7 @@ pthread_rwlock_timedwrlock (rwlock, abstime)
 
       /* Work around the fact that the kernel rejects negative timeout values
 	 despite them being valid.  */
-      if (__builtin_expect (abstime->tv_sec < 0, 0))
+      if (__glibc_unlikely (abstime->tv_sec < 0))
 	{
 	  result = ETIMEDOUT;
 	  break;

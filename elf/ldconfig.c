@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 1999.
 
@@ -324,7 +324,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"),
 	   "Andreas Jaeger");
 }
@@ -770,7 +770,7 @@ search_dir (const struct dir_entry *entry)
 	lstat_buf.st_mode = DTTOIF (direntry->d_type);
       else
 #endif
-	if (__builtin_expect (lstat64 (real_file_name, &lstat_buf), 0))
+	if (__glibc_unlikely (lstat64 (real_file_name, &lstat_buf)))
 	  {
 	    error (0, errno, _("Cannot lstat %s"), file_name);
 	    continue;
@@ -794,7 +794,7 @@ search_dir (const struct dir_entry *entry)
 		  continue;
 		}
 	    }
-	  if (__builtin_expect (stat64 (target_name, &stat_buf), 0))
+	  if (__glibc_unlikely (stat64 (target_name, &stat_buf)))
 	    {
 	      if (opt_verbose)
 		error (0, errno, _("Cannot stat %s"), file_name);

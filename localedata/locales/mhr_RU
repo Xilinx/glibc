@@ -41,7 +41,7 @@ category  "mhr_RU:2000";LC_PAPER
 category  "mhr_RU:2000";LC_NAME
 category  "mhr_RU:2000";LC_ADDRESS
 category  "mhr_RU:2000";LC_TELEPHONE
-
+category  "mhr_RU:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -142,7 +142,8 @@ copy "ru_RU"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-copy "ru_RU"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -159,4 +160,10 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0052><U0055>"
 country_ab3 "<U0052><U0055><U0053>"
 country_num 643
+% RUS
+country_car    "<U0052><U0055><U0053>"
+% mhr
+lang_term    "<U006D><U0068><U0072>"
+% mhr
+lang_lib    "<U006D><U0068><U0072>"
 END LC_ADDRESS

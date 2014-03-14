@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -50,7 +50,7 @@ __timer_create_old (clockid_t clock_id, struct sigevent *evp, int *timerid)
 	    break;
 	  }
 
-      if (__builtin_expect (i == OLD_TIMER_MAX, 0))
+      if (__glibc_unlikely (i == OLD_TIMER_MAX))
 	{
 	  /* No free slot.  */
 	  (void) __timer_delete_new (newp);

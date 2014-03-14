@@ -1,4 +1,4 @@
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -20,6 +20,8 @@
 #
 subdir	:= catgets
 
+include ../Makeconfig
+
 headers		= nl_types.h
 routines	= catgets open_catalog
 others		= gencat
@@ -28,6 +30,11 @@ extra-objs	= $(gencat-modules:=.o)
 
 tests = tst-catgets
 test-srcs = test-gencat
+
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)de/libc.cat $(objpfx)test1.cat $(objpfx)test2.cat \
+		 $(objpfx)sample.SJIS.cat $(objpfx)test-gencat.out
+endif
 
 gencat-modules	= xmalloc
 
@@ -44,29 +51,30 @@ catgets-CPPFLAGS := -DNLSPATH='"$(msgcatdir)/%L/%N:$(msgcatdir)/%L/LC_MESSAGES/%
 
 CPPFLAGS-gencat = -DNOT_IN_libc
 
-generated = de.msg test1.cat test1.h test2.cat test2.h sample.SJIS.cat \
-	    test-gencat.h
-generated-dirs = de
+generated += de.msg test1.cat test1.h test2.cat test2.h sample.SJIS.cat \
+	     test-gencat.h
+generated-dirs += de
 
 tst-catgets-ENV = NLSPATH="$(objpfx)%l/%N.cat" LANG=de
 
 ifeq ($(run-built-tests),yes)
-tests: $(objpfx)de/libc.cat $(objpfx)test1.cat $(objpfx)test2.cat \
-       $(objpfx)test-gencat.out
 # This test just checks whether the program produces any error or not.
 # The result is not tested.
 $(objpfx)test1.cat: test1.msg $(objpfx)gencat
 	LC_ALL=hr_HR.ISO-8859-2 LOCPATH=$(common-objpfx)localedata \
 	GCONV_PATH=$(common-objpfx)iconvdata \
-	$(built-program-cmd) -H $(objpfx)test1.h $@ $<
+	$(built-program-cmd) -H $(objpfx)test1.h $@ $<; \
+	$(evaluate-test)
 $(objpfx)test2.cat: test2.msg $(objpfx)gencat
 	LOCPATH=$(common-objpfx)localedata \
 	GCONV_PATH=$(common-objpfx)iconvdata \
-	$(built-program-cmd) -H $(objpfx)test2.h $@ $<
+	$(built-program-cmd) -H $(objpfx)test2.h $@ $<; \
+	$(evaluate-test)
 $(objpfx)de/libc.cat: $(objpfx)de.msg $(objpfx)gencat
 	$(make-target-directory)
 	LC_ALL=de_DE.ISO-8859-1 LOCPATH=$(common-objpfx)localedata \
-	GCONV_PATH=$(common-objpfx)iconvdata $(built-program-cmd) $@ $<
+	GCONV_PATH=$(common-objpfx)iconvdata $(built-program-cmd) $@ $<; \
+	$(evaluate-test)
 $(objpfx)tst-catgets.out: $(objpfx)de/libc.cat
 
 # Generate a non-simple input file.
@@ -75,9 +83,11 @@ $(objpfx)de.msg: xopen-msg.awk $(..)po/de.po
 
 $(objpfx)test-gencat.out: test-gencat.sh $(objpfx)test-gencat \
 			  $(objpfx)sample.SJIS.cat
-	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-cmd)'; \
+	$(evaluate-test)
 
 $(objpfx)sample.SJIS.cat: sample.SJIS $(objpfx)gencat
 	GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
-	$(built-program-cmd) -H $(objpfx)test-gencat.h < $(word 1,$^) > $@
+	$(built-program-cmd) -H $(objpfx)test-gencat.h < $(word 1,$^) > $@; \
+	$(evaluate-test)
 endif

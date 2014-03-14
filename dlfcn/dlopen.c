@@ -1,5 +1,5 @@
 /* Load a shared object at run time.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -74,7 +74,7 @@ void *
 __dlopen (const char *file, int mode DL_CALLER_DECL)
 {
 # ifdef SHARED
-  if (__builtin_expect (_dlfcn_hook != NULL, 0))
+  if (__glibc_unlikely (_dlfcn_hook != NULL))
     return _dlfcn_hook->dlopen (file, mode, DL_CALLER);
 # endif
 

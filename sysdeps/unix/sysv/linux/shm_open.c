@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -62,7 +62,8 @@ where_is_shmfs (void)
 
   /* The canonical place is /dev/shm.  This is at least what the
      documentation tells everybody to do.  */
-  if (__statfs (defaultdir, &f) == 0 && f.f_type == SHMFS_SUPER_MAGIC)
+  if (__statfs (defaultdir, &f) == 0 && (f.f_type == SHMFS_SUPER_MAGIC
+					 || f.f_type == RAMFS_MAGIC))
     {
       /* It is in the normal place.  */
       mountpoint.dir = (char *) defaultdir;
@@ -74,10 +75,10 @@ where_is_shmfs (void)
   /* OK, do it the hard way.  Look through the /proc/mounts file and if
      this does not exist through /etc/fstab to find the mount point.  */
   fp = __setmntent ("/proc/mounts", "r");
-  if (__builtin_expect (fp == NULL, 0))
+  if (__glibc_unlikely (fp == NULL))
     {
       fp = __setmntent (_PATH_MNTTAB, "r");
-      if (__builtin_expect (fp == NULL, 0))
+      if (__glibc_unlikely (fp == NULL))
 	/* There is nothing we can do.  Blind guesses are not helpful.  */
 	return;
     }
@@ -86,7 +87,8 @@ where_is_shmfs (void)
   while ((mp = __getmntent_r (fp, &resmem, buf, sizeof buf)) != NULL)
     /* The original name is "shm" but this got changed in early Linux
        2.4.x to "tmpfs".  */
-    if (strcmp (mp->mnt_type, "tmpfs") == 0)
+    if (strcmp (mp->mnt_type, "tmpfs") == 0
+	|| strcmp (mp->mnt_type, "shm") == 0)
       {
 	/* Found it.  There might be more than one place where the
            filesystem is mounted but one is enough for us.  */
@@ -95,7 +97,8 @@ where_is_shmfs (void)
 	/* First make sure this really is the correct entry.  At least
 	   some versions of the kernel give wrong information because
 	   of the implicit mount of the shmfs for SysV IPC.  */
-	if (__statfs (mp->mnt_dir, &f) != 0 || f.f_type != SHMFS_SUPER_MAGIC)
+	if (__statfs (mp->mnt_dir, &f) != 0 || (f.f_type != SHMFS_SUPER_MAGIC
+						&& f.f_type != RAMFS_MAGIC))
 	  continue;
 
 	namelen = strlen (mp->mnt_dir);
@@ -148,14 +151,15 @@ shm_open (const char *name, int oflag, mode_t mode)
   while (name[0] == '/')
     ++name;
 
-  if (name[0] == '\0')
+  namelen = strlen (name);
+
+  /* Validate the filename.  */
+  if (name[0] == '\0' || namelen > NAME_MAX || strchr (name, '/') != NULL)
     {
-      /* The name "/" is not supported.  */
       __set_errno (EINVAL);
       return -1;
     }
 
-  namelen = strlen (name);
   fname = (char *) alloca (mountpoint.dirlen + namelen + 1);
   __mempcpy (__mempcpy (fname, mountpoint.dir, mountpoint.dirlen),
 	     name, namelen + 1);
@@ -204,7 +208,7 @@ shm_open (const char *name, int oflag, mode_t mode)
 	}
 #endif
     }
-  else if (__builtin_expect (errno == EISDIR, 0))
+  else if (__glibc_unlikely (errno == EISDIR))
     /* It might be better to fold this error with EINVAL since
        directory names are just another example for unsuitable shared
        object names and the standard does not mention EISDIR.  */
@@ -237,14 +241,15 @@ shm_unlink (const char *name)
   while (name[0] == '/')
     ++name;
 
-  if (name[0] == '\0')
+  namelen = strlen (name);
+
+  /* Validate the filename.  */
+  if (name[0] == '\0' || namelen > NAME_MAX || strchr (name, '/') != NULL)
     {
-      /* The name "/" is not supported.  */
       __set_errno (ENOENT);
       return -1;
     }
 
-  namelen = strlen (name);
   fname = (char *) alloca (mountpoint.dirlen + namelen + 1);
   __mempcpy (__mempcpy (fname, mountpoint.dir, mountpoint.dirlen),
 	     name, namelen + 1);

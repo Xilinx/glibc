@@ -1,5 +1,5 @@
 /* Copy a sign bit between floating-point values.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ ENTRY(__copysign)
 	stwu	r1,-16(r1)
 	cfi_adjust_cfa_offset (16)
 	stfd	fp2,8(r1)
-	lwz	r3,8(r1)
+	lwz	r3,8+HIWORD(r1)
 	cmpwi   r3,0
 	addi    r1,r1,16
 	cfi_adjust_cfa_offset (-16)

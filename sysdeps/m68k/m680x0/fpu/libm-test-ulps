@@ -1,0 +1,526 @@
+# Begin of automatic generation
+
+# Maximal error of functions:
+Function: "acosh":
+double: 1
+idouble: 1
+
+Function: "asin_downward":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "asin_towardzero":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "asin_upward":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "asinh":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "atan2":
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "cacos":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "cacos":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "cacosh":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "cacosh":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "casin":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "casin":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "casinh":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "casinh":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "catan":
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "catan":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "catanh":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "catanh":
+ildouble: 1
+ldouble: 1
+
+Function: "cbrt":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "ccos":
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "ccos":
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "ccosh":
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "cexp":
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "cexp":
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "clog":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "clog":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "clog10":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "clog10":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: "cos":
+double: 1
+idouble: 1
+
+Function: "cos_tonearest":
+double: 1
+idouble: 1
+
+Function: Real part of "cpow":
+double: 1
+float: 3
+idouble: 1
+ifloat: 3
+ildouble: 3
+ldouble: 3
+
+Function: Imaginary part of "cpow":
+float: 5
+ifloat: 5
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "csin":
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "csinh":
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "csqrt":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+
+Function: Imaginary part of "csqrt":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+
+Function: Real part of "ctan":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctan":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctan_downward":
+double: 2
+float: 2
+idouble: 2
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctan_downward":
+double: 3
+float: 2
+idouble: 3
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctan_tonearest":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctan_tonearest":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctan_towardzero":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctan_towardzero":
+double: 3
+float: 2
+idouble: 3
+ifloat: 2
+ildouble: 4
+ldouble: 4
+
+Function: Real part of "ctan_upward":
+double: 1
+float: 3
+idouble: 1
+ifloat: 3
+ildouble: 5
+ldouble: 5
+
+Function: Imaginary part of "ctan_upward":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 7
+ldouble: 7
+
+Function: Real part of "ctanh":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctanh":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctanh_downward":
+double: 3
+float: 2
+idouble: 3
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctanh_downward":
+double: 2
+float: 2
+idouble: 2
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctanh_tonearest":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Imaginary part of "ctanh_tonearest":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctanh_towardzero":
+double: 3
+float: 2
+idouble: 3
+ifloat: 2
+ildouble: 4
+ldouble: 4
+
+Function: Imaginary part of "ctanh_towardzero":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 2
+ldouble: 2
+
+Function: Real part of "ctanh_upward":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 7
+ldouble: 7
+
+Function: Imaginary part of "ctanh_upward":
+double: 1
+float: 3
+idouble: 1
+ifloat: 3
+ildouble: 5
+ldouble: 5
+
+Function: "erf":
+ildouble: 1
+ldouble: 1
+
+Function: "erfc":
+float: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "expm1":
+ildouble: 1
+ldouble: 1
+
+Function: "expm1_tonearest":
+ildouble: 1
+ldouble: 1
+
+Function: "gamma":
+ildouble: 1
+ldouble: 1
+
+Function: "hypot":
+double: 1
+idouble: 1
+ildouble: 1
+ldouble: 1
+
+Function: "j0":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: "j1":
+float: 2
+ifloat: 2
+ildouble: 1
+ldouble: 1
+
+Function: "jn":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 4
+ldouble: 4
+
+Function: "lgamma":
+ildouble: 1
+ldouble: 1
+
+Function: "pow":
+double: 1
+float: 5
+idouble: 1
+ifloat: 7
+ildouble: 7
+ldouble: 7
+
+Function: "pow_downward":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "pow_tonearest":
+double: 1
+float: 7
+idouble: 1
+ifloat: 7
+ildouble: 7
+ldouble: 7
+
+Function: "pow_towardzero":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "pow_upward":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "sin":
+double: 1
+idouble: 1
+
+Function: "sin_tonearest":
+double: 1
+idouble: 1
+
+Function: "tgamma":
+double: 4
+float: 3
+idouble: 4
+ifloat: 3
+ildouble: 9
+ldouble: 9
+
+Function: "y0":
+double: 1
+float: 1
+idouble: 1
+ifloat: 1
+ildouble: 1
+ldouble: 1
+
+Function: "y1":
+double: 1
+float: 2
+idouble: 1
+ifloat: 2
+ildouble: 2
+ldouble: 2
+
+Function: "yn":
+double: 1
+float: 3
+idouble: 1
+ifloat: 3
+ildouble: 4
+ldouble: 4
+
+# end of automatic generation

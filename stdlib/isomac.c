@@ -1,5 +1,5 @@
 /* Check system header files for ISO 9899:1990 (ISO C) compliance.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jens Schweikhardt <schweikh@noc.dfn.de>, 1996.
 
@@ -263,6 +263,7 @@ get_null_defines (void)
   if (system (command))
     {
       puts ("system() returned nonzero");
+      free (command);
       return NULL;
     }
   free (command);

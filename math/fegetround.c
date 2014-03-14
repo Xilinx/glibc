@@ -1,5 +1,5 @@
 /* Return current rounding direction.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -28,4 +28,5 @@ fegetround (void)
   return 0;
 #endif
 }
+libm_hidden_def (fegetround)
 stub_warning (fegetround)

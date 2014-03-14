@@ -1,3 +1,106 @@
+This file describes changes to the M68K port while it was in the ports
+add-on directory.  This port is no longer part of an add-on and so
+future changes to it should be listed in the top-level ChangeLog file,
+not here.
+
+
+
+2014-02-10  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k: Move directory to ../sysdeps/m68k.
+	* sysdeps/unix/sysv/linux/m68k: Move directory to
+	../sysdeps/unix/sysv/linux/m68k.
+
+2014-01-27  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k/m680x0/fpu/libm-test-ulps: Regenerate.
+
+2013-12-10  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k/m680x0/fpu/s_nextafterl.c (__nextafterl): Use
+	math_force_eval.
+
+	* sysdeps/unix/sysv/linux/m68k/nptl/lowlevellock.h
+	(FUTEX_WAIT_REQEUE_PI, FUTEX_CMP_REQEUE_PI)
+	(lll_futex_wait_requeue_pi, lll_futex_timed_wait_requeue_pi)
+	(lll_futex_cmp_requeue_pi): Define.
+
+	* sysdeps/unix/sysv/linux/m68k/kernel-features.h
+	(__ASSUME_REQUEUE_PI, __ASSUME_SET_ROBUST_LIST): Undefine before
+	3.10.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/m68k/fpu/fegetround.c (fegetround): Use libm_hidden_def.
+
+2013-11-26  Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/unix/sysv/linux/m68k/bits/stat.h: Use __glibc_reserved
+	instead of __unused.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/unix/sysv/linux/m68k/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/m68k/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/m68k/configure: Regenerated.
+
+2013-10-08  Andreas Schwab  <schwab@suse.de>
+
+	* sysdeps/m68k/start.S [SHARED]: Use PIC.
+
+2013-09-20  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k/ffs.c (__ffs): Define as hidden.
+
+2013-09-04  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/unix/sysv/linux/m68k/mmap64.c: New file.
+
+2013-08-21   Ondřej Bílka  <neleai@seznam.cz>
+
+	* sysdeps/m68k/m680x0/fpu/fraiseexcpt.c: Fix typos.
+
+2013-07-20  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/unix/sysv/linux/m68k/dl-static.c: New file.
+	* sysdeps/unix/sysv/linux/m68k/ldsodefs.h: New file.
+	* sysdeps/unix/sysv/linux/m68k/Makefile (sysdep-dl-routines)
+	(sysdep_routines, sysdep-rtld-routines) [$(subdir) = elf]: Add
+	dl-static.
+	* sysdeps/unix/sysv/linux/m68k/Versions (ld: GLIBC_PRIVATE): Add
+	_dl_var_init.
+
+2013-07-03  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k/m680x0/fpu/libm-test-ulps: Update.
+
+2013-06-30  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/m68k/dl-trampoline.S (FMOVE): Define conditional on
+	[__mcoldfire__] and [__mcffpu__].
+	(FPSPACE): Likewise.
+	(_dl_runtime_profile): Save and restore %fp0 with FMOVE, only if
+	[FMOVE].  Use FPSPACE in stack offsets.
+
+2013-06-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/m68k/fpu_control.h: Fix preprocessor indentation.
+
+2013-06-28  Nathan Sidwell  <nathan@codesourcery.com>
+
+	* sysdeps/m68k/fpu_control.h [__mcoldfire__ && !__mcffpu__]
+	(_FPU_RESERVED): Provide alternative definition.
+	[__mcoldfire__ && !__mcffpu__] (_FPU_DEFAULT): Likewise.
+	[__mcoldfire__ && !__mcffpu__] (_FPU_GETCW): Likewise.
+	[__mcoldfire__ && !__mcffpu__] (_FPU_SETCW): Likewise.
+	[!(__mcoldfire__ && !__mcffpu__)]: Make existing macro definitions
+	conditional.
+
+2013-06-25  Andreas Schwab  <schwab@linux-m68k.org>
+
+	* sysdeps/m68k/sysdep.h (CALL_MCOUNT) [PROF]: Use %a6 instead of
+	%fp in cfi insns.
+
 2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/unix/sysv/linux/m68k/coldfire/nptl/libpthread.abilist:

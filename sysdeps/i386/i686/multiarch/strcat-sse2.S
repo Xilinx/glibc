@@ -1,5 +1,5 @@
 /* strcat with SSE2
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2014 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -49,7 +49,7 @@
 	/* Get the entry and convert the relative offset to the	\
 	absolute address.  */	\
 	addl	(%ecx,INDEX,SCALE), %ecx;	\
-	/* We loaded the jump table and adjuested ECX. Go.  */	\
+	/* We loaded the jump table and adjusted ECX. Go.  */	\
 	jmp	*%ecx
 # else
 #  define JMPTBL(I, B) I

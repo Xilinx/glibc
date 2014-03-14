@@ -1,5 +1,5 @@
 /* Compute projection of complex long double value to Riemann sphere.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -24,9 +24,7 @@
 __complex__ long double
 __cprojl (__complex__ long double x)
 {
-  if (isnan (__real__ x) && isnan (__imag__ x))
-    return x;
-  else if (!isfinite (__real__ x) || !isfinite (__imag__ x))
+  if (__isinf_nsl (__real__ x) || __isinf_nsl (__imag__ x))
     {
       __complex__ long double res;
 

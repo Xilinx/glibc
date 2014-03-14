@@ -1,4 +1,4 @@
-# Copyright (C) 1997-2013 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -60,6 +60,10 @@ CPPFLAGS-strtab = -DNOT_IN_libc
 CPPFLAGS-charmap = -DNOT_IN_libc
 CPPFLAGS-charmap-dir = -DNOT_IN_libc
 
+ifeq ($(run-built-tests),yes)
+xtests-special += $(objpfx)test-iconvconfig.out
+endif
+
 include ../Rules
 
 $(inst_bindir)/iconv: $(objpfx)iconv_prog $(+force)
@@ -68,14 +72,11 @@ $(inst_bindir)/iconv: $(objpfx)iconv_prog $(+force)
 $(objpfx)iconv_prog: $(iconv_prog-modules:%=$(objpfx)%.o)
 $(objpfx)iconvconfig: $(iconvconfig-modules:%=$(objpfx)%.o)
 
-ifeq ($(run-built-tests),yes)
-xtests: test-iconvconfig
-endif
-
-.PHONY: test-iconvconfig
-test-iconvconfig: /dev/null $(objpfx)iconvconfig
-	tmp=$(objpfx)gconv-modules.cache.$$$$; \
-	rm -f $$tmp; \
-	$(make-test-out) --output=$$tmp --nostdlib $(inst_gconvdir) && \
-	cmp $$tmp $(inst_gconvdir)/gconv-modules.cache && \
-	rm -f $$tmp
+$(objpfx)test-iconvconfig.out: /dev/null $(objpfx)iconvconfig
+	(set -e; \
+	 tmp=$(objpfx)gconv-modules.cache.$$$$; \
+	 rm -f $$tmp; \
+	 $(make-test-out) --output=$$tmp --nostdlib $(inst_gconvdir); \
+	 cmp $$tmp $(inst_gconvdir)/gconv-modules.cache; \
+	 rm -f $$tmp) > $@; \
+	$(evaluate-test)

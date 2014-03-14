@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -40,7 +40,7 @@ __pthread_kill (threadid, signo)
      if a thread exits between ESRCH test and tgkill, we might return
      EINVAL, because pd->tid would be cleared by the kernel.  */
   pid_t tid = atomic_forced_read (pd->tid);
-  if (__builtin_expect (tid <= 0, 0))
+  if (__glibc_unlikely (tid <= 0))
     /* Not a valid thread handle.  */
     return ESRCH;
 

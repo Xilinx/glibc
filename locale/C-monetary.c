@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1995.
 
@@ -21,11 +21,8 @@
 /* This table's entries are taken from POSIX.2 Table 2-9
    ``LC_MONETARY Category Definition in the POSIX Locale'',
    with additions from ISO 14652, section 4.4.  */
-#ifdef __CHAR_UNSIGNED__
 static const char not_available[] = "\377";
-#else
-static const char not_available[] = "\177";
-#endif
+static const uint32_t conversion_rate[] = { 1, 1 };
 
 const struct __locale_data _nl_C_LC_MONETARY attribute_hidden =
 {
@@ -78,7 +75,7 @@ const struct __locale_data _nl_C_LC_MONETARY attribute_hidden =
     { .word = 99991231 },
     { .word = 10101 },
     { .word = 99991231 },
-    { .word = 1 },
+    { .string = (const char *) conversion_rate },
     { .word = (unsigned int) L'\0' },
     { .word = (unsigned int) L'\0' },
     { .string = _nl_C_codeset }

@@ -1,5 +1,5 @@
 /* strcmp with SSE4.2
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -53,7 +53,7 @@
 #  define STR1		8
 # endif
 # define STR2		STR1+4
-# define LOCALE		12	/* Loaded before the adjustement.  */
+# define LOCALE		12	/* Loaded before the adjustment.  */
 # ifdef PIC
 #  define RETURN	POP (%edi); POP (%ebx); ret; \
 			.p2align 4; CFI_PUSH (%ebx); CFI_PUSH (%edi)
@@ -73,7 +73,7 @@
 # endif
 # define STR2		STR1+4
 # define CNT		STR2+4
-# define LOCALE		16	/* Loaded before the adjustement.  */
+# define LOCALE		16	/* Loaded before the adjustment.  */
 # ifdef PIC
 #  define RETURN	POP (%edi); POP (REM); POP (%ebx); ret; \
 			.p2align 4; \
@@ -121,8 +121,14 @@ ENTRY (__strcasecmp_sse4_2)
 	movl	(%eax), %eax
 # endif
 	testl	$1, LOCALE_DATA_VALUES+_NL_CTYPE_NONASCII_CASE*SIZEOF_VALUES(%eax)
+# ifdef PIC
+	je	L(ascii)
+	POP	(%ebx)
+	jmp	__strcasecmp_nonascii
+# else
 	jne	__strcasecmp_nonascii
 	jmp	L(ascii)
+# endif
 END (__strcasecmp_sse4_2)
 #endif
 
@@ -152,8 +158,14 @@ ENTRY (__strncasecmp_sse4_2)
 	movl	(%eax), %eax
 # endif
 	testl	$1, LOCALE_DATA_VALUES+_NL_CTYPE_NONASCII_CASE*SIZEOF_VALUES(%eax)
+# ifdef PIC
+	je	L(ascii)
+	POP	(%ebx)
+	jmp	__strncasecmp_nonascii
+# else
 	jne	__strncasecmp_nonascii
 	jmp	L(ascii)
+# endif
 END (__strncasecmp_sse4_2)
 #endif
 

@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  S390 Version.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    Contributed by Carl Pederson & Martin Schwidefsky.
    This file is part of the GNU C Library.
 
@@ -114,7 +114,7 @@ elf_machine_runtime_setup (struct link_map *l, int lazy, int profile)
 	 to intercept the calls to collect information.  In this case we
 	 don't store the address in the GOT so that all future calls also
 	 end in this function.  */
-      if (__builtin_expect (profile, 0))
+      if (__glibc_unlikely (profile))
 	{
 	  got[2] = (Elf32_Addr) &_dl_runtime_profile;
 
@@ -277,7 +277,7 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
   const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
 
 #if !defined RTLD_BOOTSTRAP || !defined HAVE_Z_COMBRELOC
-  if (__builtin_expect (r_type == R_390_RELATIVE, 0))
+  if (__glibc_unlikely (r_type == R_390_RELATIVE))
     {
 # if !defined RTLD_BOOTSTRAP && !defined HAVE_Z_COMBRELOC
       /* This is defined in rtld.c, but nowhere in the static libc.a;
@@ -295,11 +295,12 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
     }
   else
 #endif
-  if (__builtin_expect (r_type == R_390_NONE, 0))
+  if (__glibc_unlikely (r_type == R_390_NONE))
     return;
   else
     {
-#ifndef RESOLVE_CONFLICT_FIND_MAP
+#if !defined RTLD_BOOTSTRAP && !defined RESOLVE_CONFLICT_FIND_MAP
+      /* Only needed for R_390_COPY below.  */
       const Elf32_Sym *const refsym = sym;
 #endif
       struct link_map *sym_map = RESOLVE_MAP (&sym, version, r_type);
@@ -315,7 +316,7 @@ elf_machine_rela (struct link_map *map, const Elf32_Rela *reloc,
 	{
 	case R_390_IRELATIVE:
 	  value = map->l_addr + reloc->r_addend;
-	  if (__builtin_expect (!skip_ifunc, 1))
+	  if (__glibc_likely (!skip_ifunc))
 	    value = elf_ifunc_invoke (value);
 	  *reloc_addr = value;
 	  break;
@@ -447,7 +448,7 @@ elf_machine_lazy_rel (struct link_map *map,
   Elf32_Addr *const reloc_addr = (void *) (l_addr + reloc->r_offset);
   const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
   /* Check for unexpected PLT reloc type.  */
-  if (__builtin_expect (r_type == R_390_JMP_SLOT, 1))
+  if (__glibc_likely (r_type == R_390_JMP_SLOT))
     {
       if (__builtin_expect (map->l_mach.plt, 0) == 0)
 	*reloc_addr += l_addr;
@@ -456,10 +457,10 @@ elf_machine_lazy_rel (struct link_map *map,
 	  map->l_mach.plt
 	  + (((Elf32_Addr) reloc_addr) - map->l_mach.gotplt) * 8;
     }
-  else if (__builtin_expect (r_type == R_390_IRELATIVE, 1))
+  else if (__glibc_likely (r_type == R_390_IRELATIVE))
     {
       Elf32_Addr value = map->l_addr + reloc->r_addend;
-      if (__builtin_expect (!skip_ifunc, 1))
+      if (__glibc_likely (!skip_ifunc))
 	value = elf_ifunc_invoke (value);
       *reloc_addr = value;
     }

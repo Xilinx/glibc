@@ -1,6 +1,6 @@
 /* Machine-dependent ELF indirect relocation inline functions.
    PowerPC64 version.
-   Copyright (C) 2009-2013 Free Software Foundation, Inc.
+   Copyright (C) 2009-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -40,17 +40,21 @@ elf_irela (const Elf64_Rela *reloc)
 {
   unsigned int r_type = ELF64_R_TYPE (reloc->r_info);
 
-  if (__builtin_expect (r_type == R_PPC64_IRELATIVE, 1))
+  if (__glibc_likely (r_type == R_PPC64_IRELATIVE))
     {
       Elf64_Addr *const reloc_addr = (void *) reloc->r_offset;
       Elf64_Addr value = elf_ifunc_invoke(reloc->r_addend);
       *reloc_addr = value;
     }
-  else if (__builtin_expect (r_type == R_PPC64_JMP_IREL, 1))
+  else if (__glibc_likely (r_type == R_PPC64_JMP_IREL))
     {
       Elf64_Addr *const reloc_addr = (void *) reloc->r_offset;
       Elf64_Addr value = elf_ifunc_invoke(reloc->r_addend);
+#if _CALL_ELF != 2
       *(Elf64_FuncDesc *) reloc_addr = *(Elf64_FuncDesc *) value;
+#else
+      *reloc_addr = value;
+#endif
     }
   else
     __libc_fatal ("unexpected reloc type in static binary");

@@ -1,5 +1,5 @@
 /* Convert between the kernel's `struct stat' format, and libc's.
-   Copyright (C) 1991-2013 Free Software Foundation, Inc.
+   Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -58,8 +58,8 @@ __xstat_conv (int vers, struct kernel_stat *kbuf, void *ubuf)
 	buf->st_mtim.tv_nsec = 0;
 	buf->st_ctim.tv_sec = kbuf->st_ctime_sec;
 	buf->st_ctim.tv_nsec = 0;
-	buf->__unused4 = 0;
-	buf->__unused5 = 0;
+	buf->__glibc_reserved4 = 0;
+	buf->__glibc_reserved5 = 0;
       }
       break;
 
@@ -108,8 +108,8 @@ __xstat32_conv (int vers, struct stat64 *sbuf, struct stat *buf)
 	buf->st_mtim.tv_nsec = kbuf->st_mtime_nsec;
 	buf->st_ctim.tv_sec = kbuf->st_ctime_sec;
 	buf->st_ctim.tv_nsec = kbuf->st_ctime_nsec;
-	buf->__unused4 = 0;
-	buf->__unused5 = 0;
+	buf->__glibc_reserved4 = 0;
+	buf->__glibc_reserved5 = 0;
       }
       break;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -38,9 +38,9 @@ chmod a-w$(patsubst %,$(comma)a+x,$(filter .,$(@D))) $@.new
 mv -f $@.new $@
 endef
 
-configure: configure.in aclocal.m4; $(autoconf-it)
-%/configure: %/configure.in aclocal.m4; $(autoconf-it)
-%/preconfigure: %/preconfigure.in aclocal.m4; $(autoconf-it)
+configure: configure.ac aclocal.m4; $(autoconf-it)
+%/configure: %/configure.ac aclocal.m4; $(autoconf-it)
+%/preconfigure: %/preconfigure.ac aclocal.m4; $(autoconf-it)
 
 endif # $(AUTOCONF) = no
 
@@ -51,7 +51,7 @@ endif # $(AUTOCONF) = no
 # These are the targets that are made by making them in each subdirectory.
 +subdir_targets	:= subdir_lib objects objs others subdir_mostlyclean	\
 		   subdir_clean subdir_distclean subdir_realclean	\
-		   tests xtests subdir_lint.out				\
+		   tests xtests						\
 		   subdir_update-abi subdir_check-abi			\
 		   subdir_echo-headers					\
 		   subdir_install					\
@@ -123,31 +123,8 @@ lib-noranlib: subdir_lib
 
 ifeq (yes,$(build-shared))
 # Build the shared object from the PIC object library.
-lib: $(common-objpfx)libc.so
-
-lib: $(common-objpfx)linkobj/libc.so
-
-# Do not filter ld.so out of libc.so link.
-$(common-objpfx)linkobj/libc.so: link-libc-deps = # empty
-
-$(common-objpfx)linkobj/libc.so: $(elfobjdir)/soinit.os \
-				 $(common-objpfx)linkobj/libc_pic.a \
-				 $(elfobjdir)/sofini.os \
-				 $(elfobjdir)/interp.os \
-				 $(elfobjdir)/ld.so \
-				 $(shlib-lds)
-	$(build-shlib)
-
-$(common-objpfx)linkobj/libc_pic.a: $(common-objpfx)libc_pic.a \
-				    $(common-objpfx)sunrpc/librpc_compat_pic.a
-	$(..)./scripts/mkinstalldirs $(common-objpfx)linkobj
-	(cd $(common-objpfx)linkobj; \
-	 $(AR) x ../libc_pic.a; \
-	 rm $$($(AR) t ../sunrpc/librpc_compat_pic.a | sed 's/^compat-//'); \
-	 $(AR) x ../sunrpc/librpc_compat_pic.a; \
-	 $(AR) cr libc_pic.a *.os; \
-	 rm *.os)
-endif
+lib: $(common-objpfx)libc.so $(common-objpfx)linkobj/libc.so
+endif # $(build-shared)
 
 
 # This is a handy script for running any dynamically linked program against
@@ -273,18 +250,20 @@ mostlyclean: parent-mostlyclean
 tests-clean:
 	@$(MAKE) subdir_testclean no_deps=t
 
-tests: $(objpfx)c++-types-check.out $(objpfx)check-local-headers.out
+tests-special += $(objpfx)c++-types-check.out $(objpfx)check-local-headers.out
 ifneq ($(CXX),no)
 
 vpath c++-types.data $(+sysdep_dirs)
 
 $(objpfx)c++-types-check.out: c++-types.data scripts/check-c++-types.sh
-	scripts/check-c++-types.sh $< $(CXX) $(filter-out -std=gnu99 -Wstrict-prototypes,$(CFLAGS)) $(CPPFLAGS) > $@
+	scripts/check-c++-types.sh $< $(CXX) $(filter-out -std=gnu99 -Wstrict-prototypes,$(CFLAGS)) $(CPPFLAGS) > $@; \
+	$(evaluate-test)
 endif
 
 $(objpfx)check-local-headers.out: scripts/check-local-headers.sh
 	AWK='$(AWK)' scripts/check-local-headers.sh \
-	  "$(includedir)" "$(objpfx)" > $@
+	  "$(includedir)" "$(objpfx)" > $@; \
+	$(evaluate-test)
 
 ifneq ($(PERL),no)
 installed-headers = argp/argp.h assert/assert.h catgets/nl_types.h \
@@ -331,10 +310,36 @@ installed-headers = argp/argp.h assert/assert.h catgets/nl_types.h \
 		    time/sys/time.h time/sys/timeb.h wcsmbs/wchar.h \
 		    wctype/wctype.h
 
-tests: $(objpfx)begin-end-check.out
+tests-special += $(objpfx)begin-end-check.out
 $(objpfx)begin-end-check.out: scripts/begin-end-check.pl
-	$(PERL) scripts/begin-end-check.pl $(installed-headers) > $@
+	$(PERL) scripts/begin-end-check.pl $(installed-headers) > $@; \
+	$(evaluate-test)
 endif
+
+tests-special-notdir = $(patsubst $(objpfx)%, %, $(tests-special))
+tests: $(tests-special)
+	$(..)scripts/merge-test-results.sh -s $(objpfx) "" \
+	  $(sort $(tests-special-notdir:.out=)) \
+	  > $(objpfx)subdir-tests.sum
+	$(..)scripts/merge-test-results.sh -t $(objpfx) subdir-tests.sum \
+	  $(sort $(subdirs) .) \
+	  > $(objpfx)tests.sum
+	@grep '^ERROR:' $(objpfx)tests.sum || true
+	@grep '^FAIL:' $(objpfx)tests.sum || true
+	@echo "Summary of test results:"
+	@sed 's/:.*//' < $(objpfx)tests.sum | sort | uniq -c
+	@if grep -q '^ERROR:' $(objpfx)tests.sum; then exit 1; fi
+	@if grep -q '^FAIL:' $(objpfx)tests.sum; then exit 1; fi
+xtests:
+	$(..)scripts/merge-test-results.sh -t $(objpfx) subdir-xtests.sum \
+	  $(sort $(subdirs)) \
+	  > $(objpfx)xtests.sum
+	@grep '^ERROR:' $(objpfx)xtests.sum || true
+	@grep '^FAIL:' $(objpfx)xtests.sum || true
+	@echo "Summary of test results for extra tests:"
+	@sed 's/:.*//' < $(objpfx)xtests.sum | sort | uniq -c
+	@if grep -q '^ERROR:' $(objpfx)xtests.sum; then exit 1; fi
+	@if grep -q '^FAIL:' $(objpfx)xtests.sum; then exit 1; fi
 
 # The realclean target is just like distclean for the parent, but we want
 # the subdirs to know the difference in case they care.
@@ -400,11 +405,16 @@ dist: dist-prepare
 	fi
 endif
 
-INSTALL: manual/install.texi manual/macros.texi \
-	 $(common-objpfx)manual/pkgvers.texi
+INSTALL: manual/install-plain.texi manual/macros.texi \
+	 $(common-objpfx)manual/pkgvers.texi manual/install.texi
 	makeinfo --no-validate --plaintext --no-number-sections \
-		 -I$(common-objpfx)manual $< -o $@
-	-chmod a-w $@
+		 -I$(common-objpfx)manual $< -o $@-tmp
+	$(AWK) 'NF == 0 { ++n; next } \
+		NF != 0 { while (n-- > 0) print ""; n = 0; print }' \
+	  < $@-tmp > $@-tmp2
+	rm -f $@-tmp
+	-chmod a-w $@-tmp2
+	mv -f $@-tmp2 $@
 $(common-objpfx)manual/%: FORCE
 	$(MAKE) $(PARALLELMFLAGS) -C manual $@
 FORCE:

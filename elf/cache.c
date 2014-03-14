@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Andreas Jaeger <aj@suse.de>, 1999.
 
@@ -104,6 +104,15 @@ print_entry (const char *lib, int flag, unsigned int osversion,
     /* Uses the ARM soft-float ABI.  */
     case FLAG_ARM_LIBSF:
       fputs (",soft-float", stdout);
+      break;
+    case FLAG_MIPS_LIB32_NAN2008:
+      fputs (",nan2008", stdout);
+      break;
+    case FLAG_MIPS64_LIBN32_NAN2008:
+      fputs (",N32,nan2008", stdout);
+      break;
+    case FLAG_MIPS64_LIBN64_NAN2008:
+      fputs (",64bit,nan2008", stdout);
       break;
     case 0:
       break;

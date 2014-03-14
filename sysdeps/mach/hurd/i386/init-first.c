@@ -1,5 +1,5 @@
 /* Initialization code run first thing by the ELF startup code.  For i386/Hurd.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -122,8 +122,8 @@ init1 (int argc, char *arg0, ...)
           /* We may need to see our own phdrs, e.g. for TLS setup.
              Try the usual kludge to find the headers without help from
              the exec server.  */
-          extern const void _start;
-          const ElfW(Ehdr) *const ehdr = &_start;
+          extern const void __executable_start;
+          const ElfW(Ehdr) *const ehdr = &__executable_start;
           _dl_phdr = (const void *) ehdr + ehdr->e_phoff;
           _dl_phnum = ehdr->e_phnum;
           assert (ehdr->e_phentsize == sizeof (ElfW(Phdr)));

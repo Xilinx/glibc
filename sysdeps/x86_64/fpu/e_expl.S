@@ -127,9 +127,16 @@ ENTRY(IEEE754_EXPL)
 #endif
 3:	FLDLOG			/* 1  log2(base)      */
 	fmul	%st(1), %st	/* 1  x log2(base)    */
+	/* Set round-to-nearest temporarily.  */
+	fstcw	-4(%rsp)
+	movl	$0xf3ff, %edx
+	andl	-4(%rsp), %edx
+	movl	%edx, -8(%rsp)
+	fldcw	-8(%rsp)
 	frndint			/* 1  i               */
 	fld	%st(1)		/* 2  x               */
 	frndint			/* 2  xi              */
+	fldcw	-4(%rsp)
 	fld	%st(1)		/* 3  i               */
 	fldt	MO(c0)		/* 4  c0              */
 	fld	%st(2)		/* 5  xi              */

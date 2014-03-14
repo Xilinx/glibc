@@ -43,7 +43,7 @@ category  "en_AU:2000";LC_PAPER
 category  "en_AU:2000";LC_NAME
 category  "en_AU:2000";LC_ADDRESS
 category  "en_AU:2000";LC_TELEPHONE
-
+category  "en_AU:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -139,8 +139,8 @@ int_select     "<U0030><U0030><U0031><U0031>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-% FIXME
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -157,4 +157,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U0041><U0055>"
 country_ab3 "<U0041><U0055><U0053>"
 country_num 036
+% English
+lang_name     "<U0045><U006E><U0067><U006C><U0069><U0073><U0068>"
+% AUS
+country_car    "<U0041><U0055><U0053>"
+% en
+lang_ab      "<U0065><U006E>"
+% eng
+lang_term    "<U0065><U006E><U0067>"
+% eng
+lang_lib    "<U0065><U006E><U0067>"
 END LC_ADDRESS

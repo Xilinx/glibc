@@ -1,6 +1,6 @@
 /* Multiple versions of mul_1
 
-   Copyright (C) 2013 Free Software Foundation, Inc.
+   Copyright (C) 2013-2014 Free Software Foundation, Inc.
    Contributed by David S. Miller (davem@davemloft.net)
    This file is part of the GNU C Library.
 
@@ -42,7 +42,7 @@ ENTRY(__mpn_mul_1)
 	sethi	%gdop_hix22(__mpn_mul_1_generic), %o1
 	xor	%o1, %gdop_lox10(__mpn_mul_1_generic), %o1
 # else
-	set	__mpn_mul_1_vis3, %o1
+	set	__mpn_mul_1_generic, %o1
 # endif
 10:
 # ifdef SHARED

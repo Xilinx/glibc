@@ -1,5 +1,5 @@
 /* Assembly macros for 32-bit PowerPC.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -99,8 +99,7 @@ GOT_LABEL:			;					      \
 # define JUMPTARGET(name) name
 #endif
 
-#if defined SHARED && defined DO_VERSIONING && defined PIC \
-    && !defined NO_HIDDEN
+#if defined SHARED && defined PIC && !defined NO_HIDDEN
 # undef HIDDEN_JUMPTARGET
 # define HIDDEN_JUMPTARGET(name) __GI_##name##@local
 #endif

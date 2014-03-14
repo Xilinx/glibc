@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ perror (const char *s)
       || (fd = __dup (fd)) == -1
       || (fp = fdopen (fd, "w+")) == NULL)
     {
-      if (__builtin_expect (fd != -1, 0))
+      if (__glibc_unlikely (fd != -1))
 	__close (fd);
 
       /* Use standard error as is.  */

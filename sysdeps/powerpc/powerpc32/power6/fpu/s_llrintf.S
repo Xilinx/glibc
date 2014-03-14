@@ -1,5 +1,5 @@
 /* Round float to long int.  PowerPC32 on PowerPC64 version.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ ENTRY (__llrintf)
 /* Insure the following load is in a different dispatch group by
    inserting "group ending nop".  */
 	ori	r1,r1,0
-	lwz	r3,8(r1)
-	lwz	r4,12(r1)
+	lwz	r3,8+HIWORD(r1)
+	lwz	r4,8+LOWORD(r1)
 	addi	r1,r1,16
 	blr
 	END (__llrintf)

@@ -1,5 +1,5 @@
 /* Optimized 64-bit memset implementation for POWER6.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -47,14 +47,14 @@ L(_memset):
 
 /* Align to doubleword boundary.  */
 	cmpldi	cr5, rLEN, 31
-	rlwimi	rCHR, rCHR, 8, 16, 23 /* Replicate byte to halfword.  */
+	insrdi	rCHR, rCHR, 8, 48	/* Replicate byte to halfword.  */
 	beq+	L(aligned2)
 	mtcrf	0x01, rMEMP0
 	subfic	rALIGN, rALIGN, 8
 	cror	28,30,31		/* Detect odd word aligned.  */
 	add	rMEMP, rMEMP, rALIGN
 	sub	rLEN, rLEN, rALIGN
-	rlwimi	rCHR, rCHR, 16, 0, 15 /* Replicate halfword to word.  */
+	insrdi	rCHR, rCHR, 16, 32	/* Replicate halfword to word.  */
 	bt	29, L(g4)
 /* Process the even word of doubleword.  */
 	bf+	31, L(g2)
@@ -76,14 +76,14 @@ L(g0):
 
 /* Handle the case of size < 31.  */
 L(aligned2):
-	rlwimi	rCHR, rCHR, 16, 0, 15 /* Replicate halfword to word.  */
+	insrdi	rCHR, rCHR, 16, 32	/* Replicate halfword to word.  */
 L(aligned):
 	mtcrf	0x01, rLEN
 	ble	cr5, L(medium)
 /* Align to 32-byte boundary.  */
 	andi.	rALIGN, rMEMP, 0x18
 	subfic	rALIGN, rALIGN, 0x20
-	insrdi	rCHR,rCHR,32,0 /* Replicate word to double word. */
+	insrdi	rCHR, rCHR, 32, 0	/* Replicate word to double word. */
 	beq	L(caligned)
 	mtcrf	0x01, rALIGN
 	add	rMEMP, rMEMP, rALIGN
@@ -110,7 +110,7 @@ L(caligned):
    boundary may not be at cache line (128-byte) boundary.  */
 L(nzloopstart):
 /* memset in 32-byte chunks until we get to a cache line boundary.
-   If rLEN is less then the distance to the next cache-line boundary use
+   If rLEN is less than the distance to the next cache-line boundary use
    cacheAligned1 code to finish the tail.  */
 	cmpldi	cr1,rLEN,128
 
@@ -186,7 +186,7 @@ L(nzCacheAligned128):
    block zero instruction. */
 L(zloopstart):
 /* memset in 32-byte chunks until we get to a cache line boundary.
-   If rLEN is less then the distance to the next cache-line boundary use
+   If rLEN is less than the distance to the next cache-line boundary use
    cacheAligned1 code to finish the tail.  */
 	cmpldi	cr1,rLEN,128
 	beq	L(medium)
@@ -344,7 +344,7 @@ L(le4):
 /* Memset of 0-31 bytes.  */
 	.align 5
 L(medium):
-	insrdi	rCHR,rCHR,32,0 /* Replicate word to double word.  */
+	insrdi	rCHR, rCHR, 32, 0	/* Replicate word to double word.  */
 	cmpldi	cr1, rLEN, 16
 L(medium_tail2):
 	add	rMEMP, rMEMP, rLEN
@@ -379,6 +379,7 @@ L(medium_28t):
 END_GEN_TB (memset,TB_TOCLESS)
 libc_hidden_builtin_def (memset)
 
+#ifndef NO_BZERO_IMPL
 /* Copied from bzero.S to prevent the linker from inserting a stub
    between bzero and memset.  */
 ENTRY (__bzero)
@@ -389,3 +390,4 @@ ENTRY (__bzero)
 END_GEN_TB (__bzero,TB_TOCLESS)
 
 weak_alias (__bzero, bzero)
+#endif

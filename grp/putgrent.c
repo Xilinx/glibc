@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ putgrent (gr, stream)
 {
   int retval;
 
-  if (__builtin_expect (gr == NULL, 0) || __builtin_expect (stream == NULL, 0))
+  if (__glibc_unlikely (gr == NULL) || __glibc_unlikely (stream == NULL))
     {
       __set_errno (EINVAL);
       return -1;

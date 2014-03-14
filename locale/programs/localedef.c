@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1995.
 
@@ -112,6 +112,8 @@ void (*argp_program_version_hook) (FILE *, struct argp_state *) = print_version;
 #define OPT_REPLACE 307
 #define OPT_DELETE_FROM_ARCHIVE 308
 #define OPT_LIST_ARCHIVE 309
+#define OPT_LITTLE_ENDIAN 400
+#define OPT_BIG_ENDIAN 401
 
 /* Definitions of arguments for argp functions.  */
 static const struct argp_option options[] =
@@ -144,6 +146,10 @@ static const struct argp_option options[] =
   { "list-archive", OPT_LIST_ARCHIVE, NULL, 0, N_("List content of archive") },
   { "alias-file", 'A', N_("FILE"), 0,
     N_("locale.alias file to consult when making archive")},
+  { "little-endian", OPT_LITTLE_ENDIAN, NULL, 0,
+    N_("Generate little-endian output") },
+  { "big-endian", OPT_BIG_ENDIAN, NULL, 0,
+    N_("Generate big-endian output") },
   { NULL, 0, NULL, 0, NULL }
 };
 
@@ -203,7 +209,7 @@ main (int argc, char *argv[])
 
   /* Handle a few special cases.  */
   if (list_archive)
-    show_archive_content (verbose);
+    show_archive_content (remaining > 1 ? argv[remaining] : NULL, verbose);
   if (add_to_archive)
     return add_locales_to_archive (argc - remaining, &argv[remaining],
 				   replace_archive);
@@ -326,6 +332,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case OPT_LIST_ARCHIVE:
       list_archive = true;
       break;
+    case OPT_LITTLE_ENDIAN:
+      set_big_endian (false);
+      break;
+    case OPT_BIG_ENDIAN:
+      set_big_endian (true);
+      break;
     case 'c':
       force_output = 1;
       break;
@@ -391,7 +403,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 

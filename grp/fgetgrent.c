@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ fgetgrent (FILE *stream)
       char *new_buf;
       buffer_size += NSS_BUFLEN_GROUP;
       new_buf = realloc (buffer, buffer_size);
-      if (__builtin_expect (new_buf == NULL, 0))
+      if (__glibc_unlikely (new_buf == NULL))
 	{
 	  /* We are out of memory.  Free the current buffer so that the
 	     process gets a chance for a normal termination.  */

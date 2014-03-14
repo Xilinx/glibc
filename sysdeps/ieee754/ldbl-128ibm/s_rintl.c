@@ -1,6 +1,6 @@
 /* Round to int long double floating-point values.
    IBM extended format long double version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+   Copyright (C) 2006-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ __rintl (long double x)
 					     __builtin_inf ()), 1))
     {
       double orig_xh;
-      int save_round = fegetround ();
+      int save_round = __fegetround ();
 
       /* Long double arithmetic, including the canonicalisation below,
 	 only works in round-to-nearest mode.  */

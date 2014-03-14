@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -199,12 +199,6 @@ _IO_fwide (fp, mode)
 
       /* From now on use the wide character callback functions.  */
       ((struct _IO_FILE_plus *) fp)->vtable = fp->_wide_data->_wide_vtable;
-
-      /* One last twist: we get the current stream position.  The wide
-	 char streams have much more problems with not knowing the
-	 current position and so we should disable the optimization
-	 which allows the functions without knowing the position.  */
-      fp->_offset = _IO_SYSSEEK (fp, 0, _IO_seek_cur);
     }
 
   /* Set the mode now.  */

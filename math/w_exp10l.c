@@ -1,4 +1,4 @@
-/* Copyright (C) 2011-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -28,7 +28,7 @@ long double
 __exp10l (long double x)
 {
   long double z = __ieee754_exp10l (x);
-  if (__builtin_expect (!__finitel (z), 0)
+  if (__builtin_expect (!__finitel (z) || z == 0, 0)
       && __finitel (x) && _LIB_VERSION != _IEEE_)
     /* exp10l overflow (246) if x > 0, underflow (247) if x < 0.  */
     return __kernel_standard_l (x, x, 246 + !!__signbitl (x));

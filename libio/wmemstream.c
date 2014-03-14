@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -85,8 +85,10 @@ open_wmemstream (bufloc, sizeloc)
 
   buf = calloc (1, _IO_BUFSIZ);
   if (buf == NULL)
-    return NULL;
-
+    {
+      free (new_f);
+      return NULL;
+    }
   _IO_no_init (&new_f->fp._sf._sbf._f, 0, 0, &new_f->wd, &_IO_wmem_jumps);
   _IO_fwide (&new_f->fp._sf._sbf._f, 1);
   _IO_wstr_init_static (&new_f->fp._sf._sbf._f, buf,

@@ -1,4 +1,4 @@
-/* Copyright (C) 1993-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -42,12 +42,12 @@ _IO_fwrite (buf, size, count, fp)
   if (_IO_vtable_offset (fp) != 0 || _IO_fwide (fp, -1) == -1)
     written = _IO_sputn (fp, (const char *) buf, request);
   _IO_release_lock (fp);
-  /* We are guaranteed to have written all of the input, none of it, or
-     some of it.  */
-  if (written == request)
+  /* We have written all of the input in case the return value indicates
+     this or EOF is returned.  The latter is a special case where we
+     simply did not manage to flush the buffer.  But the data is in the
+     buffer and therefore written as far as fwrite is concerned.  */
+  if (written == request || written == EOF)
     return count;
-  else if (written == EOF)
-    return 0;
   else
     return written / size;
 }

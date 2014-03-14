@@ -1,6 +1,6 @@
 /* Copy a sign bit between floating-point values.
    IBM extended format long double version.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+   Copyright (C) 2006-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ ENTRY(__copysignl)
 	fmr	fp0,fp1
 	fabs	fp1,fp1
 	fcmpu	cr7,fp0,fp1
-	lwz	r3,8(r1)
+	lwz	r3,8+HIWORD(r1)
 	cmpwi	cr6,r3,0
 	addi	r1,r1,16
 	cfi_adjust_cfa_offset (-16)

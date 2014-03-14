@@ -1,5 +1,5 @@
 /* Manage function descriptors.  Generic version.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -209,7 +209,7 @@ _dl_make_fptr (struct link_map *map, const ElfW(Sym) *sym,
   Elf_Symndx symidx;
   struct local *l;
 
-  if (__builtin_expect (ftab == NULL, 0))
+  if (__glibc_unlikely (ftab == NULL))
     ftab = make_fptr_table (map);
 
   symtab = (const void *) D_PTR (map, l_info[DT_SYMTAB]);

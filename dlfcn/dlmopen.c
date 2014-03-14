@@ -1,5 +1,5 @@
 /* Load a shared object at run time.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@ dlmopen_doit (void *a)
 
       /* It makes no sense to use RTLD_GLOBAL when loading a DSO into
 	 a namespace other than the base namespace.  */
-      if (__builtin_expect (args->mode & RTLD_GLOBAL, 0))
+      if (__glibc_unlikely (args->mode & RTLD_GLOBAL))
 	GLRO(dl_signal_error) (EINVAL, NULL, NULL, N_("invalid mode"));
     }
 
@@ -79,7 +79,7 @@ void *
 __dlmopen (Lmid_t nsid, const char *file, int mode DL_CALLER_DECL)
 {
 # ifdef SHARED
-  if (__builtin_expect (_dlfcn_hook != NULL, 0))
+  if (__glibc_unlikely (_dlfcn_hook != NULL))
     return _dlfcn_hook->dlmopen (nsid, file, mode, RETURN_ADDRESS (0));
 # endif
 

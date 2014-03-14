@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2013 Free Software Foundation, Inc.
+# Copyright (C) 1995-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #	Sub-makefile for sysvipc portion of the library.
 #
 subdir	:= sysvipc
+
+include ../Makeconfig
 
 headers	:= sys/ipc.h sys/msg.h sys/sem.h sys/shm.h \
 	   bits/ipctypes.h bits/ipc.h bits/msq.h bits/sem.h bits/shm.h

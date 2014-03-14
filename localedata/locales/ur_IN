@@ -29,7 +29,7 @@ category  "ur_IN:2009";LC_PAPER
 category  "ur_IN:2009";LC_NAME
 category  "ur_IN:2009";LC_ADDRESS
 category  "ur_IN:2009";LC_TELEPHONE
-
+category  "ur_IN:2009";LC_MEASUREMENT
 
 END LC_IDENTIFICATION
 
@@ -170,7 +170,20 @@ END LC_NAME
 
 
 LC_ADDRESS
-copy "hi_IN"
+postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
+<U0025><U0062><U0025><U0065><U0025><U0072>"
+
+country_ab2 "<U0049><U004E>"
+country_ab3 "<U0049><U004E><U0044>"
+country_num 356
+% IND
+country_car    "<U0049><U004E><U0044>"
+% ur
+lang_ab      "<U0075><U0072>"
+% urd
+lang_term    "<U0075><U0072><U0064>"
+% urd
+lang_lib    "<U0075><U0072><U0064>"
 END LC_ADDRESS
 
 
@@ -180,5 +193,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

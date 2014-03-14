@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Zack Weinberg <zack@rabi.phys.columbia.edu>, 1998.
 
@@ -56,7 +56,7 @@ extern const char __libc_ptyname2[] attribute_hidden;
 static char buffer[sizeof (_PATH_DEVPTS) + 20];
 
 
-/* Return the pathname of the pseudo terminal slave assoicated with
+/* Return the pathname of the pseudo terminal slave associated with
    the master FD is open on, or NULL on errors.
    The returned storage is good until the next call to this function.  */
 char *

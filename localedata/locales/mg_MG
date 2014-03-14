@@ -39,7 +39,7 @@ category  "mg_MG:2000";LC_PAPER
 category  "mg_MG:2000";LC_NAME
 category  "mg_MG:2000";LC_ADDRESS
 category  "mg_MG:2000";LC_TELEPHONE
-
+category  "mg_MG:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -159,7 +159,8 @@ int_select     "<U0030><U0030>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
-measurement    1
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_NAME
@@ -178,4 +179,14 @@ postal_fmt    "<U0025><U0066><U0025><U004E><U0025><U0061><U0025><U004E>/
 country_ab2 "<U004D><U0047>"
 country_ab3 "<U004D><U0044><U0047>"
 country_num 450
+% RM
+country_car  "<U0052><U004D>"
+% Malagasy
+lang_name    "<U004D><U0061><U006C><U0061><U0067><U0061><U0073><U0079>"
+% mg
+lang_ab      "<U006D><U0067>"
+% mlg
+lang_term    "<U006D><U006C><U0067>"
+% mlg
+lang_lib    "<U006D><U006C><U0067>"
 END LC_ADDRESS

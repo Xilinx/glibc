@@ -1,5 +1,5 @@
 /* O_*, F_*, FD_* bit values for Linux/SPARC.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,6 +39,7 @@
 #define __O_DIRECT	0x100000 /* direct disk access hint */
 #define __O_NOATIME	0x200000 /* Do not set atime.  */
 #define __O_PATH	0x1000000 /* Resolve pathname but do not open file.  */
+#define __O_TMPFILE	0x2010000 /* Atomically create nameless file.  */
 
 #if __WORDSIZE == 64
 # define __O_LARGEFILE	0
@@ -81,7 +82,7 @@ struct flock
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
 #endif
     __pid_t l_pid;	/* Process holding the lock.  */
-    short int __unused;
+    short int __glibc_reserved;
   };
 
 #ifdef __USE_LARGEFILE64
@@ -92,7 +93,7 @@ struct flock64
     __off64_t l_start;	/* Offset where the lock begins.  */
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
     __pid_t l_pid;	/* Process holding the lock.  */
-    short int __unused;
+    short int __glibc_reserved;
   };
 #endif
 

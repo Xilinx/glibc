@@ -1,5 +1,5 @@
 /* Clear given exceptions in current floating-point environment.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ __feclearexcept (int excepts)
   u.fenv = fegetenv_register ();
 
   /* Clear the relevant bits.  */
-  u.l[1] = u.l[1] & ~((-(excepts >> (31 - FPSCR_VX) & 1) & FE_ALL_INVALID)
-		      | (excepts & FPSCR_STICKY_BITS));
+  u.l = u.l & ~((-(excepts >> (31 - FPSCR_VX) & 1) & FE_ALL_INVALID)
+		| (excepts & FPSCR_STICKY_BITS));
 
   /* Put the new state in effect.  */
   fesetenv_register (u.fenv);

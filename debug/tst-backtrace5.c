@@ -1,6 +1,6 @@
 /* Test backtrace and backtrace_symbols for signal frames, where a
    system call was interrupted by a signal.
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,6 +27,10 @@
 #include <unistd.h>
 
 #include "tst-backtrace.h"
+
+#ifndef SIGACTION_FLAGS
+# define SIGACTION_FLAGS 0
+#endif
 
 static int do_test (void);
 #define TEST_FUNCTION do_test ()
@@ -91,7 +95,7 @@ handle_signal (int signum)
 }
 
 NO_INLINE int
-fn (int c)
+fn (int c, int flags)
 {
   pid_t parent_pid, child_pid;
   int pipefd[2];
@@ -100,12 +104,13 @@ fn (int c)
 
   if (c > 0)
     {
-      fn (c - 1);
+      fn (c - 1, flags);
       return x;
     }
 
   memset (&act, 0, sizeof (act));
   act.sa_handler = handle_signal;
+  act.sa_flags = flags;
   sigemptyset (&act.sa_mask);
   sigaction (SIGUSR1, &act, NULL);
   parent_pid = getpid ();
@@ -131,6 +136,6 @@ fn (int c)
 NO_INLINE static int
 do_test (void)
 {
-  fn (2);
+  fn (2, SIGACTION_FLAGS);
   return ret;
 }

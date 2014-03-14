@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper, <drepper@gnu.org>.
 
@@ -49,7 +49,7 @@ struct token
     struct
     {
       /* This element is sized on the safe expectation that no single
-	 character in any character set uses more then 16 bytes.  */
+	 character in any character set uses more than 16 bytes.  */
       unsigned char bytes[16];
       int nbytes;
     } charcode;

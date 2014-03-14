@@ -1,5 +1,5 @@
 /* Definition for thread-local data handling.  nptl/x86_64 version.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -65,14 +65,14 @@ typedef struct
 # ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
 # else
-  int __unused1;
+  int __glibc_reserved1;
 # endif
   int rtld_must_xmm_save;
   /* Reservation of some values for the TM ABI.  */
   void *__private_tm[4];
   /* GCC split stack support.  */
   void *__private_ss;
-  long int __unused2;
+  long int __glibc_reserved2;
   /* Have space for the post-AVX register size.  */
   __128bits rtld_savespace_sse[8][4] __attribute__ ((aligned (32)));
 
@@ -91,10 +91,6 @@ typedef struct
 #ifndef __ASSEMBLER__
 /* Get system call information.  */
 # include <sysdep.h>
-
-
-/* Get the thread descriptor definition.  */
-# include <nptl/descr.h>
 
 #ifndef LOCK_PREFIX
 # ifdef UP
@@ -121,6 +117,10 @@ typedef struct
 /* The TCB can have any size and the memory following the address the
    thread pointer points to is unspecified.  Allocate the TCB there.  */
 # define TLS_TCB_AT_TP	1
+# define TLS_DTV_AT_TP	0
+
+/* Get the thread descriptor definition.  */
+# include <nptl/descr.h>
 
 
 /* Install the dtv pointer.  The pointer passed is to the element with

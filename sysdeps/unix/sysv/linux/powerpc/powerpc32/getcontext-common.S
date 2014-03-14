@@ -1,5 +1,5 @@
 /* Save current context, powerpc32 common.
-   Copyright (C) 2005-2013 Free Software Foundation, Inc.
+   Copyright (C) 2005-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
    and if appropriate:
      __CONTEXT_ENABLE_FPRS
      __CONTEXT_ENABLE_VRS
-   Any archecture that implements the Vector unit is assumed to also
+   Any architecture that implements the Vector unit is assumed to also
    implement the floating unit.  */
 
 /* Stack frame offsets.  */
@@ -151,15 +151,15 @@ ENTRY(__CONTEXT_FUNC_NAME)
 #   ifdef SHARED
 	lwz     r7,_rtld_global_ro@got(r7)
 	mtlr    r8
-	lwz     r7,RTLD_GLOBAL_RO_DL_HWCAP_OFFSET+4(r7)
+	lwz     r7,RTLD_GLOBAL_RO_DL_HWCAP_OFFSET+LOWORD(r7)
 #   else
 	lwz     r7,_dl_hwcap@got(r7)
 	mtlr    r8
-	lwz     r7,4(r7)
+	lwz     r7,LOWORD(r7)
 #   endif
 #  else
-	lis	r7,(_dl_hwcap+4)@ha
-	lwz     r7,(_dl_hwcap+4)@l(r7)
+	lis	r7,(_dl_hwcap+LOWORD)@ha
+	lwz     r7,(_dl_hwcap+LOWORD)@l(r7)
 #  endif
 	andis.	r7,r7,(PPC_FEATURE_HAS_ALTIVEC >> 16)
 
@@ -261,6 +261,11 @@ ENTRY(__CONTEXT_FUNC_NAME)
 2: /* L(no_vec): */
 # endif
 #endif
+
+#ifdef __CONTEXT_ENABLE_E500
+	getcontext_e500
+#endif
+
 /* We need to set up parms and call sigprocmask which will clobber
    volatile registers. So before the call we need to retrieve the
    original ucontext ptr (parm1) from stack and store the UC_REGS_PTR

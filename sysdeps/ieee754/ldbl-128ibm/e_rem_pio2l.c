@@ -1,5 +1,5 @@
 /* Quad-precision floating point argument reduction.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Jakub Jelinek <jj@ultra.linux.cz>
 
@@ -200,10 +200,11 @@ int32_t __ieee754_rem_pio2l(long double x, long double *y)
   double tx[8];
   int exp;
   int64_t n, ix, hx, ixd;
-  u_int64_t lx __attribute__ ((unused));
   u_int64_t lxd;
+  double xhi;
 
-  GET_LDOUBLE_WORDS64 (hx, lx, x);
+  xhi = ldbl_high (x);
+  EXTRACT_WORDS64 (hx, xhi);
   ix = hx & 0x7fffffffffffffffLL;
   if (ix <= 0x3fe921fb54442d10LL)	/* x in <-pi/4, pi/4> */
     {
@@ -243,7 +244,7 @@ int32_t __ieee754_rem_pio2l(long double x, long double *y)
      We split the 113 bits of the mantissa into 5 24bit integers
      stored in a double array.  */
   /* Make the IBM extended format 105 bit mantissa look like the ieee854 112
-     bit mantissa so the next operatation will give the correct result.  */
+     bit mantissa so the next operation will give the correct result.  */
   ldbl_extract_mantissa (&ixd, &lxd, &exp, x);
   exp = exp - 23;
   /* This is faster than doing this in floating point, because we

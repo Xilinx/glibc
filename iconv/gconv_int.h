@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
 
@@ -49,7 +49,7 @@ struct gconv_alias
 };
 
 
-/* How many character should be conveted in one call?  */
+/* How many character should be converted in one call?  */
 #define GCONV_NCHAR_GOAL	8160
 
 

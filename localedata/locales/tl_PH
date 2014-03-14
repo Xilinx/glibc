@@ -149,6 +149,7 @@ width    216
 END LC_PAPER
 
 LC_MEASUREMENT
+% metric
 measurement 1
 END LC_MEASUREMENT
 
@@ -158,7 +159,6 @@ copy "en_US"
 END LC_NAME
 
 LC_ADDRESS
-% FIXME
 postal_fmt    "<U0025><U0061><U0025><U004E><U0025><U0066><U0025><U004E>/
 <U0025><U0064><U0025><U004E><U0025><U0062><U0025><U004E><U0025><U0068>/
 <U0020><U0025><U0073><U0020><U0025><U0065><U0020><U0025><U0072><U0025>/
@@ -168,6 +168,14 @@ postal_fmt    "<U0025><U0061><U0025><U004E><U0025><U0066><U0025><U004E>/
 country_ab2 "<U0050><U0048>"
 country_ab3 "<U0050><U0048><U004C>"
 country_num 608
+% RP
+country_car    "<U0052><U0050>"
+% tl
+lang_ab      "<U0074><U006C>"
+% tgl
+lang_term    "<U0074><U0067><U006C>"
+% tgl
+lang_lib    "<U0074><U0067><U006C>"
 END LC_ADDRESS
 
 LC_TELEPHONE

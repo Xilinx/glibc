@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -66,7 +66,7 @@ struct pthread_condattr
 {
   /* Combination of values:
 
-     Bit 0  : flag whether coditional variable will be shareable between
+     Bit 0  : flag whether conditional variable will be sharable between
 	      processes.
 
      Bit 1-7: clock ID.  */

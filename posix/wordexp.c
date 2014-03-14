@@ -1,5 +1,5 @@
 /* POSIX.2 wordexp implementation.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Tim Waugh <tim@cyberelk.demon.co.uk>.
 
@@ -823,7 +823,7 @@ exec_comm_child (char *comm, int *fildes, int showerr, int noexec)
     args[1] = "-nc";
 
   /* Redirect output.  */
-  if (__builtin_expect (fildes[1] != STDOUT_FILENO, 1))
+  if (__glibc_likely (fildes[1] != STDOUT_FILENO))
     {
       __dup2 (fildes[1], STDOUT_FILENO);
       __close (fildes[1]);

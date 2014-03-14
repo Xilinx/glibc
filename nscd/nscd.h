@@ -1,4 +1,4 @@
-/* Copyright (c) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (c) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1998.
 
@@ -205,6 +205,8 @@ extern gid_t old_gid;
 /* nscd.c */
 extern void termination_handler (int signum) __attribute__ ((__noreturn__));
 extern int nscd_open_socket (void);
+void notify_parent (int child_ret);
+void do_exit (int child_ret, int errnum, const char *format, ...);
 
 /* connections.c */
 extern void nscd_init (void);

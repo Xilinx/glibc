@@ -1,4 +1,4 @@
-/* Copyright (C) 1997-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@vt.uni-paderborn.de>, 1997.
 
@@ -89,7 +89,7 @@ __nis_findfastest_with_timeout (dir_binding *bind,
   pings = malloc (sizeof (struct findserv_req) * pings_max);
   xid_seed = (u_int32_t) (time (NULL) ^ getpid ());
 
-  if (__builtin_expect (pings == NULL, 0))
+  if (__glibc_unlikely (pings == NULL))
     return -1;
 
   memset (&sin, '\0', sizeof (sin));
@@ -118,7 +118,7 @@ __nis_findfastest_with_timeout (dir_binding *bind,
 		pings_max += 10;
 		new_pings = realloc (pings, sizeof (struct findserv_req) *
 				     pings_max);
-		if (__builtin_expect (new_pings == NULL, 0))
+		if (__glibc_unlikely (new_pings == NULL))
 		  {
 		    free (pings);
 		    return -1;

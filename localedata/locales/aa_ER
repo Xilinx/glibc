@@ -72,7 +72,8 @@ END LC_CTYPE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 LC_MEASUREMENT
-copy "ti_ER"
+% metric
+measurement 1
 END LC_MEASUREMENT
 
 LC_MONETARY
@@ -109,11 +110,15 @@ country_post  "<U0045><U0052><U0049>"
 country_ab2   "<U0045><U0052>"
 country_ab3   "<U0045><U0052><U0049>"
 country_num   232
-% country_car   unknown
+% ER
+country_car  "<U0045><U0052>"
 % country_isbn  unknown, Need ISO 2108
 lang_name     "<U0051><U0061><U0066><U0061><U0072>"
+% aa
 lang_ab       "<U0061><U0061>"
+% aar
 lang_term     "<U0061><U0061><U0072>"
+% aar
 lang_lib      "<U0061><U0061><U0072>"
 %
 END LC_ADDRESS

@@ -1,5 +1,5 @@
 /* Private inline math functions for powerpc.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+   Copyright (C) 2006-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #include <sysdep.h>
 #include <ldsodefs.h>
 #include <dl-procinfo.h>
+#include <fenv_private.h>
 #include_next <math_private.h>
 
 # if __WORDSIZE == 64 || defined _ARCH_PWR4

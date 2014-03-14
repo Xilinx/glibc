@@ -1,6 +1,6 @@
 /* Basic platform-independent macro definitions for mutexes,
    thread-specific data and parameters for malloc.
-   Copyright (C) 2003-2013 Free Software Foundation, Inc.
+   Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
 typedef int mutex_t;
 
 # define mutex_init(m)          (*(m) = 0)
-# define mutex_lock(m)          ((*(m) = 1), 0)
+# define mutex_lock(m)          ({ *(m) = 1; 0; })
 # define mutex_trylock(m)       (*(m) ? 1 : ((*(m) = 1), 0))
 # define mutex_unlock(m)        (*(m) = 0)
 # define MUTEX_INITIALIZER      (0)

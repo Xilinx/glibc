@@ -28,6 +28,7 @@ category  "as_IN:2000";LC_PAPER
 category  "as_IN:2000";LC_NAME
 category  "as_IN:2000";LC_ADDRESS
 category  "as_IN:2000";LC_TELEPHONE
+category  "as_IN:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 %%%%%%%%%%%%%
@@ -157,6 +158,16 @@ LC_ADDRESS
 % LC_ADDRESS
 postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
 <U0025><U0062><U0025><U0065><U0025><U0072>"
+% IND
+country_car  "<U0049><U004E><U0044>"
+% অসমীয়া
+lang_name    "<U0985><U09B8><U09AE><U09C0><U09AF><U09BC><U09BE>"
+% as
+lang_ab      "<U0061><U0073>"
+% asm
+lang_term    "<U0061><U0073><U006D>"
+% asm
+lang_lib    "<U0061><U0073><U006D>"
 END LC_ADDRESS
 
 %%%%%%%%%%%%%
@@ -169,5 +180,6 @@ END LC_TELEPHONE
 
 %%%%%%%%%%%%%
 LC_MEASUREMENT
-copy "hi_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

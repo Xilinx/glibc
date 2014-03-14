@@ -1,5 +1,5 @@
 /* Create new context.
-   Copyright (C) 2008-2013 Free Software Foundation, Inc.
+   Copyright (C) 2008-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by David S. Miller <davem@davemloft.net>, 2008.
 
@@ -28,7 +28,7 @@
    Returning to the correct parent context is pretty simple on
    Sparc.  We only need to link up the register windows correctly.
    Since global registers are clobbered by calls, we need not be
-   concernred about those, and thus is all could be worked out without
+   concerned about those, and thus is all could be worked out without
    using a trampoline.
 
    Except that we must deal with the signal mask, thus a trampoline

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ asctime_internal (const struct tm *tp, char *buf, size_t buflen)
      this would mean the output needs more space.  This would not be a
      problem if the 'asctime_r' interface would be defined sanely and
      a buffer size would be passed.  */
-  if (__builtin_expect (tp->tm_year > INT_MAX - 1900, 0))
+  if (__glibc_unlikely (tp->tm_year > INT_MAX - 1900))
     {
     eoverflow:
       __set_errno (EOVERFLOW);

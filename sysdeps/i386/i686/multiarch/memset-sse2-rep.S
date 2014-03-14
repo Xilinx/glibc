@@ -1,5 +1,5 @@
 /* memset with SSE2 and REP string.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
    Contributed by Intel Corporation.
    This file is part of the GNU C Library.
 
@@ -62,7 +62,7 @@
        absolute address.  */					\
     add		(%ebx,%ecx,4), %ebx;				\
     add		%ecx, %edx;					\
-    /* We loaded the jump table and adjuested EDX. Go.  */	\
+    /* We loaded the jump table and adjusted EDX. Go.  */	\
     jmp		*%ebx
 #else
 # define ENTRANCE

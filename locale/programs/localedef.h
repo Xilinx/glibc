@@ -1,5 +1,5 @@
 /* General definitions for localedef(1).
-   Copyright (C) 1998-2013 Free Software Foundation, Inc.
+   Copyright (C) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
 
@@ -170,7 +170,9 @@ extern int add_locales_to_archive (size_t nlist, char *list[], bool replace);
 /* Removed named locales from archive.  */
 extern int delete_locales_from_archive (size_t nlist, char *list[]);
 
-/* List content of locale archive.  */
-extern void show_archive_content (int verbose) __attribute__ ((noreturn));
+/* List content of locale archive. If FNAME is non-null use that as
+   the locale archive to list, otherwise the default.  */
+extern void show_archive_content (const char *fname,
+				  int verbose) __attribute__ ((noreturn));
 
 #endif /* localedef.h */

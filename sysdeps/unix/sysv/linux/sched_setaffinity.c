@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ static size_t __kernel_cpumask_size;
 int
 __sched_setaffinity_new (pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 {
-  if (__builtin_expect (__kernel_cpumask_size == 0, 0))
+  if (__glibc_unlikely (__kernel_cpumask_size == 0))
     {
       INTERNAL_SYSCALL_DECL (err);
       int res;

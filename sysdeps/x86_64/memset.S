@@ -1,6 +1,6 @@
 /* memset/bzero -- set memory area to CH/0
    Optimized version for x86-64.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,10 +18,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-
-#ifndef ALIGN
-# define ALIGN(n) .p2align n
-#endif
 
 	.text
 #if !defined NOT_IN_libc
@@ -71,12 +67,12 @@ L(entry_from_bzero):
 L(return):
 	rep
 	ret
-	ALIGN (4)
+	.p2align 4
 L(between_32_64_bytes):
 	movdqu	%xmm8, 16(%rdi)
 	movdqu	%xmm8, -32(%rdi,%rdx)
 	ret
-	ALIGN (4)
+	.p2align 4
 L(loop_start):
 	leaq	64(%rdi), %rcx
 	movdqu	%xmm8, (%rdi)
@@ -92,7 +88,7 @@ L(loop_start):
 	andq	$-64, %rdx
 	cmpq	%rdx, %rcx
 	je	L(return)
-	ALIGN (4)
+	.p2align 4
 L(loop):
 	movdqa	%xmm8, (%rcx)
 	movdqa	%xmm8, 16(%rcx)

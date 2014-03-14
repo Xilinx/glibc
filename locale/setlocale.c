@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -278,7 +278,7 @@ setlocale (int category, const char *locale)
 	if (category != LC_ALL)
 	  newnames[category] = (char *) locale;
 
-      if (__builtin_expect (strchr (locale, ';') != NULL, 0))
+      if (__glibc_unlikely (strchr (locale, ';') != NULL))
 	{
 	  /* This is a composite name.  Make a copy and split it up.  */
 	  char *np = strdupa (locale);
@@ -412,7 +412,7 @@ setlocale (int category, const char *locale)
 	  /* We must not simply free a global locale since we have no
 	     control over the usage.  So we mark it as un-deletable.
 
-	     Note: do not remove the `if', it's necessary to copy with
+	     Note: do not remove the `if', it's necessary to cope with
 	     the builtin locale data.  */
 	  if (newdata->usage_count != UNDELETABLE)
 	    newdata->usage_count = UNDELETABLE;

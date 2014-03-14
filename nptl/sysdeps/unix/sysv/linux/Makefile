@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 # Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -26,6 +26,7 @@ gen-as-const-headers += lowlevelcond.sym lowlevelrwlock.sym \
 			lowlevelbarrier.sym unwindbuf.sym \
 			lowlevelrobustlock.sym pthread-pi-defines.sym \
 			structsem.sym
+tests += tst-setgetname
 endif
 
 ifeq ($(subdir),posix)

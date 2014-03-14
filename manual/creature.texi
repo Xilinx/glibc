@@ -73,38 +73,6 @@ edition is made available.
 @end defvr
 
 @comment (none)
-@comment GNU
-@defvr Macro _BSD_SOURCE
-If you define this macro, functionality derived from 4.3 BSD Unix is
-included as well as the @w{ISO C}, POSIX.1, and POSIX.2 material.
-
-Some of the features derived from 4.3 BSD Unix conflict with the
-corresponding features specified by the POSIX.1 standard.  If this
-macro is defined, the 4.3 BSD definitions take precedence over the
-POSIX definitions.
-
-Due to the nature of some of the conflicts between 4.3 BSD and POSIX.1,
-you need to use a special @dfn{BSD compatibility library} when linking
-programs compiled for BSD compatibility.  This is because some functions
-must be defined in two different ways, one of them in the normal C
-library, and one of them in the compatibility library.  If your program
-defines @code{_BSD_SOURCE}, you must give the option @samp{-lbsd-compat}
-to the compiler or linker when linking the program, to tell it to find
-functions in this special compatibility library before looking for them in
-the normal C library.
-@pindex -lbsd-compat
-@pindex bsd-compat
-@cindex BSD compatibility library.
-@end defvr
-
-@comment (none)
-@comment GNU
-@defvr Macro _SVID_SOURCE
-If you define this macro, functionality derived from SVID is
-included as well as the @w{ISO C}, POSIX.1, POSIX.2, and X/Open material.
-@end defvr
-
-@comment (none)
 @comment X/Open
 @defvr Macro _XOPEN_SOURCE
 @comment (none)
@@ -204,21 +172,21 @@ If you define this macro, everything is included: @w{ISO C89}, @w{ISO
 C99}, POSIX.1, POSIX.2, BSD, SVID, X/Open, LFS, and GNU extensions.  In
 the cases where POSIX.1 conflicts with BSD, the POSIX definitions take
 precedence.
+@end defvr
 
-If you want to get the full effect of @code{_GNU_SOURCE} but make the
-BSD definitions take precedence over the POSIX definitions, use this
-sequence of definitions:
-
-@smallexample
-#define _GNU_SOURCE
-#define _BSD_SOURCE
-#define _SVID_SOURCE
-@end smallexample
-
-Note that if you do this, you must link your program with the BSD
-compatibility library by passing the @samp{-lbsd-compat} option to the
-compiler or linker.  @strong{NB:} If you forget to do this, you may
-get very strange errors at run time.
+@comment (none)
+@comment GNU
+@defvr Macro _DEFAULT_SOURCE
+If you define this macro, most features are included apart from
+X/Open, LFS and GNU extensions: the effect is to enable features from
+the 2008 edition of POSIX, as well as certain BSD and SVID features
+without a separate feature test macro to control them.  Defining this
+macro, on its own and without using compiler options such as
+@option{-ansi} or @option{-std=c99}, has the same effect as not
+defining any feature test macros; defining it together with other
+feature test macros, or when options such as @option{-ansi} are used,
+enables those features even when the other options would otherwise
+cause them to be disabled.
 @end defvr
 
 @comment (none)
@@ -237,22 +205,14 @@ it must have been specified to compile as thread safe.
 @end defvr
 
 We recommend you use @code{_GNU_SOURCE} in new programs.  If you don't
-specify the @samp{-ansi} option to GCC and don't define any of these
-macros explicitly, the effect is the same as defining
-@code{_POSIX_C_SOURCE} to 2 and @code{_POSIX_SOURCE},
-@code{_SVID_SOURCE}, and @code{_BSD_SOURCE} to 1.
+specify the @samp{-ansi} option to GCC, or other conformance options
+such as @option{-std=c99}, and don't define any of these macros
+explicitly, the effect is the same as defining @code{_DEFAULT_SOURCE}
+to 1.
 
 When you define a feature test macro to request a larger class of features,
 it is harmless to define in addition a feature test macro for a subset of
 those features.  For example, if you define @code{_POSIX_C_SOURCE}, then
 defining @code{_POSIX_SOURCE} as well has no effect.  Likewise, if you
 define @code{_GNU_SOURCE}, then defining either @code{_POSIX_SOURCE} or
-@code{_POSIX_C_SOURCE} or @code{_SVID_SOURCE} as well has no effect.
-
-Note, however, that the features of @code{_BSD_SOURCE} are not a subset of
-any of the other feature test macros supported.  This is because it defines
-BSD features that take precedence over the POSIX features that are
-requested by the other macros.  For this reason, defining
-@code{_BSD_SOURCE} in addition to the other feature test macros does have
-an effect: it causes the BSD features to take priority over the conflicting
-POSIX features.
+@code{_POSIX_C_SOURCE} as well has no effect.

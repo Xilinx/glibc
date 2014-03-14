@@ -1,5 +1,5 @@
 /* Hardware capability support for run-time dynamic loader.
-   Copyright (C) 2012-2013 Free Software Foundation, Inc.
+   Copyright (C) 2012-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ _dl_important_hwcaps (const char *platform, size_t platform_len, size_t *sz,
 	  len = strlen (p);
 
 	  /* Skip entries that are not enabled in the mask word.  */
-	  if (__builtin_expect (mask & ((ElfW(Word)) 1 << bit), 1))
+	  if (__glibc_likely (mask & ((ElfW(Word)) 1 << bit)))
 	    {
 	      temp[m].str = p;
 	      temp[m].len = len;

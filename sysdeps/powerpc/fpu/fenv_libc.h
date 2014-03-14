@@ -1,5 +1,5 @@
 /* Internal libc stuff for floating point environment routines.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,7 +23,9 @@
 #include <ldsodefs.h>
 #include <sysdep.h>
 
-libm_hidden_proto (__fe_nomask_env)
+extern const fenv_t *__fe_nomask_env_priv (void);
+
+extern const fenv_t *__fe_mask_env (void) attribute_hidden;
 
 /* The sticky bits in the FPSCR indicating exceptions have occurred.  */
 #define FPSCR_STICKY_BITS ((FE_ALL_EXCEPT | FE_ALL_INVALID) & ~FE_INVALID)
@@ -69,7 +71,7 @@ libm_hidden_proto (__fe_nomask_env)
 typedef union
 {
   fenv_t fenv;
-  unsigned int l[2];
+  unsigned long long l;
 } fenv_union_t;
 
 
@@ -81,7 +83,6 @@ __fegetround (void)
 		"mfcr  %0" : "=r"(result) : : "cr7");
   return result & 3;
 }
-#define fegetround() __fegetround()
 
 static inline int
 __fesetround (int round)
@@ -105,7 +106,6 @@ __fesetround (int round)
 
   return 0;
 }
-#define fesetround(mode) __fesetround(mode)
 
 /* Definitions of all the FPSCR bit numbers */
 enum {

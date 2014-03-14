@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2003.
 
@@ -61,7 +61,7 @@ __pthread_setaffinity_new (pthread_t th, size_t cpusetsize,
   INTERNAL_SYSCALL_DECL (err);
   int res;
 
-  if (__builtin_expect (__kernel_cpumask_size == 0, 0))
+  if (__glibc_unlikely (__kernel_cpumask_size == 0))
     {
       res = __determine_cpumask_size (pd->tid);
       if (res != 0)

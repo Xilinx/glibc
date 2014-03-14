@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -99,7 +99,7 @@ pthread_join (threadid, thread_return)
   pthread_cleanup_pop (0);
 
 
-  if (__builtin_expect (result == 0, 1))
+  if (__glibc_likely (result == 0))
     {
       /* We mark the thread as terminated and as joined.  */
       pd->tid = -1;

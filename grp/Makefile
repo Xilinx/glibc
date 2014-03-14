@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -19,18 +19,22 @@
 #	Sub-makefile for grp portion of the library.
 #
 subdir	:= grp
+
+include ../Makeconfig
+
 headers := grp.h
 
 routines := fgetgrent initgroups setgroups \
 	    getgrent getgrgid getgrnam putgrent \
 	    getgrent_r getgrgid_r getgrnam_r fgetgrent_r
 
-include ../Makeconfig
-
 tests := testgrp
 
 ifeq (yes,$(build-shared))
 test-srcs :=  tst_fgetgrent
+ifeq ($(run-built-tests),yes)
+tests-special += $(objpfx)tst_fgetgrent.out
+endif
 endif
 
 
@@ -53,9 +57,9 @@ endif
 ifeq ($(run-built-tests),yes)
 # tst_fgetgrent currently only works with shared libraries
 ifeq (yes,$(build-shared))
-tests: $(objpfx)tst_fgetgrent.out
 $(objpfx)tst_fgetgrent.out: tst_fgetgrent.sh $(objpfx)tst_fgetgrent
-	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)'; \
+	$(evaluate-test)
 
 endif
 endif

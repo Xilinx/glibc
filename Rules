@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2013 Free Software Foundation, Inc.
+# Copyright (C) 1991-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -95,12 +95,23 @@ else
 others: $(addprefix $(objpfx),$(extra-objs))
 endif
 ifeq ($(run-built-tests),no)
-tests: $(addprefix $(objpfx),$(tests) $(test-srcs))
-xtests: tests
+tests: $(addprefix $(objpfx),$(tests) $(test-srcs)) $(tests-special)
+xtests: tests $(xtests-special)
 else
-tests: $(tests:%=$(objpfx)%.out)
-xtests: tests $(xtests:%=$(objpfx)%.out)
+tests: $(tests:%=$(objpfx)%.out) $(tests-special)
+xtests: tests $(xtests:%=$(objpfx)%.out) $(xtests-special)
 endif
+
+tests-special-notdir = $(patsubst $(objpfx)%, %, $(tests-special))
+xtests-special-notdir = $(patsubst $(objpfx)%, %, $(xtests-special))
+tests:
+	$(..)scripts/merge-test-results.sh -s $(objpfx) $(subdir) \
+	  $(sort $(tests) $(tests-special-notdir:.out=)) \
+	  > $(objpfx)subdir-tests.sum
+xtests:
+	$(..)scripts/merge-test-results.sh -s $(objpfx) $(subdir) \
+	  $(sort $(xtests) $(xtests-special-notdir:.out=)) \
+	  > $(objpfx)subdir-xtests.sum
 
 ifeq ($(build-programs),yes)
 binaries-all-notests = $(others) $(sysdep-others)
@@ -183,9 +194,11 @@ make-test-out = $(test-wrapper-env) \
 		GCONV_PATH=$(common-objpfx)iconvdata LC_ALL=C \
 		$($*-ENV) $(host-test-program-cmd) $($*-ARGS)
 $(objpfx)%.out: %.input $(objpfx)%
-	$(make-test-out) > $@ < $(word 1,$^)
+	$(make-test-out) > $@ < $(word 1,$^); \
+	$(evaluate-test)
 $(objpfx)%.out: /dev/null $(objpfx)%	# Make it 2nd arg for canned sequence.
-	$(make-test-out) > $@
+	$(make-test-out) > $@; \
+	$(evaluate-test)
 
 endif	# tests
 

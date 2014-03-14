@@ -1,7 +1,7 @@
 /*
  * IBM Accurate Mathematical Library
  * written by International Business Machines Corp.
- * Copyright (C) 2001-2013 Free Software Foundation, Inc.
+ * Copyright (C) 2001-2014 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,6 +42,7 @@
 #include "uatan.tbl"
 #include "atnat.h"
 #include <math.h>
+#include <stap-probe.h>
 
 void __mpatan (mp_no *, mp_no *, int);	/* see definition in mpatan.c */
 static double atanMp (double, const int[]);
@@ -60,7 +61,7 @@ double
 atan (double x)
 {
   double cor, s1, ss1, s2, ss2, t1, t2, t3, t7, t8, t9, t10, u, u2, u3,
-    v, vv, w, ww, y, yy, z, zz;
+	 v, vv, w, ww, y, yy, z, zz;
 #ifndef DLA_FMS
   double t4, t5, t6;
 #endif
@@ -190,17 +191,17 @@ atan (double x)
 	  yy = cij[i][4].d + z * yy;
 	  yy = cij[i][3].d + z * yy;
 	  yy = cij[i][2].d + z * yy;
-	  yy  = HPI1 - z * yy;
+	  yy = HPI1 - z * yy;
 
 	  t1 = HPI - cij[i][1].d;
 	  if (i < 112)
-	    u3 = U31;		/* w <  1/2 */
+	    u3 = U31;           /* w <  1/2 */
 	  else
-	    u3 = U32;		/* w >= 1/2 */
+	    u3 = U32;           /* w >= 1/2 */
 	  if ((y = t1 + (yy - u3)) == t1 + (yy + u3))
 	    return __signArctan (x, y);
 
-	  DIV2 (1 , 0, u, 0, w, ww, t1, t2, t3, t4, t5, t6, t7, t8, t9,
+	  DIV2 (1, 0, u, 0, w, ww, t1, t2, t3, t4, t5, t6, t7, t8, t9,
 		t10);
 	  t1 = w - hij[i][0].d;
 	  EADD (t1, ww, z, zz);
@@ -229,7 +230,7 @@ atan (double x)
       else
 	{
 	  if (u < E)
-	    {			/* D <= u < E */
+	    {                   /* D <= u < E */
 	      w = 1 / u;
 	      v = w * w;
 	      EMULV (w, u, t1, t2, t3, t4, t5, t6, t7);
@@ -247,7 +248,7 @@ atan (double x)
 	      if ((y = t3 + (yy - U4)) == t3 + (yy + U4))
 		return __signArctan (x, y);
 
-	      DIV2 (1 , 0, u, 0, w, ww, t1, t2, t3, t4, t5, t6, t7, t8,
+	      DIV2 (1, 0, u, 0, w, ww, t1, t2, t3, t4, t5, t6, t7, t8,
 		    t9, t10);
 	      MUL2 (w, ww, w, ww, v, vv, t1, t2, t3, t4, t5, t6, t7, t8);
 
@@ -306,8 +307,12 @@ atanMp (double x, const int pr[])
       __mp_dbl (&mpy1, &y1, p);
       __mp_dbl (&mpy2, &y2, p);
       if (y1 == y2)
-	return y1;
+	{
+	  LIBC_PROBE (slowatan, 3, &p, &x, &y1);
+	  return y1;
+	}
     }
+  LIBC_PROBE (slowatan_inexact, 3, &p, &x, &y1);
   return y1;			/*if impossible to do exact computing */
 }
 

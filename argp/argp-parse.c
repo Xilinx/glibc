@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing, layered over getopt
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -410,7 +410,7 @@ convert_options (const struct argp *argp,
   return group;
 }
 
-/* Find the merged set of getopt options, with keys appropiately prefixed. */
+/* Find the merged set of getopt options, with keys appropriately prefixed. */
 static void
 parser_convert (struct parser *parser, const struct argp *argp, int flags)
 {

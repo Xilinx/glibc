@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -50,6 +50,6 @@ struct ipc_perm
     unsigned short int __pad1;
     unsigned short int __seq;		/* Sequence number.  */
     unsigned short int __pad2;
-    __syscall_ulong_t __unused1;
-    __syscall_ulong_t __unused2;
+    __syscall_ulong_t __glibc_reserved1;
+    __syscall_ulong_t __glibc_reserved2;
   };

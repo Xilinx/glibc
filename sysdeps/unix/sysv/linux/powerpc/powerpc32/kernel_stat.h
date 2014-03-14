@@ -1,5 +1,5 @@
 /* Definition of `struct stat' used in the kernel.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,9 +31,9 @@ struct kernel_stat
     struct timespec st_atim;
     struct timespec st_mtim;
     struct timespec st_ctim;
-    unsigned long int __unused4;
+    unsigned long int __glibc_reserved4;
 #define _HAVE___UNUSED4
-    unsigned long int __unused5;
+    unsigned long int __glibc_reserved5;
 #define _HAVE___UNUSED5
   };
 

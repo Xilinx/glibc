@@ -1,3 +1,193 @@
+This file describes changes to the AArch64 port while it was in the ports
+add-on directory.  This port is no longer part of an add-on and so
+future changes to it should be listed in the top-level ChangeLog file,
+not here.
+
+
+
+2014-02-11  Marcus Shawcroft  <marcus.shawcroft@arm.com>
+
+	* sysdeps/aarch64: Move directory to ../sysdeps/aarch64.
+	* sysdeps/unix/sysv/linux/aarch64: Move directory to
+	../sysdeps/unix/sysv/linux/aarch64.
+
+2014-01-22  Marcus Shawcroft  <marcus.shawcroft@arm.com>
+
+	* sysdeps/aarch64/libm-test-ulps: Regenerated.
+
+2014-01-20  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/Makefile (abi-lp64_be-options): Fix
+	type in define.
+
+2014-01-20  Tom Tromey  <tromey@redhat.com>
+
+	[BZ #16169]
+	* sysdeps/unix/sysv/linux/aarch64/clone.S (__clone): Add CFI
+	directives;  Zero x29.
+
+2014-01-20  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/configure.ac: New file.
+	* sysdeps/aarch64/configure: New file.
+	* sysdeps/aarch64/shlib-versions: Define ld-linux-aarch64_be.so.1
+	* sysdeps/unix/sysv/linux/aarch64/Makefile (abi-variants)
+	(abi-lp64-options, abi-lp64-condition, abi-lp64-ld-soname)
+	(abi-lp64_be-options, abi-lp64_be-condition)
+	(abi-lp64_be-ld-soname) Define.
+	* sysdeps/unix/sysv/linux/aarch64/ldconfig.h
+	(SYSDEP_KNOWN_INTERPRETER_NAMES): Add ld-linux-aarch64_be.so.1
+
+2014-01-07  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	[BZ #16387]
+	* sysdeps/aarch64/fpu/fpu_control.h (_FPU_FPCR_RM_MASK): Define.
+	* sysdeps/aarch64/soft-fp/sfp-machine.h (FP_ROUNDMODE): Adjust
+	rounding mode mask.
+
+2014-01-07  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Drop sqrt ULPs.
+
+2014-01-07  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/dl-trampoline.S (_dl_runtime_resolve): Correct
+	cfi_adjust_cfa_offset offset.
+
+2014-01-06  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/sys/ptrace.h (ptrace_peeksiginfo_args):
+	Rename to ...
+	(__ptrace_peeksiginfo_args): ... this.
+
+2014-01-01  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Regenerated.
+
+2014-01-01  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/abort-instr.h: New file.
+
+2014-01-01  Venkataramanan Kumar  <venkataramanan.kumar@linaro.org>
+
+	* sysdeps/aarch64/__longjmp.S (__longjmp): Demangle sp and lr when
+	restoring register values.
+	* sysdeps/aarch64/setjmp.S (__sigsetjmp): Mangle sp and lr
+	before storing register values.
+	* sysdeps/arm/jmpbuf-unwind.h (_jmpbuf_sp): Remove.
+	* sysdeps/aarch64/jmpbuf-offsets.h (_jmpbuf_sp): Add.
+	(JB_FRAME_ADDRESS): call  _jmpbuf_sp.
+	* sysdeps/aarch64/sysdep.h (LDST_PCREL) : New macros.
+	(LDST_GLOBAL): Likewise.
+	* sysdeps/unix/sysv/linux/aarch64/sysdep.h (PTR_MANGLE): New macro.
+	(PTR_DEMANGLE): Likewise.
+	(PTR_MANGLE2): Likewise.
+	(PTR_DEMANGLE2): Likewise.
+
+2013-12-18  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	[BZ #15128]
+	* sysdeps/aarch64/dl-trampoline.S (_dl_runtime_resolve): Save and
+	restore q0-q7.
+
+2013-12-17  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/nptl/lowlevellock.h
+	(FUTEX_WAIT_REQUEUE_PI): Define.
+	(FUTEX_CMP_REQUEUE_PI): Likewise.
+	(lll_futex_wait_requeue_pi): Likewise.
+	(lll_futex_timed_wait_requeue_pi): Likewise.
+	(lll_futex_cmp_requeue_pi): Likewise.
+
+2013-12-17  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Regenerated.
+
+2013-12-17  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Remove sqrt.
+
+2013-12-11  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Regenerate.
+
+2013-11-28  Joseph Myers  <joseph@codesourcery.com>
+
+	* sysdeps/aarch64/fpu/fegetround.c (fegetround): Use
+	libm_hidden_def.
+
+2013-11-26  Will Newton  <will.newton@linaro.org>
+
+	* sysdeps/aarch64/dl-irel.h: Include ldsodefs.h.
+	(ELF_MACHINE_IRELA): Define.  (elf_ifunc_invoke): Pass
+	hwcap to ifunc resolver function.  (elf_irela): New function.
+	* sysdeps/aarch64/dl-machine.h: Include dl-irel.h.
+	(elf_machine_rela) Handle STT_GNU_IFUNC symbols and
+	R_AARCH64_IRELATIVE relocations.  (elf_machine_lazy_rel):
+	Handle R_AARCH64_IRELATIVE relocations.
+
+2013-10-30  Mike Frysinger  <vapier@gentoo.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/configure.in: Moved to ...
+	* sysdeps/unix/sysv/linux/aarch64/configure.ac: ... here.
+	* sysdeps/unix/sysv/linux/aarch64/configure: Regenerated.
+
+2013-09-30  Andrew Pinski <andrew.pinski@caviumnetworks.com>
+
+	* sysdeps/unix/sysv/linux/aarch64/sysdep.h (SYSCALL_ERROR_HANDLER):
+	Fix store to errno to use 32bits.
+
+2013-09-24  Venkataramanan Kumar  <venkataramanan.kumar@linaro.org>
+
+	* sysdeps/aarch64/machine-gmon.h (__mcount): Accept parameter and
+	pass it to mcount_internal.
+
+2013-09-24 Venkataramanan Kumar  <venkataramanan.kumar@linaro.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/sigcontextinfo.h: New file.
+
+2013-07-26  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/Versions: New file.
+	* sysdeps/aarch64/machine-gmon.h: New file.
+	* sysdeps/aarch64/mcount.c: New file.
+	* sysdeps/unix/sysv/linux/aarch64/nptl/libc.abilist (_mcount): Add.
+
+2013-07-12  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/Makefile (CFLAGS-backtrace.c): Define.
+
+2013-07-09  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/dl-static.c: New file to support
+	variable page size for AArch64.
+	* sysdeps/unix/sysv/linux/aarch64/ldsodefs.h: Likewise.
+	* sysdeps/unix/sysv/linux/aarch64/Makefile: Build dl-static in elf.
+	* sysdeps/unix/sysv/linux/aarch64/Versions: Add _dl_var_init.
+
+2013-07-05  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/libm-test-ulps: Regenerate.
+
+2013-07-04  Andreas Jaeger  <aj@suse.de>
+
+	For ChangeLog.aarch64:
+	* sysdeps/unix/sysv/linux/aarch64/sys/ptrace.h (PTRACE_LISTEN):
+	Add define.
+	(PTRACE_PEEKSIGINFO): Add new value from Linux 3.10.
+	(ptrace_peeksiginfo_args): Add.
+	(__ptrace_peeksiginfo_flags): Add.
+
+2013-06-28  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/aarch64/dl-machine.h (elf_machine_dynamic): De-reference
+	_GLOBAL_OFFSET_TABLE_.
+
+2013-06-28  Marcus Shawcroft  <marcus.shawcroft@linaro.org>
+
+	* sysdeps/unix/sysv/linux/aarch64/getcontext.S (__getcontext): Simplify
+	oPSTATE initialization.
+
 2013-06-15  Siddhesh Poyarekar  <siddhesh@redhat.com>
 
 	* sysdeps/unix/sysv/linux/aarch64/nptl/libpthread.abilist:

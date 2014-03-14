@@ -27,7 +27,7 @@ category  "mni_IN:2012";LC_PAPER
 category  "mni_IN:2012";LC_NAME
 category  "mni_IN:2012";LC_ADDRESS
 category  "mni_IN:2012";LC_TELEPHONE
-
+category  "mni_IN:2012";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_CTYPE
@@ -158,7 +158,19 @@ END LC_NAME
 
 
 LC_ADDRESS
-copy "bn_IN"
+
+postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073><U0025><U0062><U0025><U0065><U0025><U0072>"
+country_ab2 "<U0049><U004E>"
+country_ab3 "<U0049><U004E><U0044>"
+country_num 356
+% IND
+country_car    "<U0049><U004E><U0044>"
+% মৈতৈলোন্
+lang_name    "<U09AE><U09C8><U09A4><U09C8><U09B2><U09CB><U09A8><U09CD>"
+% mni
+lang_term    "<U006D><U006E><U0069>"
+% mni
+lang_lib    "<U006D><U006E><U0069>"
 END LC_ADDRESS
 
 
@@ -168,5 +180,6 @@ END LC_TELEPHONE
 
 
 LC_MEASUREMENT
-copy "bn_IN"
+% metric
+measurement 1
 END LC_MEASUREMENT

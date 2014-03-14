@@ -1,5 +1,5 @@
 /* This file is part of the GNU C Library.
-   Copyright (C) 2012-2013 Free Software Foundation, Inc.
+   Copyright (C) 2012-2014 Free Software Foundation, Inc.
    Contributed by Marek Polacek <polacek@redhat.com>, 2012.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,9 +28,9 @@ do_test (void)
   int result = 0;
   const long double x = 24.5;
   wchar_t a[16];
-  swprintf (a, sizeof (a), L"%La\n", x);
+  swprintf (a, sizeof a / sizeof a[0], L"%La\n", x);
   wchar_t A[16];
-  swprintf (A, sizeof (A) / sizeof (A[0]), L"%LA\n", x);
+  swprintf (A, sizeof A / sizeof A[0], L"%LA\n", x);
 
   /* Here wprintf can return four valid variants.  We must accept all
      of them.  */

@@ -1,5 +1,5 @@
 /* Raise given exceptions.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ __feraiseexcept (int excepts)
   /* First: invalid exception.  */
   if ((FE_INVALID & excepts) != 0)
     {
-      /* One example of a invalid operation is 0/0.  */
+      /* One example of an invalid operation is 0/0.  */
       __asm ("" : "=e" (d) : "0" (c.zero));
       d /= c.zero;
       __asm __volatile ("" : : "e" (d));

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@ rewinddir (dirp)
   dirp->filepos = 0;
   dirp->offset = 0;
   dirp->size = 0;
+  dirp->errcode = 0;
 #ifndef NOT_IN_libc
   __libc_lock_unlock (dirp->lock);
 #endif

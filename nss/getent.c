@@ -1,4 +1,4 @@
-/* Copyright (c) 1998-2013 Free Software Foundation, Inc.
+/* Copyright (c) 1998-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Thorsten Kukuk <kukuk@suse.de>, 1998.
 
@@ -87,7 +87,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2013");
+"), "2014");
   fprintf (stream, gettext ("Written by %s.\n"), "Thorsten Kukuk");
 }
 
@@ -788,8 +788,12 @@ services_keys (int number, char *key[])
       if (proto != NULL)
 	*proto++ = '\0';
 
-      if (isdigit (key[i][0]))
-	serv = getservbyport (htons (atol (key[i])), proto);
+      char *endptr;
+      long port = strtol (key[i], &endptr, 10);
+
+      if (isdigit (key[i][0]) && *endptr == '\0'
+	  && 0 <= port && port <= 65535)
+	serv = getservbyport (htons (port), proto);
       else
 	serv = getservbyname (key[i], proto);
 

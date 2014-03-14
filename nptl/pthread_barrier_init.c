@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
@@ -36,7 +36,7 @@ pthread_barrier_init (barrier, attr, count)
 {
   struct pthread_barrier *ibarrier;
 
-  if (__builtin_expect (count == 0, 0))
+  if (__glibc_unlikely (count == 0))
     return EINVAL;
 
   const struct pthread_barrierattr *iattr

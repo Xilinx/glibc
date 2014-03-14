@@ -1,5 +1,5 @@
 /* PLT fixups.  Sparc 64-bit version.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -115,7 +115,7 @@ sparc64_fixup_plt (struct link_map *map, const Elf64_Rela *reloc,
       /* ??? Some tricks can be stolen from the sparc64 egcs backend
 	     constant formation code I wrote.  -DaveM  */
 
-      if (__builtin_expect (high32 & 0x3ff, 0))
+      if (__glibc_unlikely (high32 & 0x3ff))
 	{
 	  /* sethi	%hh(value), %g1
 	     sethi	%lm(value), %g5

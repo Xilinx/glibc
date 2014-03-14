@@ -67,15 +67,11 @@ output-format = @libc_cv_output_format@
 
 static-libgcc = @libc_cv_gcc_static_libgcc@
 
-versioning = @VERSIONING@
 oldest-abi = @oldest_abi@
 exceptions = @exceptions@
 multi-arch = @multi_arch@
 
 mach-interface-list = @mach_interface_list@
-
-have-bash2 = @libc_cv_have_bash2@
-have-ksh = @libc_cv_have_ksh@
 
 sizeof-long-double = @sizeof_long_double@
 
@@ -95,6 +91,7 @@ link-obsolete-rpc = @link_obsolete_rpc@
 build-nscd = @build_nscd@
 use-nscd = @use_nscd@
 build-hardcoded-path-in-tests= @hardcoded_path_in_tests@
+build-pt-chown = @build_pt_chown@
 
 # Build tools.
 CC = @CC@
@@ -125,7 +122,6 @@ MSGFMT = @MSGFMT@
 
 # Script execution tools.
 BASH = @BASH_SHELL@
-KSH = @KSH@
 AWK = @AWK@
 PERL = @PERL@
 

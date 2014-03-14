@@ -1,5 +1,5 @@
 /* Compute radix independent exponent.
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gmail.com>, 2011.
 
@@ -34,7 +34,7 @@ __logb (double x)
   ex = ix >> 52;
   if (ex == 0x7ff)
     return x * x;
-  if (__builtin_expect (ex == 0, 0))
+  if (__glibc_unlikely (ex == 0))
     {
       int m = __builtin_clzll (ix);
       ex -= m - 12;

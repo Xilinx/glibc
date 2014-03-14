@@ -44,7 +44,7 @@ category  "es_US:2000";LC_PAPER
 category  "es_US:2000";LC_NAME
 category  "es_US:2000";LC_ADDRESS
 category  "es_US:2000";LC_TELEPHONE
-
+category  "es_US:2000";LC_MEASUREMENT
 END LC_IDENTIFICATION
 
 LC_COLLATE
@@ -187,6 +187,7 @@ int_prefix     "<U0031>"
 END LC_TELEPHONE
 
 LC_MEASUREMENT
+% US customary units
 measurement    2
 END LC_MEASUREMENT
 
@@ -208,4 +209,12 @@ country_ab3   "<U0055><U0053><U0041>"
 country_num   840
 country_car   "<U0055><U0053><U0041>"
 country_isbn  0
+% Español
+lang_name     "<U0045><U0073><U0070><U0061><U00F1><U006F><U006C>"
+% es
+lang_ab      "<U0065><U0073>"
+% spa
+lang_term    "<U0073><U0070><U0061>"
+% spa
+lang_lib    "<U0073><U0070><U0061>"
 END LC_ADDRESS

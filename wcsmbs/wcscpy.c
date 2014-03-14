@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
 
@@ -20,9 +20,13 @@
 #include <wchar.h>
 
 
+#ifndef WCSCPY
+# define WCSCPY wcscpy
+#endif
+
 /* Copy SRC to DEST.  */
 wchar_t *
-wcscpy (dest, src)
+WCSCPY (dest, src)
      wchar_t *dest;
      const wchar_t *src;
 {

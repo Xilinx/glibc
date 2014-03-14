@@ -1,4 +1,4 @@
-# Copyright (C) 1997-2013 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 
@@ -20,6 +20,8 @@
 #	Makefile for software floating-point routines
 #
 subdir	:= soft-fp
+
+include ../Makeconfig
 
 gcc-single-routines := negsf2 addsf3 subsf3 mulsf3 divsf3 eqsf2 \
 	lesf2 gesf2 unordsf2 fixsfsi fixunssfsi floatsisf fixsfdi        \

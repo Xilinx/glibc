@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2013 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Based on strlen implementation by Torbjorn Granlund (tege@sics.se),
    with help from Dan Sahlin (dan@sics.se) and
@@ -27,9 +27,13 @@
 #undef __strchrnul
 #undef strchrnul
 
+#ifndef STRCHRNUL
+# define STRCHRNUL __strchrnul
+#endif
+
 /* Find the first occurrence of C in S or the final NUL byte.  */
 char *
-__strchrnul (s, c_in)
+STRCHRNUL (s, c_in)
      const char *s;
      int c_in;
 {

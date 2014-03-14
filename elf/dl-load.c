@@ -1,5 +1,5 @@
 /* Map in a shared object's segments from the file.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -324,7 +324,7 @@ _dl_dst_substitute (struct link_map *l, const char *name, char *result,
   const char *const start = name;
 
   /* Now fill the result path.  While copying over the string we keep
-     track of the start of the last path element.  When we come accross
+     track of the start of the last path element.  When we come across
      a DST we copy over the value or (if the value is not available)
      leave the entire path element out.  */
   char *wp = result;
@@ -333,7 +333,7 @@ _dl_dst_substitute (struct link_map *l, const char *name, char *result,
 
   do
     {
-      if (__builtin_expect (*name == '$', 0))
+      if (__glibc_unlikely (*name == '$'))
 	{
 	  const char *repl = NULL;
 	  size_t len;
@@ -342,13 +342,7 @@ _dl_dst_substitute (struct link_map *l, const char *name, char *result,
 	  if ((len = is_dst (start, name, "ORIGIN", is_path,
 			     INTUSE(__libc_enable_secure))) != 0)
 	    {
-#ifndef SHARED
-	      if (l == NULL)
-		repl = _dl_get_origin ();
-	      else
-#endif
-		repl = l->l_origin;
-
+	      repl = l->l_origin;
 	      check_for_trusted = (INTUSE(__libc_enable_secure)
 				   && l->l_type == lt_executable);
 	    }
@@ -487,14 +481,19 @@ static size_t max_dirnamelen;
 
 static struct r_search_path_elem **
 fillin_rpath (char *rpath, struct r_search_path_elem **result, const char *sep,
-	      int check_trusted, const char *what, const char *where)
+	      int check_trusted, const char *what, const char *where,
+	      struct link_map *l)
 {
   char *cp;
   size_t nelems = 0;
+  char *to_free;
 
   while ((cp = __strsep (&rpath, sep)) != NULL)
     {
       struct r_search_path_elem *dirp;
+
+      to_free = cp = expand_dynamic_string_token (l, cp, 1);
+
       size_t len = strlen (cp);
 
       /* `strsep' can pass an empty string.  This has to be
@@ -515,7 +514,10 @@ fillin_rpath (char *rpath, struct r_search_path_elem **result, const char *sep,
 
       /* Make sure we don't use untrusted directories if we run SUID.  */
       if (__builtin_expect (check_trusted, 0) && !is_trusted_path (cp, len))
-	continue;
+	{
+	  free (to_free);
+	  continue;
+	}
 
       /* See if this directory is already known.  */
       for (dirp = GL(dl_all_dirs); dirp != NULL; dirp = dirp->next)
@@ -563,7 +565,7 @@ fillin_rpath (char *rpath, struct r_search_path_elem **result, const char *sep,
 	    dirp->status[cnt] = init_val;
 
 	  dirp->what = what;
-	  if (__builtin_expect (where != NULL, 1))
+	  if (__glibc_likely (where != NULL))
 	    dirp->where = memcpy ((char *) dirp + sizeof (*dirp) + len + 1
 				  + (ncapstr * sizeof (enum r_dir_status)),
 				  where, where_len);
@@ -576,6 +578,7 @@ fillin_rpath (char *rpath, struct r_search_path_elem **result, const char *sep,
 	  /* Put it in the result array.  */
 	  result[nelems++] = dirp;
 	}
+      free (to_free);
     }
 
   /* Terminate the array.  */
@@ -631,9 +634,8 @@ decompose_rpath (struct r_search_path_struct *sps,
       while (*inhp != '\0');
     }
 
-  /* Make a writable copy.  At the same time expand possible dynamic
-     string tokens.  */
-  copy = expand_dynamic_string_token (l, rpath, 1);
+  /* Make a writable copy.  */
+  copy = local_strdup (rpath);
   if (copy == NULL)
     {
       errstring = N_("cannot create RUNPATH/RPATH copy");
@@ -666,7 +668,7 @@ decompose_rpath (struct r_search_path_struct *sps,
       _dl_signal_error (ENOMEM, NULL, NULL, errstring);
     }
 
-  fillin_rpath (copy, result, ":", 0, what, where);
+  fillin_rpath (copy, result, ":", 0, what, where, l);
 
   /* Free the copied RPATH string.  `fillin_rpath' make own copies if
      necessary.  */
@@ -714,9 +716,7 @@ _dl_init_paths (const char *llp)
   const char *strp;
   struct r_search_path_elem *pelem, **aelem;
   size_t round_size;
-#ifdef SHARED
-  struct link_map *l;
-#endif
+  struct link_map __attribute__ ((unused)) *l = NULL;
   /* Initialize to please the compiler.  */
   const char *errstring = NULL;
 
@@ -836,7 +836,7 @@ _dl_init_paths (const char *llp)
 #ifdef SHARED
       /* Expand DSTs.  */
       size_t cnt = DL_DST_COUNT (llp, 1);
-      if (__builtin_expect (cnt == 0, 1))
+      if (__glibc_likely (cnt == 0))
 	llp_tmp = strdupa (llp);
       else
 	{
@@ -871,7 +871,7 @@ _dl_init_paths (const char *llp)
 
       (void) fillin_rpath (llp_tmp, env_path_list.dirs, ":;",
 			   INTUSE(__libc_enable_secure), "LD_LIBRARY_PATH",
-			   NULL);
+			   NULL, l);
 
       if (env_path_list.dirs[0] == NULL)
 	{
@@ -935,7 +935,7 @@ _dl_map_object_from_fd (const char *name, int fd, struct filebuf *fbp,
   bool make_consistent = false;
 
   /* Get file information.  */
-  if (__builtin_expect (__fxstat64 (_STAT_VER, fd, &st) < 0, 0))
+  if (__glibc_unlikely (__fxstat64 (_STAT_VER, fd, &st) < 0))
     {
       errstring = N_("cannot stat shared object");
     call_lose_errno:
@@ -999,7 +999,7 @@ _dl_map_object_from_fd (const char *name, int fd, struct filebuf *fbp,
     }
 
   /* Print debugging message.  */
-  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_FILES, 0))
+  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_FILES))
     _dl_debug_printf ("file=%s [%lu];  generating link map\n", name, nsid);
 
   /* This is the ELF header.  We read it in `open_verify'.  */
@@ -1057,7 +1057,7 @@ _dl_map_object_from_fd (const char *name, int fd, struct filebuf *fbp,
 
   /* Enter the new object in the list of loaded objects.  */
   l = _dl_new_object (realname, name, l_type, loader, mode, nsid);
-  if (__builtin_expect (l == NULL, 0))
+  if (__glibc_unlikely (l == NULL))
     {
 #ifdef SHARED
     fail_new:
@@ -1226,7 +1226,7 @@ cannot allocate TLS data structures for initial thread");
 
 	      /* Now we install the TCB in the thread register.  */
 	      errstring = TLS_INIT_TP (tcb, 0);
-	      if (__builtin_expect (errstring == NULL, 1))
+	      if (__glibc_likely (errstring == NULL))
 		{
 		  /* Now we are all good.  */
 		  l->l_tls_modid = ++GL(dl_tls_max_dtv_idx);
@@ -1256,7 +1256,7 @@ cannot allocate TLS data structures for initial thread");
 	  break;
 	}
 
-    if (__builtin_expect (nloadcmds == 0, 0))
+    if (__glibc_unlikely (nloadcmds == 0))
       {
 	/* This only happens for a bogus object that will be caught with
 	   another error below.  But we don't want to go through the
@@ -1294,7 +1294,7 @@ cannot allocate TLS data structures for initial thread");
 					      c->prot,
 					      MAP_COPY|MAP_FILE,
 					      fd, c->mapoff);
-	if (__builtin_expect ((void *) l->l_map_start == MAP_FAILED, 0))
+	if (__glibc_unlikely ((void *) l->l_map_start == MAP_FAILED))
 	  {
 	  map_error:
 	    errstring = N_("failed to map segment from shared object");
@@ -1321,7 +1321,7 @@ cannot allocate TLS data structures for initial thread");
 
     /* This object is loaded at a fixed address.  This must never
        happen for objects loaded with dlopen().  */
-    if (__builtin_expect ((mode & __RTLD_OPENEXEC) == 0, 0))
+    if (__glibc_unlikely ((mode & __RTLD_OPENEXEC) == 0))
       {
 	errstring = N_("cannot dynamically load executable");
 	goto call_lose;
@@ -1379,7 +1379,7 @@ cannot allocate TLS data structures for initial thread");
 	    if (zeropage > zero)
 	      {
 		/* Zero the final part of the last page of the segment.  */
-		if (__builtin_expect ((c->prot & PROT_WRITE) == 0, 0))
+		if (__glibc_unlikely ((c->prot & PROT_WRITE) == 0))
 		  {
 		    /* Dag nab it.  */
 		    if (__mprotect ((caddr_t) (zero
@@ -1391,7 +1391,7 @@ cannot allocate TLS data structures for initial thread");
 		      }
 		  }
 		memset ((void *) zero, '\0', zeropage - zero);
-		if (__builtin_expect ((c->prot & PROT_WRITE) == 0, 0))
+		if (__glibc_unlikely ((c->prot & PROT_WRITE) == 0))
 		  __mprotect ((caddr_t) (zero & ~(GLRO(dl_pagesize) - 1)),
 			      GLRO(dl_pagesize), c->prot);
 	      }
@@ -1403,7 +1403,7 @@ cannot allocate TLS data structures for initial thread");
 		mapat = __mmap ((caddr_t) zeropage, zeroend - zeropage,
 				c->prot, MAP_ANON|MAP_PRIVATE|MAP_FIXED,
 				-1, 0);
-		if (__builtin_expect (mapat == MAP_FAILED, 0))
+		if (__glibc_unlikely (mapat == MAP_FAILED))
 		  {
 		    errstring = N_("cannot map zero-fill pages");
 		    goto call_lose_errno;
@@ -1417,7 +1417,7 @@ cannot allocate TLS data structures for initial thread");
 
   if (l->l_ld == 0)
     {
-      if (__builtin_expect (type == ET_DYN, 0))
+      if (__glibc_unlikely (type == ET_DYN))
 	{
 	  errstring = N_("object file has no dynamic section");
 	  goto call_lose;
@@ -1467,7 +1467,7 @@ cannot allocate TLS data structures for initial thread");
     /* Adjust the PT_PHDR value by the runtime load address.  */
     l->l_phdr = (ElfW(Phdr) *) ((ElfW(Addr)) l->l_phdr + l->l_addr);
 
-  if (__builtin_expect ((stack_flags &~ GL(dl_stack_flags)) & PF_X, 0))
+  if (__glibc_unlikely ((stack_flags &~ GL(dl_stack_flags)) & PF_X))
     {
       if (__builtin_expect (__check_caller (RETURN_ADDRESS (0), allow_ldso),
 			    0) != 0)
@@ -1490,10 +1490,14 @@ cannot allocate TLS data structures for initial thread");
 	  const uintptr_t relro_end = ((m->l_addr + m->l_relro_addr
 					+ m->l_relro_size)
 				       & -GLRO(dl_pagesize));
-	  if (__builtin_expect (p + s <= relro_end, 1))
+	  if (__glibc_likely (p + s <= relro_end))
 	    {
 	      /* The variable lies in the region protected by RELRO.  */
-	      __mprotect ((void *) p, s, PROT_READ|PROT_WRITE);
+	      if (__mprotect ((void *) p, s, PROT_READ|PROT_WRITE) < 0)
+		{
+		  errstring = N_("cannot change memory protections");
+		  goto call_lose_errno;
+		}
 	      __stack_prot |= PROT_READ|PROT_WRITE|PROT_EXEC;
 	      __mprotect ((void *) p, s, PROT_READ);
 	    }
@@ -1522,7 +1526,7 @@ cannot enable executable stack as shared object requires");
     l->l_tls_initimage = (char *) l->l_tls_initimage + l->l_addr;
 
   /* We are done mapping in the file.  We no longer need the descriptor.  */
-  if (__builtin_expect (__close (fd) != 0, 0))
+  if (__glibc_unlikely (__close (fd) != 0))
     {
       errstring = N_("cannot close file descriptor");
       goto call_lose_errno;
@@ -1530,12 +1534,12 @@ cannot enable executable stack as shared object requires");
   /* Signal that we closed the file.  */
   fd = -1;
 
-  if (l->l_type == lt_library && type == ET_EXEC)
-    l->l_type = lt_executable;
+  /* If this is ET_EXEC, we should have loaded it as lt_executable.  */
+  assert (type != ET_EXEC || l->l_type == lt_executable);
 
   l->l_entry += l->l_addr;
 
-  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_FILES, 0))
+  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_FILES))
     _dl_debug_printf ("\
   dynamic: 0x%0*lx  base: 0x%0*lx   size: 0x%0*Zx\n\
     entry: 0x%0*lx  phdr: 0x%0*lx  phnum:   %*u\n\n",
@@ -1730,7 +1734,7 @@ open_verify (const char *name, struct filebuf *fbp, struct link_map *loader,
       unsigned int osversion;
       size_t maplength;
 
-      /* We successfully openened the file.  Now verify it is a file
+      /* We successfully opened the file.  Now verify it is a file
 	 we can use.  */
       __set_errno (0);
       fbp->len = 0;
@@ -1750,7 +1754,7 @@ open_verify (const char *name, struct filebuf *fbp, struct link_map *loader,
       ehdr = (ElfW(Ehdr) *) fbp->buf;
 
       /* Now run the tests.  */
-      if (__builtin_expect (fbp->len < (ssize_t) sizeof (ElfW(Ehdr)), 0))
+      if (__glibc_unlikely (fbp->len < (ssize_t) sizeof (ElfW(Ehdr))))
 	{
 	  errval = errno;
 	  errstring = (errval == 0
@@ -1935,7 +1939,7 @@ open_path (const char *name, size_t namelen, int secure,
   const char *current_what = NULL;
   int any = 0;
 
-  if (__builtin_expect (dirs == NULL, 0))
+  if (__glibc_unlikely (dirs == NULL))
     /* We're called before _dl_init_paths when loading the main executable
        given on the command line when rtld is run directly.  */
     return -1;
@@ -1973,7 +1977,7 @@ open_path (const char *name, size_t namelen, int secure,
 	     - buf);
 
 	  /* Print name we try if this is wanted.  */
-	  if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_LIBS, 0))
+	  if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_LIBS))
 	    _dl_debug_printf ("  trying file=%s\n", buf);
 
 	  fd = open_verify (buf, fbp, loader, whatcode, found_other_class,
@@ -2055,7 +2059,7 @@ open_path (const char *name, size_t namelen, int secure,
   while (*++dirs != NULL);
 
   /* Remove the whole path if none of the directories exists.  */
-  if (__builtin_expect (! any, 0))
+  if (__glibc_unlikely (! any))
     {
       /* Paths which were allocated using the minimal malloc() in ld.so
 	 must not be freed using the general free() in libc.  */
@@ -2161,7 +2165,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 
       size_t namelen = strlen (name) + 1;
 
-      if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_LIBS, 0))
+      if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_LIBS))
 	_dl_debug_printf ("find library=%s [%lu]; searching\n", name, nsid);
 
       fd = -1;
@@ -2229,23 +2233,17 @@ _dl_map_object (struct link_map *loader, const char *name,
 
 	  if (cached != NULL)
 	    {
-# ifdef SHARED
 	      // XXX Correct to unconditionally default to namespace 0?
 	      l = (loader
 		   ?: GL(dl_ns)[LM_ID_BASE]._ns_loaded
-		   ?: &GL(dl_rtld_map));
-# else
-	      l = loader;
+# ifdef SHARED
+		   ?: &GL(dl_rtld_map)
 # endif
+		  );
 
 	      /* If the loader has the DF_1_NODEFLIB flag set we must not
 		 use a cache entry from any of these directories.  */
-	      if (
-# ifndef SHARED
-		  /* 'l' is always != NULL for dynamically linked objects.  */
-		  l != NULL &&
-# endif
-		  __builtin_expect (l->l_flags_1 & DF_1_NODEFLIB, 0))
+	      if (__builtin_expect (l->l_flags_1 & DF_1_NODEFLIB, 0))
 		{
 		  const char *dirp = system_dirs;
 		  unsigned int cnt = 0;
@@ -2270,7 +2268,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 		  fd = open_verify (cached,
 				    &fb, loader ?: GL(dl_ns)[nsid]._ns_loaded,
 				    LA_SER_CONFIG, &found_other_class, false);
-		  if (__builtin_expect (fd != -1, 1))
+		  if (__glibc_likely (fd != -1))
 		    {
 		      realname = local_strdup (cached);
 		      if (realname == NULL)
@@ -2293,7 +2291,7 @@ _dl_map_object (struct link_map *loader, const char *name,
 			&realname, &fb, l, LA_SER_DEFAULT, &found_other_class);
 
       /* Add another newline when we are tracing the library loading.  */
-      if (__builtin_expect (GLRO(dl_debug_mask) & DL_DEBUG_LIBS, 0))
+      if (__glibc_unlikely (GLRO(dl_debug_mask) & DL_DEBUG_LIBS))
 	_dl_debug_printf ("\n");
     }
   else

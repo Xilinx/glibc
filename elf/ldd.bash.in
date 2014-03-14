@@ -1,5 +1,5 @@
 #! @BASH@
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ while test $# -gt 0; do
     printf $"Copyright (C) %s Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-" "2013"
+" "2014"
     printf $"Written by %s and %s.
 " "Roland McGrath" "Ulrich Drepper"
     exit 0
@@ -106,19 +106,18 @@ if test "$unused" = yes; then
   add_env="$add_env LD_DEBUG=\"$LD_DEBUG${LD_DEBUG:+,}unused\""
 fi
 
-# The following use of cat is needed to make ldd work in SELinux
-# environments where the executed program might not have permissions
-# to write to the console/tty.  But only bash 3.x supports the pipefail
-# option, and we don't bother to handle the case for older bash versions.
-if set -o pipefail 2> /dev/null; then
-  try_trace() {
-    eval $add_env '"$@"' | cat
-  }
-else
-  try_trace() {
-    eval $add_env '"$@"'
-  }
-fi
+# The following command substitution is needed to make ldd work in SELinux
+# environments where the RTLD might not have permission to write to the
+# terminal.  The extra "x" character prevents the shell from trimming trailing
+# newlines from command substitution results.  This function is defined as a
+# subshell compound list (using "(...)") to prevent parameter assignments from
+# affecting the calling shell execution environment.
+try_trace() (
+  output=$(eval $add_env '"$@"' 2>&1; rc=$?; printf 'x'; exit $rc)
+  rc=$?
+  printf '%s' "${output%x}"
+  return $rc
+)
 
 case $# in
 0)
