@@ -34,4 +34,3 @@ __tls_get_addr (tls_index *ti)
 }
 
 #endif
-

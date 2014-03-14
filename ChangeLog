@@ -28189,6 +28189,15 @@
 	* sysdeps/i386/dl-trampoline.S (_dl_runtime_profile): Fix cfi
 	directive.
 
+2011-09-01  Andreas Schwab  <schwab@redhat.com>
+
+	* resolv/res_query.c (__libc_res_nquery): Update assertion.
+
+2011-08-31  Andreas Schwab  <schwab@redhat.com>
+
+	* include/link.h (FORCED_DYNAMIC_TLS_OFFSET) [NO_TLS_OFFSET == 0]:
+	Change to -1.
+
 2011-08-24  David S. Miller  <davem@davemloft.net>
 
 	* sysdeps/sparc/sparc64/strcmp.S: Rewrite.
@@ -28994,6 +29003,14 @@
 	* config.make.in: Likewise.
 	* malloc/Makefile: Likewise.
 
+2011-06-28  Andreas Schwab  <schwab@redhat.com>
+
+	* iconvdata/gb18030.c: Update tables.
+	(BODY for FROM_LOOP): Handle non-BMP characters specially.
+
+	* sysdeps/posix/getaddrinfo.c (gaih_inet): Don't use gethostbyaddr
+	to determine canonical name.
+
 2011-06-27  Andreas Schwab  <schwab@redhat.com>
 
 	* iconvdata/gb18030.c (BODY for TO_LOOP): Fix encoding of non-BMP
@@ -29124,6 +29141,10 @@
 	branch using gethostbyname2 is only for AF_INET.  Optimize accordingly.
 
 	* inet/getnetgrent_r.c: Use DL_CALL_FCT in several places.
+
+2011-06-21  Andreas Schwab  <schwab@redhat.com>
+
+	* iconvdata/gb18030.c: Regenerate tables.
 
 2011-06-20  David S. Miller  <davem@davemloft.net>
 
@@ -29747,6 +29768,13 @@
 	* libio/Makefile (tests): Add bug-fclose1.
 	* libio/bug-fclose1.c: New file.
 
+2011-05-13  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/dl-load.c (is_dst): Remove parameter secure, all callers
+	changed.  Move check for valid use of $ORIGIN ...
+	(_dl_dst_substitute): ... here.  Reset check_for_trusted when a
+	path element is skipped.
+
 2011-05-12  Ulrich Drepper  <drepper@gmail.com>
 
 	[BZ #12511]
@@ -30024,13 +30052,6 @@
 	* stdlib/bug-getcontext.c: New file.
 	* stdlib/Makefile: Add rules to build and run bug-getcontext.
 
-2011-04-13  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
-
-	* sysdeps/s390/s390-64/utf16-utf32-z9.c: Wrap the z9-109
-	instructions into .machine "z9-109".
-	* sysdeps/s390/s390-64/utf8-utf16-z9.c: Likewise.
-	* sysdeps/s390/s390-64/utf8-utf32-z9.c: Likewise.
-
 2011-04-11  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
 
 	* sysdeps/s390/s390-32/elf/start.S (_start): Skip extra zeroes
@@ -30268,6 +30289,31 @@
 	* sysdeps/unix/sysv/linux/Versions [GLIBC_2.14] (clock_adjtime):
 	Export.
 
+2011-04-06  Andreas Schwab  <schwab@redhat.com>
+
+	* scripts/check-local-headers.sh: Ignore systemtap headers.
+
+2011-02-21  Roland McGrath  <roland@redhat.com>
+
+	* sysdeps/x86_64/__longjmp.S: Add a static probe here.
+	* sysdeps/x86_64/setjmp.S: Likewise.
+	* sysdeps/i386/bsd-setjmp.S: Likewise.
+	* sysdeps/i386/bsd-_setjmp.S: Likewise.
+	* sysdeps/i386/setjmp.S: Likewise.
+	* sysdeps/i386/__longjmp.S: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/____longjmp_chk.S: Likewise.
+	* sysdeps/unix/sysv/linux/i386/____longjmp_chk.S: Likewise.
+
+2011-02-08  Roland McGrath  <roland@redhat.com>
+
+	* include/stap-probe.h: New file.
+	* configure.in: Handle --enable-systemtap.
+	* configure: Regenerated.
+	* config.h.in (USE_STAP_PROBE): New #undef.
+	* extra-lib.mk (CPPFLAGS-$(lib)): Add -DIN_LIB=$(lib).
+	* elf/Makefile (CPPFLAGS-.os): Add -DIN_LIB=rtld.
+	* elf/rtld-Rules (rtld-CPPFLAGS): Likewise.
+
 2011-03-22  Ulrich Drepper  <drepper@gmail.com>
 
 	* sysdeps/unix/sysv/linux/i386/sysconf.c (intel_check_word): Increment
@@ -30327,6 +30373,16 @@
 	* sysdeps/sparc/sparc64/elf/configure.in (libc_cv_sparc64_tls): Add
 	$LDFLAGS and -nostdlib -nostartfiles to linking step.  Change main
 	to _start.
+
+2011-03-18  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/ldd.bash.in: Never run file directly.
+
+2011-03-07  Andreas Schwab  <schwab@redhat.com>
+
+	* include/link.h (struct link_map): Remove l_orig_initfini.
+	* elf/dl-close.c (_dl_close_worker): Revert its use.
+	* elf/dl-deps.c (_dl_map_object_deps): Likewise.
 
 2011-03-06  Ulrich Drepper  <drepper@gmail.com>
 
@@ -30543,6 +30599,12 @@
 
 	* shadow/sgetspent.c: Check return value of __sgetspent_r instead
 	of errno.
+
+2011-02-03  Andreas Schwab  <schwab@redhat.com>
+
+	* login/programs/pt_chown.c (main): Check for valid file
+	descriptor instead of privileges.  Be careful to drop all
+	capabilities when not needed.
 
 2011-01-19  Ulrich Drepper  <drepper@gmail.com>
 
@@ -31230,6 +31292,26 @@
 	[BZ #11611]
 	* sysdeps/unix/sysv/linux/internal_statvfs.c (INTERNAL_STATVFS):
 	Mask out sign-bit copies when constructing f_fsid.
+
+2010-09-27  Andreas Schwab  <schwab@redhat.com>
+
+	* include/link.h (struct link_map): Add l_free_initfini.
+	* elf/dl-deps.c (_dl_map_object_deps): Set it when assigning
+	l_initfini.
+	* elf/rtld.c (dl_main): Clear it on all objects loaded on startup.
+	* elf/dl-libc.c (free_mem): Free l_initfini if l_free_initfini is
+	set.
+
+	[BZ #11561]
+	* posix/regcomp.c (parse_bracket_exp): When looking up collating
+	elements compare against the byte sequence of it, not its name.
+
+	[BZ #6530]
+	* stdio-common/vfprintf.c (process_string_arg): Revert 2000-07-22
+	change.
+
+	* nss/nss_files/files-XXX.c (internal_getent): Declare linebuflen
+	as size_t.
 
 2010-09-24  Petr Baudis <pasky@suse.cz>
 
@@ -32023,6 +32105,17 @@
 	call returning > 0 value.
 	* sysdeps/unix/sysv/linux/getlogin.c (getlogin): Likewise.
 
+2010-07-01  Andreas Schwab  <schwab@redhat.com>
+
+	* include/sys/resource.h (__getrlimit): Add hidden proto.
+	* sysdeps/unix/sysv/linux/i386/getrlimit.c: Add libc_hidden_weak.
+	* sysdeps/mach/hurd/getrlimit.c: Add libc_hidden_def.
+	* resource/getrlimit.c: Likewise.
+
+2010-06-21  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/i386/i686/Makefile: Don't pass -mtune to assembler.
+
 2010-06-07  Andreas Schwab  <schwab@redhat.com>
 
 	* dlfcn/Makefile: Remove explicit dependencies on libc.so and
@@ -32074,6 +32167,21 @@
 	in AT_FLAGS.
 	* hurd/hurd/fd.h (__file_name_lookup_at): Update comment.
 	* sysdeps/mach/hurd/linkat.c (linkat): Pass O_NOLINK in FLAGS.
+
+2010-06-11  Andreas Schwab  <schwab@redhat.com>
+
+	* elf/rtld.c (_dl_starting_up): Always define.
+	(dl_main): Always set _dl_starting_up.
+	* elf/dl-support.c (_dl_starting_up): Always define.
+	* elf/dl-init.c (_dl_init): Always clear _dl_starting_up.
+
+2010-06-10  Andreas Schwab  <schwab@redhat.com>
+
+	* sysdeps/unix/sysv/linux/i386/Versions: Export __uname under
+	GLIBC_PRIVATE.
+	* nptl/Versions: Export __getrlimit under GLIBC_PRIVATE.
+	* sysdeps/unix/sysv/linux/i386/smp.h: Call __uname instead of uname.
+	* nptl/nptl-init.c: Call __getrlimit instead of getrlimit.
 
 2010-05-28  Luis Machado  <luisgpm@br.ibm.com>
 

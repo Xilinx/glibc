@@ -488,6 +488,14 @@
 	* tests-mbwc/tst_funcs.h (TST_DECL_VARS, TST_HEAD_LOCALE):
 	Remove unused variable.
 
+2011-06-28  Andreas Schwab  <schwab@redhat.com>
+
+	* charmaps/GB18030: Correct some entries.
+
+2011-06-21  Andreas Schwab  <schwab@redhat.com>
+
+	* charmaps/GB18030: Readd lost characters.
+
 2011-05-21  Ulrich Drepper  <drepper@gmail.com>
 
 	[BZ #12788]

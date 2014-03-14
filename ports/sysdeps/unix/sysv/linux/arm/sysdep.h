@@ -161,9 +161,9 @@ __local_syscall_error:						\
 	push	{ lr };						\
 	cfi_adjust_cfa_offset (4);				\
 	cfi_rel_offset (lr, 0);					\
-	push	{ r0 };	    					\
+	push	{ r0 };						\
 	cfi_adjust_cfa_offset (4);				\
-	bl	PLTJMP(C_SYMBOL_NAME(__errno_location)); 	\
+	bl	PLTJMP(C_SYMBOL_NAME(__errno_location));	\
 	pop	{ r1 };						\
 	cfi_adjust_cfa_offset (-4);				\
 	rsb	r1, r1, #0;					\
@@ -194,12 +194,12 @@ __local_syscall_error:						\
 
    The compiler is going to form a call by coming here, through PSEUDO, with
    arguments
-   	syscall number	in the DO_CALL macro
-   	arg 1		r0
-   	arg 2		r1
-   	arg 3		r2
-   	arg 4		r3
-   	arg 5		[sp]
+	syscall number	in the DO_CALL macro
+	arg 1		r0
+	arg 2		r1
+	arg 3		r2
+	arg 4		r3
+	arg 5		[sp]
 	arg 6		[sp+4]
 	arg 7		[sp+8]
 

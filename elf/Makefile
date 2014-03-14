@@ -53,6 +53,7 @@ CFLAGS-dl-iterate-phdr.c = $(uses-callbacks)
 ifeq ($(unwind-find-fde),yes)
 routines += unwind-dw2-fde-glibc
 shared-only-routines += unwind-dw2-fde-glibc
+CFLAGS-unwind-dw2-fde-glibc.c += -fno-strict-aliasing
 endif
 
 before-compile  = $(objpfx)trusted-dirs.h

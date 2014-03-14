@@ -39,4 +39,3 @@ versioned_symbol (libpthread, __pthread_cond_destroy, pthread_cond_destroy,
 # define __pthread_cond_destroy __pthread_cond_destroy_internal
 # include_next <pthread_cond_destroy.c>
 #endif
-

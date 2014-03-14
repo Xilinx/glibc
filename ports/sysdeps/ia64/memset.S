@@ -45,7 +45,7 @@
 #define ptr1		r28
 #define ptr2		r27
 #define ptr3		r26
-#define ptr9 		r24
+#define ptr9		r24
 #define	loopcnt		r23
 #define linecnt		r22
 #define bytecnt		r21
@@ -140,7 +140,7 @@ ENTRY(memset)
 
 { .mmi
 (p_yy)	st1	[ptr2] = value
-  	cmp.gt	p_scr, p0 = tmp, cnt		// is it a minimalistic task?
+	cmp.gt	p_scr, p0 = tmp, cnt		// is it a minimalistic task?
 } { .mbb
 (p_yy)	add	cnt = -1, cnt
 (p_scr)	br.cond.dpnt.many .fraction_of_line	// go move just a few
@@ -210,7 +210,7 @@ ENTRY(memset)
  { .mmi
 	store [ptr2] = myval, 8
 	store [ptr0] = myval, 32
- 	cmp.lt	p_scr, p0 = ptr9, ptr1		// do we need more prefetching?
+	cmp.lt	p_scr, p0 = ptr9, ptr1		// do we need more prefetching?
  ;; }
 { .mmb
 	store [ptr2] = myval, 24
@@ -268,7 +268,7 @@ ENTRY(memset)
  { .mmi
 	stf.spill [ptr2] = f0, 32
 	stf.spill [ptr0] = f0, 64
- 	cmp.lt	p_scr, p0 = ptr9, ptr1	// do we need more prefetching?
+	cmp.lt	p_scr, p0 = ptr9, ptr1	// do we need more prefetching?
  ;; }
 { .mmb
 	stf.spill [ptr2] = f0, 32
@@ -283,7 +283,7 @@ ENTRY(memset)
 .fraction_of_line:
 { .mib
 	add	ptr2 = 16, ptr1
-	shr.u	loopcnt = cnt, 5   	// loopcnt = cnt / 32
+	shr.u	loopcnt = cnt, 5	// loopcnt = cnt / 32
 ;; }
 { .mib
 	cmp.eq	p_scr, p0 = loopcnt, r0

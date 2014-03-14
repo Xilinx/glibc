@@ -22,7 +22,7 @@
    Inputs:
         in0:    dest
         in1:    src
-  	in2:	char
+	in2:	char
         in3:    byte count
 
    This implementation assumes little endian mode (UM.be = 0).
@@ -33,8 +33,8 @@
 #include <sysdep.h>
 #undef ret
 
-#define OP_T_THRES 	16
-#define OPSIZ 		8
+#define OP_T_THRES	16
+#define OPSIZ		8
 
 #define saved_pr	r17
 #define saved_lc	r18
@@ -62,7 +62,7 @@
 
 ENTRY(memccpy)
 	.prologue
-	alloc 	r2 = ar.pfs, 4, 40 - 4, 0, 40
+	alloc	r2 = ar.pfs, 4, 40 - 4, 0, 40
 
 #include "softpipe.h"
 	.rotr	r[MEMLAT + 7], tmp1[4], tmp2[4], val[4], tmp3[2], pos0[2]
@@ -71,12 +71,12 @@ ENTRY(memccpy)
 	mov	ret0 = r0		// return NULL if no match
 	.save pr, saved_pr
 	mov	saved_pr = pr		// save the predicate registers
-	mov 	dest = in0		// dest
+	mov	dest = in0		// dest
 	.save ar.lc, saved_lc
-        mov 	saved_lc = ar.lc	// save the loop counter
-        mov 	saved_ec = ar.ec	// save the loop counter
+        mov	saved_lc = ar.lc	// save the loop counter
+        mov	saved_ec = ar.ec	// save the loop counter
 	.body
-	mov 	src = in1		// src
+	mov	src = in1		// src
 	extr.u	char = in2, 0, 8	// char
 	mov	len = in3		// len
 	sub	tmp = r0, in0		// tmp = -dest
@@ -102,8 +102,8 @@ ENTRY(memccpy)
 (p6)	br.cond.spnt .foundit
 	br.cloop.dptk .l1
 .dest_aligned:
-	and	sh1 = 7, src 		// sh1 = src % 8
-	and	tmp = -8, len   	// tmp = len & -OPSIZ
+	and	sh1 = 7, src		// sh1 = src % 8
+	and	tmp = -8, len	// tmp = len & -OPSIZ
 	and	asrc = -8, src		// asrc = src & -OPSIZ  -- align src
 	shr.u	loopcnt = len, 3	// loopcnt = len / 8
 	and	len = 7, len ;;		// len = len % 8
@@ -112,17 +112,17 @@ ENTRY(memccpy)
 	mov     pr.rot = 1 << 16 ;;	// set rotating predicates
 	sub	sh2 = 64, sh1		// sh2 = 64 - sh1
 	mov	ar.lc = loopcnt		// set LC
-	cmp.eq  p6, p0 = sh1, r0 	// is the src aligned?
+	cmp.eq  p6, p0 = sh1, r0	// is the src aligned?
 (p6)    br.cond.sptk .src_aligned ;;
 	add	src = src, tmp		// src += len & -OPSIZ
-	mov	ar.ec = MEMLAT + 6 + 1 	// six more passes needed
-	ld8	r[1] = [asrc], 8 	// r[1] = w0
+	mov	ar.ec = MEMLAT + 6 + 1	// six more passes needed
+	ld8	r[1] = [asrc], 8	// r[1] = w0
 	cmp.ne	p6, p0 = r0, r0	;;	// clear p6
 	ALIGN(32)
 .l2:
 (p[0])		ld8.s	r[0] = [asrc], 8		// r[0] = w1
 (p[MEMLAT])	shr.u	tmp1[0] = r[1 + MEMLAT], sh1	// tmp1 = w0 >> sh1
-(p[MEMLAT])	shl	tmp2[0] = r[0 + MEMLAT], sh2  	// tmp2 = w1 << sh2
+(p[MEMLAT])	shl	tmp2[0] = r[0 + MEMLAT], sh2	// tmp2 = w1 << sh2
 (p[MEMLAT+4])	xor	tmp3[0] = val[1], charx8
 (p[MEMLAT+5])	czx1.r	pos0[0] = tmp3[1]
 (p[MEMLAT+6])	chk.s	r[6 + MEMLAT], .recovery1	// our data isn't
@@ -130,7 +130,7 @@ ENTRY(memccpy)
 (p[MEMLAT+6])	cmp.ne	p6, p0 = 8, pos0[1]
 (p6)		br.cond.spnt	.gotit
 (p[MEMLAT+6])	st8	[dest] = val[3], 8		// store val to dest
-(p[MEMLAT+3])	or	val[0] = tmp1[3], tmp2[3] 	// val = tmp1 | tmp2
+(p[MEMLAT+3])	or	val[0] = tmp1[3], tmp2[3]	// val = tmp1 | tmp2
 		br.ctop.sptk    .l2
 		br.cond.sptk .cpyfew
 
@@ -162,9 +162,9 @@ ENTRY(memccpy)
 .foundit:
 (p6)	mov	ret0 = dest
 .restore_and_exit:
-	mov     pr = saved_pr, -1    	// restore the predicate registers
-	mov 	ar.lc = saved_lc	// restore the loop counter
-	mov 	ar.ec = saved_ec ;;	// restore the epilog counter
+	mov     pr = saved_pr, -1	// restore the predicate registers
+	mov	ar.lc = saved_lc	// restore the loop counter
+	mov	ar.ec = saved_ec ;;	// restore the epilog counter
 	br.ret.sptk.many b0
 .gotit:
 	.pred.rel "mutex" p6, p7
@@ -176,7 +176,7 @@ ENTRY(memccpy)
 	st1	[dest] = tmp, 1
 	shr.u	value = value, 8
 	br.cloop.sptk .l5 ;;
-	mov 	ret0 = dest
+	mov	ret0 = dest
 	mov	pr = saved_pr, -1
 	mov	ar.lc = saved_lc
 	br.ret.sptk.many b0

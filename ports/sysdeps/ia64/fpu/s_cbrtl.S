@@ -982,5 +982,3 @@ GLOBAL_LIBM_ENTRY(cbrtl)
 ;;
 
 GLOBAL_LIBM_END(cbrtl)
-
-

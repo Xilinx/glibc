@@ -2042,6 +2042,9 @@
 	(__MATHDECL_2): Use __REDIRECT_NTH instead of __REDIRECT
 	followed by __THROW.
 
+	* sysdeps/unix/sysv/linux/futimesat.c (futimesat): If
+	file == NULL, use __futimes unconditionally.
+
 2006-02-02  Ulrich Drepper  <drepper@redhat.com>
 
 	* sysdeps/unix/sysv/linux/futimesat.c [__NR_futimesat]
@@ -2100,6 +2103,11 @@
 
 	* sysdeps/ieee754/ldbl-128/s_llrintl.c (__llrintl): Fix a typo.
 	* sysdeps/s390/fpu/libm-test-ulps: Remove llrint ulps.
+
+2006-01-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/stdlib-ldbl.h: New file.
+	* include/bits/wchar-ldbl.h: New file.
 
 2006-01-19  Thomas Schwinge  <tschwinge@gnu.org>
 

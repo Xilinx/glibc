@@ -256,6 +256,12 @@
 
 	* Makerules (libc-abis): Fix search for libc-abis in add-ons.
 
+2010-04-06  Ulrich Drepper  <drepper@redhat.com>
+
+	* sysdeps/posix/getaddrinfo.c (default_scopes): Assign global
+	scope to RFC 1918 addresses.
+	* posix/gai.conf: Document difference from RFC 3484.
+
 2010-04-05  Thomas Schwinge  <thomas@schwinge.name>
 
 	* sysdeps/gnu/unwind-resume.c: New, moved from nptl/sysdeps/pthread/.
@@ -2953,6 +2959,11 @@ d2009-10-30  Ulrich Drepper  <drepper@redhat.com>
 	* sysdeps/generic/ldsodefs.h (struct rtld_global): The map element in
 	the unique symbol hash table should not be const.
 
+2009-07-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* Makeconfig (ASFLAGS): Append $(sysdep-ASFLAGS).
+	* sysdeps/i386/Makefile (sysdep-ASFLAGS): Add -U__i686.
+
 2009-07-21  Ulrich Drepper  <drepper@redhat.com>
 
 	* sysdeps/x86_64/multiarch/strstr.c: Minor cleanups.  Remove
@@ -3217,6 +3228,11 @@ d2009-10-30  Ulrich Drepper  <drepper@redhat.com>
 	* sysdeps/x86_64/multiarch/init-arch.c (__init_cpu_features): Break
 	out common code into new function get_common_indeces. Determine
 	extended family and model for Intel processors.
+
+2009-06-26  Andreas Schwab  <aschwab@redhat.com>
+
+	* timezone/zic.c (stringzone): Don't try to generate a POSIX TZ
+	string when the timezone ends in DST.
 
 2009-06-26  Ulrich Drepper  <drepper@redhat.com>
 
@@ -11817,6 +11833,10 @@ d2009-10-30  Ulrich Drepper  <drepper@redhat.com>
 
 	[BZ #4368]
 	* stdlib/stdlib.h: Remove obsolete part of comment for realpath.
+
+2007-04-16  Jakub Jelinek  <jakub@redhat.com>
+
+	* locale/programs/locarchive.c (add_alias, insert_name): Remove static.
 
 2007-04-16  Ulrich Drepper  <drepper@redhat.com>
 

@@ -7,7 +7,7 @@
 @include macros.texi
 
 @comment Tell install-info what to do.
-@dircategory Software libraries
+@dircategory Libraries
 @direntry
 * Libc: (libc).                 C library.
 @end direntry

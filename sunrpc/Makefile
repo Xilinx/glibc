@@ -150,6 +150,10 @@ sunrpc-CPPFLAGS = -D_RPC_THREAD_SAFE_
 CPPFLAGS += $(sunrpc-CPPFLAGS)
 BUILD_CPPFLAGS += $(sunrpc-CPPFLAGS)
 
+CFLAGS-clnt_tcp.c += -fno-strict-aliasing
+CFLAGS-clnt_udp.c += -fno-strict-aliasing
+CFLAGS-clnt_unix.c += -fno-strict-aliasing
+
 $(objpfx)tst-getmyaddr: $(common-objpfx)linkobj/libc.so
 $(objpfx)tst-xdrmem: $(common-objpfx)linkobj/libc.so
 $(objpfx)tst-xdrmem2: $(common-objpfx)linkobj/libc.so

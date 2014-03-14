@@ -3541,4 +3541,3 @@ const Stringprep_table_element stringprep_rfc3454_D_2[] = {
   { 0x100000, 0x10FFFD },                                   /* 100000-10FFFD */
   { 0 },
 };
-

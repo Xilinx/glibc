@@ -107,7 +107,6 @@ static struct audit_list
   struct audit_list *next;
 } *audit_list;
 
-#ifndef HAVE_INLINED_SYSCALLS
 /* Set nonzero during loading and initialization of executable and
    libraries, cleared before the executable's entry point runs.  This
    must not be initialized to nonzero, because the unused dynamic
@@ -117,7 +116,6 @@ static struct audit_list
    never be called.  */
 int _dl_starting_up = 0;
 INTVARDEF(_dl_starting_up)
-#endif
 
 /* This is the structure which defines all variables global to ld.so
    (except those which cannot be added for some reason).  */
@@ -924,10 +922,8 @@ dl_main (const ElfW(Phdr) *phdr,
   /* Process the environment variable which control the behaviour.  */
   process_envvars (&mode);
 
-#ifndef HAVE_INLINED_SYSCALLS
   /* Set up a flag which tells we are just starting.  */
   INTUSE(_dl_starting_up) = 1;
-#endif
 
   if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
     {
@@ -2246,7 +2242,6 @@ ERROR: ld.so: object '%s' cannot be loaded as audit interface: %s; ignored.\n",
 
   /* Make sure no new search directories have been added.  */
   assert (GLRO(dl_init_all_dirs) == GL(dl_all_dirs));
-
   if (! prelinked && rtld_multiple_ref)
     {
       /* There was an explicit ref to the dynamic linker as a shared lib.

@@ -40,7 +40,12 @@ nice (int incr)
 	__set_errno (save);
     }
 
-  result = setpriority (PRIO_PROCESS, 0, prio + incr);
+  prio += incr;
+  if (prio < PRIO_MIN)
+    prio = PRIO_MIN;
+  else if (prio >= PRIO_MAX)
+    prio = PRIO_MAX - 1;
+  result = setpriority (PRIO_PROCESS, 0, prio);
   if (result == -1)
     {
       if (errno == EACCES)

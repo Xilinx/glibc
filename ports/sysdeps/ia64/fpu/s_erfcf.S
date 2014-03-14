@@ -978,6 +978,3 @@ LOCAL_LIBM_ENTRY(__libm_error_region)
 LOCAL_LIBM_END(__libm_error_region)
 .type   __libm_error_support#,@function
 .global __libm_error_support#
-
-
-

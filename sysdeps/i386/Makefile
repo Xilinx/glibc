@@ -2,6 +2,8 @@
 # Every i386 port in use uses gas syntax (I think).
 asm-CPPFLAGS += -DGAS_SYNTAX
 
+sysdep-ASFLAGS += -U__i686
+
 # The i386 `long double' is a distinct type we support.
 long-double-fcts = yes
 
@@ -62,6 +64,14 @@ endif
 
 ifneq (,$(filter -mno-tls-direct-seg-refs,$(CFLAGS)))
 defines += -DNO_TLS_DIRECT_SEG_REFS
+else
+# .a libraries are not performance critical and so we
+# build them without direct TLS segment references
+# always.
+CPPFLAGS-.o += -DNO_TLS_DIRECT_SEG_REFS
+CFLAGS-.o += -mno-tls-direct-seg-refs
+CPPFLAGS-.oS += -DNO_TLS_DIRECT_SEG_REFS
+CFLAGS-.oS += -mno-tls-direct-seg-refs
 endif
 
 ifeq ($(subdir),elf)

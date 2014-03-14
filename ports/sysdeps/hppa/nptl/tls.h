@@ -84,7 +84,7 @@ typedef struct
 /* Install new dtv for current thread.  */
 # define INSTALL_NEW_DTV(dtv) \
   ({ tcbhead_t *__tcbp = (tcbhead_t *)__get_cr27();	\
-   	__tcbp->dtv = dtv;				\
+	__tcbp->dtv = dtv;				\
    })
 
 /* Return dtv of given thread descriptor.  */
@@ -100,14 +100,14 @@ typedef struct
 /* Return the address of the dtv for the current thread.  */
 # define THREAD_DTV() \
   ({ tcbhead_t *__tcbp = (tcbhead_t *)__get_cr27();	\
-   	__tcbp->dtv;					\
+	__tcbp->dtv;					\
    })
 
 /* Return the thread descriptor for the current thread.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;			\
 	__self = __get_cr27();			\
-   	__self - 1;				\
+	__self - 1;				\
    })
 
 /* Magic for libthread_db to know how to do THREAD_SELF.

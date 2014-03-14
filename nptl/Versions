@@ -30,6 +30,7 @@ libc {
     __libc_alloca_cutoff;
     # Internal libc interface to libpthread
     __libc_dl_error_tsd;
+    __getrlimit;
   }
 }
 

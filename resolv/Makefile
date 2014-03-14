@@ -79,6 +79,7 @@ ifeq (yes,$(have-ssp))
 CFLAGS-libresolv += -fstack-protector
 endif
 CFLAGS-res_hconf.c = -fexceptions
+CFLAGS-res_send.c += -fno-strict-aliasing
 
 # The BIND code elicits some harmless warnings.
 +cflags += -Wno-strict-prototypes -Wno-write-strings

@@ -22,7 +22,7 @@
    Inputs:
         in0:    s1
         in1:    s2
-  	in2:	n
+	in2:	n
 
    Unlike memcmp(), this function is optimized for mismatches within the
    first few characters.  */

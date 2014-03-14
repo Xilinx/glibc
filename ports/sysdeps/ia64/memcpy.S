@@ -47,8 +47,8 @@
 #define MEMLAT	8
 #define Nrot	((4*(MEMLAT+2) + 7) & ~7)
 
-#define OP_T_THRES 	16
-#define OPSIZ 		8
+#define OP_T_THRES	16
+#define OPSIZ		8
 
 #define loopcnt		r14
 #define elemcnt		r15
@@ -69,7 +69,7 @@
 #define ptr1		r30
 #define ptr2		r31
 
-#define movi0 		mov
+#define movi0		mov
 
 #define p_scr		p6
 #define p_xtr		p7
@@ -122,7 +122,7 @@
 } { .mib							\
 (p[MEMLAT+1]) st8 [dest] = tmp3, 8 ;				\
 (p[MEMLAT]) shrp tmp3 = r[MEMLAT], s[MEMLAT+1], shift ;		\
- 	nop.b 0 ;;						\
+	nop.b 0 ;;						\
  } { .mmb							\
 (p[0])	ld8.nt1	s[0] = [asrc], 8 ;				\
 (p[0])	lfetch.nt1	[ptr2], 16 ;				\
@@ -130,7 +130,7 @@
 } { .mib							\
 (p[MEMLAT+1]) st8 [dest] = tmp4, 8 ;				\
 (p[MEMLAT]) shrp tmp4 = s[MEMLAT], r[MEMLAT], shift ;		\
-	br.ctop.sptk.many .loop##shift 				\
+	br.ctop.sptk.many .loop##shift				\
 ;; }								\
 { .mib								\
 	br.cond.sptk.many .copy_bytes ; /* deal with the remaining bytes */  \
@@ -145,14 +145,14 @@
 } { .mib							\
 (p[MEMLAT+1]) st8 [dest] = tmp3, 8 ;				\
 (p[MEMLAT]) shrp tmp3 = r[MEMLAT], s[MEMLAT+1], shift ;		\
- 	nop.b 0 ;;						\
+	nop.b 0 ;;						\
  } { .mmb							\
 (p[0])	ld8.nt1	s[0] = [asrc], 8 ;				\
 	nop.b 0 ;						\
 } { .mib							\
 (p[MEMLAT+1]) st8 [dest] = tmp4, 8 ;				\
 (p[MEMLAT]) shrp tmp4 = s[MEMLAT], r[MEMLAT], shift ;		\
-	br.ctop.sptk.many .loop##shift 				\
+	br.ctop.sptk.many .loop##shift				\
 ;; }								\
 { .mib								\
 	br.cond.sptk.many .copy_bytes ; /* deal with the remaining bytes */  \
@@ -163,7 +163,7 @@
 ENTRY(memcpy)
 { .mmi
 	.prologue
-	alloc 	r2 = ar.pfs, 3, Nrot - 3, 0, Nrot
+	alloc	r2 = ar.pfs, 3, Nrot - 3, 0, Nrot
 	.rotr	r[MEMLAT+1], s[MEMLAT+2], q[MEMLAT+1], t[MEMLAT+1]
 	.rotp	p[MEMLAT+2]
 	.rotf	fr[MEMLAT+1], fq[MEMLAT+1], fs[MEMLAT+1], ft[MEMLAT+1]
@@ -171,19 +171,19 @@ ENTRY(memcpy)
 	.save   pr, saved_pr
 	movi0	saved_pr = pr		// save the predicate registers
 } { .mmi
-	and	tmp4 = 7, in0 		// check if destination is aligned
-	mov 	dest = in0		// dest
-	mov 	src = in1		// src
+	and	tmp4 = 7, in0		// check if destination is aligned
+	mov	dest = in0		// dest
+	mov	src = in1		// src
 ;; }
 { .mii
 	cmp.eq	p_scr, p0 = in2, r0	// if (len == 0)
 	.save   ar.lc, saved_lc
-        movi0 	saved_lc = ar.lc	// save the loop counter
+        movi0	saved_lc = ar.lc	// save the loop counter
 	.body
 	cmp.ge	p_few, p0 = OP_T_THRES, in2 // is len <= OP_T_THRESH
 } { .mbb
 	mov	len = in2		// len
-(p_scr)	br.cond.dpnt.few .restore_and_exit // 	Branch no. 1: return dest
+(p_scr)	br.cond.dpnt.few .restore_and_exit //	Branch no. 1: return dest
 (p_few) br.cond.dpnt.many .copy_bytes	// Branch no. 2: copy byte by byte
 ;; }
 { .mmi
@@ -243,12 +243,12 @@ ENTRY(memcpy)
 
 { .mmi
 (p_xtr)	load	tempreg = [src], 8
-(p_xtr) add 	elemcnt = -1, elemcnt
+(p_xtr) add	elemcnt = -1, elemcnt
 	movi0	ar.ec = MEMLAT + 1	// set the epilog counter
 ;; }
 { .mmi
 (p_xtr) add	len = -8, len		//
-	add 	asrc = 16, src 		// one bank apart (for USE_INT)
+	add	asrc = 16, src		// one bank apart (for USE_INT)
 	shr.u	loopcnt = elemcnt, ALIGN_UNROLL_sh  // cater for unrolling
 ;;}
 { .mmi
@@ -258,7 +258,7 @@ ENTRY(memcpy)
 ;; }
 { .mib
 	add	adest = 16, dest
-	movi0	ar.lc = loopcnt 	// set the loop counter
+	movi0	ar.lc = loopcnt	// set the loop counter
 ;; }
 
 #ifdef  GAS_ALIGN_BREAKS_UNWIND_INFO
@@ -375,16 +375,16 @@ ENTRY(memcpy)
 .src_not_aligned:
 { .mmi
 	cmp.gt	p_scr, p0 = 16, len
-	and	sh1 = 7, src 		// sh1 = src % 8
+	and	sh1 = 7, src		// sh1 = src % 8
 	shr.u	loopcnt = len, 4	// element-cnt = len / 16
 } { .mib
 	add	tmp4 = @ltoff(.table), gp
-	add 	tmp3 = @ltoff(.loop56), gp
+	add	tmp3 = @ltoff(.loop56), gp
 (p_scr)	br.cond.dpnt.many .copy_bytes	// do byte by byte if too few
 ;; }
 { .mmi
 	and	asrc = -8, src		// asrc = (-8) -- align src for loop
-	add 	loopcnt = -1, loopcnt	// loopcnt--
+	add	loopcnt = -1, loopcnt	// loopcnt--
 	shl	sh1 = sh1, 3		// sh1 = 8 * (src % 8)
 } { .mmi
 	ld8	ptable = [tmp4]		// ptable = &table
@@ -399,7 +399,7 @@ ENTRY(memcpy)
 { .mmi
 	ld8	tmp4 = [tmp3]		// tmp4 = loop offset
 	sub	len = len, tmp2		// len -= len & (-16)
-	movi0	ar.ec = MEMLAT + 2 	// one more pass needed
+	movi0	ar.ec = MEMLAT + 2	// one more pass needed
 ;; }
 { .mmi
 	ld8	s[1] = [asrc], 8	// preload
@@ -426,9 +426,9 @@ libc_hidden_builtin_def (memcpy)
 	.align 8
 .table:
 	data8	0			// dummy entry
-	data8 	.loop56 - .loop8
-	data8 	.loop56 - .loop16
-	data8 	.loop56 - .loop24
+	data8	.loop56 - .loop8
+	data8	.loop56 - .loop16
+	data8	.loop56 - .loop24
 	data8	.loop56 - .loop32
 	data8	.loop56 - .loop40
 	data8	.loop56 - .loop48

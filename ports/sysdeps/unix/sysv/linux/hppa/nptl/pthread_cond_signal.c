@@ -39,4 +39,3 @@ versioned_symbol (libpthread, __pthread_cond_signal, pthread_cond_signal,
 # define __pthread_cond_signal __pthread_cond_signal_internal
 # include_next <pthread_cond_signal.c>
 #endif
-

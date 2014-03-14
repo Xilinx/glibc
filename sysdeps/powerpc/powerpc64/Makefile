@@ -35,6 +35,8 @@ CFLAGS-rtld-memmove.os = $(no-special-regs)
 CFLAGS-rtld-memchr.os = $(no-special-regs)
 CFLAGS-rtld-strnlen.os = $(no-special-regs)
 
+CFLAGS-libc-start.c += -fno-asynchronous-unwind-tables
+
 ifeq ($(subdir),csu)
 sysdep_routines += hp-timing
 elide-routines.os += hp-timing

@@ -72,15 +72,15 @@ ENTRY(__getcontext)
 .mem.offset 0,0; st8.spill [r2] = r7, (SC_FR+2*16-(SC_GR+7*8))
 .mem.offset 8,0; st8.spill [r3] = sp, (SC_FR+3*16-(SC_GR+12*8))
 	;;
-	mov.m ar.rsc = rTMP 		// put RSE into enforced lazy mode
+	mov.m ar.rsc = rTMP		// put RSE into enforced lazy mode
 	mov.m rNAT = ar.unat
 	mov.i rLC = ar.lc
 	;;
 	mov.m rRNAT = ar.rnat
-	mov.m ar.rsc = rRSC 		// restore RSE mode
+	mov.m ar.rsc = rRSC		// restore RSE mode
 	mov rPR = pr
 
- 	/*
+	/*
 	 * Rotate NaT bits by rPOS positions to the right:
 	 */
 	stf.spill [r2] = f2, 32

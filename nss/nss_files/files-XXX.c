@@ -188,7 +188,7 @@ internal_getent (struct STRUCTURE *result,
 {
   char *p;
   struct parser_data *data = (void *) buffer;
-  int linebuflen = buffer + buflen - data->linebuffer;
+  size_t linebuflen = buffer + buflen - data->linebuffer;
   int parse_result;
 
   if (buflen < sizeof *data + 2)

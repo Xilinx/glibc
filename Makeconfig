@@ -866,7 +866,7 @@ endif
 ifndef ASFLAGS
 ASFLAGS := $(filter -g% -fdebug-prefix-map=%,$(CFLAGS))
 endif
-ASFLAGS += $(ASFLAGS-config) $(asflags-cpu)
+ASFLAGS += $(ASFLAGS-config) $(asflags-cpu) $(sysdep-ASFLAGS)
 
 ifndef BUILD_CC
 BUILD_CC = $(CC)

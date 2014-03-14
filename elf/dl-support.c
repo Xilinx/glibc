@@ -117,10 +117,8 @@ struct r_scope_elem _dl_initial_searchlist =
     .r_nlist = 1,
   };
 
-#ifndef HAVE_INLINED_SYSCALLS
 /* Nonzero during startup.  */
 int _dl_starting_up = 1;
-#endif
 
 /* Random data provided by the kernel.  */
 void *_dl_random;

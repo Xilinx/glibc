@@ -40,4 +40,3 @@ versioned_symbol (libpthread, __pthread_cond_init, pthread_cond_init,
 # define __pthread_cond_init __pthread_cond_init_internal
 # include_next <pthread_cond_init.c>
 #endif
-

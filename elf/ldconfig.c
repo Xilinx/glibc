@@ -1041,17 +1041,19 @@ search_dirs (void)
 
 
 static void parse_conf_include (const char *config_file, unsigned int lineno,
-				bool do_chroot, const char *pattern);
+				const char *prefix, bool do_chroot,
+				const char *pattern);
 
 /* Parse configuration file.  */
 static void
-parse_conf (const char *filename, bool do_chroot)
+parse_conf (const char *filename, const char *prefix, bool do_chroot)
 {
   FILE *file = NULL;
   char *line = NULL;
   const char *canon;
   size_t len = 0;
   unsigned int lineno;
+  size_t prefix_len = prefix ? strlen (prefix) : 0;
 
   if (do_chroot && opt_chroot)
     {
@@ -1114,7 +1116,14 @@ Warning: ignoring configuration file that cannot be opened: %s"),
 	  cp += 8;
 	  while ((dir = strsep (&cp, " \t")) != NULL)
 	    if (dir[0] != '\0')
-	      parse_conf_include (filename, lineno, do_chroot, dir);
+	      parse_conf_include (filename, lineno, prefix, do_chroot, dir);
+	}
+      else if (prefix != NULL)
+	{
+	  size_t cp_len = strlen (cp);
+	  char new_cp [prefix_len + cp_len + 1];
+	  memcpy (mempcpy (new_cp, prefix, prefix_len), cp, cp_len + 1);
+	  add_dir (new_cp);
 	}
       else if (!strncasecmp (cp, "hwcap", 5) && isblank (cp[5]))
 	{
@@ -1177,7 +1186,7 @@ Warning: ignoring configuration file that cannot be opened: %s"),
    config files to read.  */
 static void
 parse_conf_include (const char *config_file, unsigned int lineno,
-		    bool do_chroot, const char *pattern)
+		    const char *prefix, bool do_chroot, const char *pattern)
 {
   if (opt_chroot && pattern[0] != '/')
     error (EXIT_FAILURE, 0,
@@ -1209,7 +1218,7 @@ parse_conf_include (const char *config_file, unsigned int lineno,
     {
     case 0:
       for (size_t i = 0; i < gl.gl_pathc; ++i)
-	parse_conf (gl.gl_pathv[i], false);
+	parse_conf (gl.gl_pathv[i], prefix, false);
       globfree64 (&gl);
       break;
 
@@ -1251,6 +1260,8 @@ main (int argc, char **argv)
 
   /* Set the text message domain.  */
   textdomain (_libc_intl_domainname);
+
+  arch_startup (argc, argv);
 
   /* Parse and process arguments.  */
   int remaining;
@@ -1365,12 +1376,14 @@ main (int argc, char **argv)
 
   if (!opt_only_cline)
     {
-      parse_conf (config_file, true);
+      parse_conf (config_file, NULL, true);
 
       /* Always add the standard search paths.  */
       add_system_dir (SLIBDIR);
       if (strcmp (SLIBDIR, LIBDIR))
 	add_system_dir (LIBDIR);
+
+      add_arch_dirs (config_file);
     }
 
   const char *aux_cache_file = _PATH_LDCONFIG_AUX_CACHE;

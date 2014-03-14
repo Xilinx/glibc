@@ -39,4 +39,3 @@ versioned_symbol (libpthread, __pthread_cond_broadcast, pthread_cond_broadcast,
 # define __pthread_cond_broadcast __pthread_cond_broadcast_internal
 # include_next <pthread_cond_broadcast.c>
 #endif
-
