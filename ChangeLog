@@ -1,4 +1,7 @@
-2014-06-11  Roland McGrath  <roland@hack.frob.com>
+2014-06-20  Roland McGrath  <roland@hack.frob.com>
+
+	* sysdeps/microblaze/nptl/tls.h (TLS_DEFINE_INIT_TP): New macro.
+	* sysdeps/unix/sysv/linux/microblaze/nptl/createthread.c: File removed.
 
 	* sysdeps/unix/sysv/linux/microblaze/arch-fork.h: New file.
 	* sysdeps/unix/sysv/linux/microblaze/nptl/fork.c: File removed.
