@@ -196,17 +196,18 @@ typedef uintmax_t uatomic_max_t;
     int test;                                                                  \
     __asm __volatile (                                                         \
                 "   addc    r0, r0, r0;"                                       \
-                "1: lwx     %0, %3, r0;"                                       \
+                "1: lwx     %0, %4, r0;"                                       \
                 "   addic   %1, r0, 0;"                                        \
                 "   bnei    %1, 1b;"                                           \
-                "   addi    %0, %0, 1;"                                        \
-                "   swx     %0, %3, r0;"                                       \
+		"   addi    %3, %0, 1;"                                        \
+                "   swx     %3, %4, r0;"                                       \
                 "   addic   %1, r0, 0;"                                        \
                 "   bnei    %1, 1b;"                                           \
-                    : "=&r" (__val),                                           \
+                    : "=&r" (__tmp),                                           \
                     "=&r" (test),                                              \
-                    "=m" (*mem)                                                \
-                    : "r" (mem),                                               \
+		    "=m" (*mem),					       \
+		    "=&r" (__val)                                              \
+		    : "r" (mem),					       \
                     "m" (*mem)                                                 \
                     : "cc", "memory");                                         \
     __val;                                                                     \
@@ -231,20 +232,23 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_atomic_decrement_val_32(mem)                                    \
   ({                                                                           \
-    __typeof (*(mem)) __val;                                                   \
+    __typeof (*(mem)) __tmp;     					       \
+    __typeof (*(mem)) __val;						       \
     int test;                                                                  \
     __asm __volatile (                                                         \
                 "   addc    r0, r0, r0;"                                       \
-                "1: lwx     %0, %3, r0;"                                       \
+                "1: lwx     %0, %4, r0;"                                       \
                 "   addic   %1, r0, 0;"                                        \
                 "   bnei    %1, 1b;"                                           \
-                "   rsubi   %0, %0, 1;"                                        \
-                "   swx     %0, %3, r0;"                                       \
+		"   addi    %1, r0, 1;"                                        \
+                "   rsub    %3, %1, %0;"				       \
+                "   swx     %3, %4, r0;"                                       \
                 "   addic   %1, r0, 0;"                                        \
                 "   bnei    %1, 1b;"                                           \
-                    : "=&r" (__val),                                           \
+                    : "=&r" (__tmp),                                           \
                     "=&r" (test),                                              \
-                    "=m" (*mem)                                                \
+		    "=m" (*mem),					       \
+		    "=&r" (__val)                                              \
                     : "r" (mem),                                               \
                     "m" (*mem)                                                 \
                     : "cc", "memory");                                         \
