@@ -192,7 +192,8 @@ typedef uintmax_t uatomic_max_t;
 
 #define __arch_atomic_increment_val_32(mem)                                    \
   ({                                                                           \
-    __typeof (*(mem)) __val;                                                   \
+    __typeof (*(mem)) __tmp;						       \
+    __typeof (*(mem)) __val;						       \
     int test;                                                                  \
     __asm __volatile (                                                         \
                 "   addc    r0, r0, r0;"                                       \
